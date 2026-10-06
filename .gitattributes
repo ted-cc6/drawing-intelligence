@@ -2,5 +2,15 @@
 * text=auto eol=lf
 *.bat text eol=crlf
 *.ps1 text eol=crlf
+
+# Binary files: never touch line endings, never try to diff or merge them as text.
 *.pdf binary
+*.PDF binary
 *.png binary
+*.jpg binary
+*.jpeg binary
+*.dwg binary
+*.DWG binary
+*.xlsx binary
+*.docx binary
+*.db binary

@@ -1,15 +1,6 @@
-# --- client data and everything derived from it: never commit ---
-data/*
-!data/README.md
-*.pdf
-*.png
-*.jpg
-*.jpeg
-*.dwg
-*.db
-*.sqlite
+# Client data in data/ IS committed (ADR 0007). Only secrets and local tooling are ignored.
 
-# --- secrets ---
+# --- secrets: never commit ---
 .env
 .env.*
 !.env.example
@@ -34,3 +25,4 @@ build/
 .idea/
 .DS_Store
 Thumbs.db
+~$*

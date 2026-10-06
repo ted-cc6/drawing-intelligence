@@ -1,0 +1,667 @@
+{
+ "drawing": {
+  "number": "P24BSP810318",
+  "title": "31K_PIPE CLAMP BLK_02",
+  "revision": "00",
+  "material": "M.S.",
+  "surface_treatment": "PAINTING",
+  "heat_treatment": "N.A.",
+  "scale": "1 : 1",
+  "sheet_size": "A3",
+  "units": "mm",
+  "general_tolerance_standard": "IS 2102",
+  "drawn_date": "07/04/2026",
+  "checked_date": "07/04/2026",
+  "approved_date": "07/04/2026",
+  "weight": "0.46 kg"
+ },
+ "views": [
+  {
+   "id": "view1",
+   "name": "TOP VIEW",
+   "scale": "1 : 1"
+  },
+  {
+   "id": "view2",
+   "name": "FRONT VIEW",
+   "scale": "1 : 1"
+  },
+  {
+   "id": "view3",
+   "name": "SECTION A-A",
+   "scale": "1:1"
+  },
+  {
+   "id": "view4",
+   "name": "ISOMETRIC VIEW",
+   "scale": null
+  }
+ ],
+ "dimensions": [
+  {
+   "id": "D1",
+   "text": "15",
+   "value": 15,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": "F1",
+   "source": "pdf_text",
+   "bbox": [
+    182.5,
+    169.9,
+    193.1,
+    179.5
+   ]
+  },
+  {
+   "id": "D2",
+   "text": "70±0.2",
+   "value": 70,
+   "unit": "mm",
+   "tolerance": "±0.2",
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": "F1",
+   "source": "pdf_text",
+   "bbox": [
+    293.0,
+    161.4,
+    323.5,
+    171.0
+   ]
+  },
+  {
+   "id": "D3",
+   "text": "3 x 45°",
+   "value": 3,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "chamfer",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": "F2",
+   "source": "pdf_text",
+   "bbox": [
+    460.2,
+    168.3,
+    489.8,
+    177.8
+   ]
+  },
+  {
+   "id": "D4",
+   "text": "30",
+   "value": 30,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": "F3",
+   "source": "pdf_text",
+   "bbox": [
+    122.0,
+    228.7,
+    131.6,
+    239.3
+   ]
+  },
+  {
+   "id": "D5",
+   "text": "15",
+   "value": 15,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": "F1",
+   "source": "pdf_text",
+   "bbox": [
+    149.9,
+    249.9,
+    159.4,
+    260.5
+   ]
+  },
+  {
+   "id": "D6",
+   "text": "R 21.5",
+   "value": 21.5,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "radius",
+   "is_reference": false,
+   "view_id": "view2",
+   "feature_id": "F4",
+   "source": "pdf_text",
+   "bbox": [
+    348.8,
+    356.9,
+    378.4,
+    366.5
+   ]
+  },
+  {
+   "id": "D7",
+   "text": "2-⌀6.4",
+   "value": 6.4,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "count_x_diameter",
+   "is_reference": false,
+   "view_id": "view3",
+   "feature_id": "F7",
+   "source": "pdf_text",
+   "bbox": [
+    694.9,
+    375.7,
+    725.8,
+    386.5
+   ]
+  },
+  {
+   "id": "D8",
+   "text": "1.5",
+   "value": 1.5,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view2",
+   "feature_id": "F4",
+   "source": "pdf_text",
+   "bbox": [
+    142.7,
+    389.2,
+    152.2,
+    402.6
+   ]
+  },
+  {
+   "id": "D9",
+   "text": "49",
+   "value": 49,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view2",
+   "feature_id": "F4",
+   "source": "pdf_text",
+   "bbox": [
+    230.7,
+    384.5,
+    241.3,
+    394.1
+   ]
+  },
+  {
+   "id": "D10",
+   "text": "28",
+   "value": 28,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view2",
+   "feature_id": "F5",
+   "source": "pdf_text",
+   "bbox": [
+    139.4,
+    453.0,
+    149.0,
+    463.6
+   ]
+  },
+  {
+   "id": "D11",
+   "text": "15",
+   "value": 15,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view3",
+   "feature_id": "F8",
+   "source": "pdf_text",
+   "bbox": [
+    727.7,
+    471.4,
+    737.2,
+    482.0
+   ]
+  },
+  {
+   "id": "D12",
+   "text": "3 x 45°",
+   "value": 3,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "chamfer",
+   "is_reference": false,
+   "view_id": "view2",
+   "feature_id": "F6",
+   "source": "pdf_text",
+   "bbox": [
+    461.2,
+    494.8,
+    491.0,
+    504.3
+   ]
+  },
+  {
+   "id": "D13",
+   "text": "3 x 45°",
+   "value": 3,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "chamfer",
+   "is_reference": false,
+   "view_id": "view3",
+   "feature_id": "F9",
+   "source": "pdf_text",
+   "bbox": [
+    583.6,
+    508.0,
+    613.4,
+    517.5
+   ]
+  },
+  {
+   "id": "D14",
+   "text": "100",
+   "value": 100,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view2",
+   "feature_id": "F5",
+   "source": "pdf_text",
+   "bbox": [
+    300.3,
+    529.2,
+    316.3,
+    538.8
+   ]
+  },
+  {
+   "id": "D15",
+   "text": "2-⌀11",
+   "value": 11,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "count_x_diameter",
+   "is_reference": false,
+   "view_id": "view3",
+   "feature_id": "F8",
+   "source": "pdf_text",
+   "bbox": [
+    690.0,
+    520.7,
+    718.2,
+    531.6
+   ]
+  }
+ ],
+ "features": [
+  {
+   "id": "F1",
+   "type": "hole",
+   "description": "Two mounting-hole locations: D1 locates the left hole from the left end, D2 sets center spacing, and D5 locates the hole centerline from the lower plan edge.",
+   "dimension_ids": [
+    "D1",
+    "D2",
+    "D5"
+   ],
+   "view_id": "view1"
+  },
+  {
+   "id": "F2",
+   "type": "chamfer",
+   "description": "Typical plan-corner chamfers on the vertical outer edges.",
+   "dimension_ids": [
+    "D3"
+   ],
+   "view_id": "view1"
+  },
+  {
+   "id": "F3",
+   "type": "outline",
+   "description": "Overall block width.",
+   "dimension_ids": [
+    "D4"
+   ],
+   "view_id": "view1"
+  },
+  {
+   "id": "F4",
+   "type": "slot",
+   "description": "Open cylindrical pipe seat running across the block width. D6 gives its radius; D8 places its center above the top face; D9 locates its center from the left end.",
+   "dimension_ids": [
+    "D6",
+    "D8",
+    "D9"
+   ],
+   "view_id": "view2"
+  },
+  {
+   "id": "F5",
+   "type": "outline",
+   "description": "Overall block height and length.",
+   "dimension_ids": [
+    "D10",
+    "D14"
+   ],
+   "view_id": "view2"
+  },
+  {
+   "id": "F6",
+   "type": "chamfer",
+   "description": "Typical bottom end-edge chamfers shown in the front view.",
+   "dimension_ids": [
+    "D12"
+   ],
+   "view_id": "view2"
+  },
+  {
+   "id": "F7",
+   "type": "hole",
+   "description": "Two small-diameter mounting bores connecting the top face to the underside counterbores.",
+   "dimension_ids": [
+    "D7"
+   ],
+   "view_id": "view3"
+  },
+  {
+   "id": "F8",
+   "type": "hole",
+   "description": "Two underside counterbores; D15 gives diameter and D11 gives depth from the bottom face.",
+   "dimension_ids": [
+    "D11",
+    "D15"
+   ],
+   "view_id": "view3"
+  },
+  {
+   "id": "F9",
+   "type": "chamfer",
+   "description": "Typical bottom longitudinal-edge chamfers shown in section.",
+   "dimension_ids": [
+    "D13"
+   ],
+   "view_id": "view3"
+  }
+ ],
+ "symbols": [
+  {
+   "id": "S1",
+   "type": "surface_finish",
+   "value": "Two adjoining inverted triangles in the MACHINING field",
+   "datum": null,
+   "view_id": null,
+   "tile": "tile_r1c2.png",
+   "bbox": [
+    905,
+    735,
+    921,
+    743
+   ],
+   "source": "vision"
+  },
+  {
+   "id": "S2",
+   "type": "other",
+   "value": "Third-angle projection symbol",
+   "datum": null,
+   "view_id": null,
+   "tile": "tile_r1c2.png",
+   "bbox": [
+    1097,
+    670,
+    1152,
+    693
+   ],
+   "source": "vision"
+  },
+  {
+   "id": "S3",
+   "type": "other",
+   "value": "A-A cutting-plane line with two left-pointing section arrows; not a datum feature symbol",
+   "datum": null,
+   "view_id": "view2",
+   "tile": "tile_r1c1.png",
+   "bbox": [
+    405,
+    391,
+    459,
+    520
+   ],
+   "source": "vision"
+  }
+ ],
+ "notes": [
+  {
+   "id": "N1",
+   "text": "1.ALL DIMENSIONS ARE IN mm",
+   "category": "general"
+  },
+  {
+   "id": "N2",
+   "text": "2.DO NOT SCALE DRAWING.",
+   "category": "general"
+  },
+  {
+   "id": "N3",
+   "text": "3.IF IN DOUBT , ASK TEAM MEMBER",
+   "category": "general"
+  },
+  {
+   "id": "N4",
+   "text": "NOTE : STANDARD FASTENER TORQUE AS PER STD-DES-01",
+   "category": "standard"
+  },
+  {
+   "id": "N5",
+   "text": "DEBURR AND REMOVE SHARP EDGES UNLESS SHARP EDGE REQUIREMENT SPECIFIED",
+   "category": "surface"
+  },
+  {
+   "id": "N6",
+   "text": "UNSP.RADII 0.5 R",
+   "category": "general"
+  },
+  {
+   "id": "N7",
+   "text": "UNSP.CHF. 0.5 X 45°",
+   "category": "general"
+  },
+  {
+   "id": "N8",
+   "text": "NOTE FOR WIPRO PARI DESIGN -REF. ONLY WEAR DETAILS : N.A.",
+   "category": "other"
+  },
+  {
+   "id": "N9",
+   "text": "RESERVED SPACE FOR CONTROLLED COPY STAMP",
+   "category": "other"
+  },
+  {
+   "id": "N10",
+   "text": "LOCATION : ---",
+   "category": "other"
+  },
+  {
+   "id": "N11",
+   "text": "C  ALL RIGHTS OF REPRODUCTION & DISTRIBUTION ARE RESERVED",
+   "category": "other"
+  },
+  {
+   "id": "N12",
+   "text": "Gen Tol.: IS 2102",
+   "category": "standard"
+  }
+ ],
+ "general_tolerances": [
+  {
+   "kind": "angular",
+   "process": "fabrication",
+   "range": "UP TO 10",
+   "tolerance": "±1.5°"
+  },
+  {
+   "kind": "angular",
+   "process": "fabrication",
+   "range": "10 UP TO 50",
+   "tolerance": "±0°50'"
+  },
+  {
+   "kind": "angular",
+   "process": "fabrication",
+   "range": "50 UP TO 120",
+   "tolerance": "±0°25'"
+  },
+  {
+   "kind": "angular",
+   "process": "fabrication",
+   "range": "120 UP TO 400",
+   "tolerance": "±0°15'"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "0.5 UP TO 3",
+   "tolerance": "±0.1"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "3 UP TO 6",
+   "tolerance": "±0.2"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "6 UP TO 30",
+   "tolerance": "±0.5"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "30 UP TO 120",
+   "tolerance": "±0.8"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "120 UP TO 315",
+   "tolerance": "±1.2"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "315 UP TO 1000",
+   "tolerance": "±2"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "1000 UP TO 2000",
+   "tolerance": "±3"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "OVER 2000",
+   "tolerance": "±4"
+  },
+  {
+   "kind": "angular",
+   "process": "machining",
+   "range": "UP TO 10",
+   "tolerance": "±1°"
+  },
+  {
+   "kind": "angular",
+   "process": "machining",
+   "range": "10 UP TO 50",
+   "tolerance": "±0°30'"
+  },
+  {
+   "kind": "angular",
+   "process": "machining",
+   "range": "50 UP TO 120",
+   "tolerance": "±0°20'"
+  },
+  {
+   "kind": "angular",
+   "process": "machining",
+   "range": "120 UP TO 400",
+   "tolerance": "±0°10'"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "0.5 UP TO 3",
+   "tolerance": "±0.1"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "3 UP TO 6",
+   "tolerance": "±0.1"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "6 UP TO 30",
+   "tolerance": "±0.2"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "30 UP TO 120",
+   "tolerance": "±0.3"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "120 UP TO 315",
+   "tolerance": "±0.5"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "315 UP TO 1000",
+   "tolerance": "±0.8"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "1000 UP TO 2000",
+   "tolerance": "±1.2"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "OVER 2000",
+   "tolerance": "±2"
+  }
+ ],
+ "revisions": [],
+ "uncertain": [
+  {
+   "item": "S1",
+   "reason": "The double-triangle machining mark is visible, but no numerical roughness or defining finish standard is printed; no Ra value is inferred."
+  },
+  {
+   "item": "Unlabelled views",
+   "reason": "TOP VIEW, FRONT VIEW and ISOMETRIC VIEW are descriptive names assigned from geometry and layout, not printed view labels. Orthographic scales use the title-block scale; no separate isometric scale is stated."
+  }
+ ]
+}

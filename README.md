@@ -35,7 +35,7 @@ cp .env.example .env          # then put your OPENAI_API_KEY and QWEN_API_KEY in
 uv run di --help
 ```
 
-Put drawing PDFs in `data/raw/` (git-ignored), then:
+The four sample drawings are in `data/raw/` and the client's full set in `data/client_set/`. Then:
 
 ```bash
 uv run di models                                        # registered models, prices, thinking options
@@ -62,7 +62,7 @@ uv run pyright
 uv run pre-commit install     # run the checks on every commit
 ```
 
-Client drawings and anything derived from them never go into git (`data/` is ignored).
+Sample and client data are committed in `data/` ([ADR 0007](docs/adr/0007-commit-client-data.md)). API keys never are: `.env` is git-ignored.
 
 ## About
 

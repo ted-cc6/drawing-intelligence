@@ -21,5 +21,6 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run pyright
-      # Unit tests only: they build synthetic PDFs, need no client data and make no API calls.
-      - run: uv run pytest -m "not regression and not live"
+      # Unit tests (synthetic PDFs, fake model) + regression tests on the committed sample drawings.
+      # Never `live`: those make billed API calls.
+      - run: uv run pytest -m "not live"

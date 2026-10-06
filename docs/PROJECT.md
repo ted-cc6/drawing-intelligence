@@ -109,6 +109,9 @@ Every stage reads and writes typed, versioned Pydantic models (`src/drawing_inte
 | Telemetry (session id, node, model, tokens, cost, latency, status) | `data/telemetry.db` | persistent; no file names, drawing numbers or text |
 | Engineer feedback (planned): rule id, finding category, severity, accepted/rejected, model | `data/telemetry.db` | persistent; no drawing content |
 
+Development data is different: the sample drawings, the client's full dataset and dev outputs are committed
+to the public repo for easy sharing ([ADR 0007](adr/0007-commit-client-data.md)). API keys are never committed.
+
 `DI_RETENTION=ephemeral` is the default. `DI_RETENTION=keep` is for development only: it keeps workspaces
 and a response cache so repeated runs on the samples do not pay twice. OpenAI requests are sent with
 `store=false`. Provider-side retention for abuse monitoring depends on each provider's account policy and is

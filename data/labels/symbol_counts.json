@@ -1,0 +1,27 @@
+{
+ "_note": "Hand-count the symbols on each drawing (the PDF text cannot see them) and replace each null with a number. Leave null if not counted yet.",
+ "10K_CAM PLATE": {
+  "gdt": null,
+  "surface_finish": null,
+  "weld": null,
+  "datum": null
+ },
+ "10K_CYLINDER ROD MTG_02": {
+  "gdt": null,
+  "surface_finish": null,
+  "weld": null,
+  "datum": null
+ },
+ "20_INCH HOSE PIPE CLAMP_PU_01": {
+  "gdt": null,
+  "surface_finish": null,
+  "weld": null,
+  "datum": null
+ },
+ "31K_PIPE CLAMP BLK_02": {
+  "gdt": null,
+  "surface_finish": null,
+  "weld": null,
+  "datum": null
+ }
+}

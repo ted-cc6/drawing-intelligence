@@ -1,6 +1,6 @@
 # 0006 uv, ruff, pyright, pytest, pre-commit, CI on three OSes
 
-**Status:** accepted · 2026-10-06
+**Status:** accepted · 2026-10-06 · client-data parts superseded by [ADR 0007](0007-commit-client-data.md)
 
 ## Context
 There are three developers; the main one works in VS Code on Windows. The workflow must run on any OS,

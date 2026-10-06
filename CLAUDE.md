@@ -5,7 +5,7 @@ behind it are in [docs/adr/](docs/adr/). Do not re-open a decision recorded in a
 
 ## What this is
 Drawing Intelligence: an agentic AI "last point check" for 2D engineering drawings (UChicago capstone with
-LatentView Analytics, client PARI Robotics). Pipeline:
+client LatentView Analytics). Pipeline:
 - A fixed LangGraph workflow: intake (code) → understand (vision LLM) → specialist reviewers → verifier →
   report.
 - One Q&A agent over the saved results.
@@ -28,29 +28,29 @@ src/drawing_intelligence/
   cli.py               the `di` command
 config/models.yaml     model registry: prices, capabilities, roles, thinking options, role defaults
 config/templates/      drawing-template regions and glyph remaps
-data/                  git-ignored: raw PDFs, sessions, cache, baseline, labels, telemetry.db
+data/                  committed (ADR 0007): raw PDFs, client_set, baseline, labels, cache, telemetry.db
 ```
 
 ## Hard rules
-1. **Never commit client data.** No PDFs, images, DWGs, databases or anything derived from client drawings
-   (extraction JSON, LLM outputs, labels). `data/` is git-ignored; pre-commit blocks those file types.
-   The repo is public.
+1. **Client data is committed; secrets are not** (ADR 0007). Everything in `data/` is in git, including the
+   client's full dataset in `data/client_set/`, and the repo is public. Never rewrite files in `data/baseline/`
+   or `data/labels/` without being asked.
 2. **Never print, log or commit an API key.** Keys come from `.env` via `settings.py` as `SecretStr`. Only
    `OPENAI_API_KEY` and `QWEN_API_KEY` belong in `.env`.
 3. **Never invent data.** LLM outputs must be traceable to the PDF text or marked `source: "vision"`;
    unknown → `null`.
-4. **Client data is session-scoped** (ADR 0003): anything a session produces goes in its workspace, which is
-   deleted at the end unless `DI_RETENTION=keep`. Telemetry rows never contain drawing content.
+4. **At runtime, client data is session-scoped** (ADR 0003): anything a session produces goes in its
+   workspace, which is deleted at the end unless `DI_RETENTION=keep`. Telemetry rows never contain drawing content.
 5. **Models are chosen through `config/models.yaml`**, never hard-coded. New models and prices go there.
 6. **Cross-platform:** `pathlib` only, no shell-specific code. CI runs on Windows, macOS and Linux.
 7. **Don't waste API calls.** Unit tests use fake LLM clients. Tests that cost money are marked `live`; run
-   them only when asked.
+   them only when asked. Use Qwen models during development; never call `gpt-6-astra` without Binjie's OK.
 
 ## Commands
 ```
 uv sync                         # install
 uv run pytest                   # unit tests (synthetic PDFs, fake LLM)
-uv run pytest -m regression     # + real sample drawings in data/raw (local only)
+uv run pytest -m regression     # real sample drawings in data/raw (also run in CI)
 uv run ruff check . && uv run ruff format --check . && uv run pyright
 uv run di --help
 ```

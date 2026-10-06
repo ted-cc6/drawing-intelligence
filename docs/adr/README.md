@@ -12,3 +12,4 @@ it with a new one.
 | [0004](0004-model-registry.md) | One model registry file drives model choice, prices and thinking | 2026-10-06 |
 | [0005](0005-typed-contracts-and-baseline.md) | Redesign while porting, guarded by typed contracts and a baseline diff | 2026-10-06 |
 | [0006](0006-tooling.md) | uv, ruff, pyright, pytest, pre-commit, CI on three OSes | 2026-10-06 |
+| [0007](0007-commit-client-data.md) | Commit the client data to the repository (keys stay out) | 2026-10-06 |
