@@ -20,8 +20,8 @@ PDF ─► Intake (code) ─► Understand (vision LLM) ─► Review (specialis
 | Verify & report | Rejects findings with fake citations; engineering review report | planned |
 | Q&A | An agent that answers questions about a drawing, citing evidence | planned |
 
-See [docs/PROJECT.md](docs/PROJECT.md) for the full design and roadmap, and [docs/adr/](docs/adr/) for the
-decisions behind it.
+See [docs/PROJECT.md](docs/PROJECT.md) for the full design and roadmap, [docs/adr/](docs/adr/) for the
+decisions behind it, and [docs/updates/](docs/updates/) for team updates and task assignments.
 
 ## Quick start (Windows, macOS, Linux)
 
