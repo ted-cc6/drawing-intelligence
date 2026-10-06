@@ -1,7 +1,6 @@
 # Drawing Intelligence: project document
 
-*UChicago MS in Applied Data Science capstone · LatentView Analytics · client: PARI Robotics.
-Living document; last updated 2026-10-06.*
+*UChicago MS in Applied Data Science capstone · Client: LatentView Analytics · Living document; last updated 2026-10-06.*
 
 ## 1. Problem
 
