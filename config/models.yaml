@@ -1,0 +1,89 @@
+# Model registry: every LLM the workflow may use.
+#
+# This file is the single source for model choice, prices and per-model request settings. The CLI's
+# --model / --thinking flags, and later the dashboard's model picker, offer exactly what is listed here.
+# Adding a model = adding an entry. Adding a provider = adding a provider entry (OpenAI-compatible APIs only).
+#
+# Prices are USD per million tokens, entered by hand. `di models` warns when `verified_on` is more than
+# 60 days old. Always check the provider's own pricing page before trusting a cost number.
+
+providers:
+  openai:
+    label: OpenAI
+    api_key_env: OPENAI_API_KEY
+    base_url: null                       # the SDK default
+    max_tokens_param: max_completion_tokens
+    image_detail: high                   # OpenAI-only image setting
+    request: {store: false}              # never let OpenAI store requests/responses for later retrieval
+
+  qwen:
+    label: Alibaba Qwen
+    api_key_env: QWEN_API_KEY
+    base_url: https://dashscope-us.aliyuncs.com/compatible-mode/v1   # the key works on the US endpoint
+    max_tokens_param: max_tokens
+    image_detail: null
+    request: {}
+
+models:
+  gpt-6-astra:
+    provider: openai
+    label: GPT-6 Astra
+    roles: [understand, review, qa]
+    capabilities: {vision: true, strict_json_schema: true}
+    max_output_tokens: 32000
+    temperature: null                    # this model only accepts the default temperature
+    price:
+      input_per_mtok: 10.00
+      output_per_mtok: 50.00
+      verified_on: 2026-09-30
+      source: https://openai.com/api/pricing
+    thinking:                            # reasoning cannot be switched off; tested 2026-10-06
+      default: medium
+      options:
+        low: {reasoning_effort: low}
+        medium: {reasoning_effort: medium}
+        high: {reasoning_effort: high}
+        xhigh: {reasoning_effort: xhigh}
+
+  qwen3.8-max:
+    provider: qwen
+    label: Qwen3.8 Max
+    roles: [understand, review, qa]
+    capabilities: {vision: true, strict_json_schema: true}   # images + json_schema tested 2026-10-06
+    max_output_tokens: 32000
+    temperature: 0
+    price:
+      input_per_mtok: 2.00
+      output_per_mtok: 6.00
+      verified_on: 2026-10-06
+      source: https://anotherwrapper.com/llm-pricing/qwen3.8-max   # third-party; confirm on Alibaba's page
+    thinking:
+      default: "off"
+      options:
+        "off": {extra_body: {enable_thinking: false}}
+        "on": {extra_body: {enable_thinking: true}}
+
+  qwen3-vl-plus:
+    provider: qwen
+    label: Qwen3-VL Plus
+    roles: [understand, qa]
+    capabilities: {vision: true, strict_json_schema: true}
+    max_output_tokens: 16000
+    temperature: 0
+    request: {extra_body: {vl_high_resolution_images: true}}   # keeps small symbols readable
+    price:
+      input_per_mtok: 0.143
+      output_per_mtok: 1.434
+      verified_on: 2026-09-30
+      source: https://www.alibabacloud.com/help/en/model-studio/model-pricing
+    thinking:
+      default: "off"
+      options:
+        "off": {extra_body: {enable_thinking: false}}
+        "on": {extra_body: {enable_thinking: true}}
+
+# Which model each workflow role uses when nothing is chosen on the command line / dashboard.
+defaults:
+  understand: qwen3-vl-plus
+  review: qwen3.8-max
+  qa: qwen3.8-max

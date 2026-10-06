@@ -1,0 +1,25 @@
+# Wipro PARI drawing template (FR-DES-006-01).
+#
+# Regions are [x0, y0, x1, y1] in PDF points (72 per inch), origin top-left, in the visual page orientation.
+# W and H are the sheet's width and height, so a region anchored to the right or bottom edge (written as
+# "W-508", "H-197") still lines up when the same template is used on a bigger sheet (A2, A1).
+# Measured on the A3 sheet (1191 x 842 pt).
+
+name: wipro_pari
+reference_sheet_pts: [1191, 842]
+
+regions:
+  border_top: [0, 0, W, 45]
+  border_bottom: [0, H-42, W, H]
+  border_left: [0, 0, 45, H]
+  border_right: [W-46, 0, W, H]
+  tolerance_table: [W-126, 0, W, H]     # general tolerance table (IS 2102), right strip
+  title_block: [W-508, H-197, W, H]     # bottom-right corner
+
+# Text lines that sit entirely inside one of these regions are template boilerplate, not part dimensions.
+exclude_from_dimensions: [border_top, border_bottom, border_left, border_right, tolerance_table, title_block]
+
+# Some symbols are drawn with a custom font and decode as the wrong character. Remap them, only for text
+# whose font name contains `font_contains`.
+glyph_remap:
+  - {font_contains: Symbols, char: "O", replace_with: "⌀"}

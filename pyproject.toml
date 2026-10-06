@@ -1,0 +1,61 @@
+[project]
+name = "drawing-intelligence"
+version = "0.1.0"
+description = "Agentic AI review of 2D engineering drawings: extract, understand, review, answer."
+readme = "README.md"
+requires-python = ">=3.13"
+authors = [{ name = "Binjie Wang" }, { name = "Mushahid Raza" }, { name = "Zhetao Zhang" }]
+dependencies = [
+    "langgraph>=1.2.14",
+    "langgraph-checkpoint-sqlite>=3.1.1",
+    "openai>=3.25.0",
+    "pillow>=12.3.0",
+    "pydantic>=2",
+    "pydantic-settings>=2.15.0",
+    "pymupdf>=1.28.2",
+    "pyyaml>=6.0.3",
+    "typer>=0.27.3",
+]
+
+[project.scripts]
+di = "drawing_intelligence.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/drawing_intelligence"]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.6.2",
+    "pyright>=1.1.414",
+    "pytest>=9.1.1",
+    "ruff>=0.16.10",
+    "types-pyyaml>=6.0.12.20260906",
+]
+
+# ---------------------------------------------------------------- tools
+
+[tool.ruff]
+line-length = 110
+target-version = "py313"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "PTH"]
+ignore = ["RUF001", "RUF002", "RUF003"]   # drawings legitimately contain ±, ⌀, ° and similar characters
+
+[tool.pyright]
+include = ["src", "tests"]
+pythonVersion = "3.13"
+typeCheckingMode = "standard"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "regression: runs against the real sample drawings in data/ (local only, skipped when absent)",
+    "live: makes real, billed API calls (never run in CI)",
+]

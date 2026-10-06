@@ -1,0 +1,36 @@
+# --- client data and everything derived from it: never commit ---
+data/*
+!data/README.md
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.dwg
+*.db
+*.sqlite
+
+# --- secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Python / tools ---
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+.ipynb_checkpoints/
+
+# --- editors / OS ---
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
