@@ -152,6 +152,19 @@ No labelled error drawings exist yet, so evaluation is built from what is availa
 - **Review (planned):** drawings with **seeded errors** (known mistakes planted in copies of the samples),
   then the engineer feedback log as it grows.
 
+### Results at M1 (2026-10-06)
+
+- **Extraction:** identical to the original notebook on all four samples, in every section
+  (`di eval baseline`).
+- **Scorecard on the notebook's saved outputs** (`di eval understand --from-baseline`): every model
+  returned 81/81 dimensions unchanged with 0 invented numbers. Title block: 100 % for Gemini and
+  `gpt-6-astra`, 93–100 % for `qwen3-vl-plus` (the same two misses the notebook found). The new strict
+  schema also rejects one `qwen3-vl-plus` output for inventing feature types (e.g. `"distance"`).
+- **First live run in the package** (`qwen3-vl-plus`, thinking off, 10K Cam Plate): valid, 21/21 dimensions,
+  no symbols reported (the notebook run reported 6, which were not on the drawing), 69 s, $0.011.
+- Not yet measured: `qwen3.8-max` and `gpt-6-astra` through the package, thinking on vs off, stability
+  over repeated runs.
+
 ## 9. Roadmap
 
 | Milestone | Content | Status |

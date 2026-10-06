@@ -144,7 +144,11 @@ def run_workflow(
 def _export(ex_dir: Path, ex: Extraction, results: list[UnderstandingResult], dest: Path) -> None:
     from drawing_intelligence.viz import extraction_diagram, knowledge_overlay, symbol_gallery
 
-    shutil.copytree(ex_dir, dest, dirs_exist_ok=True, copy_function=shutil.copyfile)
+    for f in ex_dir.rglob("*"):  # plain file copies: no permission bits (some mounts refuse chmod)
+        if f.is_file():
+            target = dest / f.relative_to(ex_dir)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(f, target)
     by_page = {r.page_number: r for r in results}
     for page in ex.pages:
         if page.images is None:

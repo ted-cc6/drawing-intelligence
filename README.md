@@ -41,7 +41,11 @@ Put drawing PDFs in `data/raw/` (git-ignored), then:
 uv run di models                                        # registered models, prices, thinking options
 uv run di extract data/raw/my_drawing.pdf               # step 1 only, no API cost
 uv run di run data/raw/my_drawing.pdf --model qwen3-vl-plus --thinking off
+uv run di run data/raw/my_drawing.pdf --export data/exports   # keep outputs + annotated images
 uv run di eval baseline                                 # compare extraction with the notebook baseline
+uv run di eval understand --from-baseline               # score the notebook's saved LLM outputs (free)
+uv run di eval understand --model qwen3.8-max           # score a model on data/raw (asks before paying)
+uv run di telemetry                                     # average cost and latency per model
 ```
 
 By default every run is **ephemeral**: the drawing, images and results are deleted when the run ends and only
