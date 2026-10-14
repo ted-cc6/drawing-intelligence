@@ -1,0 +1,657 @@
+{
+ "drawing": {
+  "number": "P24BSD109215",
+  "title": "TCP PIN SLEEVE",
+  "revision": "00",
+  "material": "20MnCr5",
+  "surface_treatment": "I.Z.B.P. (TRIVALENT)",
+  "heat_treatment": "---",
+  "scale": "1 : 1",
+  "sheet_size": "A3",
+  "units": "mm",
+  "general_tolerance_standard": "IS 2102",
+  "drawn_date": "31/05/2025",
+  "checked_date": "31/05/2025",
+  "approved_date": "31/05/2025",
+  "weight": "0.09 kg"
+ },
+ "views": [
+  {
+   "id": "view1",
+   "name": "FRONT VIEW",
+   "scale": "1:1"
+  },
+  {
+   "id": "view2",
+   "name": "SECTION A-A",
+   "scale": "1:1"
+  }
+ ],
+ "dimensions": [
+  {
+   "id": "D1",
+   "text": "⌀ 30",
+   "value": 30.0,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "diameter",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    262.5,
+    152.0,
+    284.9,
+    162.8
+   ]
+  },
+  {
+   "id": "D2",
+   "text": "28",
+   "value": 28.0,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    151.1,
+    189.8,
+    160.6,
+    200.4
+   ]
+  },
+  {
+   "id": "D3",
+   "text": "⌀ 12",
+   "value": 12.0,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "diameter",
+   "is_reference": false,
+   "view_id": "view2",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    505.6,
+    335.1,
+    581.5,
+    353.4
+   ]
+  },
+  {
+   "id": "D4",
+   "text": "⌀ 20",
+   "value": 20.0,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "diameter",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    253.0,
+    343.1,
+    275.4,
+    354.0
+   ]
+  },
+  {
+   "id": "D5",
+   "text": "R 0.5",
+   "value": 0.5,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "radius",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    262.6,
+    407.7,
+    286.9,
+    417.2
+   ]
+  },
+  {
+   "id": "D6",
+   "text": "10",
+   "value": 10.0,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    130.4,
+    415.6,
+    140.0,
+    426.2
+   ]
+  },
+  {
+   "id": "D7",
+   "text": "40 ±0.1",
+   "value": 40.0,
+   "unit": "mm",
+   "tolerance": "±0.1",
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    105.2,
+    437.0,
+    114.8,
+    467.6
+   ]
+  },
+  {
+   "id": "D8",
+   "text": "15",
+   "value": 15.0,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    128.9,
+    482.5,
+    138.4,
+    493.1
+   ]
+  },
+  {
+   "id": "D9",
+   "text": "5",
+   "value": 5.0,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    151.7,
+    476.6,
+    161.2,
+    481.9
+   ]
+  },
+  {
+   "id": "D10",
+   "text": "15°",
+   "value": 15.0,
+   "unit": "deg",
+   "tolerance": null,
+   "type": "angle",
+   "is_reference": false,
+   "view_id": "view2",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    496.9,
+    509.2,
+    513.8,
+    526.2
+   ]
+  },
+  {
+   "id": "D11",
+   "text": "1",
+   "value": 1.0,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view2",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    434.3,
+    526.4,
+    443.8,
+    531.7
+   ]
+  },
+  {
+   "id": "D12",
+   "text": "⌀ 20",
+   "value": 20.0,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "diameter",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    278.4,
+    533.5,
+    300.8,
+    544.3
+   ]
+  },
+  {
+   "id": "D13",
+   "text": "⌀ 30",
+   "value": 30.0,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "diameter",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    132.3,
+    560.8,
+    154.7,
+    571.7
+   ]
+  }
+ ],
+ "features": [
+  {
+   "id": "F1",
+   "type": "outline",
+   "description": "Outer cylindrical surface",
+   "dimension_ids": [
+    "D1",
+    "D13"
+   ],
+   "view_id": "view1"
+  },
+  {
+   "id": "F2",
+   "type": "hole",
+   "description": "Inner cylindrical bore",
+   "dimension_ids": [
+    "D4",
+    "D12"
+   ],
+   "view_id": "view1"
+  },
+  {
+   "id": "F3",
+   "type": "step",
+   "description": "Stepped shoulder",
+   "dimension_ids": [
+    "D6",
+    "D8",
+    "D9"
+   ],
+   "view_id": "view1"
+  },
+  {
+   "id": "F4",
+   "type": "hole",
+   "description": "Threaded hole M5 x 6 deep",
+   "dimension_ids": [],
+   "view_id": "view1"
+  },
+  {
+   "id": "F5",
+   "type": "chamfer",
+   "description": "Chamfer on inner bore",
+   "dimension_ids": [
+    "D10"
+   ],
+   "view_id": "view2"
+  },
+  {
+   "id": "F6",
+   "type": "step",
+   "description": "Small step on outer diameter",
+   "dimension_ids": [
+    "D11"
+   ],
+   "view_id": "view2"
+  }
+ ],
+ "symbols": [
+  {
+   "id": "S1",
+   "type": "other",
+   "value": "DEBURR AND REMOVE SHARP EDGES UNLESS SHARP EDGE REQUIREMENT SPECIFIED",
+   "datum": null,
+   "view_id": null,
+   "tile": "tile_r0c2.png",
+   "bbox": [
+    1076.1,
+    264.4,
+    1156.3,
+    286.3
+   ],
+   "source": "vision"
+  },
+  {
+   "id": "S2",
+   "type": "surface_finish",
+   "value": "UNSP.RADII 0.5 R\nUNSP.CHF. 0.5 X 45°",
+   "datum": null,
+   "view_id": null,
+   "tile": "tile_r0c2.png",
+   "bbox": [
+    1079.6,
+    289.6,
+    1151.8,
+    304.6
+   ],
+   "source": "vision"
+  },
+  {
+   "id": "S3",
+   "type": "other",
+   "value": "UNSPECIFIED TOL.(FAB)\nFOR ANGULAR IN mm.",
+   "datum": null,
+   "view_id": null,
+   "tile": "tile_r0c2.png",
+   "bbox": [
+    1086.6,
+    304.9,
+    1145.6,
+    317.0
+   ],
+   "source": "vision"
+  },
+  {
+   "id": "S4",
+   "type": "other",
+   "value": "UNSPECIFIED TOL.(FAB)\nFOR LINEAR IN mm.",
+   "datum": null,
+   "view_id": null,
+   "tile": "tile_r0c2.png",
+   "bbox": [
+    1086.7,
+    366.1,
+    1145.7,
+    378.2
+   ],
+   "source": "vision"
+  },
+  {
+   "id": "S5",
+   "type": "other",
+   "value": "UNSPECIFIED TOL.(M/C)\nFOR ANGULAR IN mm.",
+   "datum": null,
+   "view_id": null,
+   "tile": "tile_r0c2.png",
+   "bbox": [
+    1086.9,
+    475.0,
+    1145.4,
+    487.1
+   ],
+   "source": "vision"
+  },
+  {
+   "id": "S6",
+   "type": "other",
+   "value": "UNSPECIFIED TOL.(M/C)\nFOR LINEAR IN mm.",
+   "datum": null,
+   "view_id": null,
+   "tile": "tile_r0c2.png",
+   "bbox": [
+    1086.9,
+    535.7,
+    1145.4,
+    547.8
+   ],
+   "source": "vision"
+  },
+  {
+   "id": "S7",
+   "type": "other",
+   "value": "Gen Tol.: IS 2102",
+   "datum": null,
+   "view_id": null,
+   "tile": "tile_r0c2.png",
+   "bbox": [
+    1092.0,
+    659.0,
+    1140.4,
+    666.0
+   ],
+   "source": "vision"
+  },
+  {
+   "id": "S8",
+   "type": "other",
+   "value": "MACHINING",
+   "datum": null,
+   "view_id": null,
+   "tile": "tile_r0c2.png",
+   "bbox": [
+    1099.9,
+    709.8,
+    1149.5,
+    718.5
+   ],
+   "source": "vision"
+  },
+  {
+   "id": "S9",
+   "type": "other",
+   "value": "TOOLING",
+   "datum": null,
+   "view_id": null,
+   "tile": "tile_r0c2.png",
+   "bbox": [
+    1080.4,
+    735.5,
+    1123.1,
+    744.4
+   ],
+   "source": "vision"
+  },
+  {
+   "id": "S10",
+   "type": "other",
+   "value": "DRAWING TYPE",
+   "datum": null,
+   "view_id": null,
+   "tile": "tile_r0c2.png",
+   "bbox": [
+    1096.4,
+    697.7,
+    1155.7,
+    705.9
+   ],
+   "source": "vision"
+  }
+ ],
+ "notes": [
+  {
+   "id": "N1",
+   "text": "HEAT TREATMENT NOTE:- 1) TO BE CASE HARDENED UPTO 55 ~ 60 HRC. 2) CASE DEPTH 0.8~ 2 mm AFTER FINISH GRINDING. 3) THREADS TO BE KEEP SOFT 4) RETAPPING TO BE DONE AFTER SURFACE TREATMENT AT SUPPLIER END.( IF APPLICABLE )",
+   "category": "heat_treatment"
+  },
+  {
+   "id": "N2",
+   "text": "1.ALL DIMENSIONS ARE IN mm 2.DO NOT SCALE DRAWING. 3.IF IN DOUBT, ASK TEAM MEMBER",
+   "category": "general"
+  },
+  {
+   "id": "N3",
+   "text": "NOTE FOR WIPRO PARI DESIGN -REF. ONLY WEAR DETAILS : N.A.",
+   "category": "general"
+  },
+  {
+   "id": "N4",
+   "text": "NOTE : STANDARD FASTENER TORQUE AS PER STD-DES-01-00 FR-DES-006-00",
+   "category": "standard"
+  },
+  {
+   "id": "N5",
+   "text": "YFYFGHYFGHGF",
+   "category": "other"
+  }
+ ],
+ "general_tolerances": [
+  {
+   "kind": "angular",
+   "process": "machining",
+   "range": "UP TO 10",
+   "tolerance": "±1.5°"
+  },
+  {
+   "kind": "angular",
+   "process": "machining",
+   "range": "10 UP TO 50",
+   "tolerance": "±0°50'"
+  },
+  {
+   "kind": "angular",
+   "process": "machining",
+   "range": "50 UP TO 120",
+   "tolerance": "±0°25'"
+  },
+  {
+   "kind": "angular",
+   "process": "machining",
+   "range": "120 UP TO 400",
+   "tolerance": "±0°15'"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "0.5 UP TO 3",
+   "tolerance": "±0.1"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "3 UP TO 6",
+   "tolerance": "±0.2"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "6 UP TO 30",
+   "tolerance": "±0.5"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "30 UP TO 120",
+   "tolerance": "±0.8"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "120 UP TO 315",
+   "tolerance": "±1.2"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "315 UP TO 1000",
+   "tolerance": "±2"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "1000 UP TO 2000",
+   "tolerance": "±3"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "OVER 2000",
+   "tolerance": "±4"
+  },
+  {
+   "kind": "angular",
+   "process": "fabrication",
+   "range": "UP TO 10",
+   "tolerance": "±1°"
+  },
+  {
+   "kind": "angular",
+   "process": "fabrication",
+   "range": "10 UP TO 50",
+   "tolerance": "±0°30'"
+  },
+  {
+   "kind": "angular",
+   "process": "fabrication",
+   "range": "50 UP TO 120",
+   "tolerance": "±0°20'"
+  },
+  {
+   "kind": "angular",
+   "process": "fabrication",
+   "range": "120 UP TO 400",
+   "tolerance": "±0°10'"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "0.5 UP TO 3",
+   "tolerance": "±0.1"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "3 UP TO 6",
+   "tolerance": "±0.2"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "6 UP TO 30",
+   "tolerance": "±0.3"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "30 UP TO 120",
+   "tolerance": "±0.5"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "120 UP TO 315",
+   "tolerance": "±0.8"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "315 UP TO 1000",
+   "tolerance": "±1.2"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "1000 UP TO 2000",
+   "tolerance": "±2"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "OVER 2000",
+   "tolerance": "±2"
+  }
+ ],
+ "revisions": [
+  {
+   "rev": "00",
+   "date": "31/05/2025",
+   "description": ""
+  }
+ ],
+ "uncertain": []
+}

@@ -1,0 +1,15 @@
+{
+ "kind": "planted",
+ "base": "B5_pin_sleeve",
+ "keys": [
+  {
+   "category": "design_intent",
+   "evidence": [
+    "D3"
+   ],
+   "severity": "Major",
+   "description": "Ø12 bearing bore has no tolerance or fit class",
+   "rule": "US-6.2 AC1 (01_discovery.md): a fit/functional diameter with no tolerance -> warning"
+  }
+ ]
+}

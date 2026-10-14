@@ -1,0 +1,408 @@
+{
+ "drawing": {
+  "number": "P24BSA170072",
+  "title": "COUPLING SPACER",
+  "revision": "01",
+  "material": "C45",
+  "surface_treatment": "IZBP",
+  "heat_treatment": "---",
+  "scale": "1 : 1",
+  "sheet_size": "A3",
+  "units": "mm",
+  "general_tolerance_standard": "IS 2102",
+  "drawn_date": "10/05/2025",
+  "checked_date": "10/05/2025",
+  "approved_date": "10/05/2025",
+  "weight": "0.44 kg"
+ },
+ "views": [
+  {
+   "id": "view1",
+   "name": "SECTION A-A",
+   "scale": "1:1"
+  },
+  {
+   "id": "view2",
+   "name": "FRONT VIEW",
+   "scale": null
+  }
+ ],
+ "dimensions": [
+  {
+   "id": "D1",
+   "text": "⌀ 66",
+   "value": 66.0,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "diameter",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    328.8,
+    404.5,
+    351.2,
+    415.3
+   ]
+  },
+  {
+   "id": "D2",
+   "text": "+0.2",
+   "value": null,
+   "unit": "mm",
+   "tolerance": "+0.2",
+   "type": "other",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    342.6,
+    427.5,
+    361.3,
+    437.0
+   ]
+  },
+  {
+   "id": "D3",
+   "text": "22 ±0.05",
+   "value": 22.0,
+   "unit": "mm",
+   "tolerance": "±0.05",
+   "type": "linear",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    187.9,
+    498.3,
+    197.5,
+    534.2
+   ]
+  },
+  {
+   "id": "D4",
+   "text": "1",
+   "value": 1.0,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "count_x_diameter",
+   "is_reference": false,
+   "view_id": "view1",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    175.8,
+    512.7,
+    185.3,
+    518.0
+   ]
+  },
+  {
+   "id": "D5",
+   "text": "1",
+   "value": 1.0,
+   "unit": "mm",
+   "tolerance": null,
+   "type": "other",
+   "is_reference": false,
+   "view_id": "view2",
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    650.0,
+    641.1,
+    655.3,
+    650.6
+   ]
+  },
+  {
+   "id": "D6",
+   "text": "03006749",
+   "value": null,
+   "unit": null,
+   "tolerance": null,
+   "type": "other",
+   "is_reference": false,
+   "view_id": null,
+   "feature_id": null,
+   "source": "pdf_text",
+   "bbox": [
+    1035.2,
+    639.9,
+    1070.7,
+    647.9
+   ]
+  }
+ ],
+ "features": [
+  {
+   "id": "F1",
+   "type": "outline",
+   "description": "Outer cylindrical surface",
+   "dimension_ids": [
+    "D1"
+   ],
+   "view_id": "view1"
+  },
+  {
+   "id": "F2",
+   "type": "hole",
+   "description": "Inner cylindrical bore",
+   "dimension_ids": [
+    "D2",
+    "D3"
+   ],
+   "view_id": "view1"
+  },
+  {
+   "id": "F3",
+   "type": "chamfer",
+   "description": "Chamfer on both ends",
+   "dimension_ids": [
+    "D4"
+   ],
+   "view_id": "view1"
+  }
+ ],
+ "symbols": [
+  {
+   "id": "S1",
+   "type": "datum",
+   "value": "0.05 A",
+   "datum": "A",
+   "view_id": "view1",
+   "tile": "tile_r0c0.png",
+   "bbox": [
+    186.5,
+    424.4,
+    202.6,
+    465.5
+   ],
+   "source": "vision"
+  },
+  {
+   "id": "S2",
+   "type": "gdt",
+   "value": "Gen Tol.: IS 2102",
+   "datum": null,
+   "view_id": null,
+   "tile": "tile_r0c2.png",
+   "bbox": [
+    1089.2,
+    697.7,
+    1155.7,
+    705.9
+   ],
+   "source": "vision"
+  }
+ ],
+ "notes": [
+  {
+   "id": "N1",
+   "text": "THICKNESS CHANGED FROM 23mm TO 22mm",
+   "category": "general"
+  },
+  {
+   "id": "N2",
+   "text": "1.ALL DIMENSIONS ARE IN mm",
+   "category": "general"
+  },
+  {
+   "id": "N3",
+   "text": "2.DO NOT SCALE DRAWING.",
+   "category": "general"
+  },
+  {
+   "id": "N4",
+   "text": "3.IF IN DOUBT , ASK TEAM MEMBER",
+   "category": "general"
+  },
+  {
+   "id": "N5",
+   "text": "HEAT TREATMENT :- 1) TO BE TOUGHENED UPTO 24-32 HRC. 2) RETAPPING TO BE DONE AFTER SURFACE TREATMENT AT SUPPLIER END.( IF APPLICABLE )",
+   "category": "heat_treatment"
+  },
+  {
+   "id": "N6",
+   "text": "NOTE FOR WIPRO PARI DESIGN -REF. ONLY WEAR DETAILS : N.A.",
+   "category": "general"
+  },
+  {
+   "id": "N7",
+   "text": "NOTE : STANDARD FASTENER TORQUE AS PER STD-DES-01-00 FR-DES-006-00",
+   "category": "standard"
+  },
+  {
+   "id": "N8",
+   "text": "DEBURR AND REMOVE SHARP EDGES UNLESS SHARP EDGE REQUIREMENT SPECIFIED",
+   "category": "general"
+  },
+  {
+   "id": "N9",
+   "text": "UNSP.RADII 0.5 R UNSP.CHF. 0.5 X 45°",
+   "category": "general"
+  },
+  {
+   "id": "N10",
+   "text": "RAW MATERIAL : Ø66 BLACK ROUND BAR",
+   "category": "material"
+  }
+ ],
+ "general_tolerances": [
+  {
+   "kind": "angular",
+   "process": "machining",
+   "range": "UP TO 10",
+   "tolerance": "±1.5°"
+  },
+  {
+   "kind": "angular",
+   "process": "machining",
+   "range": "10 UP TO 50",
+   "tolerance": "±0°50'"
+  },
+  {
+   "kind": "angular",
+   "process": "machining",
+   "range": "50 UP TO 120",
+   "tolerance": "±0°25'"
+  },
+  {
+   "kind": "angular",
+   "process": "machining",
+   "range": "120 UP TO 400",
+   "tolerance": "±0°15'"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "0.5 UP TO 3",
+   "tolerance": "±0.1"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "3 UP TO 6",
+   "tolerance": "±0.2"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "6 UP TO 30",
+   "tolerance": "±0.5"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "30 UP TO 120",
+   "tolerance": "±0.8"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "120 UP TO 315",
+   "tolerance": "±1.2"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "315 UP TO 1000",
+   "tolerance": "±2"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "1000 UP TO 2000",
+   "tolerance": "±3"
+  },
+  {
+   "kind": "linear",
+   "process": "machining",
+   "range": "OVER 2000",
+   "tolerance": "±4"
+  },
+  {
+   "kind": "angular",
+   "process": "fabrication",
+   "range": "UP TO 10",
+   "tolerance": "±1°"
+  },
+  {
+   "kind": "angular",
+   "process": "fabrication",
+   "range": "10 UP TO 50",
+   "tolerance": "±0°30'"
+  },
+  {
+   "kind": "angular",
+   "process": "fabrication",
+   "range": "50 UP TO 120",
+   "tolerance": "±0°20'"
+  },
+  {
+   "kind": "angular",
+   "process": "fabrication",
+   "range": "120 UP TO 400",
+   "tolerance": "±0°10'"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "0.5 UP TO 3",
+   "tolerance": "±0.1"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "3 UP TO 6",
+   "tolerance": "±0.1"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "6 UP TO 30",
+   "tolerance": "±0.2"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "30 UP TO 120",
+   "tolerance": "±0.3"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "120 UP TO 315",
+   "tolerance": "±0.5"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "315 UP TO 1000",
+   "tolerance": "±0.8"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "1000 UP TO 2000",
+   "tolerance": "±1.2"
+  },
+  {
+   "kind": "linear",
+   "process": "fabrication",
+   "range": "OVER 2000",
+   "tolerance": "±2"
+  }
+ ],
+ "revisions": [
+  {
+   "rev": "01",
+   "date": "10/05/2025",
+   "description": "THICKNESS CHANGED FROM 23mm TO 22mm"
+  }
+ ],
+ "uncertain": []
+}

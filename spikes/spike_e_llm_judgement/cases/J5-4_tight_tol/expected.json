@@ -1,0 +1,15 @@
+{
+ "kind": "planted",
+ "base": "B4_pipe_clamp_block",
+ "keys": [
+  {
+   "category": "manufacturability",
+   "evidence": [
+    "D1"
+   ],
+   "severity": "Major",
+   "description": "±0.003 mm on a milled block is below normal machining capability",
+   "rule": "ISO 2768-1 general tolerance, fine class 6-30 mm = +/-0.1 mm; +/-0.003 mm is far below that and below normal milling (needs grinding/lapping). https://www.xometry.com/resources/certifications/iso-2768 , read 2026-10-13"
+  }
+ ]
+}

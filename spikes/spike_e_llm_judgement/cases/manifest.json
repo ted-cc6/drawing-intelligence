@@ -1,0 +1,98 @@
+[
+ {
+  "case": "J5-1_deep_hole",
+  "kind": "planted",
+  "base": "B5_pin_sleeve",
+  "n_keys": 1
+ },
+ {
+  "case": "J5-2_thread_relief",
+  "kind": "planted",
+  "base": "B5_pin_sleeve",
+  "n_keys": 1
+ },
+ {
+  "case": "J5-3_sharp_corner",
+  "kind": "planted",
+  "base": "B1_cam_plate",
+  "n_keys": 1
+ },
+ {
+  "case": "J5-4_tight_tol",
+  "kind": "planted",
+  "base": "B4_pipe_clamp_block",
+  "n_keys": 1
+ },
+ {
+  "case": "J5-5_raw_stock",
+  "kind": "planted",
+  "base": "B6_coupling_spacer",
+  "n_keys": 1
+ },
+ {
+  "case": "J6-1_mat_ht",
+  "kind": "planted",
+  "base": "B5_pin_sleeve",
+  "n_keys": 1
+ },
+ {
+  "case": "J6-2_dangling_note",
+  "kind": "planted",
+  "base": "B2_cylinder_rod",
+  "n_keys": 1
+ },
+ {
+  "case": "J6-3_ht_out_of_range",
+  "kind": "planted",
+  "base": "B6_coupling_spacer",
+  "n_keys": 1
+ },
+ {
+  "case": "J6-4_missing_fit",
+  "kind": "planted",
+  "base": "B5_pin_sleeve",
+  "n_keys": 1
+ },
+ {
+  "case": "J6-5_chrome_soft",
+  "kind": "planted",
+  "base": "B1_cam_plate",
+  "n_keys": 1
+ },
+ {
+  "case": "C1_clean_cam_plate",
+  "kind": "clean",
+  "base": "B1_cam_plate",
+  "n_keys": 0
+ },
+ {
+  "case": "C2_clean_cylinder_rod",
+  "kind": "clean",
+  "base": "B2_cylinder_rod",
+  "n_keys": 0
+ },
+ {
+  "case": "C3_clean_pipe_clamp_block",
+  "kind": "clean",
+  "base": "B4_pipe_clamp_block",
+  "n_keys": 0
+ },
+ {
+  "case": "C4_clean_hose_clamp",
+  "kind": "clean",
+  "base": "B3_hose_clamp",
+  "n_keys": 0
+ },
+ {
+  "case": "NM-1_deep_but_ok",
+  "kind": "near_miss",
+  "base": "B5_pin_sleeve",
+  "n_keys": 0
+ },
+ {
+  "case": "NM-2_correct_ht",
+  "kind": "near_miss",
+  "base": "B5_pin_sleeve",
+  "n_keys": 0
+ }
+]

@@ -1,0 +1,16 @@
+{
+ "kind": "planted",
+ "base": "B6_coupling_spacer",
+ "keys": [
+  {
+   "category": "design_intent",
+   "evidence": [
+    "material",
+    "N5"
+   ],
+   "severity": "Major",
+   "description": "C45 through-hardening per DES-11 is 24-32 HRC; 55 HRC is out of range",
+   "rule": "US-6.1 AC2 + DES-11: material paired with a treatment the guideline does not allow"
+  }
+ ]
+}
