@@ -1,0 +1,16 @@
+{
+ "kind": "planted",
+ "base": "B1_cam_plate",
+ "keys": [
+  {
+   "category": "manufacturability",
+   "evidence": [
+    "F7",
+    "D7"
+   ],
+   "severity": "Minor",
+   "description": "Zero-radius internal corner cannot be cut by a round tool",
+   "rule": "DFM: a milling cutter is cylindrical, so the smallest internal radius = the cutter radius; a zero-radius internal corner cannot be milled. https://jlccnc.com/help/article/CNC-Machining-Design-Guideline , read 2026-10-13"
+  }
+ ]
+}

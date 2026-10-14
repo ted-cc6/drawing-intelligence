@@ -1,0 +1,7 @@
+metric,value
+in_scope_distinct,38
+real,12
+unclear,11
+false,15
+precision_strict,0.32
+precision_lenient,0.61

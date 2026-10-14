@@ -1,0 +1,16 @@
+{
+ "kind": "planted",
+ "base": "B6_coupling_spacer",
+ "keys": [
+  {
+   "category": "manufacturability",
+   "evidence": [
+    "D1",
+    "N10"
+   ],
+   "severity": "Minor",
+   "description": "Ø66 bar is not a standard stock size and leaves no machining allowance on Ø66",
+   "rule": "US-5.2 + DES-11 p.2 standard round-bar stock list (10,16,25,30,32,36,40,42,45,50,...)"
+  }
+ ]
+}

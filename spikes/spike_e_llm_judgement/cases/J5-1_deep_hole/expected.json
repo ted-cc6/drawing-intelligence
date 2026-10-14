@@ -1,0 +1,17 @@
+{
+ "kind": "planted",
+ "base": "B5_pin_sleeve",
+ "keys": [
+  {
+   "category": "manufacturability",
+   "evidence": [
+    "F4",
+    "D14",
+    "D15"
+   ],
+   "severity": "Major",
+   "description": "Blind hole depth 50 / Ø4.2 = 11.9x diameter, far over the 10x limit",
+   "rule": "US-5.1 AC1 (01_discovery.md): hole depth > 10 x diameter -> warning"
+  }
+ ]
+}

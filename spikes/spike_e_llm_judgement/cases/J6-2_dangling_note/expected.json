@@ -1,0 +1,15 @@
+{
+ "kind": "planted",
+ "base": "B2_cylinder_rod",
+ "keys": [
+  {
+   "category": "design_intent",
+   "evidence": [
+    "heat_treatment"
+   ],
+   "severity": "Critical",
+   "description": "Heat treatment says \"REF NOTE\" but no heat-treatment note exists",
+   "rule": "US-6.1 AC1 (01_discovery.md): a referenced heat-treatment note must exist, else fail"
+  }
+ ]
+}
