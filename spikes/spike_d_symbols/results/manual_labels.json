@@ -1,0 +1,27 @@
+{
+ "_note": "Corrections to the automatic answer key after a visual review of every page overlay (out/answer_key/*.png). 'remove' lists auto ids (K..) that are not symbols; 'add' lists symbols the detectors missed. Bboxes are approximate, in PDF points, visual orientation. Reviewed by Claude Code on 2026-10-15; to be confirmed by a human.",
+ "P23Y5B071019001": {
+  "1": {
+   "add": [
+    {"type": "datum", "value": "datum C", "bbox": [1652, 634, 1666, 648], "note": "boxed C under the concentricity/perpendicularity frames, section A-A"},
+    {"type": "datum", "value": "datum B", "bbox": [2208, 657, 2222, 671], "note": "boxed B under the perpendicularity frame, section A-A"}
+   ]
+  }
+ },
+ "PRF83A106004002": {
+  "1": {
+   "remove": ["K14", "K15"],
+   "why_removed": "K14 and K15 are revision triangles (delta 1), not finish marks; this sheet has the older PARI title block, so the template regions do not mask them",
+   "add": [
+    {"type": "datum", "value": "datum B", "bbox": [151, 182, 163, 194], "note": "boxed B under the concentricity frame, left end"}
+   ]
+  }
+ },
+ "PRT84S103156003": {
+  "3": {
+   "add": [
+    {"type": "datum", "value": "datum A", "bbox": [416, 477, 428, 491], "note": "boxed A with filled triangle, left of the main view"}
+   ]
+  }
+ }
+}
