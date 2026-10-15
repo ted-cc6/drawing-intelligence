@@ -1,0 +1,16 @@
+{
+ "kind": "planted",
+ "base": "B1_cam_plate",
+ "keys": [
+  {
+   "category": "design_intent",
+   "evidence": [
+    "surface_treatment",
+    "heat_treatment"
+   ],
+   "severity": "Major",
+   "description": "Hard chrome needs a hardened surface (>=45 HRC); this part (M.S.) is not hardened",
+   "rule": "PARI PRD-GD-DES-12 (client guideline, WP Specific Guidelines/), read 2026-10-13"
+  }
+ ]
+}

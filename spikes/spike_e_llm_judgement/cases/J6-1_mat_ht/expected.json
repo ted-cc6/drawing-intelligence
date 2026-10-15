@@ -1,0 +1,16 @@
+{
+ "kind": "planted",
+ "base": "B5_pin_sleeve",
+ "keys": [
+  {
+   "category": "design_intent",
+   "evidence": [
+    "material",
+    "N1"
+   ],
+   "severity": "Critical",
+   "description": "20MnCr5 is a case-hardening steel; through-hardening to 50 HRC does not suit it",
+   "rule": "US-6.1 AC2 + DES-11: material paired with a treatment the guideline does not allow"
+  }
+ ]
+}

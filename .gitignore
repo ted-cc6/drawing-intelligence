@@ -26,3 +26,6 @@ build/
 .DS_Store
 Thumbs.db
 ~$*
+
+# --- spikes: bulky per-drawing outputs (summaries go in spikes/*/results/) ---
+spikes/*/out/

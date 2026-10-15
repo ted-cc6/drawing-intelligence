@@ -1,0 +1,6 @@
+{
+ "kind": "near_miss",
+ "base": "B5_pin_sleeve",
+ "keys": [],
+ "note": "20MnCr5 case-hardened 55-60 HRC is correct per DES-11 - must NOT be flagged"
+}

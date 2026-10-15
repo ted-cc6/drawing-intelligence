@@ -1,0 +1,15 @@
+{
+ "kind": "planted",
+ "base": "B5_pin_sleeve",
+ "keys": [
+  {
+   "category": "manufacturability",
+   "evidence": [
+    "F7"
+   ],
+   "severity": "Major",
+   "description": "External thread runs to a shoulder with no undercut/relief groove",
+   "rule": "US-5.1 AC2 (01_discovery.md): thread to a shoulder without undercut -> warning"
+  }
+ ]
+}

@@ -1,0 +1,14 @@
+family,iso_size,n,crash,crash_rate,no_dimension,no_dim_rate,no_text_layer,tb_fail,tb_fail_rate,size_mismatch,median_dims,median_notes
+prismatic,A0,3,0,0.0%,0,0.0%,0,0,0.0%,0,81,74
+prismatic,A1,104,0,0.0%,0,0.0%,0,0,0.0%,0,66,68
+prismatic,A2,486,0,0.0%,0,0.0%,0,0,0.0%,0,22,37
+prismatic,A3,41,0,0.0%,0,0.0%,0,0,0.0%,0,21,20
+prismatic,A4,1,0,0.0%,0,0.0%,0,0,0.0%,0,13,19
+prismatic,mixed,4,0,0.0%,0,0.0%,0,0,0.0%,0,133,143
+round,A1,36,0,0.0%,0,0.0%,0,0,0.0%,0,33,45
+round,A2,339,0,0.0%,0,0.0%,0,0,0.0%,0,15,39
+round,A3,141,0,0.0%,1,0.7%,0,1,0.7%,0,13,21
+round,A4,15,0,0.0%,0,0.0%,0,2,13.3%,0,10,17
+round,non-standard,1,0,0.0%,0,0.0%,0,0,0.0%,1,6,25
+sample,A3,4,0,0.0%,0,0.0%,0,0,0.0%,0,19,17
+ALL,all,1175,0,0.0%,1,0.1%,0,3,0.3%,1,20,37

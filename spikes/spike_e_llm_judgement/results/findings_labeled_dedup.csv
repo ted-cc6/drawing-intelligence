@@ -1,0 +1,43 @@
+scope,label,theme,base,category,severity,example_case,reasoning
+in,real,B_ht_titleblock_vs_note,B5_pin_sleeve,design_intent,Critical,J5-1_deep_hole,"The title block heat_treatment field is '---', but note N1 explicitly requires case hardening to 55–60 HRC with a 0.8–2 "
+in,real,B_ht_titleblock_vs_note,B6_coupling_spacer,design_intent,Critical,J5-5_raw_stock,"The title block heat_treatment field is '---' (indicating none), but note N5 explicitly requires toughening to 24-32 HRC"
+in,unclear,C_untoleranced_dia,B2_cylinder_rod,design_intent,Major,C2_clean_cylinder_rod,The two Ø15 holes (D5/F1) and two Ø8.4 holes (D9/F2) are called out without any tolerance or fit class. The Ø8.4 diamete
+in,unclear,C_untoleranced_dia,B4_pipe_clamp_block,design_intent,Critical,J5-4_tight_tol,The two Ø6.4 holes (D7 / F6) have no tolerance specified. A 6.4 mm diameter strongly implies a clearance hole for an M6 
+in,unclear,C_untoleranced_dia,B5_pin_sleeve,design_intent,Major,J6-1_mat_ht,"The outer diameter ⌀30 (D1, D13) and inner bore ⌀20 (D4, D12) have no tolerances assigned. As functional surfaces of a p"
+in,unclear,C_untoleranced_dia,B6_coupling_spacer,design_intent,Major,J5-5_raw_stock,Dimension D1 specifies the outer cylindrical surface (F1) of this coupling spacer as ⌀66 with no tolerance. Coupling spa
+in,false,D_nonstandard_drill,B4_pipe_clamp_block,manufacturability,Minor,C3_clean_pipe_clamp_block,"Ø6.4 mm is not a standard metric drill size. While it corresponds to an imperial 1/4"" drill, specifying non-standard siz"
+in,false,D_nonstandard_drill,B5_pin_sleeve,manufacturability,Major,NM-1_deep_but_ok,"Feature F4 defines a drilled hole of Ø5 mm (D14) that is 40 mm deep (D15), giving an 8:1 depth-to-diameter ratio. This e"
+in,false,F_speculation,B1_cam_plate,design_intent,Critical,J5-3_sharp_corner,The title block specifies material 'M.S.' (mild steel) with surface treatment 'I.Z.B.P. (TRIVALENT)'. IZBP stands for Ir
+in,false,F_speculation,B2_cylinder_rod,design_intent,Major,J6-2_dangling_note,I.Z.B.P. (Iron Zinc Bright Passivation) is a zinc electroplating process intended for steel. While C-45 is a carbon stee
+in,false,F_speculation,B3_hose_clamp,manufacturability,Major,C4_clean_hose_clamp,Symbols S4 and S5 specify 'UNSP.RADII 0.5 R' and 'UNSP.CHF. 0.5 X 45°'. These are standard machined-metal edge treatment
+in,false,F_speculation,B4_pipe_clamp_block,manufacturability,Minor,C3_clean_pipe_clamp_block,Symbol S1 specifies a default 0.5 mm radius for unspecified radii. If this applies to the internal corners at the ends o
+in,false,F_speculation,B5_pin_sleeve,design_intent,Major,NM-1_deep_but_ok,Material 20MnCr5 is a low-carbon case-hardening steel; its core hardness after carburizing and quenching is typically 30
+in,unclear,G_gdt_symbol,B1_cam_plate,design_intent,Major,J6-5_chrome_soft,"Symbol S6 is identified as a position tolerance referencing datums A and B for the Ø16 H7 hole (D12), but the uncertain "
+in,false,H_too_tight,B2_cylinder_rod,manufacturability,Minor,J6-2_dangling_note,"Dimension D21 calls out 20±0.02 mm. The general machining tolerance for the 6–30 mm range is ±0.2 mm, making this ten ti"
+in,false,H_too_tight,B2_cylinder_rod,design_intent,Critical,C2_clean_cylinder_rod,"Dimension D21 specifies 20±0.02 mm (0.04 mm total tolerance) on feature F10, which is far tighter than the general machi"
+in,false,H_too_tight,B3_hose_clamp,design_intent,Critical,C4_clean_hose_clamp,"The part is specified as Polyurethane (an elastomer/plastic), yet dimensions D10 (34.97) and D11 (49.97) imply a precisi"
+in,false,H_too_tight,B5_pin_sleeve,design_intent,Major,J6-4_missing_fit,Dimensions D1 and D13 (⌀30) define the outer cylindrical surface of the sleeve. Without an explicit tolerance they defau
+in,false,H_too_tight,B6_coupling_spacer,design_intent,Major,J6-3_ht_out_of_range,"Feature F1 (outer cylindrical surface, ⌀66 per D1) is the primary functional interface of a coupling spacer yet carries "
+in,false,H_too_tight,B6_coupling_spacer,manufacturability,Minor,J6-3_ht_out_of_range,"Dimension D3 specifies 22 ±0.05 mm. For a 22 mm linear dimension, the stated general machining tolerance is ±0.5 mm. Hol"
+in,real,PLANT:J5-1_deep_hole,B5_pin_sleeve,manufacturability,Major,J5-1_deep_hole,"Feature F4 specifies a Ø4.2 mm hole (D14) drilled 50 mm deep (D15), giving a depth-to-diameter ratio of nearly 12:1. Thi"
+in,real,PLANT:J5-2_thread_relief,B5_pin_sleeve,manufacturability,Critical,J5-2_thread_relief,Feature F7 describes an external M20 thread running up to the shoulder with no undercut or relief groove. Without a thre
+in,real,PLANT:J5-3_sharp_corner,B1_cam_plate,manufacturability,Major,J5-3_sharp_corner,Dimension D7 specifies an internal fillet radius of R 0. A milling cutter or turning tool has a finite radius and cannot
+in,real,PLANT:J5-4_tight_tol,B4_pipe_clamp_block,manufacturability,Critical,J5-4_tight_tol,"Dimension D1 specifies 15 ±0.003 mm (6 µm total tolerance band). This is far tighter than standard milling, turning, or "
+in,real,PLANT:J5-5_raw_stock,B6_coupling_spacer,manufacturability,Major,J5-5_raw_stock,"Note N10 specifies raw material as 'Ø66 BLACK ROUND BAR', while D1 specifies the finished outer diameter F1 as exactly ⌀"
+in,real,PLANT:J6-1_mat_ht,B5_pin_sleeve,design_intent,Critical,J6-1_mat_ht,"The title block heat_treatment field is '---' while note N1 explicitly requires through hardening to 50 HRC, creating a "
+in,real,PLANT:J6-2_dangling_note,B2_cylinder_rod,design_intent,Critical,J6-2_dangling_note,"The title block heat_treatment field specifies 'REF NOTE', but none of the provided notes (N2 through N8) contain any he"
+in,real,PLANT:J6-3_ht_out_of_range,B6_coupling_spacer,design_intent,Critical,J6-3_ht_out_of_range,"The title block field 'heat_treatment' is explicitly set to '---' (none), but note N5 specifies 'TO BE THROUGH HARDENED "
+in,real,PLANT:J6-4_missing_fit,B5_pin_sleeve,design_intent,Major,J6-4_missing_fit,Dimensions D3 (⌀12) and D4/D12 (⌀20) define the inner bores of a pin sleeve. With no explicit tolerance they fall back t
+in,real,PLANT:J6-5_chrome_soft,B1_cam_plate,design_intent,Critical,J6-5_chrome_soft,Hard chrome plating on Mild Steel (M.S.) without any prior heat treatment (hardness ~120 HB) provides a hard surface ove
+in,false,Z2_thread_relief_tapped,B5_pin_sleeve,manufacturability,Info,J6-4_missing_fit,"Feature F4 describes an M5 × 6 deep threaded hole. If this thread terminates at a shoulder inside the blind hole, standa"
+in,false,Z2_thread_relief_tapped,B5_pin_sleeve,design_intent,Major,J6-4_missing_fit,Feature F4 describes an M5 threaded hole 6 mm deep. Note N1 requires threads to be kept soft during case hardening and t
+in,unclear,Z_other,B2_cylinder_rod,manufacturability,Minor,J6-2_dangling_note,Feature F5 defines a rectangular slot 14 mm wide (D14) by 30 mm high (D15). Feature F6 specifies an R7 fillet at the out
+in,unclear,Z_other,B2_cylinder_rod,design_intent,Major,C2_clean_cylinder_rod,"Feature F10 is described as 'Two holes: 20±0.02 mm and 50±0.1 mm spacing', yet D21 and D22 are both recorded as type 'li"
+in,unclear,Z_other,B3_hose_clamp,manufacturability,Major,C4_clean_hose_clamp,"Dimension D11 (F11) defines the total height of the section as 49.97 mm, while dimension D10 (F10) defines the vertical "
+in,unclear,Z_other,B3_hose_clamp,design_intent,Major,C4_clean_hose_clamp,"D15 specifies the width of the central opening (the hose clamping area) as '30 ±0.1'. For a flexible polyurethane clamp,"
+in,unclear,Z_other,B4_pipe_clamp_block,design_intent,Major,J5-4_tight_tol,Feature F1 has two dimensions for the same 15 mm width: D1 calls it out as 15 ±0.003 mm while D4 calls it out as 15 with
+in,unclear,Z_other,B5_pin_sleeve,design_intent,Minor,NM-1_deep_but_ok,"Note N1 includes instructions to keep 'THREADS TO BE KEEP SOFT' and mentions 'RETAPPING'. However, there are no threaded"
+out,real,A_junk_note,B5_pin_sleeve,design_intent,Minor,J5-2_thread_relief,"Note N5 contains the text 'YFYFGHYFGHGF', which is gibberish/placeholder text. Leaving invalid notes on a production dra"
+out,real,A_junk_note,B5_pin_sleeve,manufacturability,Minor,J6-4_missing_fit,"Note N5 contains the text 'YFYFGHYFGHGF', which is gibberish. While it does not directly alter geometry, placeholder or "
+out,real,E_text_quality,B3_hose_clamp,design_intent,Major,C4_clean_hose_clamp,"Note N2 specifies Shore hardness as '80u5', which is not a valid designation. Polyurethane hardness is typically specifi"
+out,artefact,Z1_bore_no_nominal,B6_coupling_spacer,design_intent,Major,J6-3_ht_out_of_range,Feature F2 (inner cylindrical bore) is dimensioned by D2 which only shows '+0.2' with no nominal diameter value and no l
