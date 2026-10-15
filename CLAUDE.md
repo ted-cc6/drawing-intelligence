@@ -17,10 +17,12 @@ do not edit them).
 ```
 src/drawing_intelligence/
   settings.py          env + .env settings (DI_* variables, API keys as SecretStr)
-  schemas/             Pydantic data contracts: Extraction, DrawingKnowledge (versioned)
+  schemas/             Pydantic data contracts: Extraction, DrawingKnowledge, review (Finding, RuleStatus,
+                       ReviewResult, FindingFeedback) - versioned
   extraction/          stage 1 - text layer, token cleanup, classification, geometry/chain checks, images
   llm/                 model registry + one OpenAI-SDK client for OpenAI and Qwen (cost, latency, cache)
   understanding/       stage 2 - prompt, message building, call + validate + retry
+  review/              stage 3 - rulebook (Rule, load_rulebook, new_finding); reviewers come next
   graph/               LangGraph state and graph (intake -> understand)
   storage/             session workspaces (ephemeral), telemetry DB, response cache
   eval/                baseline diff, understanding scorecard
@@ -28,6 +30,7 @@ src/drawing_intelligence/
   cli.py               the `di` command
 config/models.yaml     model registry: prices, capabilities, roles, thinking options, role defaults
 config/templates/      drawing-template regions and glyph remaps
+config/rules/          the rulebook, one YAML list of rules per file (see its README)
 data/                  committed (ADR 0007): raw PDFs, client_set, baseline, labels, cache, telemetry.db
 ```
 

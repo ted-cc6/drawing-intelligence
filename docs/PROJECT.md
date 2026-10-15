@@ -1,6 +1,6 @@
 # Drawing Intelligence: project document
 
-*UChicago MS in Applied Data Science capstone · Client: LatentView Analytics · Living document; last updated 2026-10-06.*
+*UChicago MS in Applied Data Science capstone · Client: LatentView Analytics · Living document; last updated 2026-10-15.*
 
 ## 1. Problem
 
@@ -75,8 +75,17 @@ Every stage reads and writes typed, versioned Pydantic models (`src/drawing_inte
   dimensions (ids `D1..Dn`), view labels, notes, chain-sum checks, and the image set sent to the LLM.
 - `DrawingKnowledge` (stage 2): title block, views, dimensions (every `D` id kept unchanged; image-only ones
   get `V` ids and `source: "vision"`), features, symbols, notes, general tolerances, revisions, uncertain items.
-- `Finding` (stage 3–4, planned): category, requirement, severity, evidence (dimension ids / bbox / rule id),
-  recommended correction. These are the columns the client's checklist asks for.
+- `Finding` (stages 3–4, `schemas/review.py`): an issue in the client's checklist columns. It has a category,
+  requirement, result (`fail` | `warning`), severity, evidence, comment and recommended correction, plus the
+  reviewer and source (`code` | `lookup` | `llm`). Each evidence item (`EvidenceRef`) points at a dimension,
+  symbol, note, title-block field, quoted text or region, and records where it was read: `pdf_text`, `vector`
+  or `vision`. The ID is stable across runs (a hash of rule + evidence).
+- `RuleStatus`: the per-rule outcome (`pass` | `fail` | `warning` | `not_applicable` | `not_checked`) for the
+  report's Pass/Fail column. `ReviewResult` holds the whole review of one drawing, including the rulebook
+  version and which reviewers ran or were skipped. `FindingFeedback` records an engineer's accept or reject.
+- `Rule` (`config/rules/*.yaml`, loaded by `review.load_rulebook()`, checked by `di rules`): ID, category,
+  requirement, severity, check type (`code` | `lookup` | `llm`), check function and params, applies-to (part
+  family, drawing type), source document and section, and status (`draft` | `client_confirmed`).
 
 ### Hard rules
 
@@ -84,6 +93,9 @@ Every stage reads and writes typed, versioned Pydantic models (`src/drawing_inte
 2. **Evidence or it didn't happen.** Every review finding cites dimension ids, a bbox or a rule id; the
    verifier drops findings whose citations do not resolve.
 3. **Client data is session-scoped** (section 6).
+4. **Trust is enforced by the schema** ([ADR 0008](adr/0008-review-contracts-enforce-trust.md)): an LLM
+   finding is at most a warning, severity comes from the rulebook, and a *fail* needs `pdf_text` or `vector`
+   evidence.
 
 ## 5. Models, cost and latency
 
@@ -173,7 +185,7 @@ No labelled error drawings exist yet, so evaluation is built from what is availa
 |---|---|---|
 | M0 | Repo, tooling, CI on Windows/macOS/Linux, docs and ADRs | ✅ |
 | M1 | Notebooks 01/02 ported and upgraded: typed contracts, multi-page, template config, model registry, telemetry, session data, LangGraph intake → understand, CLI, eval | ✅ |
-| M2 | Rulebook from the client checklist and guidelines; consistency + standards reviewers; verifier | next |
+| M2 | Review contracts and rulebook loader (A2, in review); rulebook from the client checklist and guidelines; consistency + standards reviewers; verifier | in progress |
 | M3 | Manufacturability + design-intent reviewers; seeded-error eval set; report | |
 | M4 | Q&A agent; feedback log | |
 | M5 | API + dashboard (model picker, cost and latency) | |

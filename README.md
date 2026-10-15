@@ -46,6 +46,7 @@ uv run di eval baseline                                 # compare extraction wit
 uv run di eval understand --from-baseline               # score the notebook's saved LLM outputs (free)
 uv run di eval understand --model qwen3.8-max           # score a model on data/raw (asks before paying)
 uv run di telemetry                                     # average cost and latency per model
+uv run di rules                                         # validate and summarise the rulebook (config/rules)
 ```
 
 By default every run is **ephemeral**: the drawing, images and results are deleted when the run ends and only
