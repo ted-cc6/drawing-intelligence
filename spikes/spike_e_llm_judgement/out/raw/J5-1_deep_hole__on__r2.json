@@ -1,0 +1,45 @@
+{
+  "findings": [
+    {
+      "category": "manufacturability",
+      "severity": "Critical",
+      "evidence": [
+        "F4",
+        "D14",
+        "D15",
+        "D7",
+        "D2",
+        "D6",
+        "D8",
+        "D9",
+        "D11"
+      ],
+      "rule": "Hole/thread depth must be contained by the part envelope and be practical for standard drilling/tapping.",
+      "reasoning": "F4 specifies a Ø4.2 hole 50 deep for an M5 tap (D14, D15). The supplied linear dimensions max out at 40 mm (D7; others are 28, 15, 10, 5, 1), so a 50 mm depth is not supported by the given part envelope. The depth is also about 12 times the drill diameter, making standard drilling and tapping very difficult.",
+      "correction": "Reduce the hole/thread depth to a producible value within the part envelope, or redesign the part/add a boss and specify a through hole/relief. Fully define the M5 thread with standard depth and tap-drill details."
+    },
+    {
+      "category": "design_intent",
+      "severity": "Minor",
+      "evidence": [
+        "heat_treatment",
+        "N1"
+      ],
+      "rule": "Title-block fields and notes must give consistent heat-treatment requirements.",
+      "reasoning": "The title-block heat-treatment field is '---' while N1 requires case hardening to 55-60 HRC and case depth 0.8-2 mm. This inconsistency can lead to the heat treatment being omitted or misunderstood.",
+      "correction": "Enter the required case-hardening specification in the heat-treatment field or explicitly reference N1."
+    },
+    {
+      "category": "design_intent",
+      "severity": "Minor",
+      "evidence": [
+        "F4",
+        "D14",
+        "D15"
+      ],
+      "rule": "Tapped holes should be fully specified with thread size, pitch, fit class, and thread/drill depth.",
+      "reasoning": "F4 only gives a Ø4.2 tap-drill diameter and a 50 mm hole depth and says 'for M5 tap'; the M5 thread fit class and effective thread depth are not explicitly stated.",
+      "correction": "Add a complete thread callout, e.g. M5 x 0.8 - 6H, with required thread depth, tap-drill depth, and any bottom relief."
+    }
+  ]
+}

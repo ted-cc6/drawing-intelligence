@@ -1,0 +1,38 @@
+{
+  "findings": [
+    {
+      "category": "manufacturability",
+      "severity": "Critical",
+      "evidence": [
+        "F7"
+      ],
+      "rule": "Threads terminating against a shoulder require an undercut, relief groove, or standard runout.",
+      "reasoning": "F7 explicitly describes an external M20 thread running up to the shoulder with no undercut/relief groove, leaving no tool clearance and preventing a proper full thread at the shoulder.",
+      "correction": "Add a thread undercut/relief groove or specify an appropriate thread runout at the shoulder."
+    },
+    {
+      "category": "design_intent",
+      "severity": "Major",
+      "evidence": [
+        "heat_treatment",
+        "N1"
+      ],
+      "rule": "Title-block heat-treatment data must agree with the drawing notes.",
+      "reasoning": "The title block gives heat treatment as '---', but N1 requires case hardening to 55-60 HRC with case depth 0.8-2 mm, creating a conflicting/missing heat-treatment specification.",
+      "correction": "Enter the required case-hardening specification, or reference N1, in the title-block heat-treatment field."
+    },
+    {
+      "category": "design_intent",
+      "severity": "Major",
+      "evidence": [
+        "title",
+        "F2",
+        "D4",
+        "D12"
+      ],
+      "rule": "Functional mating diameters require an explicit tolerance or fit class.",
+      "reasoning": "The part is a pin sleeve and F2 identifies D4/D12 as the inner bore, but the ⌀20 bore has no explicit tolerance or fit class; only a general tolerance would apply, which may not define the required pin fit.",
+      "correction": "Specify an appropriate fit/tolerance for the functional bore, or explicitly identify the bore as non-functional/REF if no fit is required."
+    }
+  ]
+}

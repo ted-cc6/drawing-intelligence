@@ -1,0 +1,1771 @@
+{
+ "schema_version": "1.0",
+ "page_number": 2,
+ "model": "qwen3-vl-plus",
+ "thinking": "off",
+ "knowledge": {
+  "drawing": {
+   "number": "P23Y5B076198",
+   "title": "LIGHT MTG STRUCTURE",
+   "revision": "00",
+   "material": "---",
+   "surface_treatment": "---",
+   "heat_treatment": "---",
+   "scale": "1 : 5",
+   "sheet_size": "A1",
+   "units": "mm",
+   "general_tolerance_standard": "IS 2102",
+   "drawn_date": "13/11/2024",
+   "checked_date": "13/11/2024",
+   "approved_date": "13/11/2024",
+   "weight": "3.82 kg"
+  },
+  "views": [
+   {
+    "id": "view1",
+    "name": "TOP VIEW",
+    "scale": "1:5"
+   },
+   {
+    "id": "view2",
+    "name": "FRONT VIEW",
+    "scale": "1:5"
+   },
+   {
+    "id": "view3",
+    "name": "BOTTOM VIEW",
+    "scale": "1:5"
+   },
+   {
+    "id": "view4",
+    "name": "DEVELOPMENT VIEW",
+    "scale": "1:5"
+   },
+   {
+    "id": "view5",
+    "name": "R.H. SIDE VIEW",
+    "scale": "1:5"
+   },
+   {
+    "id": "view6",
+    "name": "DETAIL VIEW",
+    "scale": "1:2"
+   }
+  ],
+  "dimensions": [
+   {
+    "id": "D1",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1563.2,
+     124.3,
+     1603.4,
+     140.4
+    ]
+   },
+   {
+    "id": "D2",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1733.4,
+     124.3,
+     1773.6,
+     140.4
+    ]
+   },
+   {
+    "id": "D3",
+    "text": "175.00",
+    "value": 175.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1552.1,
+     157.2,
+     1614.7,
+     173.3
+    ]
+   },
+   {
+    "id": "D4",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1733.4,
+     157.2,
+     1773.6,
+     173.3
+    ]
+   },
+   {
+    "id": "D5",
+    "text": "56",
+    "value": 56.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "radius",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     179.9,
+     177.2,
+     196.0,
+     199.7
+    ]
+   },
+   {
+    "id": "D6",
+    "text": "350.00",
+    "value": 350.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1552.1,
+     190.2,
+     1614.7,
+     206.3
+    ]
+   },
+   {
+    "id": "D7",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1733.4,
+     190.2,
+     1773.6,
+     206.3
+    ]
+   },
+   {
+    "id": "D8",
+    "text": "R 5",
+    "value": 5.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "radius",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     172.8,
+     219.4,
+     204.5,
+     250.7
+    ]
+   },
+   {
+    "id": "D9",
+    "text": "525.00",
+    "value": 525.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1552.1,
+     223.1,
+     1614.7,
+     239.2
+    ]
+   },
+   {
+    "id": "D10",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1733.4,
+     223.1,
+     1773.6,
+     239.2
+    ]
+   },
+   {
+    "id": "D11",
+    "text": "700.00",
+    "value": 700.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1552.1,
+     255.9,
+     1614.7,
+     272.0
+    ]
+   },
+   {
+    "id": "D12",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1733.4,
+     255.9,
+     1773.6,
+     272.0
+    ]
+   },
+   {
+    "id": "D13",
+    "text": "84.5",
+    "value": 84.5,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     167.0,
+     264.2,
+     207.2,
+     280.3
+    ]
+   },
+   {
+    "id": "D14",
+    "text": "875.00",
+    "value": 875.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1552.1,
+     288.8,
+     1614.7,
+     304.9
+    ]
+   },
+   {
+    "id": "D15",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1733.4,
+     288.8,
+     1773.6,
+     304.9
+    ]
+   },
+   {
+    "id": "D16",
+    "text": "1050.00",
+    "value": 1050.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1546.4,
+     321.7,
+     1620.2,
+     337.8
+    ]
+   },
+   {
+    "id": "D17",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1733.4,
+     321.7,
+     1773.6,
+     337.8
+    ]
+   },
+   {
+    "id": "D18",
+    "text": "1",
+    "value": null,
+    "unit": null,
+    "tolerance": null,
+    "type": "other",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     895.8,
+     359.1,
+     907.2,
+     375.2
+    ]
+   },
+   {
+    "id": "D19",
+    "text": "64",
+    "value": 64.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1140.0,
+     389.5,
+     1162.5,
+     405.6
+    ]
+   },
+   {
+    "id": "D20",
+    "text": "R 2",
+    "value": 2.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "radius",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1201.8,
+     392.0,
+     1234.6,
+     420.5
+    ]
+   },
+   {
+    "id": "D21",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1562.0,
+     440.0,
+     1602.2,
+     456.1
+    ]
+   },
+   {
+    "id": "D22",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1732.2,
+     440.0,
+     1772.4,
+     456.1
+    ]
+   },
+   {
+    "id": "D23",
+    "text": "37.5",
+    "value": 37.5,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     160.4,
+     454.7,
+     176.5,
+     494.9
+    ]
+   },
+   {
+    "id": "D24",
+    "text": "90°",
+    "value": 90.0,
+    "unit": "deg",
+    "tolerance": null,
+    "type": "angle",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1138.2,
+     446.5,
+     1170.8,
+     476.9
+    ]
+   },
+   {
+    "id": "D25",
+    "text": "75",
+    "value": 75.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1236.5,
+     452.9,
+     1252.6,
+     475.4
+    ]
+   },
+   {
+    "id": "D26",
+    "text": "70.00",
+    "value": 70.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1556.5,
+     473.0,
+     1607.8,
+     489.1
+    ]
+   },
+   {
+    "id": "D27",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1732.2,
+     473.0,
+     1772.4,
+     489.1
+    ]
+   },
+   {
+    "id": "D28",
+    "text": "22",
+    "value": 22.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     182.6,
+     498.1,
+     205.2,
+     514.2
+    ]
+   },
+   {
+    "id": "D29",
+    "text": "64",
+    "value": 64.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1186.6,
+     511.5,
+     1209.1,
+     527.6
+    ]
+   },
+   {
+    "id": "D30",
+    "text": "190.00",
+    "value": 190.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1550.9,
+     505.9,
+     1613.5,
+     522.0
+    ]
+   },
+   {
+    "id": "D31",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1732.2,
+     505.9,
+     1772.4,
+     522.0
+    ]
+   },
+   {
+    "id": "D32",
+    "text": "1219",
+    "value": 1219.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     549.2,
+     537.8,
+     594.2,
+     553.9
+    ]
+   },
+   {
+    "id": "D33",
+    "text": "260.00",
+    "value": 260.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1550.9,
+     538.8,
+     1613.5,
+     554.9
+    ]
+   },
+   {
+    "id": "D34",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1732.2,
+     538.8,
+     1772.4,
+     554.9
+    ]
+   },
+   {
+    "id": "D35",
+    "text": "380.00",
+    "value": 380.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1550.9,
+     571.7,
+     1613.5,
+     587.8
+    ]
+   },
+   {
+    "id": "D36",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1732.2,
+     571.7,
+     1772.4,
+     587.8
+    ]
+   },
+   {
+    "id": "D37",
+    "text": "450.00",
+    "value": 450.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1550.9,
+     604.5,
+     1613.5,
+     620.6
+    ]
+   },
+   {
+    "id": "D38",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1732.2,
+     604.5,
+     1772.4,
+     620.6
+    ]
+   },
+   {
+    "id": "D39",
+    "text": "R 5",
+    "value": 5.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "radius",
+    "is_reference": false,
+    "view_id": "view3",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     172.0,
+     623.4,
+     203.6,
+     655.0
+    ]
+   },
+   {
+    "id": "D40",
+    "text": "570.00",
+    "value": 570.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1550.9,
+     637.5,
+     1613.5,
+     653.6
+    ]
+   },
+   {
+    "id": "D41",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1732.2,
+     637.5,
+     1772.4,
+     653.6
+    ]
+   },
+   {
+    "id": "D42",
+    "text": "640.00",
+    "value": 640.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1550.9,
+     670.4,
+     1613.5,
+     686.5
+    ]
+   },
+   {
+    "id": "D43",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1732.2,
+     670.4,
+     1772.4,
+     686.5
+    ]
+   },
+   {
+    "id": "D44",
+    "text": "760.00",
+    "value": 760.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1550.9,
+     703.3,
+     1613.5,
+     719.4
+    ]
+   },
+   {
+    "id": "D45",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1732.2,
+     703.3,
+     1772.4,
+     719.4
+    ]
+   },
+   {
+    "id": "D46",
+    "text": "47",
+    "value": 47.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view3",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     163.7,
+     734.0,
+     179.8,
+     756.5
+    ]
+   },
+   {
+    "id": "D47",
+    "text": "830.00",
+    "value": 830.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1550.9,
+     736.2,
+     1613.5,
+     752.3
+    ]
+   },
+   {
+    "id": "D48",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1732.2,
+     736.2,
+     1772.4,
+     752.3
+    ]
+   },
+   {
+    "id": "D49",
+    "text": "38",
+    "value": 38.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view3",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     183.2,
+     761.9,
+     205.8,
+     778.0
+    ]
+   },
+   {
+    "id": "D50",
+    "text": "950.00",
+    "value": 950.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1550.9,
+     769.2,
+     1613.5,
+     785.3
+    ]
+   },
+   {
+    "id": "D51",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1732.2,
+     769.2,
+     1772.4,
+     785.3
+    ]
+   },
+   {
+    "id": "D52",
+    "text": "1020.00",
+    "value": 1020.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1545.2,
+     802.1,
+     1619.0,
+     818.2
+    ]
+   },
+   {
+    "id": "D53",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1732.2,
+     802.1,
+     1772.4,
+     818.2
+    ]
+   },
+   {
+    "id": "D54",
+    "text": "R 5",
+    "value": 5.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "radius",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     180.2,
+     894.6,
+     212.2,
+     925.6
+    ]
+   },
+   {
+    "id": "D55",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1563.1,
+     951.8,
+     1603.3,
+     967.9
+    ]
+   },
+   {
+    "id": "D56",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1733.2,
+     951.8,
+     1773.3,
+     967.9
+    ]
+   },
+   {
+    "id": "D57",
+    "text": "71.2",
+    "value": 71.2,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     172.8,
+     980.0,
+     188.9,
+     1020.1
+    ]
+   },
+   {
+    "id": "D58",
+    "text": "195.4",
+    "value": 195.4,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     979.0,
+     974.4,
+     995.1,
+     1025.8
+    ]
+   },
+   {
+    "id": "D59",
+    "text": "30.00",
+    "value": 30.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1557.5,
+     984.8,
+     1608.8,
+     1000.9
+    ]
+   },
+   {
+    "id": "D60",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1733.2,
+     984.8,
+     1773.3,
+     1000.9
+    ]
+   },
+   {
+    "id": "D61",
+    "text": "556.50",
+    "value": 556.5,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1551.8,
+     1017.7,
+     1614.4,
+     1033.8
+    ]
+   },
+   {
+    "id": "D62",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1733.2,
+     1017.7,
+     1773.3,
+     1033.8
+    ]
+   },
+   {
+    "id": "D63",
+    "text": "586.50",
+    "value": 586.5,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1551.8,
+     1050.6,
+     1614.4,
+     1066.7
+    ]
+   },
+   {
+    "id": "D64",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1733.2,
+     1050.6,
+     1773.3,
+     1066.7
+    ]
+   },
+   {
+    "id": "D65",
+    "text": "62.1",
+    "value": 62.1,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     172.8,
+     1075.4,
+     188.9,
+     1115.5
+    ]
+   },
+   {
+    "id": "D66",
+    "text": "2",
+    "value": 2.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view5",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1062.5,
+     1073.7,
+     1073.8,
+     1089.8
+    ]
+   },
+   {
+    "id": "D67",
+    "text": "1113.00",
+    "value": 1113.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1546.3,
+     1083.5,
+     1620.1,
+     1099.6
+    ]
+   },
+   {
+    "id": "D68",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1733.2,
+     1083.5,
+     1773.3,
+     1099.6
+    ]
+   },
+   {
+    "id": "D69",
+    "text": "1219",
+    "value": 1219.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     548.6,
+     1102.2,
+     593.6,
+     1118.3
+    ]
+   },
+   {
+    "id": "D70",
+    "text": "1143.00",
+    "value": 1143.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1546.3,
+     1116.3,
+     1620.1,
+     1132.4
+    ]
+   },
+   {
+    "id": "D71",
+    "text": "0.00",
+    "value": 0.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1733.2,
+     1116.3,
+     1773.3,
+     1132.4
+    ]
+   },
+   {
+    "id": "D72",
+    "text": "R 4",
+    "value": 4.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "radius",
+    "is_reference": false,
+    "view_id": "view6",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     508.9,
+     1261.7,
+     541.3,
+     1292.0
+    ]
+   },
+   {
+    "id": "D73",
+    "text": "3",
+    "value": null,
+    "unit": null,
+    "tolerance": null,
+    "type": "other",
+    "is_reference": false,
+    "view_id": "view6",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     262.0,
+     1328.0,
+     273.3,
+     1344.1
+    ]
+   },
+   {
+    "id": "D74",
+    "text": "75",
+    "value": 75.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view6",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     372.6,
+     1349.2,
+     388.7,
+     1371.7
+    ]
+   },
+   {
+    "id": "D75",
+    "text": "50",
+    "value": 50.0,
+    "unit": null,
+    "tolerance": null,
+    "type": "other",
+    "is_reference": false,
+    "view_id": null,
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1585.8,
+     1426.6,
+     1597.1,
+     1434.7
+    ]
+   },
+   {
+    "id": "D76",
+    "text": "12.5",
+    "value": 12.5,
+    "unit": null,
+    "tolerance": null,
+    "type": "other",
+    "is_reference": false,
+    "view_id": null,
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1605.5,
+     1428.7,
+     1625.6,
+     1436.7
+    ]
+   },
+   {
+    "id": "D77",
+    "text": "60",
+    "value": 60.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view6",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     442.1,
+     1445.5,
+     464.6,
+     1461.6
+    ]
+   },
+   {
+    "id": "D78",
+    "text": "50",
+    "value": 50.0,
+    "unit": null,
+    "tolerance": null,
+    "type": "other",
+    "is_reference": false,
+    "view_id": null,
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1581.7,
+     1516.7,
+     1593.0,
+     1524.8
+    ]
+   },
+   {
+    "id": "D79",
+    "text": "12.5",
+    "value": 12.5,
+    "unit": null,
+    "tolerance": null,
+    "type": "other",
+    "is_reference": false,
+    "view_id": null,
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1601.4,
+     1518.8,
+     1621.5,
+     1526.8
+    ]
+   }
+  ],
+  "features": [],
+  "symbols": [],
+  "notes": [
+   {
+    "id": "N1",
+    "text": "NOTE : (English) # MATERIAL: REFER LIST # FINISH: PAINTING # MACHINING: # WEIGHT(Kg ): 3.82 kg",
+    "category": "general"
+   },
+   {
+    "id": "N2",
+    "text": "NOTE :-(French) # MATÉRIEL : REFER LIST # FINITION :  PAINTING # MACHINES : # POIDS (Kg): 3.82 kg",
+    "category": "general"
+   },
+   {
+    "id": "N3",
+    "text": "TOLERANCE NOTE  :- (English) 1) ALL H7 HOLES C.D SHOULD BE CONTROLLED WITHIN +/- 0.02. / IT7 2) ALL HOLES,TAP & COUNTER BORE C.D, SHOULD BE CONTROLLED WITHIN +/- 0.1",
+    "category": "general"
+   },
+   {
+    "id": "N4",
+    "text": "NOTE DE TOLERANCE :- (French) 1) TOUT TROU H7 C.D DOIT ÊTRE CONTRÔLÉ SOUS +/- 0.02 / IT7 2) TOUT TROU ET CONTRE-ALÉSAGE C.D, DOIT ÊTRE CONTROLÉ SOUS +/- 0.1",
+    "category": "general"
+   },
+   {
+    "id": "N5",
+    "text": "#NOTE:- SILVER PAITING TO BE DONE AS MOUNTING IS ON EXTRUSION",
+    "category": "general"
+   },
+   {
+    "id": "N6",
+    "text": "NOTE FOR WIPRO PARI DESIGN -REF. ONLY WEAR DETAILS : N.A.",
+    "category": "general"
+   },
+   {
+    "id": "N7",
+    "text": "1.ALL DIMENSIONS ARE IN mm 2.DO NOT SCALE DRAWING. 3.IF IN DOUBT , ASK TEAM MEMBER",
+    "category": "general"
+   },
+   {
+    "id": "N8",
+    "text": "NOTE : STANDARD FASTENER TORQUE AS PER STD-DES-01-00 FR-DES-006-00",
+    "category": "standard"
+   },
+   {
+    "id": "N9",
+    "text": "DEBURR AND REMOVE SHARP EDGES UNLESS SHARP EDGE REQUIREMENT SPECIFIED",
+    "category": "general"
+   },
+   {
+    "id": "N10",
+    "text": "UNSP.RADII 0.5 R UNSP.CHF. 0.5 X 45°",
+    "category": "general"
+   }
+  ],
+  "general_tolerances": [
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "UP TO 10",
+    "tolerance": "±0.1"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "10 UP TO 50",
+    "tolerance": "±0.2"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "50 UP TO 120",
+    "tolerance": "±0.5"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "120 UP TO 400",
+    "tolerance": "±0.8"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "30 UP TO 120",
+    "tolerance": "±0.8"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "120 UP TO 315",
+    "tolerance": "±1.2"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "315 UP TO 1000",
+    "tolerance": "±2"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "1000 UP TO 2000",
+    "tolerance": "±3"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "OVER 2000",
+    "tolerance": "±4"
+   },
+   {
+    "kind": "angular",
+    "process": "machining",
+    "range": "UP TO 10",
+    "tolerance": "±1°"
+   },
+   {
+    "kind": "angular",
+    "process": "machining",
+    "range": "10 UP TO 50",
+    "tolerance": "±0°30'"
+   },
+   {
+    "kind": "angular",
+    "process": "machining",
+    "range": "50 UP TO 120",
+    "tolerance": "±0°20'"
+   },
+   {
+    "kind": "angular",
+    "process": "machining",
+    "range": "120 UP TO 400",
+    "tolerance": "±0°10'"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "UP TO 10",
+    "tolerance": "±0.1"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "10 UP TO 50",
+    "tolerance": "±0.2"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "50 UP TO 120",
+    "tolerance": "±0.5"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "120 UP TO 400",
+    "tolerance": "±0°15'"
+   },
+   {
+    "kind": "angular",
+    "process": "fabrication",
+    "range": "UP TO 10",
+    "tolerance": "±1.5°"
+   },
+   {
+    "kind": "angular",
+    "process": "fabrication",
+    "range": "10 UP TO 50",
+    "tolerance": "±0°50'"
+   },
+   {
+    "kind": "angular",
+    "process": "fabrication",
+    "range": "50 UP TO 120",
+    "tolerance": "±0°25'"
+   },
+   {
+    "kind": "angular",
+    "process": "fabrication",
+    "range": "120 UP TO 400",
+    "tolerance": "±0°15'"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "0.5 UP TO 3",
+    "tolerance": "±0.1"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "3 UP TO 6",
+    "tolerance": "±0.2"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "6 UP TO 30",
+    "tolerance": "±0.5"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "30 UP TO 120",
+    "tolerance": "±0.8"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "120 UP TO 315",
+    "tolerance": "±1.2"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "315 UP TO 1000",
+    "tolerance": "±2"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "1000 UP TO 2000",
+    "tolerance": "±1.2"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "OVER 2000",
+    "tolerance": "±2"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "UNSPECIFIED TOL.(FAB) FOR LINEAR IN mm.",
+    "tolerance": "±0.1"
+   },
+   {
+    "kind": "angular",
+    "process": "fabrication",
+    "range": "UNSPECIFIED TOL.(FAB) FOR ANGULAR IN mm.",
+    "tolerance": "±1.5°"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "UNSPECIFIED TOL.(M/C) FOR LINEAR IN mm.",
+    "tolerance": "±0.1"
+   },
+   {
+    "kind": "angular",
+    "process": "machining",
+    "range": "UNSPECIFIED TOL.(M/C) FOR ANGULAR IN mm.",
+    "tolerance": "±1°"
+   }
+  ],
+  "revisions": [
+   {
+    "rev": "00",
+    "date": "13/11/2024",
+    "description": null
+   }
+  ],
+  "uncertain": [
+   {
+    "item": "Feature classification for holes A, B, C",
+    "reason": "The drawing shows hole tables but does not explicitly classify the features as 'hole', 'slot', etc. The dimensions are present, but feature types are not specified in the text layer or images."
+   },
+   {
+    "item": "Datum references",
+    "reason": "No datum feature symbols (e.g., A, B, C with triangle) are visible in the provided images or extracted text."
+   },
+   {
+    "item": "GD&T feature control frames",
+    "reason": "No GD&T feature control frames (e.g., flatness, position) are visible in the provided images or extracted text."
+   },
+   {
+    "item": "Surface finish symbols",
+    "reason": "No surface finish symbols (e.g., Ra values) are visible in the provided images or extracted text."
+   },
+   {
+    "item": "Weld symbols",
+    "reason": "No weld symbols are visible in the provided images or extracted text."
+   }
+  ]
+ },
+ "valid": true,
+ "attempts": 1,
+ "problems": [],
+ "input_tokens": 94382,
+ "output_tokens": 12218,
+ "cost_usd": 0.031017,
+ "latency_s": 217.52,
+ "cached": false
+}

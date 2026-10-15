@@ -1,0 +1,29 @@
+{
+  "findings": [
+    {
+      "category": "design_intent",
+      "severity": "Major",
+      "evidence": [
+       "surface_treatment",
+       "D12",
+       "F12"
+      ],
+      "rule": "Additive surface treatments on functional fits need masking, thickness control, or pre/post-plate size allowance.",
+      "reasoning": "The title block specifies HARD CHROME PLATING, while D12/F12 defines a functional Ø16 H7 hole. Hard chrome build-up can change the hole diameter, and the provided data gives no masking or plating-thickness allowance for this fit.",
+      "correction": "Add a note to mask the Ø16 H7 hole, or specify maximum plating thickness and the required pre/post-plating size control."
+    },
+    {
+      "category": "design_intent",
+      "severity": "Major",
+      "evidence": [
+       "S6",
+       "D12",
+       "F12",
+       "uncertain"
+      ],
+      "rule": "Feature control frames must include a complete and readable tolerance value.",
+      "reasoning": "S6 indicates a position tolerance for the Ø16 H7 hole referencing datums A and B, but the uncertain field records that the tolerance value is not readable. As provided, the hole-location tolerance is undefined and cannot be inspected.",
+      "correction": "Verify the feature control frame and add a clear, readable position tolerance value for the Ø16 H7 hole relative to datums A and B."
+    }
+  ]
+}

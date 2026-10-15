@@ -1,0 +1,52 @@
+{
+  "findings": [
+    {
+      "category": "manufacturability",
+      "severity": "Critical",
+      "evidence": [
+        "F7",
+        "D6"
+      ],
+      "rule": "Threads running into a shoulder require an undercut, relief groove, or thread runout.",
+      "reasoning": "F7 explicitly states the external M20 thread runs up to the shoulder with no undercut/relief groove, so standard threading tooling cannot produce a complete thread form at the shoulder.",
+      "correction": "Add an undercut/relief groove or specify a thread runout/lead-in, or move the thread termination away from the shoulder."
+    },
+    {
+      "category": "design_intent",
+      "severity": "Major",
+      "evidence": [
+        "drawing.heat_treatment",
+        "N1"
+      ],
+      "rule": "Heat treatment must be specified or referenced consistently in the title block and notes.",
+      "reasoning": "The title block heat_treatment is '---' while N1 requires case hardening to 55-60 HRC and case depth 0.8-2 mm, creating a missing/contradictory heat-treatment reference.",
+      "correction": "Enter the case-hardening requirement in drawing.heat_treatment or add a clear REF NOTE to N1 in the title block."
+    },
+    {
+      "category": "design_intent",
+      "severity": "Major",
+      "evidence": [
+        "drawing.material",
+        "drawing.surface_treatment",
+        "N1"
+      ],
+      "rule": "Electroplated coatings on high-hardness case-hardened steel require hydrogen-embrittlement control or a suitable alternative.",
+      "reasoning": "20MnCr5 is case hardened to 55-60 HRC per N1, and trivalent zinc plating (I.Z.B.P.) can introduce hydrogen; no hydrogen-embrittlement relief/baking note is given.",
+      "correction": "Add a post-plating hydrogen-embrittlement relief/bake requirement per the applicable plating standard, or specify a coating/process suitable for 55-60 HRC case-hardened steel."
+    },
+    {
+      "category": "design_intent",
+      "severity": "Major",
+      "evidence": [
+        "drawing.title",
+        "F2",
+        "D4",
+        "D12",
+        "D3"
+      ],
+      "rule": "Functional bore/fit diameters must have a tolerance or fit class.",
+      "reasoning": "The part is a pin sleeve, and F2 identifies the inner bore as ⌀20 (D4/D12) with no tolerance; the separate ⌀12 H7 (D3) is not clearly associated with the bore, leaving the functional fit undefined.",
+      "correction": "Identify the functional bore and assign an appropriate fit/tolerance, or clearly mark the ⌀20 diameter as non-functional."
+    }
+  ]
+}

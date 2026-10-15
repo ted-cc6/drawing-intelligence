@@ -1,0 +1,28 @@
+{
+  "findings": [
+    {
+      "category": "design_intent",
+      "severity": "Major",
+      "evidence": [
+        "D4",
+        "D12",
+        "F2",
+        "title"
+      ],
+      "rule": "Functional mating diameters must have an explicit tolerance or fit class.",
+      "reasoning": "The part is a sleeve and F2 identifies the ⌀20 inner cylindrical bore as a functional bore feature. D4 and D12 give this diameter with no explicit tolerance or fit class, so the functional fit of the bore is undefined.",
+      "correction": "Add an explicit tolerance or fit class to the ⌀20 bore, for example ⌀20 H7 or the required clearance/interference fit for the sleeve application."
+    },
+    {
+      "category": "design_intent",
+      "severity": "Minor",
+      "evidence": [
+        "heat_treatment",
+        "N1"
+      ],
+      "rule": "Title-block fields must be consistent with drawing notes.",
+      "reasoning": "The title-block heat_treatment field is '---', but N1 requires case hardening to 55~60 HRC with a specified case depth. This creates conflicting manufacturing information.",
+      "correction": "Enter the heat treatment in the title block or reference the note, e.g. 'CASE HARDEN 55~60 HRC, CASE DEPTH 0.8~2 mm, REF N1'."
+    }
+  ]
+}

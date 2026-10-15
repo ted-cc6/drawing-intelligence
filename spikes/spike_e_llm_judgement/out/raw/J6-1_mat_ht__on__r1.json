@@ -1,0 +1,39 @@
+{
+  "findings": [
+    {
+      "category": "design_intent",
+      "severity": "Major",
+      "evidence": [
+       "material",
+       "N1"
+      ],
+      "rule": "Heat treatment must be compatible with the specified material grade.",
+      "reasoning": "20MnCr5 is normally a case-hardening steel, but N1 calls for through hardening up to 50 HRC. This material/heat-treatment pairing is not a normal fit and may not achieve the intended functional hardness.",
+      "correction": "Either select a material suited to through hardening or specify the appropriate case-hardening heat treatment and hardness range for 20MnCr5."
+    },
+    {
+      "category": "design_intent",
+      "severity": "Minor",
+      "evidence": [
+       "heat_treatment",
+       "N1"
+      ],
+      "rule": "Title-block heat-treatment field must agree with heat-treatment notes.",
+      "reasoning": "The title block shows heat_treatment as '---' while N1 explicitly requires through hardening. This inconsistency can cause the heat-treatment requirement to be missed.",
+      "correction": "Populate the title-block heat-treatment field with the required heat treatment or an explicit reference to N1."
+    },
+    {
+      "category": "design_intent",
+      "severity": "Major",
+      "evidence": [
+       "D4",
+       "D12",
+       "F2",
+       "title"
+      ],
+      "rule": "Functional mating diameters must have a tolerance or fit class.",
+      "reasoning": "The part is a TCP PIN SLEEVE and F2 identifies an inner cylindrical bore of ⌀20, but D4 and D12 give no tolerance or fit. The bore would therefore default to general tolerances, which may be too coarse for a functional sleeve fit.",
+      "correction": "Specify a fit/tolerance for the functional bore, for example ⌀20 H7, H8, or the required fit class."
+    }
+  ]
+}

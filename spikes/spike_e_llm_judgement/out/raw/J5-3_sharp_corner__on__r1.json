@@ -1,0 +1,16 @@
+{
+  "findings": [
+    {
+      "category": "manufacturability",
+      "severity": "Major",
+      "evidence": [
+        "D7",
+        "F7",
+        "S1"
+      ],
+      "rule": "Internal corners must have a tool-accessible radius or relief; a zero-radius sharp internal corner is not normally machinable.",
+      "reasoning": "D7 calls out R 0 and F7 describes this as a sharp internal corner. A standard cutting tool cannot produce a true zero internal radius, and S1 indicates an unspecified radii practice of 0.5 R.",
+      "correction": "Replace R0 with a practical internal radius, for example R0.5, or provide an undercut/relief. If a sharp corner is truly required, state the required process and inspection limit explicitly."
+    }
+  ]
+}

@@ -1,0 +1,800 @@
+{
+ "schema_version": "1.0",
+ "page_number": 1,
+ "model": "qwen3-vl-plus",
+ "thinking": "off",
+ "knowledge": {
+  "drawing": {
+   "number": "PRT84S103156",
+   "title": "SHAFT",
+   "revision": "01",
+   "material": "REFER BOM",
+   "surface_treatment": "IZBP",
+   "heat_treatment": "--",
+   "scale": "1 : 2",
+   "sheet_size": "A2",
+   "units": "mm",
+   "general_tolerance_standard": "IS 2102",
+   "drawn_date": "22/12/2022",
+   "checked_date": "22/12/2022",
+   "approved_date": "22/12/2022",
+   "weight": "7.77 kg"
+  },
+  "views": [
+   {
+    "id": "view1",
+    "name": "SECTION A-A",
+    "scale": "1:2"
+   }
+  ],
+  "dimensions": [
+   {
+    "id": "D1",
+    "text": "2",
+    "value": 2.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1145.6,
+     143.2,
+     1150.9,
+     156.3
+    ]
+   },
+   {
+    "id": "D2",
+    "text": "3",
+    "value": 3.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1145.6,
+     156.2,
+     1150.9,
+     169.3
+    ]
+   },
+   {
+    "id": "D3",
+    "text": "2",
+    "value": 2.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1238.6,
+     143.2,
+     1243.9,
+     156.3
+    ]
+   },
+   {
+    "id": "D4",
+    "text": "4",
+    "value": 4.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1238.6,
+     156.2,
+     1243.9,
+     169.3
+    ]
+   },
+   {
+    "id": "D5",
+    "text": "5",
+    "value": 5.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1145.6,
+     169.0,
+     1150.9,
+     182.1
+    ]
+   },
+   {
+    "id": "D6",
+    "text": "6",
+    "value": 6.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1238.6,
+     169.0,
+     1243.9,
+     182.1
+    ]
+   },
+   {
+    "id": "D7",
+    "text": "5",
+    "value": 5.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1145.6,
+     182.0,
+     1150.9,
+     195.1
+    ]
+   },
+   {
+    "id": "D8",
+    "text": "8",
+    "value": 8.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1238.6,
+     182.0,
+     1243.9,
+     195.1
+    ]
+   },
+   {
+    "id": "D9",
+    "text": "353.5",
+    "value": 353.5,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     586.2,
+     234.3,
+     610.1,
+     247.4
+    ]
+   },
+   {
+    "id": "D10",
+    "text": "23",
+    "value": 23.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     358.7,
+     259.6,
+     369.3,
+     272.7
+    ]
+   },
+   {
+    "id": "D11",
+    "text": "25",
+    "value": 25.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     392.6,
+     259.6,
+     403.2,
+     272.7
+    ]
+   },
+   {
+    "id": "D12",
+    "text": "⌀ 115",
+    "value": 115.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "diameter",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     278.5,
+     287.9,
+     306.3,
+     301.1
+    ]
+   },
+   {
+    "id": "D13",
+    "text": "75",
+    "value": 75.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     867.5,
+     448.5,
+     880.6,
+     459.1
+    ]
+   },
+   {
+    "id": "D14",
+    "text": "1",
+    "value": 1.0,
+    "unit": null,
+    "tolerance": null,
+    "type": "other",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     597.4,
+     458.9,
+     602.8,
+     472.1
+    ]
+   },
+   {
+    "id": "D15",
+    "text": "2",
+    "value": 2.0,
+    "unit": null,
+    "tolerance": null,
+    "type": "other",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     452.6,
+     488.7,
+     457.9,
+     501.8
+    ]
+   },
+   {
+    "id": "D16",
+    "text": "2",
+    "value": 2.0,
+    "unit": null,
+    "tolerance": null,
+    "type": "count_x_diameter",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F1",
+    "source": "pdf_text",
+    "bbox": [
+     131.4,
+     901.4,
+     136.7,
+     914.5
+    ]
+   },
+   {
+    "id": "D17",
+    "text": "1",
+    "value": 1.0,
+    "unit": null,
+    "tolerance": null,
+    "type": "other",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F1",
+    "source": "pdf_text",
+    "bbox": [
+     592.2,
+     901.4,
+     597.5,
+     914.5
+    ]
+   },
+   {
+    "id": "D18",
+    "text": "1",
+    "value": 1.0,
+    "unit": null,
+    "tolerance": null,
+    "type": "count_x_diameter",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F2",
+    "source": "pdf_text",
+    "bbox": [
+     131.4,
+     915.8,
+     136.7,
+     928.9
+    ]
+   },
+   {
+    "id": "D19",
+    "text": "1",
+    "value": 1.0,
+    "unit": null,
+    "tolerance": null,
+    "type": "other",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F2",
+    "source": "pdf_text",
+    "bbox": [
+     592.2,
+     915.8,
+     597.5,
+     928.9
+    ]
+   },
+   {
+    "id": "D20",
+    "text": "1",
+    "value": 1.0,
+    "unit": null,
+    "tolerance": null,
+    "type": "other",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": null,
+    "source": "pdf_text",
+    "bbox": [
+     1145.5,
+     986.8,
+     1150.8,
+     999.9
+    ]
+   }
+  ],
+  "features": [
+   {
+    "id": "F1",
+    "type": "outline",
+    "description": "Disc with diameter 115.00 mm and thickness 25.00 mm",
+    "dimension_ids": [
+     "D16",
+     "D17"
+    ],
+    "view_id": "view1"
+   },
+   {
+    "id": "F2",
+    "type": "outline",
+    "description": "Rod with length 353.50 mm and diameter 75.00 mm",
+    "dimension_ids": [
+     "D18",
+     "D19"
+    ],
+    "view_id": "view1"
+   }
+  ],
+  "symbols": [],
+  "notes": [
+   {
+    "id": "N1",
+    "text": "GENERAL WELDING DETAILS FOR UNSPECIFIED WELD JOINTS",
+    "category": "general"
+   },
+   {
+    "id": "N2",
+    "text": "1) REFER TABLE FOR UNSPECIFIED BEAD SIZE.",
+    "category": "general"
+   },
+   {
+    "id": "N3",
+    "text": "UNSPECIFIED WELD BEAD SIZES IN mm",
+    "category": "general"
+   },
+   {
+    "id": "N4",
+    "text": "MIN. PLATE / SECTION THICKNESS",
+    "category": "general"
+   },
+   {
+    "id": "N5",
+    "text": "BEAD SIZE FOR WELD CLASS C & D",
+    "category": "general"
+   },
+   {
+    "id": "N6",
+    "text": "BEAD SIZE FOR WELD CLASS B",
+    "category": "general"
+   },
+   {
+    "id": "N7",
+    "text": "4 UPTO 8",
+    "category": "general"
+   },
+   {
+    "id": "N8",
+    "text": "UPTO 4",
+    "category": "general"
+   },
+   {
+    "id": "N9",
+    "text": "8 UPTO 12",
+    "category": "general"
+   },
+   {
+    "id": "N10",
+    "text": "ABOVE 12",
+    "category": "general"
+   },
+   {
+    "id": "N11",
+    "text": "2) REFER TABLE BELOW FOR UNSPECIFIED WELD DETAILS.",
+    "category": "general"
+   },
+   {
+    "id": "N12",
+    "text": "WELD LENGTH (MM)",
+    "category": "general"
+   },
+   {
+    "id": "N13",
+    "text": "WELD CLASS C & D (WELD-PITCH)",
+    "category": "general"
+   },
+   {
+    "id": "N14",
+    "text": "WELD CLASS B (WELD-PITCH)",
+    "category": "general"
+   },
+   {
+    "id": "N15",
+    "text": "UPTO 250",
+    "category": "general"
+   },
+   {
+    "id": "N16",
+    "text": "FULL LENGTH WELD",
+    "category": "general"
+   },
+   {
+    "id": "N17",
+    "text": "FULL LENGTH WELD",
+    "category": "general"
+   },
+   {
+    "id": "N18",
+    "text": "ABOVE 1000",
+    "category": "general"
+   },
+   {
+    "id": "N19",
+    "text": "3) FOR STITCH WELDING, APPLY 25 MM WELD ON END OF WELD SEAM UNLESS SPECIFIED.",
+    "category": "general"
+   },
+   {
+    "id": "N20",
+    "text": "WELDING NOTES -",
+    "category": "general"
+   },
+   {
+    "id": "N21",
+    "text": "1) ALL JOINTS SHOULD BE AS PER TABLES “GENERAL WELDING DETAILS”",
+    "category": "general"
+   },
+   {
+    "id": "N22",
+    "text": "2) ALL CHILD PARTS TO BE STRAIGHTENED BEFORE WELDING",
+    "category": "general"
+   },
+   {
+    "id": "N23",
+    "text": "3) SUITABLE EDGE PREPARATION TO BE DONE BEFORE WELDING",
+    "category": "general"
+   },
+   {
+    "id": "N24",
+    "text": "4) FABRICATED STRUCTURE TOLERANCES SHOULD BE AS PER IS 2102 COARSE GRADE UNLESS SPECIFIED.",
+    "category": "general"
+   },
+   {
+    "id": "N25",
+    "text": "5) WELDING SHOULD BE NEAT & CLEAN",
+    "category": "general"
+   },
+   {
+    "id": "N26",
+    "text": "6) ALL WELDING JOINTS SHALL BE DRESSED PROPERLY",
+    "category": "general"
+   },
+   {
+    "id": "N27",
+    "text": "7) MASK MACHINED FACES (IF ANY) DURING PAINTING",
+    "category": "general"
+   },
+   {
+    "id": "N28",
+    "text": "8) WELD CLASS - \"B\"",
+    "category": "general"
+   },
+   {
+    "id": "N29",
+    "text": "9) STRESS RELIEVING - APPLICABLE",
+    "category": "general"
+   },
+   {
+    "id": "N30",
+    "text": "10) SHOT BLASTING - APPLICABLE",
+    "category": "general"
+   },
+   {
+    "id": "N31",
+    "text": "INSPECTION NOTES -",
+    "category": "general"
+   },
+   {
+    "id": "N32",
+    "text": "1) DYE PENETRATION TEST FOR WELDING - APPLICABLE",
+    "category": "general"
+   },
+   {
+    "id": "N33",
+    "text": "2) ULTRASONIC TESTING FOR FINISH JOB - APPLICABLE",
+    "category": "general"
+   },
+   {
+    "id": "N34",
+    "text": "3) LEAK PROOF WELD JOINT - NOT REQUIRED",
+    "category": "general"
+   },
+   {
+    "id": "N35",
+    "text": "WELD CLASS - \"B\"",
+    "category": "general"
+   },
+   {
+    "id": "N36",
+    "text": "T + S NOTE : H.T.PROCESS : TOUGHENED HARDNESS & DEPTH : 28-32 HRC FINISH & DEPTH : IZBP TEST COUPON SIZE :⌀30 mm (20mmLENGTH - 01NOS) WELD CLASS : B",
+    "category": "heat_treatment"
+   },
+   {
+    "id": "N37",
+    "text": "MTC REPORT REQURIED NON DESTRUCTIVE TESTING RAW MATERIAL UT HEAT TREATMENT DP+UT FINISH COMPOMENT MPI",
+    "category": "standard"
+   },
+   {
+    "id": "N38",
+    "text": "DISC DIA. 115.00 mm 25.00 mm En-9 1 39.60 in^2",
+    "category": "material"
+   },
+   {
+    "id": "N39",
+    "text": "ROD 353.50 mm DIA. 75.00 mm En-9 1 126.55 in^2",
+    "category": "material"
+   },
+   {
+    "id": "N40",
+    "text": "THREAD NOTE ADDED AND DWG UPDATED",
+    "category": "general"
+   },
+   {
+    "id": "N41",
+    "text": "1.ALL DIMENSIONS ARE IN mm",
+    "category": "general"
+   },
+   {
+    "id": "N42",
+    "text": "2.DO NOT SCALE DRAWING.",
+    "category": "general"
+   },
+   {
+    "id": "N43",
+    "text": "3.IF IN DOUBT, ASK TEAM MEMBER",
+    "category": "general"
+   },
+   {
+    "id": "N44",
+    "text": "NOTE FOR WIPRO PARI DESIGN -REF. ONLY WEAR DETAILS : M.W",
+    "category": "general"
+   }
+  ],
+  "general_tolerances": [
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "0.5 UP TO 3",
+    "tolerance": "±0.1"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "3 UP TO 6",
+    "tolerance": "±0.2"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "6 UP TO 30",
+    "tolerance": "±0.5"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "30 UP TO 120",
+    "tolerance": "±0.8"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "120 UP TO 315",
+    "tolerance": "±1.2"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "315 UP TO 1000",
+    "tolerance": "±2"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "1000 UP TO 2000",
+    "tolerance": "±3"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "OVER 2000",
+    "tolerance": "±4"
+   },
+   {
+    "kind": "angular",
+    "process": "machining",
+    "range": "UP TO 10",
+    "tolerance": "±1°"
+   },
+   {
+    "kind": "angular",
+    "process": "machining",
+    "range": "10 UP TO 50",
+    "tolerance": "±0°30'"
+   },
+   {
+    "kind": "angular",
+    "process": "machining",
+    "range": "50 UP TO 120",
+    "tolerance": "±0°20'"
+   },
+   {
+    "kind": "angular",
+    "process": "machining",
+    "range": "120 UP TO 400",
+    "tolerance": "±0°10'"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "0.5 UP TO 3",
+    "tolerance": "±0.1"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "3 UP TO 6",
+    "tolerance": "±0.2"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "6 UP TO 30",
+    "tolerance": "±0.5"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "30 UP TO 120",
+    "tolerance": "±0.8"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "120 UP TO 315",
+    "tolerance": "±1.2"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "315 UP TO 1000",
+    "tolerance": "±2"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "1000 UP TO 2000",
+    "tolerance": "±3"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "OVER 2000",
+    "tolerance": "±4"
+   },
+   {
+    "kind": "angular",
+    "process": "fabrication",
+    "range": "UP TO 10",
+    "tolerance": "±1.5°"
+   },
+   {
+    "kind": "angular",
+    "process": "fabrication",
+    "range": "10 UP TO 50",
+    "tolerance": "±0°50'"
+   },
+   {
+    "kind": "angular",
+    "process": "fabrication",
+    "range": "50 UP TO 120",
+    "tolerance": "±0°25'"
+   },
+   {
+    "kind": "angular",
+    "process": "fabrication",
+    "range": "120 UP TO 400",
+    "tolerance": "±0°15'"
+   }
+  ],
+  "revisions": [
+   {
+    "rev": "01",
+    "date": "22/12/2022",
+    "description": "THREAD NOTE ADDED AND DWG UPDATED"
+   }
+  ],
+  "uncertain": []
+ },
+ "valid": true,
+ "attempts": 1,
+ "problems": [],
+ "input_tokens": 54018,
+ "output_tokens": 5548,
+ "cost_usd": 0.01568,
+ "latency_s": 81.42,
+ "cached": false
+}
