@@ -17,16 +17,30 @@ from drawing_intelligence.schemas.knowledge import (
     TitleBlock,
     UnderstandingResult,
 )
+from drawing_intelligence.schemas.review import (
+    REVIEW_SCHEMA_VERSION,
+    EvidenceRef,
+    Finding,
+    FindingFeedback,
+    ReviewResult,
+    RuleStatus,
+)
 
 __all__ = [
     "EXTRACTION_SCHEMA_VERSION",
     "KNOWLEDGE_SCHEMA_VERSION",
+    "REVIEW_SCHEMA_VERSION",
     "ChainCheck",
     "DrawingKnowledge",
+    "EvidenceRef",
     "Extraction",
+    "Finding",
+    "FindingFeedback",
     "ImageSet",
     "MatchedLine",
     "PageExtraction",
+    "ReviewResult",
+    "RuleStatus",
     "TextItem",
     "TextLine",
     "Tile",

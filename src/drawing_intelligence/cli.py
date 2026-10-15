@@ -73,6 +73,41 @@ def models() -> None:
     console.print("Bold = the model's default thinking option.")
 
 
+@app.command()
+def rules(
+    folder: Annotated[Path | None, typer.Argument(help="rules folder (default config/rules)")] = None,
+) -> None:
+    """Validate the rulebook and summarise it: rules per category, check type and status."""
+    from collections import Counter
+
+    from drawing_intelligence.review import RulebookError, load_rulebook
+    from drawing_intelligence.schemas.review import CATEGORY_LABELS
+
+    try:
+        book = load_rulebook(folder)
+    except RulebookError as e:
+        console.print(f"[red]{e}[/red]")
+        raise typer.Exit(1) from e
+    if not book.rules:
+        console.print("The rulebook is empty: add rules in config/rules/*.yaml (see config/rules/README.md).")
+        return
+    t = Table(title=f"Rulebook {book.version} ({len(book.rules)} rules)")
+    for col in ("category", "rules", "code", "lookup", "llm", "client confirmed"):
+        t.add_column(col)
+    by_cat: dict[str, Counter] = {}
+    for r in book.rules:
+        c = by_cat.setdefault(r.category, Counter())
+        c["rules"] += 1
+        c[r.check_type] += 1
+        c["confirmed"] += r.status == "client_confirmed"
+    for cat, c in by_cat.items():
+        t.add_row(
+            CATEGORY_LABELS[cat],
+            *(str(c[k]) for k in ("rules", "code", "lookup", "llm", "confirmed")),
+        )
+    console.print(t)
+
+
 def _print_extraction(ex) -> None:
     for p in ex.pages:
         console.rule(
