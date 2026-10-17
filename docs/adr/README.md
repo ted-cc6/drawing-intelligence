@@ -14,3 +14,4 @@ it with a new one.
 | [0006](0006-tooling.md) | uv, ruff, pyright, pytest, pre-commit, CI on three OSes | 2026-10-06 |
 | [0007](0007-commit-client-data.md) | Commit the client data to the repository (keys stay out) | 2026-10-06 |
 | [0008](0008-review-contracts-enforce-trust.md) | Review contracts enforce the trust rules; findings are issues only | 2026-10-15 |
+| [0009](0009-understanding-model-default.md) | Default understanding model and thinking setting | 2026-10-17 |

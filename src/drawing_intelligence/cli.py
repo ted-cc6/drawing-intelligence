@@ -321,11 +321,17 @@ def eval_understand(
         bool, typer.Option("--from-baseline", help="score the notebook's saved outputs instead (free)")
     ] = False,
     yes: Annotated[bool, typer.Option("--yes", "-y", help="skip the cost confirmation")] = False,
+    runs: Annotated[int, typer.Option("--runs", help="repeat each drawing/model/thinking combo N times")] = 1,
+    no_cache: Annotated[
+        bool,
+        typer.Option("--no-cache", help="force a fresh call every run (uses a session-scoped cache)"),
+    ] = False,
     max_seconds: float = 60.0,
     max_cost: float = 0.10,
 ) -> None:
     """Score understanding against criteria 1-4 and 7 of notebook 02."""
     from drawing_intelligence.eval.scorecard import Score, Targets, load_labels, score
+    from drawing_intelligence.eval.stability import score_stability
     from drawing_intelligence.extraction import extract_pdf
     from drawing_intelligence.graph import run_workflow
     from drawing_intelligence.llm import load_registry
@@ -335,6 +341,7 @@ def eval_understand(
     targets = Targets(max_seconds=max_seconds, max_cost_usd=max_cost)
     pdfs = _pdfs(folder)
     scores: list[Score] = []
+    stability_runs: dict[str, list[dict]] = {}
 
     if from_baseline:
         for prov_dir in sorted((s.baseline_dir / "understanding").iterdir()):
@@ -361,29 +368,41 @@ def eval_understand(
                 )
     else:
         spec = load_registry(s.config_path / "models.yaml").model(model, "understand")
-        est = spec.cost(30_000, 10_000) * len(pdfs)
+        est = spec.cost(30_000, 10_000) * len(pdfs) * runs
         console.print(
-            f"{len(pdfs)} drawing(s) with {spec.name} (thinking {spec.thinking_level(thinking)}): "
-            f"rough estimate {_money(est)} if nothing is cached (30k in + 10k out tokens per page)."
+            f"{len(pdfs)} drawing(s) x {runs} run(s) with {spec.name} "
+            f"(thinking {spec.thinking_level(thinking)}): rough estimate {_money(est)} "
+            f"if nothing is cached (30k in + 10k out tokens per page)."
         )
         if s.retention == "ephemeral":
             console.print("[yellow]DI_RETENTION=ephemeral: nothing is cached, every run pays again.[/yellow]")
         if not yes:
             typer.confirm("Make these API calls?", abort=True)
+        run_settings = s
+        if no_cache:
+            try:
+                run_settings = s.model_copy(update={"retention": "ephemeral"})
+            except AttributeError:
+                run_settings = s.copy(update={"retention": "ephemeral"})
         for pdf in pdfs:
-            res = run_workflow(pdf, s, model=model, thinking=thinking)
-            for page, r in zip(res.extraction.pages, res.understanding, strict=True):
-                scores.append(
-                    score(
-                        pdf.stem if res.extraction.n_pages == 1 else f"{pdf.stem} p{page.page_number}",
-                        f"{r.model}/{r.thinking}",
-                        r.knowledge.model_dump(mode="json") if r.knowledge else None,
-                        page,
-                        seconds=r.latency_s,
-                        cost_usd=r.cost_usd,
-                        truth=labels.get(pdf.stem) if page.page_number == 1 else None,
+            for run_idx in range(runs):
+                res = run_workflow(pdf, run_settings, model=model, thinking=thinking)
+                for page, r in zip(res.extraction.pages, res.understanding, strict=True):
+                    key = pdf.stem if res.extraction.n_pages == 1 else f"{pdf.stem} p{page.page_number}"
+                    label = f"{r.model}/{r.thinking}" + (f" run{run_idx + 1}" if runs > 1 else "")
+                    scores.append(
+                        score(
+                            key,
+                            label,
+                            r.knowledge.model_dump(mode="json") if r.knowledge else None,
+                            page,
+                            seconds=r.latency_s,
+                            cost_usd=r.cost_usd,
+                            truth=labels.get(pdf.stem) if page.page_number == 1 else None,
+                        )
                     )
-                )
+                    if runs > 1 and r.knowledge:
+                        stability_runs.setdefault(key, []).append(r.knowledge.model_dump(mode="json"))
     if labels and not json.loads((s.labels_dir / "title_block_truth.json").read_text(encoding="utf-8")).get(
         "_verified", True
     ):
@@ -393,3 +412,16 @@ def eval_understand(
         )
     _score_table(scores, targets)
     console.print("Time and cost are those of the original call, also for cached replies.")
+    if runs > 1 and stability_runs:
+        console.print("\n[b]Stability across repeated runs (criterion 6)[/b]")
+        st = Table("drawing", "runs", "title block stable?", "dim count stable?", "variants")
+        for key, parsed in stability_runs.items():
+            res = score_stability(parsed)
+            st.add_row(
+                key,
+                str(res["n_runs"]),
+                "[green]yes[/green]" if res["title_block_stable"] else "[red]no[/red]",
+                "[green]yes[/green]" if res["dimension_count_stable"] else "[red]no[/red]",
+                str(res["title_block_variants"]),
+            )
+        console.print(st)
