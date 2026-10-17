@@ -1,0 +1,143 @@
+# Manufacturability rules: first draft for task R (10 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule (where each went and
+# why). LatentView's rationale is kept in the comment above each rule; the Rule schema has no fields for it.
+
+rules:
+
+  # LatentView Rulebook v0.2 MC-01 (their severity: Major; their check: AI).
+  # Why: Sharp internal corners cannot be milled
+  # How they verify: Internal corner radius vs. minimum tool radius for the pocket depth
+  # Also covers (merged): NM-05
+  # Note: Spike E case J5-3
+  - id: MC-001
+    category: manufacturability
+    requirement: Internal corner radii can be made by standard cutters
+    severity: major
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-01}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-02 (their severity: Minor; their check: Auto).
+  # Why: Deep small holes drift and break drills
+  # How they verify: Depth-to-diameter ratio
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-5.1 AC1
+  # Note: numeric limit in code: Spike E showed the LLM does not apply it
+  - id: MC-002
+    category: manufacturability
+    requirement: Hole depth is reasonable for the diameter (about 10 × D unless deep drilling is noted)
+    severity: minor
+    check_type: code
+    check: depth_to_diameter
+    params: {max_ratio: 10}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-02}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-03 (their severity: Major; their check: AI).
+  # Why: Full thread cannot be cut to a shoulder
+  # How they verify: Thread features adjacent to a shoulder face
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-5.1 AC2
+  # Note: Spike E case J5-2
+  - id: MC-003
+    category: manufacturability
+    requirement: Threads that meet a shoulder have run-out or an undercut
+    severity: major
+    check_type: llm
+    applies_to: {part_family: [round]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-03}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-04 (their severity: Major; their check: Auto).
+  # Why: Taps bottom out and break
+  # How they verify: Drill depth minus thread depth vs. pitch
+  - id: MC-004
+    category: manufacturability
+    requirement: Blind tapped holes have a drill depth beyond the thread depth (about 3 pitches)
+    severity: major
+    check_type: code
+    check: tap_drill_depth
+    params: {min_extra_pitches: 3}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-04}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-06 (their severity: Major; their check: Manual).
+  # Why: Threads strip under load
+  # How they verify: Thread depth vs. material and size
+  # Note: LatentView marks this Manual; factors to confirm with PARI
+  - id: MC-006
+    category: manufacturability
+    requirement: Thread engagement suits the material (e.g. at least 1.5 × D in aluminium)
+    severity: major
+    check_type: lookup
+    check: thread_engagement
+    params: {min_factor: {aluminium: 1.5, steel: 1.0}}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-06}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-07 (their severity: Major; their check: AI).
+  # Why: Keys do not fit or work loose
+  # How they verify: Keyway dims vs. standard table for the shaft size
+  # Note: table source to confirm (Westermann tables, scanned)
+  - id: MC-007
+    category: manufacturability
+    requirement: Keyways and keys follow the standard with correct tolerances
+    severity: major
+    check_type: lookup
+    check: keyway_standard
+    params: {table: keyways}
+    applies_to: {part_family: [round]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-07}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-08 (their severity: Major; their check: AI).
+  # Why: Rings do not seat or pop out
+  # How they verify: Groove dims vs. ring standard for the diameter
+  # Note: table source to confirm (Westermann tables, scanned)
+  - id: MC-008
+    category: manufacturability
+    requirement: Retaining-ring grooves follow the ring standard
+    severity: major
+    check_type: lookup
+    check: circlip_groove_standard
+    params: {table: circlip_grooves}
+    applies_to: {part_family: [round]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-08}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-09 (their severity: Minor; their check: AI).
+  # Why: Shaft cannot be held or reground
+  # How they verify: Long turned parts without a centre-hole note
+  - id: MC-009
+    category: manufacturability
+    requirement: Centre holes are specified for shafts turned between centres
+    severity: minor
+    check_type: llm
+    applies_to: {part_family: [round]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-09}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-12 (their severity: Minor; their check: Manual).
+  # Why: Chatter and distortion
+  # How they verify: Wall thickness and length-to-diameter vs. limits
+  # Note: the client's own example at Meeting #1: 'confirming wall thickness feasibility after machining'
+  - id: MC-012
+    category: manufacturability
+    requirement: Thin walls and slender features can be machined without deflection
+    severity: minor
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-12}
+    status: draft
+
+  # LatentView Rulebook v0.2 MF-03 (their severity: Minor; their check: AI).
+  # Why: Wrong stock wastes material or cannot be machined
+  # How they verify: Stock note vs. bounding box
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-5.2
+  # Note: reports the smallest standard stock that covers the envelope + allowance; warns if none does
+  - id: MF-003
+    category: manufacturability
+    requirement: Stock form or size is given where it matters (plate thickness, bar diameter)
+    severity: info
+    check_type: lookup
+    check: stock_size_available
+    params: {table: raw_material_sizes, allowance_mm: 2}
+    source: {document: PARI India Raw material sizes 08-Feb-24.xlsx, section: Plate/Round/Square sizes; PRD-GD-DES-11 sheet 2}
+    status: draft

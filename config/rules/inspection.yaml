@@ -1,0 +1,17 @@
+# Inspection rules: first draft for task R (1 rule, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule (where each went and
+# why). LatentView's rationale is kept in the comment above each rule; the Rule schema has no fields for it.
+
+rules:
+
+  # LatentView Rulebook v0.2 WF-14 (their severity: Major; their check: Manual).
+  # Why: Hidden defects in load paths
+  # How they verify: Lifting or structural weldments without NDT note
+  - id: WF-014
+    category: inspection
+    requirement: NDT requirements are stated for structural and lifting welds
+    severity: major
+    check_type: llm
+    applies_to: {drawing_type: [fabrication]}
+    source: {document: PARI Guidelines for Welding Notes & Symbols, section: '2. Weld inspection requirements (DPT, UT)'}
+    status: draft

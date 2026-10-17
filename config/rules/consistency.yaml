@@ -1,0 +1,313 @@
+# Consistency rules: first draft for task R (24 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule (where each went and
+# why). LatentView's rationale is kept in the comment above each rule; the Rule schema has no fields for it.
+
+rules:
+
+  # Note: uses Extraction.chain_checks
+  - id: CN-001
+    category: consistency
+    requirement: A chain of dimensions adds up to the overall dimension it should equal, within tolerance
+    severity: critical
+    check_type: code
+    check: chain_sum
+    source: {document: 'Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13)', section: US-2.1}
+    status: draft
+
+  # Note: feature linkage comes from the understanding step
+  - id: CN-002
+    category: consistency
+    requirement: One feature does not carry two different values (e.g. in two views)
+    severity: critical
+    check_type: code
+    check: conflicting_values
+    source: {document: 'Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13)', section: US-2.2 AC1}
+    status: draft
+
+  # Note: raised as a warning
+  - id: CN-003
+    category: consistency
+    requirement: Every dimension value has a matching dimension line
+    severity: minor
+    check_type: code
+    check: unattached_dimension
+    source: {document: 'Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13)', section: US-2.3 AC1}
+    status: draft
+
+  - id: CN-004
+    category: consistency
+    requirement: A reference dimension agrees with the dimensions it summarises
+    severity: major
+    check_type: code
+    check: reference_dim_consistent
+    source: {document: 'Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13)', section: US-2.4}
+    status: draft
+
+  # LatentView Rulebook v0.2 DM-02 (their severity: Major; their check: AI).
+  # Why: Two values for one size can conflict after a change
+  # How they verify: Same model distance dimensioned twice
+  # See also: ISO 129:1985 §3.2.2, §3.2.5; Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-2.2
+  #   AC2
+  # Note: identical repeat = redundant (warning); different values for one feature is CN-002
+  - id: DM-002
+    category: consistency
+    requirement: No duplicate or over-dimensioning
+    severity: minor
+    check_type: code
+    check: duplicate_dimension
+    params: {mode: identical}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: DM-02}
+    status: draft
+
+  # LatentView Rulebook v0.2 DM-03 (their severity: Major; their check: AI).
+  # Why: Closed chains create tolerance conflicts
+  # How they verify: Cycle detection in the coverage graph
+  # See also: ISO 129:1985 §3.2.5
+  # Note: uses Extraction.chain_checks; one link must be a reference dimension
+  - id: DM-003
+    category: consistency
+    requirement: No closed dimension chains unless one link is a reference dimension
+    severity: major
+    check_type: code
+    check: closed_chain
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: DM-03}
+    status: draft
+
+  # LatentView Detection Guide MX-01 (their severity: Critical; their check: geometric).
+  # How they verify: A hole, slot, pocket or step has no size dimension and no note covers it
+  # Guards: Size covered by a standard-part callout or general note (e.g. radii)
+  # Also covers (merged): DM-01
+  # See also: ISO 129:1985 §3.2.1; Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-2.3 AC2
+  # Note: 2D: features come from the understanding step; full coverage graph is phase 2 (3D)
+  - id: MX-001
+    category: consistency
+    requirement: Feature with no size
+    severity: critical
+    check_type: llm
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-01}
+    status: draft
+
+  # LatentView Detection Guide MX-02 (their severity: Critical; their check: geometric).
+  # How they verify: Size is given, but nothing positions the feature from a datum or another located feature
+  # Guards: Location implied by a symmetry mark or by coaxiality with a located feature
+  # Also covers (merged): MP-08
+  # See also: ISO 129:1985 §3.2.1
+  # Note: as MX-01; also covers MP-08 (hole centres)
+  - id: MX-002
+    category: consistency
+    requirement: Feature with no location
+    severity: critical
+    check_type: llm
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-02}
+    status: draft
+
+  # LatentView Detection Guide MX-03 (their severity: Critical; their check: deterministic).
+  # How they verify: Blind hole, pocket, counterbore or thread with no depth; THRU not stated
+  # Guards: Depth set by a through-all extent and shown in section
+  # Also covers (merged): DM-06
+  # See also: ISO 129:1985 §3.2.1
+  - id: MX-003
+    category: consistency
+    requirement: Missing depth
+    severity: critical
+    check_type: code
+    check: hole_depth_stated
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-03}
+    status: draft
+
+  # LatentView Detection Guide MX-05 (their severity: Minor; their check: deterministic).
+  # How they verify: No overall length, width or height, so stock size and envelope are unclear
+  # Guards: Shape is a turned part with overall length and max diameter given
+  # Also covers (merged): DM-05
+  - id: MX-005
+    category: consistency
+    requirement: Missing overall dimensions
+    severity: minor
+    check_type: llm
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-05}
+    status: draft
+
+  # LatentView Detection Guide MX-06 (their severity: Critical; their check: deterministic + geometric).
+  # How they verify: Hole pattern shows count but not pitch, PCD or angular spacing, or the pattern itself is not
+  #   located
+  # Guards: Pattern is equally spaced on a full circle and the note says EQ SP
+  # Also covers (merged): DM-12
+  - id: MX-006
+    category: consistency
+    requirement: Pattern not fully defined
+    severity: critical
+    check_type: code
+    check: pattern_callout_complete
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-06}
+    status: draft
+
+  # LatentView Detection Guide MX-09 (their severity: Major; their check: deterministic).
+  # How they verify: Angled face, taper or countersink with no angle
+  # Guards: Angle defined by two linear dims (computed)
+  - id: MX-009
+    category: consistency
+    requirement: Missing angle
+    severity: major
+    check_type: code
+    check: angle_stated
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-09}
+    status: draft
+
+  # LatentView Detection Guide MX-14 (their severity: Major; their check: deterministic + LLM).
+  # How they verify: Weldment faces to be machined have no separate machining dimensions or datums
+  # Guards: Not a weldment
+  # Also covers (merged): WF-03, WF-11
+  # Note: machining on a separate sheet with an IS tolerance grade, or toleranced machining dims; also covers
+  #   WF-03, WF-11
+  - id: MX-014
+    category: consistency
+    requirement: Missing machining-after-weld dimensions
+    severity: major
+    check_type: llm
+    applies_to: {drawing_type: [fabrication]}
+    source: {document: PARI Guidelines for Welding Notes & Symbols, section: 11. Correctness & completeness review}
+    status: draft
+
+  # LatentView Detection Guide MX-15 (their severity: Critical; their check: deterministic).
+  # How they verify: Sheet-metal or plate part with no thickness stated in a dimension, note or title block
+  # Guards: None
+  # Note: plate parts (prismatic); sheet-metal SM-01 is another family
+  - id: MX-015
+    category: consistency
+    requirement: Missing material thickness
+    severity: critical
+    check_type: llm
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-15}
+    status: draft
+
+  # LatentView Detection Guide MX-17 (their severity: Critical; their check: deterministic).
+  # How they verify: Groove width, diameter, depth, corner radii or surface finish missing
+  # Guards: None
+  # Also covers (merged): MC-13
+  - id: MX-017
+    category: consistency
+    requirement: Incomplete seal or O-ring groove
+    severity: critical
+    check_type: llm
+    applies_to: {part_family: [round]}
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-17}
+    status: draft
+
+  # LatentView Detection Guide MX-18 (their severity: Critical; their check: deterministic + LLM).
+  # How they verify: Gear or spline drawn without a data table (module or pitch, tooth count, pressure angle,
+  #   tolerance class)
+  # Guards: Bought-out gear with supplier part number
+  # Also covers (merged): MC-14
+  - id: MX-018
+    category: consistency
+    requirement: Missing gear, spline or serration data
+    severity: critical
+    check_type: llm
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-18}
+    status: draft
+
+  # LatentView Detection Guide MX-19 (their severity: Minor; their check: deterministic + LLM).
+  # How they verify: Knurl shown without type, pitch, diameter or length
+  # Guards: Cosmetic knurl note per standard
+  - id: MX-019
+    category: consistency
+    requirement: Missing knurl specification
+    severity: minor
+    check_type: llm
+    applies_to: {part_family: [round]}
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-19}
+    status: draft
+
+  # LatentView Detection Guide MX-20 (their severity: Critical; their check: geometric).
+  # How they verify: Cross hole or intersecting bore located only on its own axis, not relative to the feature it
+  #   breaks into
+  # Guards: Host is a datum and the dim reaches it
+  # Also covers (merged): DM-17
+  # Note: cross holes on pins and shafts
+  - id: MX-020
+    category: consistency
+    requirement: Intersecting feature not located
+    severity: critical
+    check_type: llm
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-20}
+    status: draft
+
+  # LatentView Detection Guide MX-21 (their severity: Major; their check: geometric).
+  # How they verify: Feature exists on both sides, but only one is dimensioned and no "opposite side" or "typical"
+  #   note is given
+  # Guards: Mirror is coaxial or covered by a pattern callout
+  # Also covers (merged): DM-15
+  - id: MX-021
+    category: consistency
+    requirement: Opposite or mirrored side not covered
+    severity: major
+    check_type: llm
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-21}
+    status: draft
+
+  # LatentView Detection Guide MX-30 (their severity: Critical; their check: deterministic).
+  # How they verify: A note such as "see 3D model" replaces dimensions without an agreed model-based definition
+  #   process
+  # Guards: PARI approves MBD for the part family
+  # Also covers (merged): DM-16
+  # See also: ISO 129:1985 §3.2.1
+  - id: MX-030
+    category: consistency
+    requirement: Dimension deferred to the model
+    severity: critical
+    check_type: code
+    check: no_model_deferral
+    params: {phrases: [SEE 3D, REFER 3D, SEE MODEL, AS PER MODEL]}
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-30}
+    status: draft
+
+  # LatentView Rulebook v0.2 NM-01 (their severity: Major; their check: AI).
+  # Why: Undefined edges and sizes
+  # How they verify: Template notes present and unaltered
+  # Also covers (merged): DM-07, MC-10, MX-08
+  # Note: also covers MC-10 (deburr) and MX-08
+  - id: NM-001
+    category: consistency
+    requirement: Standard general notes are present (deburr, unspecified radii, general tolerance)
+    severity: major
+    check_type: code
+    check: template_notes_present
+    params: {notes: [UNSP. RADII, UNSP. CHF, Gen Tol]}
+    source: {document: PARI drawing template FR-DES-006-01, section: standard notes and tolerance block}
+    status: draft
+
+  # LatentView Rulebook v0.2 NM-02 (their severity: Critical; their check: AI).
+  # Why: The shop cannot know which to follow
+  # How they verify: LLM compares note values with dims and other notes
+  - id: NM-002
+    category: consistency
+    requirement: Notes do not contradict the dimensions or each other
+    severity: critical
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: NM-02}
+    status: draft
+
+  # LatentView Rulebook v0.2 VW-03 (their severity: Major; their check: AI).
+  # Why: Readers cannot find which view shows what
+  # How they verify: Bijection between cutting lines / circles and view labels
+  # Note: view labels and cutting-plane letters are in the text layer
+  - id: VW-003
+    category: consistency
+    requirement: Section and detail views are labelled, and labels match cutting lines and detail circles
+    severity: major
+    check_type: code
+    check: section_labels_match
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: VW-03}
+    status: draft
+
+  # LatentView Rulebook v0.2 VW-08 (their severity: Minor; their check: Auto).
+  # Why: Proportions misread
+  # How they verify: Scale label present on each detail view
+  - id: VW-008
+    category: consistency
+    requirement: Detail views state their scale
+    severity: minor
+    check_type: code
+    check: detail_view_scale
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: VW-08}
+    status: draft

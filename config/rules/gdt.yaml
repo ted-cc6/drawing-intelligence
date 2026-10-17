@@ -1,0 +1,49 @@
+# GD&T rules: first draft for task R (3 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule (where each went and
+# why). LatentView's rationale is kept in the comment above each rule; the Rule schema has no fields for it.
+
+rules:
+
+  # LatentView Detection Guide MD-03 (their severity: Critical; their check: deterministic).
+  # How they verify: Position, perpendicularity, parallelism, angularity, profile-of-a-surface (when locating),
+  #   runout or concentricity frame with no datum reference
+  # Guards: Position on a pattern used as a datum itself (MD-20 applies instead); profile used as a pure form
+  #   control
+  # Also covers (merged): DT-03
+  - id: MD-003
+    category: gdt
+    requirement: Orientation or location tolerance with no datum
+    severity: critical
+    check_type: code
+    check: fcf_has_datum
+    params: {characteristics: [position, perpendicularity, parallelism, angularity, runout, total_runout, concentricity, symmetry]}
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-03}
+    status: draft
+
+  # LatentView Detection Guide MX-11 (their severity: Critical; their check: deterministic).
+  # How they verify: A feature controlled by position or profile has no basic (boxed) dimensions locating its true
+  #   position
+  # Guards: True position set by a hole table with basic values
+  # Also covers (merged): TL-09
+  # Note: needs boxed-dimension detection (vectors)
+  - id: MX-011
+    category: gdt
+    requirement: Missing basic dimension
+    severity: critical
+    check_type: code
+    check: basic_dims_for_position
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-11}
+    status: draft
+
+  # LatentView Rulebook v0.2 TL-05 (their severity: Major; their check: AI).
+  # Why: Invalid frames cannot be inspected
+  # How they verify: Parse frames against ISO 1101 / ASME Y14.5 grammar
+  # Note: frames decoded from the Solid Edge symbol font in the text layer (Spike D, branch spike/d-symbols)
+  - id: TL-005
+    category: gdt
+    requirement: GD&T symbols and frames are valid for the standard in use
+    severity: major
+    check_type: code
+    check: fcf_grammar
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-05}
+    status: draft

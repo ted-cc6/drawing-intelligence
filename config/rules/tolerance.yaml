@@ -1,0 +1,86 @@
+# Tolerance rules: first draft for task R (6 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule (where each went and
+# why). LatentView's rationale is kept in the comment above each rule; the Rule schema has no fields for it.
+
+rules:
+
+  # LatentView Rulebook v0.2 DM-10 (their severity: Minor; their check: AI).
+  # Why: Toleranced reference dims are inspected unnecessarily or conflict
+  # How they verify: Reference flag vs. tolerance presence
+  # See also: ISO 129:1985 §3.1 (auxiliary dimension)
+  - id: DM-010
+    category: tolerance
+    requirement: Reference dimensions are bracketed and untoleranced
+    severity: minor
+    check_type: code
+    check: reference_dim_untoleranced
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: DM-10}
+    status: draft
+
+  # LatentView Rulebook v0.2 LY-05 (their severity: Major; their check: AI).
+  # Why: Extra decimals imply false precision and confuse inspection
+  # How they verify: Compare decimals shown with tolerance magnitude
+  - id: LY-005
+    category: tolerance
+    requirement: Decimal places are consistent with the tolerance (no 10.000 with ±0.1)
+    severity: major
+    check_type: code
+    check: decimals_vs_tolerance
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: LY-05}
+    status: draft
+
+  # LatentView Detection Guide MX-12 (their severity: Critical; their check: deterministic).
+  # How they verify: Dimension given but no tolerance, and the general tolerance note does not apply (e.g. fits,
+  #   basic dims misused)
+  # Guards: Reference dims
+  # Also covers (merged): TL-01
+  # Note: uses the IS 2102 table printed on the drawing; flags dims outside its ranges, fits without limits,
+  #   misused basic dims
+  - id: MX-012
+    category: tolerance
+    requirement: Missing tolerance
+    severity: critical
+    check_type: code
+    check: tolerance_coverage
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-12}
+    status: draft
+
+  - id: RQ-002
+    category: tolerance
+    requirement: Tolerance limits are valid (lower limit not above upper limit)
+    severity: major
+    check_type: code
+    check: tolerance_limits_valid
+    source: {document: 'Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13)', section: US-4.1 AC2}
+    status: draft
+
+  # LatentView Rulebook v0.2 TL-03 (their severity: Major; their check: Manual).
+  # Why: Over-tight tolerances multiply cost and rejection
+  # How they verify: Tolerance vs. process capability table
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-4.1 AC1
+  # Note: raised as a warning asking the designer to confirm; threshold to agree. Process-capability part needs a
+  #   PARI table
+  - id: TL-003
+    category: tolerance
+    requirement: Tolerances are achievable with the intended process; none tighter than the function needs
+    severity: minor
+    check_type: code
+    check: tolerance_tighter_than_general
+    params: {ratio: null}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-03}
+    status: draft
+
+  # LatentView Rulebook v0.2 TL-13 (their severity: Major; their check: AI).
+  # Why: Mismatched fits give interference or play
+  # How they verify: Parse fit codes; compare with mating drawing
+  # Note: valid ISO 286 fit designation only; matching the mating part's drawing is phase 2 (3D). Westermann tables
+  #   are scanned (79 pp) and need transcribing
+  - id: TL-013
+    category: tolerance
+    requirement: Fit codes are valid and match the mating part's drawing (e.g. H7 with g6)
+    severity: major
+    check_type: lookup
+    check: fit_code_valid
+    params: {table: iso286_fits}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-13}
+    status: draft

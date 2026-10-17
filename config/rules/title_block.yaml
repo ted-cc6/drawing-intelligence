@@ -1,0 +1,258 @@
+# Title block rules: first draft for task R (19 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule (where each went and
+# why). LatentView's rationale is kept in the comment above each rule; the Rule schema has no fields for it.
+
+rules:
+
+  # Note: Capstone I found inverted revision dates on the Laser Sensor Mtg Block
+  - id: RQ-001
+    category: title_block
+    requirement: 'Dates are in order: checked/approved not before drawn; revision dates ascending with revision'
+    severity: minor
+    check_type: code
+    check: dates_in_order
+    source: {document: 'Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13)', section: US-3.3 AC2}
+    status: draft
+
+  # LatentView Rulebook v0.2 RV-01 (their severity: Major; their check: Auto).
+  # Why: No history of what changed
+  # How they verify: Row per revision; fields not empty
+  # Note: author column not in DrawingKnowledge.revisions yet (schema gap)
+  - id: RV-001
+    category: title_block
+    requirement: Revision table has an entry for every revision, with description, date and author
+    severity: major
+    check_type: code
+    check: revision_table_complete
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: RV-01}
+    status: draft
+
+  # LatentView Rulebook v0.2 RV-03 (their severity: Major; their check: Auto).
+  # Why: Change not traceable to its approval
+  # How they verify: Field present and valid in PDM
+  # Note: presence of the change number (PARI 'CAR. NO.' column); validity in PDM is phase 2
+  - id: RV-003
+    category: title_block
+    requirement: The ECN or change reference is quoted for revised drawings
+    severity: major
+    check_type: code
+    check: revision_change_ref
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: RV-03}
+    status: draft
+
+  # LatentView Rulebook v0.2 RV-07 (their severity: Minor; their check: Auto).
+  # Why: Confusion over which revision is latest
+  # How they verify: Letter sequence check
+  # Note: PARI revisions are numeric (00, 01, 02): sequential with no gaps
+  - id: RV-007
+    category: title_block
+    requirement: Revision letters are sequential with no skips; I, O and Q are not used
+    severity: minor
+    check_type: code
+    check: revision_sequence
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: RV-07}
+    status: draft
+
+  # LatentView Rulebook v0.2 SC-02 (their severity: Critical; their check: Manual).
+  # Why: Safety parts need stricter checks and traceability
+  # How they verify: Prompt Checker to confirm classification
+  # Note: template has a PART CLASS. field
+  - id: SC-002
+    category: title_block
+    requirement: Safety-critical parts are flagged (guards, interlocks, load-bearing members)
+    severity: critical
+    check_type: code
+    check: part_class_stated
+    source: {document: PARI Guidelines for Welding Notes & Symbols, section: '4. Classification of parts (T+S, A, B, C; PRD-GD-DES-03)'}
+    status: draft
+
+  # LatentView Rulebook v0.2 TB-01 (their severity: Critical; their check: Auto).
+  # Why: Wrong or malformed numbers break PDM search and purchasing
+  # How they verify: Regex against the numbering pattern agreed with PARI
+  # Note: presence checkable now; numbering pattern to agree with PARI (samples use P24BSA064533, UEG000000634)
+  - id: TB-001
+    category: title_block
+    requirement: Drawing number is present and follows the company numbering format
+    severity: critical
+    check_type: code
+    check: title_block_pattern
+    params: {field: number, pattern: null}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TB-01}
+    status: draft
+
+  # LatentView Rulebook v0.2 TB-03 (their severity: Major; their check: Auto).
+  # Why: Default names ("Part1", "Copy of…") cause ordering errors
+  # How they verify: Not empty; not in a list of default or placeholder strings
+  - id: TB-003
+    category: title_block
+    requirement: Part title / description is present and meaningful
+    severity: major
+    check_type: code
+    check: title_block_field
+    params: {field: title, placeholder_ok: []}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TB-03}
+    status: draft
+
+  # LatentView Rulebook v0.2 TB-04 (their severity: Critical; their check: Auto).
+  # Why: Shop may build an old revision
+  # How they verify: Compare title-block revision with the last revision-table row
+  - id: TB-004
+    category: title_block
+    requirement: Revision level is present and matches the latest entry in the revision table
+    severity: critical
+    check_type: code
+    check: revision_matches_table
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TB-04}
+    status: draft
+
+  # LatentView Rulebook v0.2 TB-05 (their severity: Major; their check: Auto).
+  # Why: No accountability or traceability
+  # How they verify: Fields not empty; date is valid and not in the future
+  # Note: drawn-by name is not in the DrawingKnowledge title block yet (schema gap)
+  - id: TB-005
+    category: title_block
+    requirement: Drawn by and date fields are filled
+    severity: major
+    check_type: code
+    check: dates_valid
+    params: {fields: [drawn_date]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TB-05}
+    status: draft
+
+  # LatentView Rulebook v0.2 TB-06 (their severity: Minor; their check: AI).
+  # Why: Anyone scaling a print gets wrong sizes
+  # How they verify: Compare stated scale with base-view scale property
+  # Note: compares stated scale with Extraction.scale_pts_per_mm measured from dimension lines
+  - id: TB-006
+    category: title_block
+    requirement: Scale stated matches the main view scale
+    severity: minor
+    check_type: code
+    check: scale_consistent
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TB-06}
+    status: draft
+
+  # LatentView Rulebook v0.2 TB-08 (their severity: Critical; their check: AI).
+  # Why: Untoleranced dimensions have no limits at all
+  # How they verify: Text search of title block and notes for a recognised tolerance standard
+  # Note: PARI drawings use IS 2102, not the ISO 2768 example
+  - id: TB-008
+    category: title_block
+    requirement: General tolerance standard or table is stated (e.g. ISO 2768-m)
+    severity: critical
+    check_type: code
+    check: title_block_field
+    params: {field: general_tolerance_standard, must_contain: [IS 2102]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TB-08}
+    status: draft
+
+  # LatentView Rulebook v0.2 TB-09 (their severity: Major; their check: AI).
+  # Why: Unit confusion causes gross errors
+  # How they verify: Unit field or note present
+  # See also: ISO 129:1985 §3.2.4
+  - id: TB-009
+    category: title_block
+    requirement: Units are stated (mm)
+    severity: major
+    check_type: code
+    check: title_block_field
+    params: {field: units}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TB-09}
+    status: draft
+
+  # LatentView Rulebook v0.2 TB-10 (their severity: Minor; their check: Auto).
+  # Why: Missing sheets go unnoticed
+  # How they verify: x runs 1..y with no gaps; y equals sheet count
+  # Note: sheet 'x OF y' is in the title-block text, not a DrawingKnowledge field (schema gap)
+  - id: TB-010
+    category: title_block
+    requirement: Sheet numbering is correct (Sheet x of y)
+    severity: minor
+    check_type: code
+    check: sheet_numbering
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TB-10}
+    status: draft
+
+  # LatentView Rulebook v0.2 TB-12 (their severity: Major; their check: Auto).
+  # Why: Wrong material ordered
+  # How they verify: Compare with model material property (detail in MF rules)
+  # Note: presence only; '#' = see parts list (86% of sheets, Spike C). Model-material match is phase 2 (3D)
+  - id: TB-012
+    category: title_block
+    requirement: Material field is filled and matches the model material
+    severity: major
+    check_type: code
+    check: title_block_field
+    params: {field: material, placeholder_ok: ['#']}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TB-12}
+    status: draft
+
+  # LatentView Rulebook v0.2 TB-13 (their severity: Major; their check: Auto).
+  # Why: Parts arrive uncoated or wrongly coated
+  # How they verify: Field not empty
+  # Also covers (merged): MF-04
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-3.1 AC3
+  - id: TB-013
+    category: title_block
+    requirement: Finish / treatment field is filled, or "none" stated
+    severity: major
+    check_type: code
+    check: title_block_field
+    params: {field: surface_treatment, placeholder_ok: ['#', '---', N.A., NIL]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TB-13}
+    status: draft
+
+  # LatentView Rulebook v0.2 TB-14 (their severity: Observation; their check: Auto).
+  # Why: Needed for handling, shipping and lifting planning
+  # How they verify: Field present; within 5% of model mass
+  # Note: presence only (template has NET WEIGHT-Kg); 5% model-mass check is phase 2 (3D)
+  - id: TB-014
+    category: title_block
+    requirement: Mass is stated, if the template or WP requires it
+    severity: info
+    check_type: code
+    check: title_block_field
+    params: {field: weight}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TB-14}
+    status: draft
+
+  # LatentView Rulebook v0.2 TB-15 (their severity: Minor; their check: Auto).
+  # Why: Wrong template loses mandatory fields and notes
+  # How they verify: Template ID matches the approved list
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-3.3 AC1, US-1.2 AC2
+  # Note: also flags unknown templates; 17% of the client set uses an older PARI title block (Spike C)
+  - id: TB-015
+    category: title_block
+    requirement: Correct company template and sheet size are used
+    severity: minor
+    check_type: code
+    check: sheet_size_matches_page
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TB-15}
+    status: draft
+
+  # LatentView Rulebook v0.2 TB-16 (their severity: Major; their check: Auto).
+  # Why: Pre-signed drawings bypass the check
+  # How they verify: Fields empty when the drawing enters review
+  # Note: only meaningful for drawings entering review; fires on already-released drawings such as the samples
+  - id: TB-016
+    category: title_block
+    requirement: Checked and Approved fields are blank at submission
+    severity: major
+    check_type: code
+    check: fields_blank_at_submission
+    params: {fields: [checked_date, approved_date]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TB-16}
+    status: draft
+
+  # LatentView Rulebook v0.2 TB-18 (their severity: Minor; their check: Auto).
+  # Why: Legal protection of design data
+  # How they verify: Template text present and unaltered
+  - id: TB-018
+    category: title_block
+    requirement: Ownership / confidentiality note is present
+    severity: minor
+    check_type: code
+    check: template_text_present
+    params: {text: ALL RIGHTS OF REPRODUCTION & DISTRIBUTION ARE RESERVED}
+    source: {document: PARI drawing template FR-DES-006-01, section: TB-18}
+    status: draft

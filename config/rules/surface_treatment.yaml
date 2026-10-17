@@ -1,0 +1,184 @@
+# Surface finish / coating / heat treatment rules: first draft for task R (16 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule (where each went and
+# why). LatentView's rationale is kept in the comment above each rule; the Rule schema has no fields for it.
+
+rules:
+
+  # LatentView Rulebook v0.2 MF-06 (their severity: Minor; their check: Manual).
+  # Why: Coated threads and fits will not assemble
+  # How they verify: Coated parts with threads or fits and no masking note
+  # Also covers (merged): US-India note 1 (PARI US-India equivalent Materials Info.xlsx)
+  # Note: coated part with threads or fits and no masking note; raised as a warning
+  - id: MF-006
+    category: surface_treatment
+    requirement: Masking is stated for surfaces that must stay uncoated (threads, mating faces)
+    severity: minor
+    check_type: code
+    check: masking_note
+    source: {document: PARI US-India equivalent Materials Info.xlsx, section: Note 1 (mask the functional area)}
+    status: draft
+
+  # LatentView Rulebook v0.2 MF-10 (their severity: Major; their check: AI).
+  # Why: Incomplete hardness specs cannot be inspected
+  # How they verify: Parse hardness notes for value, scale, depth
+  # See also: PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09) (format '45-55 HRC, 0.6 to 2 mm depth')
+  - id: MF-010
+    category: surface_treatment
+    requirement: Hardness states value, scale and case depth where relevant (e.g. 58-62 HRC, case 0.8-1.2)
+    severity: major
+    check_type: code
+    check: hardness_spec_complete
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MF-10}
+    status: draft
+
+  # LatentView Rulebook v0.2 MF-13 (their severity: Minor; their check: AI).
+  # Why: Colour mismatch with the machine
+  # How they verify: Coating notes contain a colour code
+  - id: MF-013
+    category: surface_treatment
+    requirement: Paint or powder-coat colour is specified by code (e.g. RAL)
+    severity: minor
+    check_type: code
+    check: paint_colour_code
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MF-13}
+    status: draft
+
+  - id: RQ-003
+    category: surface_treatment
+    requirement: A heat-treatment field that refers to a note (e.g. 'REF NOTE') has that note on the drawing
+    severity: major
+    check_type: code
+    check: referenced_note_exists
+    params: {field: heat_treatment}
+    source: {document: 'Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13)', section: US-6.1 AC1; O9}
+    status: draft
+
+  # LatentView Rulebook v0.2 TL-07 (their severity: Major; their check: AI).
+  # Why: Seals leak, bearings wear early
+  # How they verify: Faces with these functions vs. roughness symbols
+  # Note: finish marks found by vector detector (Spike D); face function is a judgement
+  - id: TL-007
+    category: surface_treatment
+    requirement: Surface roughness is specified on machined, sealing, sliding and bearing surfaces
+    severity: major
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-07}
+    status: draft
+
+  # LatentView Rulebook v0.2 TL-16 (their severity: Minor; their check: AI).
+  # Why: Ra 0.4 on a milled face needs extra operations
+  # How they verify: Roughness value vs. process table; general symbol present
+  # Note: process roughness table not available yet
+  - id: TL-016
+    category: surface_treatment
+    requirement: Roughness values are realistic for the process, and a general roughness symbol covers other surfaces
+    severity: minor
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-16}
+    status: draft
+
+  # Note: e.g. 20MnCr5: case hardening only; EN41B: gas nitriding only; SS304/FG260/FG300/EN42: none
+  - id: WPM-001
+    category: surface_treatment
+    requirement: The heat treatment specified is one PARI allows for that material
+    severity: major
+    check_type: lookup
+    check: heat_treatment_allowed
+    params: {table: material_heat_treatment}
+    source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: 'Material, heat treatment type and hardness range'}
+    status: draft
+
+  # Note: e.g. C45 toughening 24-32 HRC; induction 45-55 HRC at 0.6-2 mm. Spike E case J6-3
+  - id: WPM-002
+    category: surface_treatment
+    requirement: The hardness (and case depth) is within PARI's range for the material and process
+    severity: major
+    check_type: lookup
+    check: hardness_in_range
+    params: {table: material_heat_treatment}
+    source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: Hardness ranges per material and process}
+    status: draft
+
+  - id: WPM-003
+    category: surface_treatment
+    requirement: For induction, flame or case hardening, the area to be hardened is shown (XXXXX) on the drawing
+    severity: minor
+    check_type: llm
+    source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: 'Column notes: area to be hardened shown by XXXXX'}
+    status: draft
+
+  # Note: chrome plating peels on nitrided parts. Spike E case J6-5
+  - id: WPM-004
+    category: surface_treatment
+    requirement: Nitrided parts are not chrome plated, and nitriding follows finish machining
+    severity: major
+    check_type: lookup
+    check: treatment_combination
+    params: {table: material_heat_treatment}
+    source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: 'Additional information (EN9, EN19, EN41B)'}
+    status: draft
+
+  # Note: Hard chrome, flash chrome, ENP, IZBP (trivalent), silver/hard anodizing, electro galvanizing, Balzer,
+  #   ZAFC, QPQ
+  - id: WPS-001
+    category: surface_treatment
+    requirement: The surface treatment is one of PARI's listed processes
+    severity: major
+    check_type: lookup
+    check: surface_treatment_approved
+    params: {table: plating_processes}
+    source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: Type of surface treatment (10 processes)}
+    status: draft
+
+  # Note: e.g. anodizing only on aluminium; IZBP only on mild/carbon steel
+  - id: WPS-002
+    category: surface_treatment
+    requirement: The surface treatment suits the base material (ferrous / non-ferrous / non-metallic)
+    severity: major
+    check_type: lookup
+    check: treatment_material_compat
+    params: {table: plating_processes}
+    source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: Material columns}
+    status: draft
+
+  # Note: hard chrome needs case-hardened or >= 45 HRC base; QPQ not on case-hardened parts; Balzer not on EN24
+  - id: WPS-003
+    category: surface_treatment
+    requirement: The surface treatment's prerequisites are met
+    severity: major
+    check_type: lookup
+    check: treatment_prerequisites
+    params: {table: plating_processes}
+    source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: Input surface pre-requisites; remarks}
+    status: draft
+
+  # Also covers (merged): MF-08
+  # Note: also covers LatentView MF-08
+  - id: WPS-004
+    category: surface_treatment
+    requirement: Plating thickness is allowed for on tight fits and threads
+    severity: major
+    check_type: llm
+    source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: 'Process constraints: plating thickness allowance before final sizing'}
+    status: draft
+
+  # Note: raised as a warning
+  - id: WPS-005
+    category: surface_treatment
+    requirement: Hard chrome, flash chrome and QPQ parts have sharp edges blended by radius, not chamfer
+    severity: minor
+    check_type: code
+    check: plating_edge_radius
+    params: {processes: [hard chrome, flash chrome, QPQ]}
+    source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: Process constraints}
+    status: draft
+
+  # Note: the Cam Plate's I.Z.B.P. (TRIVALENT) passes
+  - id: WPS-006
+    category: surface_treatment
+    requirement: Iron-zinc black passivation is specified as trivalent
+    severity: minor
+    check_type: code
+    check: izbp_trivalent
+    source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: 'Row 4: Iron Zinc Black Passivation (Trivalent only)'}
+    status: draft

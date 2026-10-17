@@ -1,0 +1,110 @@
+# Thread / weld callout rules: first draft for task R (8 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule (where each went and
+# why). LatentView's rationale is kept in the comment above each rule; the Rule schema has no fields for it.
+
+rules:
+
+  # LatentView Rulebook v0.2 MC-05 (their severity: Minor; their check: Auto).
+  # Why: Special tools add cost and lead time
+  # How they verify: Compare with standard size tables
+  # Also covers (merged): NM-06
+  - id: MC-005
+    category: thread_weld
+    requirement: Standard drill, tap and thread sizes are used
+    severity: minor
+    check_type: lookup
+    check: standard_thread_size
+    params: {table: iso_metric_threads}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-05}
+    status: draft
+
+  # LatentView Detection Guide MX-04 (their severity: Major; their check: deterministic).
+  # How they verify: Thread size given without pitch (where non-standard), tolerance class, thread depth or drill
+  #   depth
+  # Guards: Through threads (no depth needed); coarse pitch omitted per standard
+  # Note: thread class off until PARI confirms (samples write 'M4 x 15 DEEP')
+  - id: MX-004
+    category: thread_weld
+    requirement: Incomplete thread callout
+    severity: major
+    check_type: code
+    check: thread_callout_complete
+    params: {require_class: false}
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-04}
+    status: draft
+
+  # LatentView Detection Guide MX-26 (their severity: Major; their check: deterministic).
+  # How they verify: Intermittent weld symbol without segment length and pitch
+  # Guards: Continuous weld
+  # Also covers (merged): WF-13
+  # Note: welds are written in notes on PARI drawings (Spike D); also covers WF-13
+  - id: MX-026
+    category: thread_weld
+    requirement: Missing intermittent weld length or pitch
+    severity: major
+    check_type: code
+    check: intermittent_weld_complete
+    applies_to: {drawing_type: [fabrication]}
+    source: {document: PARI Guidelines for Welding Notes & Symbols, section: 6. General welding details (weld length vs pitch table)}
+    status: draft
+
+  # LatentView Detection Guide MX-29 (their severity: Major; their check: deterministic).
+  # How they verify: Threaded insert or helicoil hole without the insert part number, length or tapped-hole size
+  #   for it
+  # Guards: None
+  - id: MX-029
+    category: thread_weld
+    requirement: Missing insert specification
+    severity: major
+    check_type: code
+    check: insert_spec
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-29}
+    status: draft
+
+  # LatentView Rulebook v0.2 WF-04 (their severity: Minor; their check: Manual).
+  # Why: Distortion during later machining
+  # How they verify: Prompt for thick or precision weldments
+  - id: WF-004
+    category: thread_weld
+    requirement: Stress relief or post-weld treatment is stated where required
+    severity: minor
+    check_type: llm
+    applies_to: {drawing_type: [fabrication]}
+    source: {document: PARI Guidelines for Welding Notes & Symbols, section: 2. Correctness of weldment model (stress relieving)}
+    status: draft
+
+  # LatentView Rulebook v0.2 WF-07 (their severity: Major; their check: AI).
+  # Why: Weld acceptance undefined
+  # How they verify: Text search for standard and level
+  - id: WF-007
+    category: thread_weld
+    requirement: Welding standard and quality level are stated (e.g. ISO 5817 level C)
+    severity: major
+    check_type: lookup
+    check: weld_class_for_part_class
+    params: {table: {T+S: B, A: C, B: C, C: D}}
+    applies_to: {drawing_type: [fabrication]}
+    source: {document: PARI Guidelines for Welding Notes & Symbols, section: 5. Deciding welding quality requirements (ISO 5817)}
+    status: draft
+
+  # LatentView Rulebook v0.2 WF-08 (their severity: Major; their check: AI).
+  # Why: Incomplete fusion
+  # How they verify: Full-pen symbols without prep details
+  - id: WF-008
+    category: thread_weld
+    requirement: Weld preparation (bevel angle, root gap) is dimensioned for full-penetration welds
+    severity: major
+    check_type: llm
+    applies_to: {drawing_type: [fabrication]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: WF-08}
+    status: draft
+
+  - id: WPW-001
+    category: thread_weld
+    requirement: Welding notes have exactly one option chosen (Applicable / Not Applicable, Required / Not Required)
+    severity: minor
+    check_type: code
+    check: weld_note_options_resolved
+    applies_to: {drawing_type: [fabrication]}
+    source: {document: PARI Guidelines for Welding Notes & Symbols, section: 7. Welding notes on part drawing}
+    status: draft

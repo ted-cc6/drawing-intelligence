@@ -1,0 +1,44 @@
+# Material rules: first draft for task R (3 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule (where each went and
+# why). LatentView's rationale is kept in the comment above each rule; the Rule schema has no fields for it.
+
+rules:
+
+  # LatentView Rulebook v0.2 MF-11 (their severity: Minor; their check: Auto).
+  # Why: Non-preferred materials raise cost and lead time
+  # How they verify: Compare with preferred list
+  # Also covers (merged): PRD-GD-DES-11 note iii (PARI PRD-GD-DES-11 Material Selection)
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-3.2
+  # Note: draft approved list from PARI docs + names seen on samples (M.S., C-45, PU); catches misspellings like
+  #   'Polyurethene'
+  - id: MF-011
+    category: material
+    requirement: Material is on the approved or preferred list
+    severity: minor
+    check_type: lookup
+    check: material_approved
+    params: {table: approved_materials, suggest_closest: true}
+    source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: Material table (13 grades) + US-India equivalents}
+    status: draft
+
+  # Note: also LatentView-independent requirement US-6.3
+  - id: WPE-001
+    category: material
+    requirement: A US material designation is shown with its Indian equivalent
+    severity: info
+    check_type: lookup
+    check: us_india_equivalent
+    params: {table: us_india_materials}
+    source: {document: PARI US-India equivalent Materials Info.xlsx, section: Sheet1}
+    status: draft
+
+  - id: WPM-005
+    category: material
+    requirement: 'Round-bar material suits the size: EN9 up to 32 mm diameter, EN24 above'
+    severity: minor
+    check_type: lookup
+    check: material_for_size
+    params: {table: material_heat_treatment}
+    applies_to: {part_family: [round]}
+    source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: Raw material notes (rows 1 and 3)}
+    status: draft

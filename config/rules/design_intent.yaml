@@ -1,0 +1,92 @@
+# Design intent rules: first draft for task R (7 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule (where each went and
+# why). LatentView's rationale is kept in the comment above each rule; the Rule schema has no fields for it.
+
+rules:
+
+  # LatentView Rulebook v0.2 MF-05 (their severity: Major; their check: AI).
+  # Why: Soft wear parts fail; hardening after machining distorts
+  # How they verify: Treatment notes vs. feature function and sequence
+  # Note: whether a part needs heat treatment is a judgement; the allowed treatments per material are WPM-001
+  - id: MF-005
+    category: design_intent
+    requirement: Heat treatment and hardness are specified where required, with the stage they apply at
+    severity: major
+    check_type: llm
+    source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: 'Material, heat treatment type and hardness range'}
+    status: draft
+
+  # LatentView Rulebook v0.2 MF-07 (their severity: Major; their check: Manual).
+  # Why: Wrong material fails in service
+  # How they verify: Prompt Checker with function and environment context
+  # Also covers (merged): US-India note 1 (PARI US-India equivalent Materials Info.xlsx)
+  # Note: Spike E J6 cases
+  - id: MF-007
+    category: design_intent
+    requirement: 'Material suits the function: strength, corrosion, wear, weldability'
+    severity: major
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MF-07}
+    status: draft
+
+  # LatentView Rulebook v0.2 NM-08 (their severity: Minor; their check: AI).
+  # Why: Irrelevant requirements add cost
+  # How they verify: LLM checks each note against part features and process
+  - id: NM-008
+    category: design_intent
+    requirement: No notes copied from another drawing that do not apply to this part
+    severity: minor
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: NM-08}
+    status: draft
+
+  # LatentView Rulebook v0.2 SC-01 (their severity: Critical; their check: Manual).
+  # Why: Dropped loads injure people
+  # How they verify: Heavy parts or assemblies (mass above threshold) without lifting info
+  # Note: mass threshold to agree with PARI; raised as a warning
+  - id: SC-001
+    category: design_intent
+    requirement: Lifting points are identified with rated capacity; lifting lugs are designed and marked
+    severity: critical
+    check_type: code
+    check: lifting_info
+    params: {mass_kg: null}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: SC-01}
+    status: draft
+
+  # LatentView Rulebook v0.2 TL-02 (their severity: Critical; their check: Manual).
+  # Why: General tolerance is far too loose for fits
+  # How they verify: Features with assembly mates of type fit or insert without a fit code
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-6.2
+  # Note: 2D: bearing seats/fits without a tolerance (US-6.2, Spike E case J6-4); full mate-based check is phase 2
+  #   (3D)
+  - id: TL-002
+    category: design_intent
+    requirement: Mating and functional features carry fit or tolerance callouts (bearing seats, shaft fits, locating holes)
+    severity: critical
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-02}
+    status: draft
+
+  # LatentView Rulebook v0.2 TL-11 (their severity: Major; their check: AI).
+  # Why: Size tolerance alone does not control form
+  # How they verify: Functional faces without form or orientation control
+  - id: TL-011
+    category: design_intent
+    requirement: Form and orientation controls are applied where flatness or perpendicularity matters (sealing faces, mounting faces)
+    severity: major
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-11}
+    status: draft
+
+  # LatentView Rulebook v0.2 TL-14 (their severity: Major; their check: AI).
+  # Why: Unbalanced or wobbling shafts
+  # How they verify: Shafts with bearing seats and no runout control
+  - id: TL-014
+    category: design_intent
+    requirement: Rotating features carry runout relative to the bearing axis
+    severity: major
+    check_type: llm
+    applies_to: {part_family: [round]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-14}
+    status: draft
