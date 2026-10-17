@@ -1,0 +1,28 @@
+4 drawing(s) with qwen3.8-max (thinking off): rough estimate $0.480 if nothing 
+is cached (30k in + 10k out tokens per page).
+Make these API calls? [y/N]: title_block_truth.json is a draft (_verified: false): criterion 2 is 
+provisional.
+                  Understanding scorecard (green = target met)                  
+┏━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━┳━━━━━━━━┓
+┃        ┃        ┃        ┃ 2      ┃        ┃        ┃        ┃      ┃        ┃
+┃        ┃        ┃ 1      ┃ title  ┃        ┃ 4      ┃        ┃      ┃        ┃
+┃ source ┃ drawi… ┃ valid  ┃ block  ┃ 3 dims ┃ inven… ┃ symbo… ┃ time ┃ cost   ┃
+┡━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━╇━━━━━━━━┩
+│ qwen3… │ 10K_C… │ yes    │ 100%   │ 21/21  │ 0      │ 2      │ 39 s │ $0.098 │
+│        │ PLATE  │        │        │        │        │        │      │        │
+│ qwen3… │ 10K_C… │ yes    │ 93%    │ 27/27  │ 0      │ 2      │ 49 s │ $0.108 │
+│        │ ROD    │        │        │        │        │        │      │        │
+│        │ MTG_02 │        │        │        │        │        │      │        │
+│ qwen3… │ 20_IN… │ yes    │ 100%   │ 18/18  │ 0      │ 1      │ 36 s │ $0.091 │
+│        │ HOSE   │        │        │        │        │        │      │        │
+│        │ PIPE   │        │        │        │        │        │      │        │
+│        │ CLAMP… │        │        │        │        │        │      │        │
+│ qwen3… │ 31K_P… │ yes    │ 100%   │ 15/15  │ 0      │ 2      │ 31 s │ $0.088 │
+│        │ CLAMP  │        │        │        │        │        │      │        │
+│        │ BLK_02 │        │        │        │        │        │      │        │
+└────────┴────────┴────────┴────────┴────────┴────────┴────────┴──────┴────────┘
+Title-block fields that differ from labels/title_block_truth.json
+  qwen3.8-max/off · 10K_CYLINDER ROD MTG_02 · heat_treatment: expected 'REF 
+NOTE', got None
+Time and cost are those of the original call, also for cached replies.
+EXIT:0

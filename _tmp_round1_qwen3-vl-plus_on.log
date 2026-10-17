@@ -1,0 +1,32 @@
+4 drawing(s) with qwen3-vl-plus (thinking on): rough estimate $0.075 if nothing 
+is cached (30k in + 10k out tokens per page).
+Make these API calls? [y/N]: title_block_truth.json is a draft (_verified: false): criterion 2 is 
+provisional.
+                  Understanding scorecard (green = target met)                  
+┏━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━┓
+┃        ┃        ┃        ┃ 2      ┃        ┃        ┃        ┃       ┃       ┃
+┃        ┃        ┃ 1      ┃ title  ┃        ┃ 4      ┃        ┃       ┃       ┃
+┃ source ┃ drawi… ┃ valid  ┃ block  ┃ 3 dims ┃ inven… ┃ symbo… ┃ time  ┃ cost  ┃
+┡━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━┩
+│ qwen3… │ 10K_C… │ yes    │ 93%    │ 21/21  │ 0      │ 1      │ 882 s │ $0.0… │
+│        │ PLATE  │        │        │        │        │        │       │       │
+│ qwen3… │ 10K_C… │ yes    │ 93%    │ 27/27  │ 0      │ 0      │ 247 s │ $0.0… │
+│        │ ROD    │        │        │        │        │        │       │       │
+│        │ MTG_02 │        │        │        │        │        │       │       │
+│ qwen3… │ 20_IN… │ yes    │ 100%   │ 18/18  │ 0      │ 2      │ 287 s │ $0.0… │
+│        │ HOSE   │        │        │        │        │        │       │       │
+│        │ PIPE   │        │        │        │        │        │       │       │
+│        │ CLAMP… │        │        │        │        │        │       │       │
+│ qwen3… │ 31K_P… │ yes    │ 93%    │ 15/15  │ 0      │ 1      │ 869 s │ $0.0… │
+│        │ CLAMP  │        │        │        │        │        │       │       │
+│        │ BLK_02 │        │        │        │        │        │       │       │
+└────────┴────────┴────────┴────────┴────────┴────────┴────────┴───────┴───────┘
+Title-block fields that differ from labels/title_block_truth.json
+  qwen3-vl-plus/on · 10K_CAM PLATE · general_tolerance_standard: expected 'IS 
+2102', got 'Gen Tol.: IS 2102'
+  qwen3-vl-plus/on · 10K_CYLINDER ROD MTG_02 · heat_treatment: expected 'REF 
+NOTE', got None
+  qwen3-vl-plus/on · 31K_PIPE CLAMP BLK_02 · number: expected 'P24BSP810318', 
+got 'FR-DES-006-01'
+Time and cost are those of the original call, also for cached replies.
+EXIT:0
