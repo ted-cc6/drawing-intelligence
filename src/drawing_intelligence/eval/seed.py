@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections import Counter
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Literal
@@ -47,6 +48,9 @@ _KEEP_TEXT = 1
 Box = tuple[float, float, float, float]
 # base-14 fonts in the samples -> PyMuPDF's name for their width metrics
 _METRICS = {"Helvetica": "helv", "Helvetica-Bold": "hebo"}
+# the band a redaction covers, in em above the baseline: the ink of capitals, digits and signs lies below the
+# cap height (0.72 em in Helvetica)
+_INK_BAND = (0.05, 0.75)
 
 
 @dataclass(frozen=True)
@@ -185,7 +189,7 @@ CASES: tuple[Case, ...] = (
         "P17_tempering_without_hardening",
         CYL,
         "planted",
-        (Edit("1) TO BE TOUGHENED UPTO 24-32 HRC.", "1) TO BE TEMPERED UPTO 24-32 HRC."),),
+        (Edit("1) TO BE TOUGHENED UPTO 24-32 HRC.", "1) TO BE TEMPERED UPTO 24-32 HRC.", align="start"),),
         "TOUGHENED -> TEMPERED: tempering with no hardening process",
     ),
     Case(
@@ -325,6 +329,31 @@ def _pieces(line: _Line, span: int | None) -> tuple[list[dict[str, Any]], pymupd
     return [pieces[span]], pymupdf.Rect(pieces[span]["bbox"])
 
 
+def _ink_box(span: dict[str, Any], direction: tuple[int, int]) -> pymupdf.Rect:
+    """Where a span's glyphs are drawn (unrotated): its length, less a little at each end so text that only
+    touches it survives, and only the ink band above the baseline. The span's own box also covers the font's
+    ascender and descender space, which can overlap a label printed beside it (a section letter next to a
+    vertical dimension), and a redaction removes every character it touches."""
+    dx, dy = direction
+    ux, uy = dy, -dx  # towards the tops of the glyphs
+    (ox, oy), size, box = span["origin"], span["size"], pymupdf.Rect(span["bbox"])
+    lo, hi = (_INK_BAND[0] * size, _INK_BAND[1] * size)
+    if dx == 0:  # vertical text: the band runs across x
+        x0, x1 = sorted((ox + ux * lo, ox + ux * hi))
+        return pymupdf.Rect(x0, box.y0 + 0.4, x1, box.y1 - 0.4)
+    y0, y1 = sorted((oy + uy * lo, oy + uy * hi))
+    return pymupdf.Rect(box.x0 + 0.4, y0, box.x1 - 0.4, y1)
+
+
+def _words(page: pymupdf.Page) -> Counter[tuple[str, float, float, float, float]]:
+    """The page's words with their boxes (to 0.1 pt), counted."""
+    out: Counter[tuple[str, float, float, float, float]] = Counter()
+    for x0, y0, x1, y1, text, *_ in page.get_text("words"):
+        x0, y0, x1, y1 = (round(float(v), 1) for v in (x0, y0, x1, y1))
+        out[(str(text), x0, y0, x1, y1)] += 1
+    return out
+
+
 def apply_edits(
     page: pymupdf.Page, edits: tuple[Edit, ...], remaps: list[GlyphRemap], erase: tuple[Box, ...] = ()
 ) -> list[AppliedEdit]:
@@ -339,10 +368,16 @@ def apply_edits(
             line = _locate(lines, edit)
             spans, raw = _pieces(line, edit.span)
             targets.append((edit, line, spans, raw))
-        for *_, r in targets:
-            # shrink the box a little so neighbouring text that only touches it survives
-            page.add_redact_annot(pymupdf.Rect(r.x0 + 0.4, r.y0 + 0.4, r.x1 - 0.4, r.y1 - 0.4))
+        before = _words(page)
+        boxes = [_ink_box(s, ln.direction) for _, ln, spans, _ in targets for s in spans if s["text"].strip()]
+        for box in boxes:
+            page.add_redact_annot(box)
         page.apply_redactions(images=_KEEP_IMAGES, graphics=_KEEP_LINE_ART)
+        # one edit, one change: no other word on the page may go with it
+        lost = before - _words(page)
+        stray = [w for w in lost if not any(pymupdf.Rect(w[1:]).intersects(b) for b in boxes)]
+        if stray:
+            raise ValueError(f"the edits would also remove {sorted(w[0] for w in stray)}")
         if erase:
             for box in erase:
                 page.add_redact_annot(pymupdf.Rect(box) * ~to_visual)
