@@ -1,0 +1,85 @@
+{
+ "schema_version": "1.0",
+ "case": "P21_anodizing_on_steel",
+ "kind": "planted",
+ "base": "10K_CAM PLATE",
+ "pdf": "P21_anodizing_on_steel.pdf",
+ "planted": "surface treatment HARD ANODIZING on an M.S. part (aluminium only)",
+ "expected": [
+  {
+   "rule_id": "WPS-002",
+   "category": "surface_treatment",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "surface_treatment",
+     "page": 1,
+     "bbox": [
+      808.8,
+      736.9,
+      871.2,
+      744.1
+     ],
+     "quote": "HARD ANODIZING",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "material",
+     "page": 1,
+     "bbox": [
+      894.7,
+      776.0,
+      912.6,
+      784.7
+     ],
+     "quote": "M.S.",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "HARD ANODIZING on a mild-steel (M.S.) part: PARI's DES-12 allows anodizing on aluminium only.",
+   "also_acceptable": []
+  }
+ ],
+ "must_not_flag": [],
+ "pre_existing": [
+  {
+   "rule_id": "TB-016",
+   "category": "title_block",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "checked_date",
+     "page": 1,
+     "bbox": [
+      781.2,
+      802.7,
+      819.1,
+      810.2
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "approved_date",
+     "page": 1,
+     "bbox": [
+      823.8,
+      803.1,
+      861.7,
+      810.6
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The checked and approved dates are filled in. The samples are released drawings, so this rule, written for drawings submitted for checking, fires on every one of them.",
+   "also_acceptable": []
+  }
+ ]
+}

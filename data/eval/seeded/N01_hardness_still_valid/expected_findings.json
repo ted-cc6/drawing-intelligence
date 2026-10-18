@@ -1,0 +1,94 @@
+{
+ "schema_version": "1.0",
+ "case": "N01_hardness_still_valid",
+ "kind": "near_miss",
+ "base": "10K_CYLINDER ROD MTG_02",
+ "pdf": "N01_hardness_still_valid.pdf",
+ "planted": "24-32 HRC -> 28-32 HRC, still within PARI's range for C-45 toughening",
+ "expected": [],
+ "must_not_flag": [
+  {
+   "rule_ids": [
+    "WPM-001",
+    "WPM-002",
+    "WST-129"
+   ],
+   "evidence": [
+    {
+     "kind": "text",
+     "page": 1,
+     "bbox": [
+      146.2,
+      695.8,
+      332.2,
+      705.3
+     ],
+     "quote": "1) TO BE TOUGHENED UPTO 28-32 HRC.",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "28-32 HRC is still inside PARI's C45 toughening range (24-32 HRC, DES-11): nothing to flag."
+  }
+ ],
+ "pre_existing": [
+  {
+   "rule_id": "TB-016",
+   "category": "title_block",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "checked_date",
+     "page": 1,
+     "bbox": [
+      781.2,
+      802.7,
+      819.1,
+      810.2
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "approved_date",
+     "page": 1,
+     "bbox": [
+      823.8,
+      803.1,
+      861.7,
+      810.6
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The checked and approved dates are filled in. The samples are released drawings, so this rule, written for drawings submitted for checking, fires on every one of them.",
+   "also_acceptable": []
+  },
+  {
+   "rule_id": "RQ-002",
+   "category": "tolerance",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D3",
+     "page": 1,
+     "bbox": [
+      621.9,
+      73.0,
+      640.4,
+      101.4
+     ],
+     "quote": "11 (-0.2/-0.1)",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The 11 is printed with -0.2 above -0.1, so its upper limit is below its lower one. This is in PARI's original drawing (to confirm with PARI).",
+   "also_acceptable": []
+  }
+ ]
+}

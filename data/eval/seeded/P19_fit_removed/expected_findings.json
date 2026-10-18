@@ -1,0 +1,85 @@
+{
+ "schema_version": "1.0",
+ "case": "P19_fit_removed",
+ "kind": "planted",
+ "base": "10K_CAM PLATE",
+ "pdf": "P19_fit_removed.pdf",
+ "planted": "H7 (+0.018/0) removed from the ⌀ 16 locating bore; ⌀ 16 stays",
+ "expected": [
+  {
+   "rule_id": "TL-002",
+   "category": "design_intent",
+   "severity": "critical",
+   "result": "warning",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D12",
+     "page": 1,
+     "bbox": [
+      557.0,
+      410.6,
+      579.5,
+      421.4
+     ],
+     "quote": "⌀ 16",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "region",
+     "page": 1,
+     "bbox": [
+      583.5,
+      403.0,
+      638,
+      421.4
+     ],
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The ⌀ 16 locating bore has lost its H7 fit and limits, so a functional bore is left with only the general tolerance.",
+   "also_acceptable": [
+    "MX-012"
+   ]
+  }
+ ],
+ "must_not_flag": [],
+ "pre_existing": [
+  {
+   "rule_id": "TB-016",
+   "category": "title_block",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "checked_date",
+     "page": 1,
+     "bbox": [
+      781.2,
+      802.7,
+      819.1,
+      810.2
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "approved_date",
+     "page": 1,
+     "bbox": [
+      823.8,
+      803.1,
+      861.7,
+      810.6
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The checked and approved dates are filled in. The samples are released drawings, so this rule, written for drawings submitted for checking, fires on every one of them.",
+   "also_acceptable": []
+  }
+ ]
+}

@@ -1,0 +1,74 @@
+{
+ "schema_version": "1.0",
+ "case": "P20_corner_radius",
+ "kind": "planted",
+ "base": "10K_CAM PLATE",
+ "pdf": "P20_corner_radius.pdf",
+ "planted": "internal corner R 8 -> R 0.2, too small for standard cutters",
+ "expected": [
+  {
+   "rule_id": "MC-001",
+   "category": "manufacturability",
+   "severity": "major",
+   "result": "warning",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D7",
+     "page": 1,
+     "bbox": [
+      302.0,
+      325.1,
+      324.8,
+      334.7
+     ],
+     "quote": "R 0.2",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "An internal corner radius of R 0.2 is too small for standard cutters (the corner is drawn R 8).",
+   "also_acceptable": [
+    "DSM-023"
+   ]
+  }
+ ],
+ "must_not_flag": [],
+ "pre_existing": [
+  {
+   "rule_id": "TB-016",
+   "category": "title_block",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "checked_date",
+     "page": 1,
+     "bbox": [
+      781.2,
+      802.7,
+      819.1,
+      810.2
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "approved_date",
+     "page": 1,
+     "bbox": [
+      823.8,
+      803.1,
+      861.7,
+      810.6
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The checked and approved dates are filled in. The samples are released drawings, so this rule, written for drawings submitted for checking, fires on every one of them.",
+   "also_acceptable": []
+  }
+ ]
+}

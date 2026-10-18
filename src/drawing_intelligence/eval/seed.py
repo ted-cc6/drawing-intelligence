@@ -24,11 +24,11 @@ from typing import Any, Literal
 
 import pymupdf
 
+from drawing_intelligence.eval.answer_key import Kind
 from drawing_intelligence.extraction.template import GlyphRemap, load_template
 from drawing_intelligence.extraction.text_layer import remap_text, text_dict
 from drawing_intelligence.settings import get_settings
 
-Kind = Literal["planted", "near_miss", "clean"]
 Point = tuple[float, float]
 
 CAM = "10K_CAM PLATE"
