@@ -1,8 +1,22 @@
-# Datum scheme rules: first draft for task R (12 rules, all status: draft).
-# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule (where each went and
-# why). LatentView's rationale is kept in the comment above each rule; the Rule schema has no fields for it.
+# Datum scheme rules: first draft for task R (13 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule and every rule mined from
+# the engineering books (where each went and why). The comment above each rule keeps LatentView's rationale
+# or the book's words, and the published sources; the Rule schema has no fields for them.
 
 rules:
+
+  # NAAMS Section A says: Fab “O” line dimensions should always start from the same edges as the machining datum
+  #   line start dimensions.
+  # Note: Keeps weld set-up and later machining on one origin. Related to WF-03 and MX-014. The LLM must tell
+  #   fabrication dimensions from machining ones; PARI's separate IS 2102 classes may help.
+  - id: DSM-030
+    category: datum
+    requirement: On weldments, fabrication (fab zero-line) dimensions start from the same edges as the machining datum dimensions.
+    severity: major
+    check_type: llm
+    applies_to: {drawing_type: [fabrication]}
+    source: {document: 'NAAMS Global Standard Components, Section A: Design Drawing Standards and Tolerances (Auto/Steel Partnership, 2015)', section: Sec. 20.1 (p4)}
+    status: draft
 
   # LatentView Detection Guide MD-01 (their severity: Critical; their check: deterministic).
   # How they verify: A feature control frame cites a letter (e.g. B) with no matching datum symbol anywhere on the
@@ -147,6 +161,7 @@ rules:
   # How they verify: Tag on the drawing with no table row, a row with no tag, or no origin symbol
   # Guards: None
   # Also covers (merged): DM-11
+  # See also: NAAMS Section A Sec. 21.5; hole-chart label (p5); D&T tutorial slides Basic Concepts (figure) (p24)
   # Note: only when the drawing has a hole table
   - id: MP-009
     category: datum
@@ -160,6 +175,8 @@ rules:
   # LatentView Detection Guide MP-12 (their severity: Critical; their check: deterministic).
   # How they verify: Ordinate dimensions with no visible zero, or zero on a non-datum edge
   # Guards: Drawing has no datums and zero is on a clearly functional edge (lower confidence)
+  # See also: NASA GSFC-X-673-64-1F App. A (a) (p119); NAAMS Section A Sec. 22.1 (p5); D&T tutorial slides Basic
+  #   Concepts (p23-24)
   # Note: only when ordinate dimensions are used
   - id: MP-012
     category: datum

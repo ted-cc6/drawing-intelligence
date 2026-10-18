@@ -1,8 +1,121 @@
-# Title block rules: first draft for task R (19 rules, all status: draft).
-# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule (where each went and
-# why). LatentView's rationale is kept in the comment above each rule; the Rule schema has no fields for it.
+# Title block rules: first draft for task R (27 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule and every rule mined from
+# the engineering books (where each went and why). The comment above each rule keeps LatentView's rationale
+# or the book's words, and the published sources; the Rule schema has no fields for them.
 
 rules:
+
+  # NAAMS Section A says: The recommended reduced scale for fixture designs are 1:2, 1:5, 1:10, 1:20 and 1:50.
+  # See also: Westermann Tables Standard sheet sizes and scales, IS 696-1960 (pdf 67L, book 128); HNF-64101 3.11.7
+  #   (p26)
+  # Note: Matches the ISO 5455 preferred series, so no conflict (ISO also allows 1:100 and coarser; Sec. 9.4 leaves
+  #   system-layout scales to the plant). Check title-block and detail-view scales (see TB-006, VW-008).
+  - id: DSM-012
+    category: title_block
+    requirement: 'The drawing and detail-view scales are full size where possible, otherwise a preferred scale: 1:2, 1:5, 1:10, 1:20 or 1:50 reduced, 2:1, 5:1, 10:1, 20:1 or 50:1 enlarged.'
+    severity: minor
+    check_type: code
+    check: scale_is_preferred
+    params: {full_size: '1:1', reduced: ['1:2', '1:5', '1:10', '1:20', '1:50'], enlarged: ['2:1', '5:1', '10:1', '20:1', '50:1']}
+    source: {document: 'NAAMS Global Standard Components, Section A: Design Drawing Standards and Tolerances (Auto/Steel Partnership, 2015)', section: Sec. 9.1-9.3 (p3)}
+    status: draft
+
+  # HNF-64101 says: On the New Drawing a note stating, "SUPERSEDES DWG [number] REV. [number]," is placed near the
+  #   Title Block in 6 mm (.24") high lettering.
+  # Note: Runs only when a supersedes note exists. The old drawing's 'SUPERSEDED BY' note is outside v1's single-
+  #   drawing view. PARI may handle supersession in PDM instead.
+  - id: HNF-057
+    category: title_block
+    requirement: A drawing that replaces another carries a 'SUPERSEDES DWG [number] REV [number]' note near the title block, giving both the drawing number and its revision.
+    severity: minor
+    check_type: code
+    check: supersede_note_complete
+    source: {document: 'HNF-64101 Rev 00 Preparation Standards for Engineering Drawings (Hanford, US DOE, 2020)', section: 3.13.3 (p33)}
+    status: draft
+
+  # NASA GSFC-X-673-64-1F says: The first sheet of a multisheet drawing shall always contain the complete Title
+  #   block, List of Material, Revision Block, and general notes.
+  # See also: HNF-64101 3.11.16 (p29)
+  # Note: PARI's template may repeat the full title block on every sheet; the check is only that sheet 1 is
+  #   complete and holds the general notes and revision history.
+  - id: NASA-001
+    category: title_block
+    requirement: On a multisheet drawing, sheet 1 carries the complete title block, the revision block and the general notes.
+    severity: minor
+    check_type: code
+    check: sheet1_has_title_revision_notes
+    params: {min_sheets: 2}
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 1.2a (p15)}
+    status: draft
+
+  # NASA GSFC-X-673-64-1F says: All sheets of multisheet drawings shall be of the same letter size.
+  # Note: Page size from the PDF page box, with a small tolerance for export differences. Related to TB-015
+  #   (correct template and sheet size).
+  - id: NASA-002
+    category: title_block
+    requirement: All sheets of a multisheet drawing are the same sheet size.
+    severity: minor
+    check_type: code
+    check: sheets_same_size
+    params: {min_sheets: 2}
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 1.2b (p15)}
+    status: draft
+
+  # NASA GSFC-X-673-64-1F says: The Title block of continuation sheets for multisheet drawings shall contain
+  #   information listed in items 1, 2, and 4 through 11.
+  # See also: HNF-64101 3.11.2; 3.11.8; 3.12.10 (p26)
+  # Note: NASA's list also has the organisation (CAGE) code and the name and date fields, which PARI's template
+  #   doesn't repeat on every sheet as far as we know.
+  - id: NASA-005
+    category: title_block
+    requirement: Every continuation sheet repeats the title-block identification (drawing number, sheet number, title and scale), and its drawing number and title match sheet 1.
+    severity: minor
+    check_type: code
+    check: continuation_sheet_title_fields
+    params: {required_fields: [drawing_number, sheet, title, scale], min_sheets: 2, must_match_sheet1: [drawing_number, title]}
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 1.4 (p16)}
+    status: draft
+
+  # NASA GSFC-X-673-64-1F says: This name shall be an independent name from all other names on the drawing.
+  # Note: PARI leaves Checked/Approved blank at submission (TB-016), so this only applies once the field is filled,
+  #   e.g. when a released drawing is re-reviewed.
+  - id: NASA-012
+    category: title_block
+    requirement: The checker named in the title block is a different person from the designer and the drafter.
+    severity: minor
+    check_type: code
+    check: checker_independent
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 1.4 item 10 (p19)}
+    status: draft
+
+  # NASA GSFC-X-673-64-1F says: Level of revision shall be changed on each drawing sheet whether or not that
+  #   particular sheet is affected.
+  # Note: ASME Y14.35 also allows sheet-by-sheet revision levels; switch off if PARI uses that. Complements TB-004
+  #   (single sheet).
+  - id: NASA-098
+    category: title_block
+    requirement: All sheets of a multisheet drawing carry the same revision level, raised on every sheet even when that sheet did not change.
+    severity: major
+    check_type: code
+    check: sheets_same_revision
+    params: {min_sheets: 2}
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 7.3 (p80)}
+    status: draft
+
+  # NASA GSFC-X-673-64-1F says: A symbol (e.g., "A3") enclosed in a circle shall appear in the field of drawing at
+  #   the point of revision.
+  # See also: related rule RV-02; NAAMS Section A Sec. 18.3; Sec. 18.6 (p4)
+  # Note: RV-02 (were all changes marked?) needs the previous revision; this cross-reference needs only the current
+  #   PDF. PARI may use triangles rather than circles. Changes made through a change order need no field markers
+  #   (7.4).
+  - id: NASA-100
+    category: title_block
+    requirement: Each revision marker on the field (revision symbol at the point of change) matches an entry in the revision block, and each directly incorporated revision has at least one marker.
+    severity: minor
+    check_type: code
+    check: revision_markers_match
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 7.2; 7.4 (p80)}
+    status: draft
 
   # Note: Capstone I found inverted revision dates on the Laser Sensor Mtg Block
   - id: RQ-001
@@ -17,6 +130,10 @@ rules:
   # LatentView Rulebook v0.2 RV-01 (their severity: Major; their check: Auto).
   # Why: No history of what changed
   # How they verify: Row per revision; fields not empty
+  # See also: NASA GSFC-X-673-64-1F 1.4 items 24-28 (p21); NASA GSFC-X-673-64-1F 7.3 (p80); NASA GSFC-X-673-64-1F
+  #   7.4 (p80); NASA GSFC-X-673-64-1F 7.4 Fig. 31a; 6.2 item 9 (p81); HNF-64101 3.12.2 (p30); HNF-64101 3.12.6
+  #   (p31); NAAMS Section A Sec. 18.1; B.O.M. revisions (p13, p31) (p4); Westermann Tables Standard sheet sizes
+  #   and scales: parts list, IS 696-1960 (pdf 67L, book 128)
   # Note: author column not in DrawingKnowledge.revisions yet (schema gap)
   - id: RV-001
     category: title_block
@@ -30,6 +147,7 @@ rules:
   # LatentView Rulebook v0.2 RV-03 (their severity: Major; their check: Auto).
   # Why: Change not traceable to its approval
   # How they verify: Field present and valid in PDM
+  # See also: NASA GSFC-X-673-64-1F 7.4 (p80); HNF-64101 3.12.3; 3.12.6 (p30)
   # Note: presence of the change number (PARI 'CAR. NO.' column); validity in PDM is phase 2
   - id: RV-003
     category: title_block
@@ -43,6 +161,7 @@ rules:
   # LatentView Rulebook v0.2 RV-07 (their severity: Minor; their check: Auto).
   # Why: Confusion over which revision is latest
   # How they verify: Letter sequence check
+  # See also: NASA GSFC-X-673-64-1F 7.2 (p80); HNF-64101 3.11.6 (p25); HNF-64101 3.12.7 (p31)
   # Note: PARI revisions are numeric (00, 01, 02): sequential with no gaps
   - id: RV-007
     category: title_block
@@ -69,6 +188,9 @@ rules:
   # LatentView Rulebook v0.2 TB-01 (their severity: Critical; their check: Auto).
   # Why: Wrong or malformed numbers break PDM search and purchasing
   # How they verify: Regex against the numbering pattern agreed with PARI
+  # See also: NASA GSFC-X-673-64-1F 5a; App. A (f) (p72); NASA GSFC-X-673-64-1F 5.1b (p73); HNF-64101 3.11.3;
+  #   3.11.4; 3.11.5 Table 4 (p25); HNF-64101 3.11.5 (p24); Westermann Tables Standard sheet sizes and scales:
+  #   title block, IS 696-1960 (pdf 67L, book 128)
   # Note: presence checkable now; numbering pattern to agree with PARI (samples use P24BSA064533, UEG000000634)
   - id: TB-001
     category: title_block
@@ -83,6 +205,8 @@ rules:
   # LatentView Rulebook v0.2 TB-03 (their severity: Major; their check: Auto).
   # Why: Default names ("Part1", "Copy of…") cause ordering errors
   # How they verify: Not empty; not in a list of default or placeholder strings
+  # See also: NASA GSFC-X-673-64-1F 2.1b (p23); NASA GSFC-X-673-64-1F 2.1c; 2.1e (p23); NASA GSFC-X-673-64-1F 2.1f
+  #   (p23); HNF-64101 3.10.8.13 (p21); HNF-64101 3.11.2 (p23)
   - id: TB-003
     category: title_block
     requirement: Part title / description is present and meaningful
@@ -96,6 +220,7 @@ rules:
   # LatentView Rulebook v0.2 TB-04 (their severity: Critical; their check: Auto).
   # Why: Shop may build an old revision
   # How they verify: Compare title-block revision with the last revision-table row
+  # See also: HNF-64101 3.11.6 (p25); HNF-64101 3.12.4; 3.12.10 (p30)
   - id: TB-004
     category: title_block
     requirement: Revision level is present and matches the latest entry in the revision table
@@ -108,6 +233,8 @@ rules:
   # LatentView Rulebook v0.2 TB-05 (their severity: Major; their check: Auto).
   # Why: No accountability or traceability
   # How they verify: Fields not empty; date is valid and not in the future
+  # See also: NASA GSFC-X-673-64-1F 1.4 items 7-9 (p19); HNF-64101 3.11.9 (p26); Westermann Tables Standard sheet
+  #   sizes and scales: title block, IS 696-1960 (pdf 67L, book 128)
   # Note: drawn-by name is not in the DrawingKnowledge title block yet (schema gap)
   - id: TB-005
     category: title_block
@@ -122,6 +249,8 @@ rules:
   # LatentView Rulebook v0.2 TB-06 (their severity: Minor; their check: AI).
   # Why: Anyone scaling a print gets wrong sizes
   # How they verify: Compare stated scale with base-view scale property
+  # See also: NASA GSFC-X-673-64-1F 3.4a (p44); NASA GSFC-X-673-64-1F 3.4b (p45); HNF-64101 3.11.7 (p26);
+  #   Westermann Tables Standard sheet sizes and scales, IS 696-1960 (pdf 67L, book 128)
   # Note: compares stated scale with Extraction.scale_pts_per_mm measured from dimension lines
   - id: TB-006
     category: title_block
@@ -135,6 +264,11 @@ rules:
   # LatentView Rulebook v0.2 TB-08 (their severity: Critical; their check: AI).
   # Why: Untoleranced dimensions have no limits at all
   # How they verify: Text search of title block and notes for a recognised tolerance standard
+  # See also: NASA GSFC-X-673-64-1F Fig. 2b; 10.2.1i (p18); NASA GSFC-X-673-64-1F 10.2.1k (p101); NAAMS Section A
+  #   Tolerance stickers - Metric detail tolerances (p6); D&T tutorial slides Terminology (figure callout 13)
+  #   (p10); Westermann Tables Standard sheet sizes and scales: title block, IS 696-1960 (pdf 67L, book 128);
+  #   Westermann Tables Allowable deviations for dimensions without specified tolerances, IS 2102-1969 (pdf 73L,
+  #   book 140)
   # Note: PARI drawings use IS 2102, not the ISO 2768 example
   - id: TB-008
     category: title_block
@@ -149,7 +283,8 @@ rules:
   # LatentView Rulebook v0.2 TB-09 (their severity: Major; their check: AI).
   # Why: Unit confusion causes gross errors
   # How they verify: Unit field or note present
-  # See also: ISO 129:1985 §3.2.4
+  # See also: ISO 129:1985 §3.2.4; ISO 129:1985 3.2.4 (p6); NASA GSFC-X-673-64-1F 1.4 item 17; 2.4.4.1 (p20);
+  #   HNF-64101 3.15.2 (p34); HNF-64101 3.15.3 (p35); D&T tutorial slides Unit of measure (p6)
   - id: TB-009
     category: title_block
     requirement: Units are stated (mm)
@@ -163,6 +298,7 @@ rules:
   # LatentView Rulebook v0.2 TB-10 (their severity: Minor; their check: Auto).
   # Why: Missing sheets go unnoticed
   # How they verify: x runs 1..y with no gaps; y equals sheet count
+  # See also: NASA GSFC-X-673-64-1F 1.2d (p15); HNF-64101 3.11.8 (p26)
   # Note: sheet 'x OF y' is in the title-block text, not a DrawingKnowledge field (schema gap)
   - id: TB-010
     category: title_block
@@ -176,6 +312,7 @@ rules:
   # LatentView Rulebook v0.2 TB-12 (their severity: Major; their check: Auto).
   # Why: Wrong material ordered
   # How they verify: Compare with model material property (detail in MF rules)
+  # See also: HNF-64101 3.10.8; Table 3 (p17)
   # Note: presence only; '#' = see parts list (86% of sheets, Spike C). Model-material match is phase 2 (3D)
   - id: TB-012
     category: title_block
@@ -191,7 +328,8 @@ rules:
   # Why: Parts arrive uncoated or wrongly coated
   # How they verify: Field not empty
   # Also covers (merged): MF-04
-  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-3.1 AC3
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-3.1 AC3; NASA GSFC-X-673-64-1F
+  #   2.4.4.4 (p30); NASA GSFC-X-673-64-1F 4.3; 3.1 (p53)
   - id: TB-013
     category: title_block
     requirement: Finish / treatment field is filled, or "none" stated
@@ -205,6 +343,7 @@ rules:
   # LatentView Rulebook v0.2 TB-14 (their severity: Observation; their check: Auto).
   # Why: Needed for handling, shipping and lifting planning
   # How they verify: Field present; within 5% of model mass
+  # See also: NASA GSFC-X-673-64-1F 1.4 item 3 (p19)
   # Note: presence only (template has NET WEIGHT-Kg); 5% model-mass check is phase 2 (3D)
   - id: TB-014
     category: title_block
@@ -219,7 +358,10 @@ rules:
   # LatentView Rulebook v0.2 TB-15 (their severity: Minor; their check: Auto).
   # Why: Wrong template loses mandatory fields and notes
   # How they verify: Template ID matches the approved list
-  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-3.3 AC1, US-1.2 AC2
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-3.3 AC1, US-1.2 AC2; HNF-64101
+  #   2.2; 3.12 (p7); HNF-64101 3.6 (p12); HNF-64101 3.11 (p22); Westermann Tables Standard sheet sizes and scales,
+  #   IS 696-1960 (pdf 67L, book 128); Westermann Tables Standard sheet sizes and scales: title block, IS 696-1960
+  #   (pdf 67L, book 128)
   # Note: also flags unknown templates; 17% of the client set uses an older PARI title block (Spike C)
   - id: TB-015
     category: title_block
@@ -247,6 +389,7 @@ rules:
   # LatentView Rulebook v0.2 TB-18 (their severity: Minor; their check: Auto).
   # Why: Legal protection of design data
   # How they verify: Template text present and unaltered
+  # See also: NASA GSFC-X-673-64-1F 2.4.1 (p27); HNF-64101 3.14 (p34)
   - id: TB-018
     category: title_block
     requirement: Ownership / confidentiality note is present

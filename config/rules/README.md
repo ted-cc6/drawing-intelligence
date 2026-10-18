@@ -29,10 +29,14 @@ own category with severity `critical`.
 - LatentView's Rulebook and Detection Guide keep their own prefixes, padded (`TB-01` → `TB-001`, `MD-01` → `MD-001`).
 - `WPM`, `WPS`, `WPE` and `WPW` are PARI's WP guidelines: material and heat treatment, surface treatment, US-India
   material equivalents, and welding notes.
-- `CN` and `RQ` come from the team's requirements (`docs/01_discovery.md`).
+- `CN` and `RQ` come from the team's requirements (`docs/01_discovery.md`) and the errors the team found on PARI's
+  sample drawings.
+- `ISO`, `NASA`, `HNF`, `DSM`, `DTT` and `WST` come from engineering-drawing books: ISO 129, NASA Goddard's drawing
+  standards manual, Hanford's HNF-64101, the NAAMS design drawing standards, a D&T tutorial, and the Westermann
+  Tables (Indian Standards) that PARI supplied.
 
 A prefix is not a category: `LY-005` is a `tolerance` rule. [docs/rulebook/](../../docs/rulebook/) records where
-every LatentView rule went: encoded here, merged into another rule, or left out and why.
+every LatentView and book rule went: encoded here, merged into another rule, or left out and why.
 
 ## What the check type decides
 

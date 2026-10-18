@@ -1,12 +1,25 @@
-# Inspection rules: first draft for task R (1 rule, all status: draft).
-# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule (where each went and
-# why). LatentView's rationale is kept in the comment above each rule; the Rule schema has no fields for it.
+# Inspection rules: first draft for task R (2 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule and every rule mined from
+# the engineering books (where each went and why). The comment above each rule keeps LatentView's rationale
+# or the book's words, and the published sources; the Rule schema has no fields for them.
 
 rules:
+
+  # NASA GSFC-X-673-64-1F says: If areas of a part are to be etched and inspected prior to finish machining, a
+  #   separate drawing note should call out this requirement to avoid costly mistakes.
+  # Note: Context is GSFC fracture-critical parts; generalises to any inspection tied to a manufacturing stage.
+  - id: NASA-047
+    category: inspection
+    requirement: When an inspection must happen before finish machining (e.g. etch and penetrant), a separate note says so.
+    severity: minor
+    check_type: llm
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 2.4.4.6 (p32)}
+    status: draft
 
   # LatentView Rulebook v0.2 WF-14 (their severity: Major; their check: Manual).
   # Why: Hidden defects in load paths
   # How they verify: Lifting or structural weldments without NDT note
+  # See also: NASA GSFC-X-673-64-1F 1.4 item 14 (p20); NASA GSFC-X-673-64-1F 2.4.4.6 (p32)
   - id: WF-014
     category: inspection
     requirement: NDT requirements are stated for structural and lifting welds

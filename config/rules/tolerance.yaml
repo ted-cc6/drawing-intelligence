@@ -1,13 +1,15 @@
-# Tolerance rules: first draft for task R (6 rules, all status: draft).
-# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule (where each went and
-# why). LatentView's rationale is kept in the comment above each rule; the Rule schema has no fields for it.
+# Tolerance rules: first draft for task R (10 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule and every rule mined from
+# the engineering books (where each went and why). The comment above each rule keeps LatentView's rationale
+# or the book's words, and the published sources; the Rule schema has no fields for them.
 
 rules:
 
   # LatentView Rulebook v0.2 DM-10 (their severity: Minor; their check: AI).
   # Why: Toleranced reference dims are inspected unnecessarily or conflict
   # How they verify: Reference flag vs. tolerance presence
-  # See also: ISO 129:1985 §3.1 (auxiliary dimension)
+  # See also: ISO 129:1985 §3.1 (auxiliary dimension); ISO 129:1985 3.1.1.3 (p6); NASA GSFC-X-673-64-1F 2.4.4.1;
+  #   4.17 (p69); NASA GSFC-X-673-64-1F 10.1.2d; App. A (n) (p97); D&T tutorial slides Terminology (p9-10)
   - id: DM-010
     category: tolerance
     requirement: Reference dimensions are bracketed and untoleranced
@@ -20,6 +22,7 @@ rules:
   # LatentView Rulebook v0.2 LY-05 (their severity: Major; their check: AI).
   # Why: Extra decimals imply false precision and confuse inspection
   # How they verify: Compare decimals shown with tolerance magnitude
+  # See also: NASA GSFC-X-673-64-1F 10.2.1b (p99)
   - id: LY-005
     category: tolerance
     requirement: Decimal places are consistent with the tolerance (no 10.000 with ±0.1)
@@ -34,6 +37,7 @@ rules:
   #   basic dims misused)
   # Guards: Reference dims
   # Also covers (merged): TL-01
+  # See also: NASA GSFC-X-673-64-1F 2.4.6 (p35); D&T tutorial slides Dimension Guidelines (p49)
   # Note: uses the IS 2102 table printed on the drawing; flags dims outside its ranges, fits without limits,
   #   misused basic dims
   - id: MX-012
@@ -45,6 +49,9 @@ rules:
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-12}
     status: draft
 
+  # See also: D&T tutorial slides Tolerancing - Tolerance representation (figure) (p10, 55, 61); D&T tutorial
+  #   slides Tolerancing - Plus/Minus (figure) (p56); Westermann Tables Limits and Fits, Terminology for ISO
+  #   System, IS: 919-1963 (pdf 41R, book 77)
   - id: RQ-002
     category: tolerance
     requirement: Tolerance limits are valid (lower limit not above upper limit)
@@ -57,7 +64,8 @@ rules:
   # LatentView Rulebook v0.2 TL-03 (their severity: Major; their check: Manual).
   # Why: Over-tight tolerances multiply cost and rejection
   # How they verify: Tolerance vs. process capability table
-  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-4.1 AC1
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-4.1 AC1; NASA GSFC-X-673-64-1F
+  #   App. A (k) (p120); Westermann Tables Limits and Fits, IS Symbols, IS: 919-1963 (pdf 42L, book 78)
   # Note: raised as a warning asking the designer to confirm; threshold to agree. Process-capability part needs a
   #   PARI table
   - id: TL-003
@@ -73,6 +81,11 @@ rules:
   # LatentView Rulebook v0.2 TL-13 (their severity: Major; their check: AI).
   # Why: Mismatched fits give interference or play
   # How they verify: Parse fit codes; compare with mating drawing
+  # See also: NASA GSFC-X-673-64-1F 10.2.1j (p101); NAAMS Section A Sec. 21.5 hole-chart label; Tolerance sticker
+  #   (p6) (p6); D&T tutorial slides Tolerancing - Symbols and Definitions (figure) (p67); D&T tutorial slides
+  #   Tolerancing - Methods; Standard Hole basis table; limits (p67-68); D&T tutorial slides Tolerancing - ISO fit
+  #   table (p71); D&T tutorial slides Tolerancing - Fit types (figures) (p58, 62-64); Westermann Tables I.S.
+  #   Symbols (Limits and Fits, IS: 919-1963) (pdf 42R, book 79)
   # Note: valid ISO 286 fit designation only; matching the mating part's drawing is phase 2 (3D). Westermann tables
   #   are scanned (79 pp) and need transcribing
   - id: TL-013
@@ -83,4 +96,63 @@ rules:
     check: fit_code_valid
     params: {table: iso286_fits}
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-13}
+    status: draft
+
+  # Westermann Tables says: Deviations for linear dimensions ... Class of deviation ... Above ... Upto and
+  #   including ... Fine ... Medium ... Coarse ... Extra coarse
+  # See also: related rule TB-008; Westermann Tables Allowable deviations for dimensions without specified
+  #   tolerances, IS 2102-1969 (pdf 73L, book 140)
+  # Note: PARI's template table follows this book's IS 2102-1969: the 'UNSPECIFIED TOL.(M)' linear and angular
+  #   tables on the Laser Sensor Mtg Block equal its medium row, with steps at 120-315 and 315-1000 mm (ISO 2768-1
+  #   steps at 400 mm instead). So the IS 2102 lookup table should be built from this edition (pdf 73L). Fine has
+  #   no values above 4000 mm, and coarse and extra coarse none up to 3 mm.
+  - id: WST-078
+    category: tolerance
+    requirement: A general-tolerance table printed on the drawing (linear or angular) matches IS 2102 for the class it names.
+    severity: major
+    check_type: lookup
+    check: general_tolerance_table_matches
+    params: {table: is2102_linear_deviations, angular_table: is2102_angular_deviations, edition: IS 2102-1969}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Allowable deviations for dimensions without specified tolerances, IS 2102-1969 (pdf 73L, book 140)'}
+    status: draft
+
+  # Westermann Tables says: Upper deviation: The algebraic difference between the maximum limit and the
+  #   corresponding basic size.
+  # Note: Book example: 20 -0.045/-0.195 gives limits 19.955 and 19.805, tolerance 0.150. Also covers a fit symbol
+  #   shown with limit sizes in brackets.
+  - id: WST-203
+    category: tolerance
+    requirement: Where a dimension shows both its deviations and its limits of size, each limit equals the basic size plus the matching deviation, and the tolerance equals upper minus lower deviation.
+    severity: major
+    check_type: code
+    check: limits_match_deviations
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Limits and Fits, Terminology for ISO System, IS: 919-1963 (pdf 41R, book 77)'}
+    status: draft
+
+  # Westermann Tables says: Holes: capital letters (e.g. H, G, M) are used to designate the position of tolerance
+  #   zone. ... Shafts: small letters (e.g. h, g, m) are used
+  # See also: related rule TL-013
+  # Note: Needs the vision summary to say whether the dimension is on an internal or external feature, and the text
+  #   layer to keep letter case.
+  - id: WST-206
+    category: tolerance
+    requirement: A fit symbol on an internal feature (hole, bore, slot) uses a capital letter (e.g. H7) and one on an external feature (shaft, pin, tongue) a lower-case letter (e.g. g6).
+    severity: major
+    check_type: code
+    check: fit_letter_case_matches_feature
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Limits and Fits, IS Symbols, IS: 919-1963 (pdf 42L, book 78)'}
+    status: draft
+
+  # Westermann Tables says: instead of writing 20ϕ +0.021/+0, it is mentioned as 20ϕH7. The actual values of
+  #   deviations corresponding to the size so mentioned can be read from tables (see pages 80-83).
+  # Note: Tables on pdf 43L-44R (book 80-83): hole basis H6, H7, H8, H11 and shaft basis h5 to h11, 0-500 mm, in
+  #   µm. Zones not in the tables get no finding. Second worked example on the page: 20 d9 = -0.065/-0.117.
+  - id: WST-207
+    category: tolerance
+    requirement: Where a fit symbol is given with numeric deviations or limits, they match the IS 919 deviation table for that tolerance zone and size range (e.g. Ø20 H7 = +0.021/0).
+    severity: major
+    check_type: lookup
+    check: fit_deviations_match_table
+    params: {table: is919_fit_deviations, H_hole_lower_deviation_mm: 0, h_shaft_upper_deviation_mm: 0}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Limits and Fits, IS Symbols, IS: 919-1963 (pdf 42L, book 78)'}
     status: draft

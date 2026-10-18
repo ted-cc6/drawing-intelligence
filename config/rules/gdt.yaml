@@ -1,8 +1,36 @@
-# GD&T rules: first draft for task R (3 rules, all status: draft).
-# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule (where each went and
-# why). LatentView's rationale is kept in the comment above each rule; the Rule schema has no fields for it.
+# GD&T rules: first draft for task R (6 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule and every rule mined from
+# the engineering books (where each went and why). The comment above each rule keeps LatentView's rationale
+# or the book's words, and the published sources; the Rule schema has no fields for them.
 
 rules:
+
+  # D&T tutorial slides says: Basic dimension is the numerical value defining the theoretically exact size of a
+  #   feature.
+  # Note: p10 figure labels a boxed .50 as 'Basic dimension'; boxed basics also on p85 and p90. Check: a boxed
+  #   value must not carry +/- or limits. Complements MX-011 (missing basic dimension), which checks presence, not
+  #   format.
+  - id: DTT-002
+    category: gdt
+    requirement: Basic dimensions are shown enclosed in a rectangle (box) and carry no tolerance of their own.
+    severity: major
+    check_type: code
+    check: basic_dimension_untoleranced
+    source: {document: Dimensioning and Tolerancing tutorial slides (author not stated; ASME Y14.5-1994), section: Terminology (p9-10)}
+    status: draft
+
+  # D&T tutorial slides says: MMC Modified ... Ø.002 (at least) Plus any Bonus Tolerance
+  # See also: related rule TL-10; NASA GSFC-X-673-64-1F App. A (j) (p120)
+  # Note: TL-10 (deferred) is about deliberate use; this validity part is text-checkable. Examples: axis
+  #   straightness Ø.002Ⓜ, position Ø.005Ⓜ, datum feature at MMC (p91).
+  - id: DTT-057
+    category: gdt
+    requirement: MMC and LMC modifiers appear only on tolerances of features of size (not on flatness, circularity, cylindricity or runout), and not on position tolerances of tapped holes or threaded inserts.
+    severity: minor
+    check_type: code
+    check: material_modifier_on_feature_of_size
+    source: {document: Dimensioning and Tolerancing tutorial slides (author not stated; ASME Y14.5-1994), section: 'GDT - Straightness; Position (figures) (p79, 90-91)'}
+    status: draft
 
   # LatentView Detection Guide MD-03 (their severity: Critical; their check: deterministic).
   # How they verify: Position, perpendicularity, parallelism, angularity, profile-of-a-surface (when locating),
@@ -10,6 +38,8 @@ rules:
   # Guards: Position on a pattern used as a datum itself (MD-20 applies instead); profile used as a pure form
   #   control
   # Also covers (merged): DT-03
+  # See also: NASA GSFC-X-673-64-1F 10.1.2e; App. A (c) (p97); D&T tutorial slides GDT - Orientation; Location
+  #   (figures) (p83-85, 88-91)
   - id: MD-003
     category: gdt
     requirement: Orientation or location tolerance with no datum
@@ -25,6 +55,8 @@ rules:
   #   position
   # Guards: True position set by a hole table with basic values
   # Also covers (merged): TL-09
+  # See also: NASA GSFC-X-673-64-1F App. A (c) (p119); D&T tutorial slides GDT - Angularity (figure) (p85); D&T
+  #   tutorial slides GDT - Position (figures) (p90-91)
   # Note: needs boxed-dimension detection (vectors)
   - id: MX-011
     category: gdt
@@ -35,9 +67,25 @@ rules:
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-11}
     status: draft
 
+  # NASA GSFC-X-673-64-1F says: Add a projected tolerance zone dimension to the true position tolerance when
+  #   specifying threaded inserts, tapped holes, or dowel pins.
+  # Note: Only where a position tolerance is used. Needs the projected-zone (P) symbol from the symbol font. ISO
+  #   1101 has the same modifier.
+  - id: NASA-134
+    category: gdt
+    requirement: Position tolerances on tapped holes, threaded inserts and dowel-pin holes use a projected tolerance zone with its height.
+    severity: minor
+    check_type: code
+    check: projected_zone_on_threads
+    params: {features: [tapped_hole, threaded_insert, dowel_pin_hole]}
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: App. A (o) (p120)}
+    status: draft
+
   # LatentView Rulebook v0.2 TL-05 (their severity: Major; their check: AI).
   # Why: Invalid frames cannot be inspected
   # How they verify: Parse frames against ISO 1101 / ASME Y14.5 grammar
+  # See also: D&T tutorial slides GDT - Forms (figures) (p77, 79-82); D&T tutorial slides GDT - Straightness
+  #   (figure) (p79-84)
   # Note: frames decoded from the Solid Edge symbol font in the text layer (Spike D, branch spike/d-symbols)
   - id: TL-005
     category: gdt
