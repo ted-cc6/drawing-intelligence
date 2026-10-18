@@ -1,0 +1,154 @@
+# Thread / weld callout rules: first draft for task R (10 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule and every rule mined from
+# the engineering books (where each went and why). The comment above each rule keeps LatentView's rationale
+# or the book's words, and the published sources; the Rule schema has no fields for them.
+
+rules:
+
+  # LatentView Rulebook v0.2 MC-05 (their severity: Minor; their check: Auto).
+  # Why: Special tools add cost and lead time
+  # How they verify: Compare with standard size tables
+  # Also covers (merged): NM-06
+  # See also: NASA GSFC-X-673-64-1F 10.2.1h (p100); HNF-64101 3.15.5 (p36); NAAMS Section A Sec. 2.1; Sec. 6.1;
+  #   Sec. 13.4 (p2); NAAMS Section A Sec. 6.3; hole-chart label (p5) (p2); NAAMS Section A Sec. 21.5 hole-chart
+  #   label (tap and clearance columns) (p5); Westermann Tables ISO Metric Screw Threads, IS: 4218 (Part III)-1967
+  #   (pdf 45R, book 85); Westermann Tables ISO Metric Trapezoidal Screw Threads, IS: 7008-1973 (pdf 47L, book 88);
+  #   Westermann Tables Square Threads, IS: 4694-1968 (pdf 47L, book 88); Westermann Tables Saw Tooth Threads, IS:
+  #   4696-1968 (pdf 47R, book 89); Westermann Tables Drill diameter for (through holes and threaded holes) (pdf
+  #   55R, book 105)
+  - id: MC-005
+    category: thread_weld
+    requirement: Standard drill, tap and thread sizes are used
+    severity: minor
+    check_type: lookup
+    check: standard_thread_size
+    params: {table: iso_metric_threads}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-05}
+    status: draft
+
+  # LatentView Detection Guide MX-04 (their severity: Major; their check: deterministic).
+  # How they verify: Thread size given without pitch (where non-standard), tolerance class, thread depth or drill
+  #   depth
+  # Guards: Through threads (no depth needed); coarse pitch omitted per standard
+  # See also: NASA GSFC-X-673-64-1F 10.5 (p105); NAAMS Section A Sec. 6.2; Sec. 21.4 (p5); hole-chart label (p5)
+  #   (p2); Westermann Tables Representation of threads, bolts and joints (pdf 72R, book 139); Westermann Tables
+  #   Bolt, System of designation, IS:1367-1967 (pdf 45L, book 84); Westermann Tables ISO Metric Trapezoidal Screw
+  #   Threads, IS: 7008-1973 (pdf 47L, book 88)
+  # Note: thread class off until PARI confirms (samples write 'M4 x 15 DEEP')
+  - id: MX-004
+    category: thread_weld
+    requirement: Incomplete thread callout
+    severity: major
+    check_type: code
+    check: thread_callout_complete
+    params: {require_class: false}
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-04}
+    status: draft
+
+  # LatentView Detection Guide MX-26 (their severity: Major; their check: deterministic).
+  # How they verify: Intermittent weld symbol without segment length and pitch
+  # Guards: Continuous weld
+  # Also covers (merged): WF-13
+  # See also: Westermann Tables Welding, IS 696-1960 (pdf 74R, book 143)
+  # Note: welds are written in notes on PARI drawings (Spike D); also covers WF-13
+  - id: MX-026
+    category: thread_weld
+    requirement: Missing intermittent weld length or pitch
+    severity: major
+    check_type: code
+    check: intermittent_weld_complete
+    applies_to: {drawing_type: [fabrication]}
+    source: {document: PARI Guidelines for Welding Notes & Symbols, section: 6. General welding details (weld length vs pitch table)}
+    status: draft
+
+  # LatentView Detection Guide MX-29 (their severity: Major; their check: deterministic).
+  # How they verify: Threaded insert or helicoil hole without the insert part number, length or tapped-hole size
+  #   for it
+  # Guards: None
+  # See also: NASA GSFC-X-673-64-1F 2.4.4.7 (p33)
+  - id: MX-029
+    category: thread_weld
+    requirement: Missing insert specification
+    severity: major
+    check_type: code
+    check: insert_spec
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-29}
+    status: draft
+
+  # LatentView Rulebook v0.2 WF-04 (their severity: Minor; their check: Manual).
+  # Why: Distortion during later machining
+  # How they verify: Prompt for thick or precision weldments
+  # See also: NASA GSFC-X-673-64-1F 2.4.4.2 (p29); NASA GSFC-X-673-64-1F 2.4.4.8 (p34)
+  - id: WF-004
+    category: thread_weld
+    requirement: Stress relief or post-weld treatment is stated where required
+    severity: minor
+    check_type: llm
+    applies_to: {drawing_type: [fabrication]}
+    source: {document: PARI Guidelines for Welding Notes & Symbols, section: 2. Correctness of weldment model (stress relieving)}
+    status: draft
+
+  # LatentView Rulebook v0.2 WF-07 (their severity: Major; their check: AI).
+  # Why: Weld acceptance undefined
+  # How they verify: Text search for standard and level
+  # See also: NASA GSFC-X-673-64-1F 2.4.4.3 (p30)
+  - id: WF-007
+    category: thread_weld
+    requirement: Welding standard and quality level are stated (e.g. ISO 5817 level C)
+    severity: major
+    check_type: lookup
+    check: weld_class_for_part_class
+    params: {table: {T+S: B, A: C, B: C, C: D}}
+    applies_to: {drawing_type: [fabrication]}
+    source: {document: PARI Guidelines for Welding Notes & Symbols, section: 5. Deciding welding quality requirements (ISO 5817)}
+    status: draft
+
+  # LatentView Rulebook v0.2 WF-08 (their severity: Major; their check: AI).
+  # Why: Incomplete fusion
+  # How they verify: Full-pen symbols without prep details
+  # See also: NASA GSFC-X-673-64-1F 2.4.4.3 (p30)
+  - id: WF-008
+    category: thread_weld
+    requirement: Weld preparation (bevel angle, root gap) is dimensioned for full-penetration welds
+    severity: major
+    check_type: llm
+    applies_to: {drawing_type: [fabrication]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: WF-08}
+    status: draft
+
+  - id: WPW-001
+    category: thread_weld
+    requirement: Welding notes have exactly one option chosen (Applicable / Not Applicable, Required / Not Required)
+    severity: minor
+    check_type: code
+    check: weld_note_options_resolved
+    applies_to: {drawing_type: [fabrication]}
+    source: {document: PARI Guidelines for Welding Notes & Symbols, section: 7. Welding notes on part drawing}
+    status: draft
+
+  # Westermann Tables says: Nut threads Minor diameter D1 in mm Tolerance class 5H ... 6H ... 7H ... Bolt threads
+  #   ... Tolerance class 4h ... 6g ... 8g
+  # Note: Case mismatch (e.g. 6g on a tapped hole) is major. A class not tabulated for the size (dashes: 7H below
+  #   M3, 8g below M5, 6H below M1.6) or outside the book's list is info. Needs internal/external from the vision
+  #   summary or callout context.
+  - id: WST-216
+    category: thread_weld
+    requirement: A thread tolerance class, where given, is one tabulated for the size, with an upper-case class for internal threads (5H, 6H, 7H) and a lower-case class for external threads (4h, 6g, 8g).
+    severity: major
+    check_type: lookup
+    check: thread_tolerance_class_valid
+    params: {internal_classes: [5H, 6H, 7H], external_classes: [4h, 6g, 8g], table: iso_metric_thread_minor_dia_limits}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'ISO Metric Screw Threads, IS: 4218 (Part VI)-1967 (pdf 46L, book 86)'}
+    status: draft
+
+  # Westermann Tables says: Tr 40×14 (P7) LH A multiple start left hand ISO metric trapezoidal screw thread of Nom.
+  #   dia=40mm and lead=14mm and pitch=7mm
+  # Note: Pure arithmetic on the callout text. One client drawing writes 'Tr 12 x 3P' (pitch 3, single start).
+  - id: WST-220
+    category: thread_weld
+    requirement: For a multi-start thread, the lead is a whole multiple of the pitch (lead ÷ pitch = number of starts, e.g. Tr 40×14 (P7) has two starts).
+    severity: major
+    check_type: code
+    check: thread_lead_multiple_of_pitch
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'ISO Metric Trapezoidal Screw Threads, IS: 7008-1973 (pdf 47L, book 88)'}
+    status: draft

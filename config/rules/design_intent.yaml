@@ -1,0 +1,166 @@
+# Design intent rules: first draft for task R (12 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule and every rule mined from
+# the engineering books (where each went and why). The comment above each rule keeps LatentView's rationale
+# or the book's words, and the published sources; the Rule schema has no fields for them.
+
+rules:
+
+  # D&T tutorial slides says: Sliding fit not intended to run freely but to move and turn freely and locate
+  #   accurately
+  # Note: Uses the p71 descriptions (loose running H11/c11 ... force fit H7/u6). Only when the function is evident
+  #   from notes or the feature (bearing seat, dowel hole). Related TL-002 / TL-003.
+  - id: DTT-052
+    category: design_intent
+    requirement: 'The fit chosen suits the stated function: running, sliding, locational, or drive/shrink.'
+    severity: minor
+    check_type: llm
+    source: {document: Dimensioning and Tolerancing tutorial slides (author not stated; ASME Y14.5-1994), section: Tolerancing - ISO fit table (p71)}
+    status: draft
+
+  # HNF-64101 says: Soft metric measurements and conversions are to be avoided.
+  # Note: Our heuristic, not the book's: flag values that are exact conversions of common inch fractions (multiples
+  #   of 1.5875 mm such as 6.35, 12.7, 19.05, 25.4) given to 2+ decimals. Warn only: imperial interfaces (US
+  #   bought-out parts) can be legitimate.
+  - id: HNF-061
+    category: design_intent
+    requirement: Dimensions are hard metric (chosen in mm), not soft conversions of inch values.
+    severity: info
+    check_type: code
+    check: soft_metric_conversion_suspect
+    source: {document: 'HNF-64101 Rev 00 Preparation Standards for Engineering Drawings (Hanford, US DOE, 2020)', section: 3.15.1 (p34)}
+    status: draft
+
+  # ISO 129:1985 says: Functional dimensions should be shown directly on the drawing wherever possible (see figure
+  #   2).
+  # See also: Westermann Tables Dimensioning (pdf 70L, book 134)
+  # Note: LLM warning only: the model must guess which dimensions are functional (toleranced or fit-coded sizes,
+  #   shoulders, bearing seats). Related to DM-04 / MD-11 (dimension from functional datums, phase2_3d), but not
+  #   the same rule.
+  - id: ISO-012
+    category: design_intent
+    requirement: Functional dimensions (fits, mating sizes, distances between functional features) are dimensioned directly, not left to be derived from other dimensions.
+    severity: major
+    check_type: llm
+    source: {document: 'ISO 129:1985 Technical drawings, Dimensioning, general principles (preview edition, clauses 1 to 4.4.2)', section: 3.2.7; 3.1.1.1 (p6)}
+    status: draft
+
+  # LatentView Rulebook v0.2 MF-05 (their severity: Major; their check: AI).
+  # Why: Soft wear parts fail; hardening after machining distorts
+  # How they verify: Treatment notes vs. feature function and sequence
+  # See also: Westermann Tables Tool and die steels for cold work, IS: 3749-1966; Case hardening steels,
+  #   IS:4432-1967 (pdf 08L, book 10); Westermann Tables Heat treatment of iron and steel-glossary of terms, IS:
+  #   1956-1962 (pdf 65R, book 125)
+  # Note: whether a part needs heat treatment is a judgement; the allowed treatments per material are WPM-001
+  - id: MF-005
+    category: design_intent
+    requirement: Heat treatment and hardness are specified where required, with the stage they apply at
+    severity: major
+    check_type: llm
+    source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: 'Material, heat treatment type and hardness range'}
+    status: draft
+
+  # LatentView Rulebook v0.2 MF-07 (their severity: Major; their check: Manual).
+  # Why: Wrong material fails in service
+  # How they verify: Prompt Checker with function and environment context
+  # Also covers (merged): US-India note 1 (PARI US-India equivalent Materials Info.xlsx)
+  # See also: Westermann Tables Copper, IS: 191-1967 (pdf 09L, book 12); Westermann Tables Laminated plastics
+  #   (paper and fabric based), IS: 2036-1962, IS: 2038-1962 (pdf 12L, book 18); Westermann Tables General
+  #   structural steels, IS:1977-1969; IS:2062-1969; IS:226-1969; IS:961-1962 (pdf 05R, book 5); Westermann Tables
+  #   Keys and keyways, Taper keys and keyways, IS: 2292-1963 (pdf 49R, book 93)
+  # Note: Spike E J6 cases
+  - id: MF-007
+    category: design_intent
+    requirement: 'Material suits the function: strength, corrosion, wear, weldability'
+    severity: major
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MF-07}
+    status: draft
+
+  # NASA GSFC-X-673-64-1F says: Specify radii at the bottom of counterbores to prevent sharp corners, which could
+  #   develop into stress cracks, particularly on flight parts.
+  # Note: May be covered by a general inside-corner note (NM-001); the LLM judges whether it is.
+  - id: NASA-132
+    category: design_intent
+    requirement: The bottom corners of counterbores carry a radius, so there is no sharp internal corner.
+    severity: minor
+    check_type: llm
+    params: {feature: [counterbore]}
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: App. A (l) (p120)}
+    status: draft
+
+  # LatentView Rulebook v0.2 NM-08 (their severity: Minor; their check: AI).
+  # Why: Irrelevant requirements add cost
+  # How they verify: LLM checks each note against part features and process
+  - id: NM-008
+    category: design_intent
+    requirement: No notes copied from another drawing that do not apply to this part
+    severity: minor
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: NM-08}
+    status: draft
+
+  # LatentView Rulebook v0.2 SC-01 (their severity: Critical; their check: Manual).
+  # Why: Dropped loads injure people
+  # How they verify: Heavy parts or assemblies (mass above threshold) without lifting info
+  # Note: mass threshold to agree with PARI; raised as a warning
+  - id: SC-001
+    category: design_intent
+    requirement: Lifting points are identified with rated capacity; lifting lugs are designed and marked
+    severity: critical
+    check_type: code
+    check: lifting_info
+    params: {mass_kg: null}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: SC-01}
+    status: draft
+
+  # LatentView Rulebook v0.2 TL-02 (their severity: Critical; their check: Manual).
+  # Why: General tolerance is far too loose for fits
+  # How they verify: Features with assembly mates of type fit or insert without a fit code
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-6.2; NASA GSFC-X-673-64-1F App. A
+  #   (m) (p120); NAAMS Section A Sec. 21.5 hole-chart label (p5); NAAMS Section A Tolerance stickers - Metric
+  #   detail tolerances (2 place) (p6)
+  # Note: 2D: bearing seats/fits without a tolerance (US-6.2, Spike E case J6-4); full mate-based check is phase 2
+  #   (3D)
+  - id: TL-002
+    category: design_intent
+    requirement: Mating and functional features carry fit or tolerance callouts (bearing seats, shaft fits, locating holes)
+    severity: critical
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-02}
+    status: draft
+
+  # LatentView Rulebook v0.2 TL-11 (their severity: Major; their check: AI).
+  # Why: Size tolerance alone does not control form
+  # How they verify: Functional faces without form or orientation control
+  - id: TL-011
+    category: design_intent
+    requirement: Form and orientation controls are applied where flatness or perpendicularity matters (sealing faces, mounting faces)
+    severity: major
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-11}
+    status: draft
+
+  # LatentView Rulebook v0.2 TL-14 (their severity: Major; their check: AI).
+  # Why: Unbalanced or wobbling shafts
+  # How they verify: Shafts with bearing seats and no runout control
+  - id: TL-014
+    category: design_intent
+    requirement: Rotating features carry runout relative to the bearing axis
+    severity: major
+    check_type: llm
+    applies_to: {part_family: [round]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-14}
+    status: draft
+
+  # Westermann Tables says: Nominal taper 1:x (Ratio of dia D to its axial length K) ... 1:10 5°43'30'' ... (M)
+  #   taper shaft ends, adj. bearing bushes
+  # Note: A special taper may be intended; warning only. The first three ratios are the 120°, 90° and 60° cones.
+  - id: WST-239
+    category: design_intent
+    requirement: A taper uses a standard ratio from IS 3458 (1:0.289, 1:0.5, 1:0.866, 1:1.5, 1:3.429, 1:5, 1:6, 1:10, 1:15, 1:20, 1:30, 1:50) or a standard self-holding taper.
+    severity: info
+    check_type: lookup
+    check: taper_ratio_standard
+    params: {table: is3458_standard_tapers, ratios: ['1:0.289', '1:0.5', '1:0.866', '1:1.5', '1:3.429', '1:5', '1:6', '1:10', '1:15', '1:20', '1:30', '1:50']}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Details of tapers, IS: 3458-1966 (pdf 52L, book 98)'}
+    status: draft

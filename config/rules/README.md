@@ -8,7 +8,7 @@ it. Any edit changes the rulebook version, and that version is recorded in every
 
 ```yaml
 rules:
-  - id: TB-001                      # category prefix + 3 digits, unique across all files
+  - id: TB-001                      # source prefix + 3 digits, unique across all files (see IDs below)
     category: title_block           # see the list below
     requirement: The title block states the material.
     severity: major                 # critical | major | minor | info (provisional until the client confirms)
@@ -24,6 +24,19 @@ rules:
 `gdt`, `datum`, `thread_weld`, `surface_treatment` (surface finish / coating / heat treatment), `inspection`,
 `consistency`, `manufacturability`, `design_intent`. The checklist's "common rejection conditions" go in their
 own category with severity `critical`.
+
+**IDs** keep the prefix of the document a rule comes from, so every rule traces back to it:
+- LatentView's Rulebook and Detection Guide keep their own prefixes, padded (`TB-01` → `TB-001`, `MD-01` → `MD-001`).
+- `WPM`, `WPS`, `WPE` and `WPW` are PARI's WP guidelines: material and heat treatment, surface treatment, US-India
+  material equivalents, and welding notes.
+- `CN` and `RQ` come from the team's requirements (`docs/01_discovery.md`) and the errors the team found on PARI's
+  sample drawings.
+- `ISO`, `NASA`, `HNF`, `DSM`, `DTT` and `WST` come from engineering-drawing books: ISO 129, NASA Goddard's drawing
+  standards manual, Hanford's HNF-64101, the NAAMS design drawing standards, a D&T tutorial, and the Westermann
+  Tables (Indian Standards) that PARI supplied.
+
+A prefix is not a category: `LY-005` is a `tolerance` rule. [docs/rulebook/](../../docs/rulebook/) records where
+every LatentView and book rule went: encoded here, merged into another rule, or left out and why.
 
 ## What the check type decides
 

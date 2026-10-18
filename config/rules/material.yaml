@@ -1,0 +1,59 @@
+# Material rules: first draft for task R (4 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule and every rule mined from
+# the engineering books (where each went and why). The comment above each rule keeps LatentView's rationale
+# or the book's words, and the published sources; the Rule schema has no fields for them.
+
+rules:
+
+  # LatentView Rulebook v0.2 MF-11 (their severity: Minor; their check: Auto).
+  # Why: Non-preferred materials raise cost and lead time
+  # How they verify: Compare with preferred list
+  # Also covers (merged): PRD-GD-DES-11 note iii (PARI PRD-GD-DES-11 Material Selection)
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-3.2; Westermann Tables
+  #   Specification on Structural and Heat-treatable Steels (IS:1977-1969, IS:2062-1969, IS:4432-1967,
+  #   IS:3930-1966, IS:5517-1969, IS:4431-1967, IS:2073-1970); Tool and die steels (IS:3748-1966, IS:3749-1966)
+  #   (pdf 05R-08L, book 5-10)
+  # Note: draft approved list from PARI docs + names seen on samples (M.S., C-45, PU); catches misspellings like
+  #   'Polyurethene'
+  - id: MF-011
+    category: material
+    requirement: Material is on the approved or preferred list
+    severity: minor
+    check_type: lookup
+    check: material_approved
+    params: {table: approved_materials, suggest_closest: true}
+    source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: Material table (13 grades) + US-India equivalents}
+    status: draft
+
+  # Note: Capstone I found inconsistent material nomenclature on a PARI sample drawing ('M.S' and 'M.S.'); the same
+  #   pair appears on 1 of the 1,175 client drawings. Related: US-3.2 (approved material names) and MF-011
+  - id: RQ-004
+    category: material
+    requirement: A material is written the same way everywhere it appears on the drawing (title block, parts list, notes)
+    severity: minor
+    check_type: code
+    check: material_written_consistently
+    source: {document: 'Team Capstone I proposal (Week 10): issues annotated on two PARI sample drawings', section: 2.2 Test dataset construction}
+    status: draft
+
+  # Note: also LatentView-independent requirement US-6.3
+  - id: WPE-001
+    category: material
+    requirement: A US material designation is shown with its Indian equivalent
+    severity: info
+    check_type: lookup
+    check: us_india_equivalent
+    params: {table: us_india_materials}
+    source: {document: PARI US-India equivalent Materials Info.xlsx, section: Sheet1}
+    status: draft
+
+  - id: WPM-005
+    category: material
+    requirement: 'Round-bar material suits the size: EN9 up to 32 mm diameter, EN24 above'
+    severity: minor
+    check_type: lookup
+    check: material_for_size
+    params: {table: material_heat_treatment}
+    applies_to: {part_family: [round]}
+    source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: Raw material notes (rows 1 and 3)}
+    status: draft

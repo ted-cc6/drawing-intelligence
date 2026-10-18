@@ -1,0 +1,808 @@
+# Consistency rules: first draft for task R (57 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule and every rule mined from
+# the engineering books (where each went and why). The comment above each rule keeps LatentView's rationale
+# or the book's words, and the published sources; the Rule schema has no fields for them.
+
+rules:
+
+  # Note: uses Extraction.chain_checks
+  - id: CN-001
+    category: consistency
+    requirement: A chain of dimensions adds up to the overall dimension it should equal, within tolerance
+    severity: critical
+    check_type: code
+    check: chain_sum
+    source: {document: 'Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13)', section: US-2.1}
+    status: draft
+
+  # Note: feature linkage comes from the understanding step
+  - id: CN-002
+    category: consistency
+    requirement: One feature does not carry two different values (e.g. in two views)
+    severity: critical
+    check_type: code
+    check: conflicting_values
+    source: {document: 'Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13)', section: US-2.2 AC1}
+    status: draft
+
+  # See also: ISO 129:1985 4.2.7 (p7); ISO 129:1985 4.4.2 a)-c) (p9)
+  # Note: raised as a warning
+  - id: CN-003
+    category: consistency
+    requirement: Every dimension value has a matching dimension line
+    severity: minor
+    check_type: code
+    check: unattached_dimension
+    source: {document: 'Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13)', section: US-2.3 AC1}
+    status: draft
+
+  # See also: ISO 129:1985 3.1.1.3 (p6)
+  - id: CN-004
+    category: consistency
+    requirement: A reference dimension agrees with the dimensions it summarises
+    severity: major
+    check_type: code
+    check: reference_dim_consistent
+    source: {document: 'Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13)', section: US-2.4}
+    status: draft
+
+  # LatentView Rulebook v0.2 DM-02 (their severity: Major; their check: AI).
+  # Why: Two values for one size can conflict after a change
+  # How they verify: Same model distance dimensioned twice
+  # See also: ISO 129:1985 §3.2.2, §3.2.5; Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-2.2
+  #   AC2; ISO 129:1985 3.2.2 (p6); ISO 129:1985 3.2.5 a) (p6); D&T tutorial slides Dimension Guidelines; Basic
+  #   Concepts (p20, 49); Westermann Tables Dimensioning (pdf 71R, book 137)
+  # Note: identical repeat = redundant (warning); different values for one feature is CN-002
+  - id: DM-002
+    category: consistency
+    requirement: No duplicate or over-dimensioning
+    severity: minor
+    check_type: code
+    check: duplicate_dimension
+    params: {mode: identical}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: DM-02}
+    status: draft
+
+  # LatentView Rulebook v0.2 DM-03 (their severity: Major; their check: AI).
+  # Why: Closed chains create tolerance conflicts
+  # How they verify: Cycle detection in the coverage graph
+  # See also: ISO 129:1985 §3.2.5; ISO 129:1985 3.2.5, 3.2.5 b) (p6); Westermann Tables Dimensioning (pdf 71R, book
+  #   137)
+  # Note: uses Extraction.chain_checks; one link must be a reference dimension
+  - id: DM-003
+    category: consistency
+    requirement: No closed dimension chains unless one link is a reference dimension
+    severity: major
+    check_type: code
+    check: closed_chain
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: DM-03}
+    status: draft
+
+  # NAAMS Section A says: A zero before the decimal point shall be used for a number less than 1.0 (Example 0.5).
+  # See also: D&T tutorial slides Terminology / Standard Practices- Placement (figures) (p11, 25)
+  # Note: Applies to dimension and tolerance values in the text layer. ISO 129-1 and ASME metric practice agree, so
+  #   no convention conflict.
+  - id: DSM-011
+    category: consistency
+    requirement: Decimal numbers below 1 are written with a leading zero (0.5, not .5).
+    severity: minor
+    check_type: code
+    check: leading_zero_decimal
+    source: {document: 'NAAMS Global Standard Components, Section A: Design Drawing Standards and Tolerances (Auto/Steel Partnership, 2015)', section: Sec. 8.2 (p2)}
+    status: draft
+
+  # NAAMS Section A says: when a dimension cannot be made to scale (as a result of a drawing revision), then the
+  #   dimension should be underlined.
+  # See also: D&T tutorial slides Standard Practices- Out-of-Scale Dimensions (p35, 76); NASA GSFC-X-673-64-1F
+  #   3.4d; 9.3.2 (p45)
+  # Note: Compare the value with dimension-line length divided by the view scale (vectors). ISO 129-1 uses the same
+  #   underline. An unmarked mismatch is also a 2D sign of an overridden value (DM-09, phase2_3d). The book gives
+  #   no comparison tolerance; one must be chosen. Severity major for that reason.
+  - id: DSM-023
+    category: consistency
+    requirement: A dimension whose value does not match the drawn geometry at the view scale is underlined as not to scale; out-of-scale dimensions are otherwise avoided.
+    severity: major
+    check_type: code
+    check: dimension_matches_scale_or_underlined
+    params: {not_to_scale_marker: underline}
+    source: {document: 'NAAMS Global Standard Components, Section A: Design Drawing Standards and Tolerances (Auto/Steel Partnership, 2015)', section: Sec. 17.1 (p4)}
+    status: draft
+
+  # D&T tutorial slides says: Diameters must be dimensioned with the diameter symbol preceding the numerical value.
+  # See also: Westermann Tables Dimensioning (pdf 70R, book 135)
+  # Note: Only dimension values and callouts. 'DIA' in revision descriptions (44 client sheets, e.g. '2-M6 TAP &
+  #   DIA.6.6 ADDED') is not a finding.
+  - id: DTT-007
+    category: consistency
+    requirement: Diameter dimensions are preceded by the diameter symbol (Ø) and radius dimensions by R; no 'DIA' suffix or 'D' forms.
+    severity: major
+    check_type: code
+    check: diameter_radius_symbol_prefix
+    source: {document: Dimensioning and Tolerancing tutorial slides (author not stated; ASME Y14.5-1994), section: 'Terminology; Detail Dimensions - Holes; Dimension Guidelines (p17, 37, 52)'}
+    status: draft
+
+  # D&T tutorial slides says: When the location of the center of a feature is being dimensioned, the center line of
+  #   the feature is used as an extension line.
+  # Note: Vision summary of what each dimension refers to can flag hole locations taken to an edge. Related VW-10
+  #   (centre lines present).
+  - id: DTT-023
+    category: consistency
+    requirement: Holes and other centred features are located to their centre lines (the centre line serves as the extension line), not to their edges.
+    severity: minor
+    check_type: llm
+    source: {document: Dimensioning and Tolerancing tutorial slides (author not stated; ASME Y14.5-1994), section: 'Standard Practices- Extension lines; Basic Concepts (p21, 31)'}
+    status: draft
+
+  # HNF-64101 says: Avoid mixing metric system and inch-pound system on drawing sheets on the same set of drawings
+  # See also: NASA GSFC-X-673-64-1F 10.2.1d-g (p99)
+  # Note: HNF states it for a drawing set; applied per drawing here. Exempt inch thread and pipe designations
+  #   (1/4-20 UNC, G 1/2, NPT) and dual dimensions declared by a note. PARI's template prints its SURFACE AREA
+  #   field in in^2 (1,160 of 1,175 client sheets, e.g. '15.54 in^2'), so that field is left out until PARI says
+  #   whether it is intended; Capstone I flagged it on a PARI sample drawing as a unit conflict.
+  - id: HNF-005
+    category: consistency
+    requirement: 'A metric drawing uses SI units only: no inch-pound values or units (inch marks, fractions, in, lb, lbf, psi), except declared dual dimensions and native inch trade designations (e.g. G 1/2 pipe threads).'
+    severity: major
+    check_type: code
+    check: no_mixed_unit_systems
+    params: {flag_units: [psi, ksi, lbf, lb, in-lb, ft-lb, °F], exclude_fields: [surface_area]}
+    source: {document: 'HNF-64101 Rev 00 Preparation Standards for Engineering Drawings (Hanford, US DOE, 2020)', section: 3.6 (p12)}
+    status: draft
+
+  # HNF-64101 says: Commas are not used in metric system numbers. Spaces are used in place of commas to separate
+  #   digits into groups of three (e.g., 1 500 000 mm).
+  # Note: A comma read as a thousands separator versus a decimal comma can change a value 1000-fold. ISO allows a
+  #   decimal comma and PARI's French notes may use one, so skip drawings whose decimal marker is a comma. The
+  #   parser must not split a space-grouped number into two values.
+  - id: HNF-063
+    category: consistency
+    requirement: Numbers do not use a comma as a thousands separator; values of five or more digits are grouped in threes with a space (1 500 000), and four-digit values are not split (5000).
+    severity: major
+    check_type: code
+    check: digit_grouping
+    params: {group_separator: space, group_from_digits: 5}
+    source: {document: 'HNF-64101 Rev 00 Preparation Standards for Engineering Drawings (Hanford, US DOE, 2020)', section: 3.15.2 (p35)}
+    status: draft
+
+  # HNF-64101 says: A general note shall be added to the drawing stating the inch/pound dimensions shown in
+  #   parentheses are equivalent to the metric dimensions they follow.
+  # See also: D&T tutorial slides Unit of measure (p7-8); NASA GSFC-X-673-64-1F 10.2.2.2b-d (p104)
+  # Note: NASA GSFC 10.2.2.2c (p103) gives the rounding table (NASA-118 in the mapping). Only relevant if PARI
+  #   shows inch values for US customers.
+  - id: HNF-066
+    category: consistency
+    requirement: Dual dimensioning is avoided; where used, a general note explains the secondary values, they are placed the same way throughout, and each equals the primary value converted (1 in = 25.4 mm) and rounded so converted limits stay within the original limits.
+    severity: major
+    check_type: code
+    check: dual_dimensioning
+    params: {mm_per_inch: 25.4}
+    source: {document: 'HNF-64101 Rev 00 Preparation Standards for Engineering Drawings (Hanford, US DOE, 2020)', section: 3.15.2 (p35)}
+    status: draft
+
+  # ISO 129:1985 says: (for example, N·m for torque or kPa for pressure), the appropriate unit symbol shall be
+  #   shown with the value.
+  # Note: Scan notes for numbers next to torque/pressure/force/load keywords that have no unit. PARI torque notes
+  #   point to a standard ('TORQUE AS PER STD-DES-01-00'), so this mainly catches typed values. Title-block SURFACE
+  #   AREA in in^2 has its symbol (ISO is met) but is imperial on a metric drawing. Hardness units are covered by
+  #   MF-010.
+  - id: ISO-011
+    category: consistency
+    requirement: Values in units other than the drawing's length unit (e.g. torque in N·m, pressure in kPa) show their unit symbol with the value.
+    severity: major
+    check_type: code
+    check: non_length_value_has_unit
+    params: {examples: [N·m (torque), kPa (pressure)]}
+    source: {document: 'ISO 129:1985 Technical drawings, Dimensioning, general principles (preview edition, clauses 1 to 4.4.2)', section: 3.2.4 (p6)}
+    status: draft
+
+  # ISO 129:1985 says: Dimension lines shall show distinct terminations (i.e., either arrowheads or oblique
+  #   strokes), or, where applicable, an origin indication.
+  # Note: Arrowheads are in the v1 vector layer. Allow one termination on radius dimensions (4.3.5) and on partly
+  #   drawn dimension lines of half-shown features (figure 23), and dots in tight spaces (4.3.3).
+  - id: ISO-023
+    category: consistency
+    requirement: Every dimension line ends in a distinct termination (arrowhead or oblique stroke) or, for running dimensions, starts at an origin indication.
+    severity: minor
+    check_type: code
+    check: dimension_line_terminations
+    params: {terminations: [arrowhead, oblique_stroke, origin_indication]}
+    source: {document: 'ISO 129:1985 Technical drawings, Dimensioning, general principles (preview edition, clauses 1 to 4.4.2)', section: 4.3 (p8)}
+    status: draft
+
+  # ISO 129:1985 says: One style of arrowhead termination only shall be used on a single drawing. ... where space
+  #   is too small for an arrowhead, the oblique stroke or a dot may be substituted
+  # See also: related rule LY-04; Westermann Tables Dimensioning (pdf 70L, book 134)
+  # Note: A 'pick one and be consistent' check: tell filled from open arrowheads by the vector path's fill
+  #   attribute; accept strokes or dots only on short dimension lines (figure 24). LY-04 covers style consistency
+  #   across sheets (phase2_3d).
+  - id: ISO-025
+    category: consistency
+    requirement: One arrowhead style (open, closed or filled) is used throughout a drawing; an oblique stroke or a dot replaces an arrowhead only where space is too small.
+    severity: minor
+    check_type: code
+    check: single_arrowhead_style
+    params: {styles: [open, closed, closed_filled], small_space_substitutes: [oblique_stroke, dot]}
+    source: {document: 'ISO 129:1985 Technical drawings, Dimensioning, general principles (preview edition, clauses 1 to 4.4.2)', section: 4.3.3 (p8)}
+    status: draft
+
+  # ISO 129:1985 says: Only one arrowhead termination, with its point on the arc end of the dimension line, shall
+  #   be used where a radius is dimensioned (see figure 15).
+  # Note: Find radius values by the 'R' prefix in the text layer and count arrowheads on the matched dimension
+  #   line. Our inference, not ISO's: an 'R' value with two arrowheads across the centre may be a diameter tagged
+  #   as a radius, which is worth a warning.
+  - id: ISO-027
+    category: consistency
+    requirement: A radius dimension has exactly one arrowhead, with its point on the arc end of the dimension line (inside or outside the outline).
+    severity: minor
+    check_type: code
+    check: radius_single_arrowhead
+    params: {arrowheads: 1}
+    source: {document: 'ISO 129:1985 Technical drawings, Dimensioning, general principles (preview edition, clauses 1 to 4.4.2)', section: 4.3.5 (p8)}
+    status: draft
+
+  # ISO 129:1985 says: They shall be placed in such a way that they are not crossed or separated by any other line
+  #   on the drawing.
+  # See also: related rule VW-06; Westermann Tables Sections and sectional views (pdf 69L, book 132)
+  # Note: Intersect each value's text box with vector lines other than its own dimension line. Hatching and
+  #   centrelines through values are the usual cases; a line through a digit can cause a misread.
+  - id: ISO-029
+    category: consistency
+    requirement: No line crosses or splits a dimension value.
+    severity: minor
+    check_type: code
+    check: dimension_text_not_crossed
+    source: {document: 'ISO 129:1985 Technical drawings, Dimensioning, general principles (preview edition, clauses 1 to 4.4.2)', section: 4.4 (p8)}
+    status: draft
+
+  # ISO 129:1985 says: Values shall be indicated on a drawing according to one of the following two methods. Only
+  #   one method should be used on any one drawing.
+  # See also: Westermann Tables Dimensioning (pdf 70R, book 135); ISO 129:1985 4.4.1 method 2 (p9); ISO 129:1985
+  #   4.4.1 methods 1 and 2 (p9)
+  # Note: Text-layer rotation, corrected for the page /Rotate (PARI pages are rotated 90°): method 1 has vertical
+  #   values turned 90° CCW, method 2 has all values at 0°. Exclude values on leaders (4.4.2 c), which are
+  #   horizontal in both methods. In 60 PARI samples all used method 1. Neutral on ISO vs ASME (method 2 resembles
+  #   ASME unidirectional).
+  - id: ISO-030
+    category: consistency
+    requirement: A drawing places dimension values by one method throughout, ISO 129 method 1 (aligned with the dimension line, read from the bottom or right) or method 2 (all read from the bottom), and orients angular values to suit that method.
+    severity: minor
+    check_type: code
+    check: dimension_value_method_consistent
+    params: {methods: [method_1_aligned, method_2_unidirectional]}
+    source: {document: 'ISO 129:1985 Technical drawings, Dimensioning, general principles (preview edition, clauses 1 to 4.4.2)', section: 4.4.1 (p8)}
+    status: draft
+
+  # ISO 129:1985 says: However, values shall be indicated so that they can be read from the bottom or from the
+  #   right-hand side of the drawing.
+  # Note: On the displayed sheet, the text direction must lie in (-90°, +90°]. Upside-down or top-to-bottom text
+  #   fails. In 60 PARI samples, no numeric text read from the top or left.
+  - id: ISO-031
+    category: consistency
+    requirement: With method 1, values are parallel to their dimension lines and read from the bottom or the right-hand side of the sheet, never from the top or left; values on oblique lines follow figure 17.
+    severity: minor
+    check_type: code
+    check: dimension_text_readable_direction
+    params: {read_from: [bottom, right], value_method: [method_1]}
+    source: {document: 'ISO 129:1985 Technical drawings, Dimensioning, general principles (preview edition, clauses 1 to 4.4.2)', section: 4.4.1 method 1 (p9)}
+    status: draft
+
+  # LatentView Detection Guide MX-01 (their severity: Critical; their check: geometric).
+  # How they verify: A hole, slot, pocket or step has no size dimension and no note covers it
+  # Guards: Size covered by a standard-part callout or general note (e.g. radii)
+  # Also covers (merged): DM-01
+  # See also: ISO 129:1985 §3.2.1; Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-2.3 AC2; ISO
+  #   129:1985 3.2.1 (p6); D&T tutorial slides Basic Concepts (p20-21); D&T tutorial slides Detail Dimensions -
+  #   Slotted holes (figure) (p38); D&T tutorial slides Grooves (figure) (p44); Westermann Tables Taper, Keyways
+  #   and Chamfers (pdf 71L, book 136)
+  # Note: 2D: features come from the understanding step; full coverage graph is phase 2 (3D)
+  - id: MX-001
+    category: consistency
+    requirement: Feature with no size
+    severity: critical
+    check_type: llm
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-01}
+    status: draft
+
+  # LatentView Detection Guide MX-02 (their severity: Critical; their check: geometric).
+  # How they verify: Size is given, but nothing positions the feature from a datum or another located feature
+  # Guards: Location implied by a symmetry mark or by coaxiality with a located feature
+  # Also covers (merged): MP-08
+  # See also: ISO 129:1985 §3.2.1; D&T tutorial slides Basic Concepts (p21-22)
+  # Note: as MX-01; also covers MP-08 (hole centres)
+  - id: MX-002
+    category: consistency
+    requirement: Feature with no location
+    severity: critical
+    check_type: llm
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-02}
+    status: draft
+
+  # LatentView Detection Guide MX-03 (their severity: Critical; their check: deterministic).
+  # How they verify: Blind hole, pocket, counterbore or thread with no depth; THRU not stated
+  # Guards: Depth set by a through-all extent and shown in section
+  # Also covers (merged): DM-06
+  # See also: ISO 129:1985 §3.2.1; NASA GSFC-X-673-64-1F 2.4.5 (p35); NAAMS Section A Sec. 21.1-21.2; hole-chart
+  #   label (p5); NAAMS Section A Sec. 21.3 (p5); D&T tutorial slides Dimension Guidelines (p51); D&T tutorial
+  #   slides Summary (figure) (p40)
+  - id: MX-003
+    category: consistency
+    requirement: Missing depth
+    severity: critical
+    check_type: code
+    check: hole_depth_stated
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-03}
+    status: draft
+
+  # LatentView Detection Guide MX-05 (their severity: Minor; their check: deterministic).
+  # How they verify: No overall length, width or height, so stock size and envelope are unclear
+  # Guards: Shape is a turned part with overall length and max diameter given
+  # Also covers (merged): DM-05
+  # See also: D&T tutorial slides Basic Concepts (figure) (p22)
+  - id: MX-005
+    category: consistency
+    requirement: Missing overall dimensions
+    severity: minor
+    check_type: llm
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-05}
+    status: draft
+
+  # LatentView Detection Guide MX-06 (their severity: Critical; their check: deterministic + geometric).
+  # How they verify: Hole pattern shows count but not pitch, PCD or angular spacing, or the pattern itself is not
+  #   located
+  # Guards: Pattern is equally spaced on a full circle and the note says EQ SP
+  # Also covers (merged): DM-12
+  # See also: D&T tutorial slides Standard Practices- Repetitive Features (p36); Westermann Tables Dimensioning
+  #   (pdf 71R, book 137)
+  - id: MX-006
+    category: consistency
+    requirement: Pattern not fully defined
+    severity: critical
+    check_type: code
+    check: pattern_callout_complete
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-06}
+    status: draft
+
+  # LatentView Detection Guide MX-09 (their severity: Major; their check: deterministic).
+  # How they verify: Angled face, taper or countersink with no angle
+  # Guards: Angle defined by two linear dims (computed)
+  # See also: D&T tutorial slides Dimension Guidelines (p51)
+  - id: MX-009
+    category: consistency
+    requirement: Missing angle
+    severity: major
+    check_type: code
+    check: angle_stated
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-09}
+    status: draft
+
+  # LatentView Detection Guide MX-14 (their severity: Major; their check: deterministic + LLM).
+  # How they verify: Weldment faces to be machined have no separate machining dimensions or datums
+  # Guards: Not a weldment
+  # Also covers (merged): WF-03, WF-11
+  # Note: machining on a separate sheet with an IS tolerance grade, or toleranced machining dims; also covers
+  #   WF-03, WF-11
+  - id: MX-014
+    category: consistency
+    requirement: Missing machining-after-weld dimensions
+    severity: major
+    check_type: llm
+    applies_to: {drawing_type: [fabrication]}
+    source: {document: PARI Guidelines for Welding Notes & Symbols, section: 11. Correctness & completeness review}
+    status: draft
+
+  # LatentView Detection Guide MX-15 (their severity: Critical; their check: deterministic).
+  # How they verify: Sheet-metal or plate part with no thickness stated in a dimension, note or title block
+  # Guards: None
+  # See also: Westermann Tables Dimensioning: example of dimensioning for structural steel work (pdf 73L, book
+  #   140); Westermann Tables Indian standard equal angles, Indian standard unequal angles, IS: 808-1964 (pdf 13R,
+  #   book 21); Westermann Tables Steel Tubes, IS: 1161-1968 (pdf 16R, book 27)
+  # Note: plate parts (prismatic); sheet-metal SM-01 is another family
+  - id: MX-015
+    category: consistency
+    requirement: Missing material thickness
+    severity: critical
+    check_type: llm
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-15}
+    status: draft
+
+  # LatentView Detection Guide MX-17 (their severity: Critical; their check: deterministic).
+  # How they verify: Groove width, diameter, depth, corner radii or surface finish missing
+  # Guards: None
+  # Also covers (merged): MC-13
+  - id: MX-017
+    category: consistency
+    requirement: Incomplete seal or O-ring groove
+    severity: critical
+    check_type: llm
+    applies_to: {part_family: [round]}
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-17}
+    status: draft
+
+  # LatentView Detection Guide MX-18 (their severity: Critical; their check: deterministic + LLM).
+  # How they verify: Gear or spline drawn without a data table (module or pitch, tooth count, pressure angle,
+  #   tolerance class)
+  # Guards: Bought-out gear with supplier part number
+  # Also covers (merged): MC-14
+  # See also: NASA GSFC-X-673-64-1F 2.4.4.1 (p28)
+  - id: MX-018
+    category: consistency
+    requirement: Missing gear, spline or serration data
+    severity: critical
+    check_type: llm
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-18}
+    status: draft
+
+  # LatentView Detection Guide MX-19 (their severity: Minor; their check: deterministic + LLM).
+  # How they verify: Knurl shown without type, pitch, diameter or length
+  # Guards: Cosmetic knurl note per standard
+  # See also: Westermann Tables Knurling, IS: 3403-1966 (pdf 53L, book 100)
+  - id: MX-019
+    category: consistency
+    requirement: Missing knurl specification
+    severity: minor
+    check_type: llm
+    applies_to: {part_family: [round]}
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-19}
+    status: draft
+
+  # LatentView Detection Guide MX-20 (their severity: Critical; their check: geometric).
+  # How they verify: Cross hole or intersecting bore located only on its own axis, not relative to the feature it
+  #   breaks into
+  # Guards: Host is a datum and the dim reaches it
+  # Also covers (merged): DM-17
+  # Note: cross holes on pins and shafts
+  - id: MX-020
+    category: consistency
+    requirement: Intersecting feature not located
+    severity: critical
+    check_type: llm
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-20}
+    status: draft
+
+  # LatentView Detection Guide MX-21 (their severity: Major; their check: geometric).
+  # How they verify: Feature exists on both sides, but only one is dimensioned and no "opposite side" or "typical"
+  #   note is given
+  # Guards: Mirror is coaxial or covered by a pattern callout
+  # Also covers (merged): DM-15
+  # See also: NASA GSFC-X-673-64-1F 5.1e (p73)
+  - id: MX-021
+    category: consistency
+    requirement: Opposite or mirrored side not covered
+    severity: major
+    check_type: llm
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-21}
+    status: draft
+
+  # LatentView Detection Guide MX-30 (their severity: Critical; their check: deterministic).
+  # How they verify: A note such as "see 3D model" replaces dimensions without an agreed model-based definition
+  #   process
+  # Guards: PARI approves MBD for the part family
+  # Also covers (merged): DM-16
+  # See also: ISO 129:1985 §3.2.1; ISO 129:1985 3.2.1 (p6)
+  - id: MX-030
+    category: consistency
+    requirement: Dimension deferred to the model
+    severity: critical
+    check_type: code
+    check: no_model_deferral
+    params: {phrases: [SEE 3D, REFER 3D, SEE MODEL, AS PER MODEL]}
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-30}
+    status: draft
+
+  # NASA GSFC-X-673-64-1F says: TEST HARDNESS PER ASTM E-18 WHERE INDICATED ON FIELD OF DRAWING THUS
+  # Note: Generalises WPM-003 (hardened area shown) and RQ-003 to any "where indicated" note; 2.4.4.5 (p31) has
+  #   "MASK ALL SURFACES MARKED". Needs marker detection in vectors; text proxy: the symbol or flag id cited in the
+  #   note appears elsewhere on the sheet.
+  - id: NASA-006
+    category: consistency
+    requirement: When a note or title-block option applies "where indicated" or to "surfaces marked", the matching marker symbol or flag appears at least once on the field of the drawing.
+    severity: major
+    check_type: code
+    check: where_indicated_has_marker
+    params: {trigger_phrases: [WHERE INDICATED, SURFACES MARKED, INDICATED THUS, AS SHOWN]}
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: Fig. 2b (p18)}
+    status: draft
+
+  # NASA GSFC-X-673-64-1F says: General notes are numbered consecutively downward.
+  # Note: On bilingual A1/A2 sheets, check the English and French lists separately and that they match in count.
+  - id: NASA-029
+    category: consistency
+    requirement: General notes are numbered consecutively from 1, with no gaps or repeated numbers.
+    severity: minor
+    check_type: code
+    check: general_notes_consecutive
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 2.4.3 (p28)}
+    status: draft
+
+  # NASA GSFC-X-673-64-1F says: Note numbers may be identified on the field of the drawing by placing the note
+  #   number in a pennant-shaped flag
+  # See also: related rule NM-07; HNF-64101 3.11.16 (p29)
+  # Note: RQ-003 is the heat-treatment case of this rule; the verifier (A3) merges duplicate findings.
+  - id: NASA-030
+    category: consistency
+    requirement: Every note reference on the drawing field ('SEE NOTE 5' or a flag number) points to a note that exists, and every note marked as a flag note is flagged at least once on the field.
+    severity: major
+    check_type: code
+    check: note_references_resolve
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 2.4.3 (p28)}
+    status: draft
+
+  # NASA GSFC-X-673-64-1F says: Significant information is to be inserted where blank(s) are indicated and, for
+  #   most cases, the notations in parentheses are for information only.
+  # Note: On PARI sheets 'XXXXXX' is also left in fields such as 'HEAT TREATMANT PROCESS:XXXXXX' (an unfilled
+  #   placeholder: 23 client sheets have a run of X), while a run of X drawn along a surface marks the area to be
+  #   hardened (WPM-003). The check must tell them apart, e.g. by whether the run follows a field label.
+  - id: NASA-032
+    category: consistency
+    requirement: No note contains an unfilled template blank or placeholder (e.g. "XXX", "____", "(insert ...)", "TBD"); template notes that do not apply are removed.
+    severity: major
+    check_type: code
+    check: no_placeholder_text
+    params: {patterns: [XXX, ___, (INSERT, TBD, (SIZE)]}
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 2.4.4 (p28)}
+    status: draft
+
+  # NASA GSFC-X-673-64-1F says: Views, dimensions, etc., shall not extend into the margins of the drawing.
+  # Note: Vector and text bounding boxes against the border-frame rectangle, excluding zone labels and template
+  #   items printed in the margin.
+  - id: NASA-061
+    category: consistency
+    requirement: Views, dimensions and notes stay inside the drawing border and do not run into the margins.
+    severity: minor
+    check_type: code
+    check: content_inside_border
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 3.1 (p37)}
+    status: draft
+
+  # NASA GSFC-X-673-64-1F says: If views have to be rotated, the angle and direction of rotation must be given.
+  # Note: The text check covers labels that say ROTATED; spotting an unlabelled rotated view needs vision or
+  #   geometry. 3.5.4: details should not be rotated at all.
+  - id: NASA-078
+    category: consistency
+    requirement: A rotated view, section or detail states the angle and direction of rotation.
+    severity: minor
+    check_type: code
+    check: rotated_view_labelled
+    params: {label_pattern: ROTATED <angle> CW|CCW}
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 3.5.2d; 3.5.3c; 3.5.4 (p46)}
+    status: draft
+
+  # NASA GSFC-X-673-64-1F says: angles stated in degrees, minutes, and seconds, or in degrees and decimal of a
+  #   degree (preferred), shall be used when dimensioning parts.
+  # See also: D&T tutorial slides Unit of measure; Tolerancing - Plus/Minus (p7, 8, 56)
+  # Note: Flags mixed angle formats or radians on one drawing.
+  - id: NASA-111
+    category: consistency
+    requirement: Angles use one format throughout (decimal degrees or degrees-minutes-seconds), and an angle's tolerance uses the same format as its value.
+    severity: minor
+    check_type: code
+    check: angle_format_consistent
+    params: {preferred: decimal_degrees, allowed: [decimal_degrees, deg_min_sec]}
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 10.2.1b (p99)}
+    status: draft
+
+  # LatentView Rulebook v0.2 NM-01 (their severity: Major; their check: AI).
+  # Why: Undefined edges and sizes
+  # How they verify: Template notes present and unaltered
+  # Also covers (merged): DM-07, MC-10, MX-08
+  # See also: NASA GSFC-X-673-64-1F Fig. 2b (p18); NASA GSFC-X-673-64-1F 2.4.4.8 (p34); NASA GSFC-X-673-64-1F App.
+  #   A (l) (p120); NAAMS Section A Sec. 21.6 (p5); D&T tutorial slides Detail Dimensions - Chamfers (figure) (p38)
+  # Note: also covers MC-10 (deburr) and MX-08
+  - id: NM-001
+    category: consistency
+    requirement: Standard general notes are present (deburr, unspecified radii, general tolerance)
+    severity: major
+    check_type: code
+    check: template_notes_present
+    params: {notes: [UNSP. RADII, UNSP. CHF, Gen Tol]}
+    source: {document: PARI drawing template FR-DES-006-01, section: standard notes and tolerance block}
+    status: draft
+
+  # LatentView Rulebook v0.2 NM-02 (their severity: Critical; their check: AI).
+  # Why: The shop cannot know which to follow
+  # How they verify: LLM compares note values with dims and other notes
+  # See also: NASA GSFC-X-673-64-1F 2.4 (p27); Westermann Tables Symbolic Designation of essential properties of
+  #   materials (iron and steel) (pdf 07R, book 9)
+  - id: NM-002
+    category: consistency
+    requirement: Notes do not contradict the dimensions or each other
+    severity: critical
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: NM-02}
+    status: draft
+
+  # LatentView Rulebook v0.2 VW-03 (their severity: Major; their check: AI).
+  # Why: Readers cannot find which view shows what
+  # How they verify: Bijection between cutting lines / circles and view labels
+  # See also: NASA GSFC-X-673-64-1F 3.5.2b; 3.5.3b (p46); NASA GSFC-X-673-64-1F 3.5.2h; 3.5.6 (p47); NASA
+  #   GSFC-X-673-64-1F 3.5.5c (p49); NASA GSFC-X-673-64-1F 3.5.5a-b (p49); NAAMS Section A Sec. 3.4 (p2);
+  #   Westermann Tables Sections and sectional views (pdf 69L, book 132); Westermann Tables Sectioning and
+  #   sectional views (pdf 69R, book 133)
+  # Note: view labels and cutting-plane letters are in the text layer
+  - id: VW-003
+    category: consistency
+    requirement: Section and detail views are labelled, and labels match cutting lines and detail circles
+    severity: major
+    check_type: code
+    check: section_labels_match
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: VW-03}
+    status: draft
+
+  # LatentView Rulebook v0.2 VW-08 (their severity: Minor; their check: Auto).
+  # Why: Proportions misread
+  # How they verify: Scale label present on each detail view
+  # See also: NASA GSFC-X-673-64-1F 3.4c (p45); Westermann Tables Standard sheet sizes and scales, IS 696-1960 (pdf
+  #   67L, book 128)
+  - id: VW-008
+    category: consistency
+    requirement: Detail views state their scale
+    severity: minor
+    check_type: code
+    check: detail_view_scale
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: VW-08}
+    status: draft
+
+  # Westermann Tables says: The circles should be dimensioned by one of the methods illustrated here.
+  # Note: Every method shown gives a diameter (30, 20, 15, 10ϕ); not by a radius is inferred from that. Needs the
+  #   closed circle vector linked to its dimension.
+  - id: WST-050
+    category: consistency
+    requirement: Full circles are dimensioned by their diameter, using one of the illustrated methods (across the circle, by a leader or between extension lines), not by a radius.
+    severity: minor
+    check_type: code
+    check: full_circle_by_diameter
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Dimensioning (pdf 70R, book 135)'}
+    status: draft
+
+  # Westermann Tables says: The diameter of a spherical surface should be dimensioned as shown here. 30ϕSphere
+  # Note: Needs the vision summary to know the feature is spherical; the text check would accept SPHERE, SØ or SR.
+  #   Notation is the old suffix style (see WST-046).
+  - id: WST-052
+    category: consistency
+    requirement: The diameter of a spherical surface is marked as a sphere (the book writes 30ϕ Sphere).
+    severity: minor
+    check_type: llm
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Dimensioning (pdf 70R, book 135)'}
+    status: draft
+
+  # Westermann Tables says: Dimensioning chamfers ... 45° ... 6 ... 6×45°
+  # See also: related rule MX-001
+  # Note: In the figures the length (6) is measured along the axis. A chamfer with only an angle or only a length
+  #   is incomplete. PARI writes length × angle ('0.5 X 45°' in the template's UNSP.CHF. field on 1,153 of 1,175
+  #   client PDFs), which passes.
+  - id: WST-056
+    category: consistency
+    requirement: A chamfer is dimensioned by its length and angle, either as separate dimensions or combined as length × angle (e.g. 6 × 45°).
+    severity: minor
+    check_type: code
+    check: chamfer_callout_complete
+    params: {formats: [length × angle, separate length and angle], example: 6×45°}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Taper, Keyways and Chamfers (pdf 71L, book 136)'}
+    status: draft
+
+  # Westermann Tables says: Where equidistant or regularly arranged elements appear on a drawing, the method shown
+  #   here may be used for simplicity. 4×60=240
+  # See also: related rule CN-001
+  # Note: Pure text-layer arithmetic. The figure chain also closes: 30 + 240 + 30 = 300 (CN-001). The @ form is
+  #   from the structural example on pdf 73L.
+  - id: WST-064
+    category: consistency
+    requirement: For equally spaced features dimensioned as number × pitch = total (e.g. 4 × 60 = 240, or 7 @ 75 = 525 in steelwork), the product equals the stated total.
+    severity: major
+    check_type: code
+    check: pitch_notation_arithmetic
+    params: {forms: [n×p=L, n@p=L], examples: [4×60=240, 26×60=1560, 7@75=525, 4@75=300]}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Dimensioning (pdf 71R, book 137)'}
+    status: draft
+
+  # Westermann Tables says: care should be taken to indicate clearly on which surface the dimensioned points are to
+  #   be measured and whether the dimensions are cordal or circular.
+  # Note: The book spells cordal. The vision summary must say the features sit on a curved surface.
+  - id: WST-067
+    category: consistency
+    requirement: Spacing of holes or other features on a curved part states the surface on which it is measured and whether the dimension is chordal or along the arc.
+    severity: major
+    check_type: llm
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Dimensioning of curved surfaces, chords, arcs, bent parts, countersinks and counterbores (pdf 72L, book 138)'}
+    status: draft
+
+  # Westermann Tables says: The method of dimensioning a counter sunk hole. 90° ... 12ϕ ... 6ϕ
+  # See also: related rule MX-001; Westermann Tables Details of tapers, IS: 3458-1966 (pdf 52L, book 98)
+  # Note: Values come from the text layer. A missing angle also fits MX-009. Solid Edge writes hole callouts with
+  #   symbol-font glyphs, so a text search finds none on the client PDFs; the check needs the decoded symbols
+  #   (Spike D).
+  - id: WST-069
+    category: consistency
+    requirement: A countersunk hole callout gives the hole diameter, the countersink diameter and the included angle, and the angle is 90° where the countersink seats a countersunk-head screw.
+    severity: major
+    check_type: code
+    check: countersink_callout_complete
+    params: {required: [hole_diameter, countersink_diameter, included_angle], example: {hole: 6, countersink: 12, angle_deg: 90}, screw_seat_angle_deg: 90}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Dimensioning of curved surfaces, chords, arcs, bent parts, countersinks and counterbores (pdf 72L, book 138)'}
+    status: draft
+
+  # Westermann Tables says: The method of dimensioning a counter bored hole. 12ϕ ... 6ϕ ... 6
+  # See also: related rule MX-003
+  # Note: Solid Edge writes hole callouts with symbol-font glyphs, so a text search finds none on the client PDFs;
+  #   the check needs the decoded symbols (Spike D).
+  - id: WST-070
+    category: consistency
+    requirement: A counterbored hole callout gives the hole diameter, the counterbore diameter and the counterbore depth (e.g. 6ϕ, 12ϕ, depth 6).
+    severity: major
+    check_type: code
+    check: counterbore_callout_complete
+    params: {required: [hole_diameter, counterbore_diameter, counterbore_depth], example: {hole: 6, counterbore: 12, depth: 6}}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Dimensioning of curved surfaces, chords, arcs, bent parts, countersinks and counterbores (pdf 72L, book 138)'}
+    status: draft
+
+  # Westermann Tables says: Stress relieving (stabilizing): Heating to and if necessary, holding at a sufficiently
+  #   high temperature below the transformation range followed by slow cooling to remove internal stresses only.
+  # See also: related rule NM-002
+  # Note: Annealed maxima are from pdf 08L (book 10). Stress relieving after hardening is normal, so the rule fires
+  #   only when no hardening process is named. Book page inferred.
+  - id: WST-127
+    category: consistency
+    requirement: When the only heat treatment named is a softening one (annealing, spheroidizing, sub-critical annealing, stress relieving), the drawing does not also ask for a hardened-level hardness (e.g. 'ANNEALED, 58-62 HRC'); the book lists annealed tool steels at 200-260 HB max.
+    severity: major
+    check_type: code
+    check: softening_treatment_vs_hardness
+    params: {softening_terms: [annealing, full annealing, isothermal annealing, sub-critical annealing, bright annealing, spheroidizing, stress relieving], annealed_max_hb: {IS 3749: [200, 260], IS 3748: [229, 248]}, hardening_terms: [hardening, hardened and tempered, case hardening, carburizing, flame hardening, induction hardening, nitriding]}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Heat treatment of iron and steel-glossary of terms, IS: 1956-1962; Tool and die steels, IS: 3748-1966, IS: 3749-1966 (pdf 65R, book 125)'}
+    status: draft
+
+  # Westermann Tables says: Hardness Comparison Tables For Steel ... 700 ... 656 60.1 ... 660 ... 620 58.3
+  # Note: The tolerance is an assumption; table steps are 15-40 HV. Steel only. IS number only partly legible; book
+  #   page inferred.
+  - id: WST-130
+    category: consistency
+    requirement: Where a hardness is given in two scales, or together with a tensile strength (e.g. '58-62 HRC (650-750 HV)'), the values agree with the IS hardness comparison table for steel.
+    severity: minor
+    check_type: lookup
+    check: hardness_scales_agree
+    params: {table: hardness_conversion_steel, tolerance: one table step (assumption)}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Hardness Comparison Tables For Steel, IS: [?]58-1967 (pdf 66R, book 127)'}
+    status: draft
+
+  # Westermann Tables says: Specific weight = Weight per unit volume (gf/cm³ or kgf/dm³) ... Steel 7.85 ... Gray
+  #   cast iron 7.2 ... Brass 8.5 ... Al-alloy (Al, Cu, Mg) 2.8
+  # See also: related rule TB-014
+  # Note: Upper bound only, from the overall dimensions: a mass above it means the mass or the material is wrong
+  #   (e.g. a mass left over from an aluminium version). A tight check needs the model volume (phase2_3d). Element
+  #   values (Cu 8.9, Al 2.7) are on pdf 03R (book 1).
+  - id: WST-132
+    category: consistency
+    requirement: A stated part mass is no more than the mass of the part's bounding envelope (length × width × height, or π/4·D²·L for a round part) at the material's specific weight (e.g. steel 7.85, grey cast iron 7.2, brass 8.5, Al alloy 2.8 gf/cm³).
+    severity: minor
+    check_type: lookup
+    check: mass_within_envelope
+    params: {table: material_specific_weight, specific_weight_gf_cm3: {steel: 7.85, cast steel: 7.85, grey cast iron: 7.2, high-speed steel: 9.0, tungsten carbide: 14.75, brass: 8.5, Al bronze: 8.4, tin bronze: 8.6, lead bronze: 9.5, 'Al alloy (Al, Cu, Mg)': 2.8, Mg alloy: 1.8, plexiglass: 1.2, copper: 8.9, aluminium: 2.7}}
+    applies_to: {part_family: [prismatic, round]}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Specific Weight—Melting Point—Coefficient of Thermal Expansion—Shrinkage (pdf 04L, book 2)'}
+    status: draft
+
+  # Westermann Tables says: Taper 1:x = (D−d)/l = 2 tan α/2
+  # See also: Westermann Tables Taper, Keyways and Chamfers (pdf 71L, book 136)
+  # Note: Allow for rounding (the book gives angles to the second). Book misprint: the 1:1.5 cone angle reads
+  #   30°52'12'' but its own setting angle 18°26'6'' implies 36°52'12''.
+  - id: WST-238
+    category: consistency
+    requirement: 'Where a taper is dimensioned by more than one of ratio 1:x, cone angle, and diameters over a length, the values agree: 1/x = (D - d)/l = 2·tan(α/2).'
+    severity: major
+    check_type: code
+    check: taper_values_consistent
+    params: {formula: 1/x = (D - d) / l = 2 * tan(alpha / 2)}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Details of tapers, IS: 3458-1966 (pdf 52L, book 98)'}
+    status: draft
+
+  # Westermann Tables says: Self-holding tapers IS: 1715-1963 ... Designation of taper ... Morse 3 1°26'16'' 5.0
+  #   23.825 24.1 19.8 M12
+  # Note: Covers internal sockets and external shanks, plain and tapped.
+  - id: WST-240
+    category: consistency
+    requirement: 'A Morse or Metric self-holding taper is called out by its designation (Metric 4, 6, 80; Morse 0 to 6), and any gauge diameter, taper angle or tapped-shank thread shown agrees with IS 1715 (e.g. Morse 3: D 23.825, thread M12).'
+    severity: major
+    check_type: lookup
+    check: self_holding_taper_matches_table
+    params: {table: is1715_self_holding_tapers}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Self-holding tapers, IS: 1715-1963 (pdf 52L, book 98)'}
+    status: draft

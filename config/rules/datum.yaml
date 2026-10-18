@@ -1,0 +1,188 @@
+# Datum scheme rules: first draft for task R (13 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule and every rule mined from
+# the engineering books (where each went and why). The comment above each rule keeps LatentView's rationale
+# or the book's words, and the published sources; the Rule schema has no fields for them.
+
+rules:
+
+  # NAAMS Section A says: Fab “O” line dimensions should always start from the same edges as the machining datum
+  #   line start dimensions.
+  # Note: Keeps weld set-up and later machining on one origin. Related to WF-03 and MX-014. The LLM must tell
+  #   fabrication dimensions from machining ones; PARI's separate IS 2102 classes may help.
+  - id: DSM-030
+    category: datum
+    requirement: On weldments, fabrication (fab zero-line) dimensions start from the same edges as the machining datum dimensions.
+    severity: major
+    check_type: llm
+    applies_to: {drawing_type: [fabrication]}
+    source: {document: 'NAAMS Global Standard Components, Section A: Design Drawing Standards and Tolerances (Auto/Steel Partnership, 2015)', section: Sec. 20.1 (p4)}
+    status: draft
+
+  # LatentView Detection Guide MD-01 (their severity: Critical; their check: deterministic).
+  # How they verify: A feature control frame cites a letter (e.g. B) with no matching datum symbol anywhere on the
+  #   drawing
+  # Guards: Letter is defined on a referenced parent drawing and a note says so
+  # Also covers (merged): DT-02, TL-04
+  # Note: needs Spike D's frame decoder and datum-flag detector
+  - id: MD-001
+    category: datum
+    requirement: Datum referenced but not defined
+    severity: critical
+    check_type: code
+    check: datum_referenced_defined
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-01}
+    status: draft
+
+  # LatentView Detection Guide MD-02 (their severity: Critical; their check: deterministic).
+  # How they verify: Part has GD&T or tight-tolerance features but no datum symbols at all
+  # Guards: Part is a standard or bought-out item; drawing is a simple flat plate fully covered by general
+  #   tolerance
+  # Also covers (merged): DT-01
+  # Note: the top finding on both CAD_Result_Test drawings
+  - id: MD-002
+    category: datum
+    requirement: No datums on a part that needs them
+    severity: critical
+    check_type: code
+    check: datums_needed
+    params: {tight_tolerance_ratio: null}
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-02}
+    status: draft
+
+  # LatentView Detection Guide MD-08 (their severity: Minor; their check: deterministic).
+  # How they verify: Same letter used twice; letters I, O or Q used
+  # Guards: Same datum shown twice on different views with identical attachment (repeat, not duplicate)
+  # Also covers (merged): DT-08
+  - id: MD-008
+    category: datum
+    requirement: Duplicate or illegal datum letter
+    severity: minor
+    check_type: code
+    check: datum_letters_valid
+    params: {illegal: [I, O, Q]}
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-08}
+    status: draft
+
+  # LatentView Detection Guide MD-12 (their severity: Observation; their check: deterministic).
+  # How they verify: A datum is defined but never referenced in any frame or dimension scheme
+  # Guards: Datum used in a note for inspection set-up
+  - id: MD-012
+    category: datum
+    requirement: Unused datum
+    severity: info
+    check_type: code
+    check: datum_unused
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-12}
+    status: draft
+
+  # LatentView Detection Guide MD-13 (their severity: Major; their check: deterministic).
+  # How they verify: A bore, pin or slot is a datum but its own size has no tolerance, so the datum axis or centre
+  #   plane is unstable
+  # Guards: General tolerance is explicitly accepted by the Checker for this datum
+  # Also covers (merged): DT-09
+  # Note: needs datum-flag to size-dimension linkage
+  - id: MD-013
+    category: datum
+    requirement: Datum feature of size without size tolerance
+    severity: major
+    check_type: code
+    check: datum_feature_size_toleranced
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-13}
+    status: draft
+
+  # LatentView Detection Guide MD-15 (their severity: Major; their check: deterministic + LLM).
+  # How they verify: Features with the same function are referenced to different frames (A-B-C on one, A-D-E on
+  #   another) with no functional reason, multiplying inspection set-ups
+  # Guards: Different set-ups are deliberate (e.g. two machining operations) and noted
+  - id: MD-015
+    category: datum
+    requirement: Conflicting reference frames
+    severity: major
+    check_type: llm
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-15}
+    status: draft
+
+  # LatentView Detection Guide MD-16 (their severity: Major; their check: geometric).
+  # How they verify: Two coaxial journals or two aligned bores act together but only one is a datum; should be a
+  #   common datum such as A-B
+  # Guards: Second feature is not a bearing or locating feature
+  # Also covers (merged): DT-10
+  # Note: coaxial journals on shafts
+  - id: MD-016
+    category: datum
+    requirement: Common datum not shown
+    severity: major
+    check_type: llm
+    applies_to: {part_family: [round]}
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-16}
+    status: draft
+
+  # LatentView Detection Guide MD-19 (their severity: Minor; their check: deterministic).
+  # How they verify: Datum is defined on another sheet or in a detail view that is not referenced, so the reader
+  #   cannot find it
+  # Guards: Single-sheet drawing
+  - id: MD-019
+    category: datum
+    requirement: Datum not visible where used
+    severity: minor
+    check_type: code
+    check: datum_on_same_sheet
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-19}
+    status: draft
+
+  # LatentView Detection Guide MD-20 (their severity: Major; their check: deterministic).
+  # How they verify: A hole pattern acts as datum B but the datum symbol is not tied to the pattern callout (e.g.
+  #   4X), or the pattern has no position tolerance of its own
+  # Guards: None
+  - id: MD-020
+    category: datum
+    requirement: Pattern used as a datum without definition
+    severity: major
+    check_type: code
+    check: pattern_datum_defined
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-20}
+    status: draft
+
+  # LatentView Detection Guide MD-21 (their severity: Minor; their check: deterministic).
+  # How they verify: A thread is used as a datum, but it is not stated whether pitch, major or minor diameter
+  #   applies (needed under ISO; ASME defaults to pitch)
+  # Guards: Standard = ASME and Checker accepts default
+  # Note: ISO assumed until PARI confirms (MD-06)
+  - id: MD-021
+    category: datum
+    requirement: Threaded feature as datum without qualifier
+    severity: minor
+    check_type: code
+    check: thread_datum_qualifier
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-21}
+    status: draft
+
+  # LatentView Detection Guide MP-09 (their severity: Critical; their check: deterministic).
+  # How they verify: Tag on the drawing with no table row, a row with no tag, or no origin symbol
+  # Guards: None
+  # Also covers (merged): DM-11
+  # See also: NAAMS Section A Sec. 21.5; hole-chart label (p5); D&T tutorial slides Basic Concepts (figure) (p24)
+  # Note: only when the drawing has a hole table
+  - id: MP-009
+    category: datum
+    requirement: 'Hole / coordinate table entries: Every tagged hole (A1, B2 …) has a row with X, Y, size and depth; the table origin is marked'
+    severity: critical
+    check_type: code
+    check: hole_table_complete
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MP-09}
+    status: draft
+
+  # LatentView Detection Guide MP-12 (their severity: Critical; their check: deterministic).
+  # How they verify: Ordinate dimensions with no visible zero, or zero on a non-datum edge
+  # Guards: Drawing has no datums and zero is on a clearly functional edge (lower confidence)
+  # See also: NASA GSFC-X-673-64-1F App. A (a) (p119); NAAMS Section A Sec. 22.1 (p5); D&T tutorial slides Basic
+  #   Concepts (p23-24)
+  # Note: only when ordinate dimensions are used
+  - id: MP-012
+    category: datum
+    requirement: 'Origin point: The 0,0 point for ordinate or coordinate dimensioning is clearly marked and is a datum feature'
+    severity: critical
+    check_type: code
+    check: ordinate_origin
+    source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MP-12}
+    status: draft

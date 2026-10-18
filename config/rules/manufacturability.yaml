@@ -1,0 +1,208 @@
+# Manufacturability rules: first draft for task R (13 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule and every rule mined from
+# the engineering books (where each went and why). The comment above each rule keeps LatentView's rationale
+# or the book's words, and the published sources; the Rule schema has no fields for them.
+
+rules:
+
+  # LatentView Rulebook v0.2 MC-01 (their severity: Major; their check: AI).
+  # Why: Sharp internal corners cannot be milled
+  # How they verify: Internal corner radius vs. minimum tool radius for the pocket depth
+  # Also covers (merged): NM-05
+  # Note: Spike E case J5-3
+  - id: MC-001
+    category: manufacturability
+    requirement: Internal corner radii can be made by standard cutters
+    severity: major
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-01}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-02 (their severity: Minor; their check: Auto).
+  # Why: Deep small holes drift and break drills
+  # How they verify: Depth-to-diameter ratio
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-5.1 AC1
+  # Note: numeric limit in code: Spike E showed the LLM does not apply it
+  - id: MC-002
+    category: manufacturability
+    requirement: Hole depth is reasonable for the diameter (about 10 × D unless deep drilling is noted)
+    severity: minor
+    check_type: code
+    check: depth_to_diameter
+    params: {max_ratio: 10}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-02}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-03 (their severity: Major; their check: AI).
+  # Why: Full thread cannot be cut to a shoulder
+  # How they verify: Thread features adjacent to a shoulder face
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-5.1 AC2; Westermann Tables Thread
+  #   run-out and undercut for ISO threads, IS: 1369-1961 (pdf 52R, book 99)
+  # Note: Spike E case J5-2
+  - id: MC-003
+    category: manufacturability
+    requirement: Threads that meet a shoulder have run-out or an undercut
+    severity: major
+    check_type: llm
+    applies_to: {part_family: [round]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-03}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-04 (their severity: Major; their check: Auto).
+  # Why: Taps bottom out and break
+  # How they verify: Drill depth minus thread depth vs. pitch
+  # See also: Westermann Tables Representation of threads, bolts and joints (pdf 72R, book 139); Westermann Tables
+  #   Threaded length, threaded end of stud and depth of threaded hole, IS: 1862-1967 / IS: 4499-1968 (pdf 48R,
+  #   book 91); Westermann Tables Thread run-out and undercut for ISO threads, IS: 1369-1961 (pdf 52R, book 99)
+  - id: MC-004
+    category: manufacturability
+    requirement: Blind tapped holes have a drill depth beyond the thread depth (about 3 pitches)
+    severity: major
+    check_type: code
+    check: tap_drill_depth
+    params: {min_extra_pitches: 3}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-04}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-06 (their severity: Major; their check: Manual).
+  # Why: Threads strip under load
+  # How they verify: Thread depth vs. material and size
+  # See also: Westermann Tables Threaded length, threaded end of stud and depth of threaded hole, IS: 1862-1967 /
+  #   IS: 4499-1968 (pdf 48R, book 91)
+  # Note: LatentView marks this Manual; factors to confirm with PARI. The factors are in params, so code checks
+  #   them (no table)
+  - id: MC-006
+    category: manufacturability
+    requirement: Thread engagement suits the material (e.g. at least 1.5 × D in aluminium)
+    severity: major
+    check_type: code
+    check: thread_engagement
+    params: {min_factor: {aluminium: 1.5, steel: 1.0}}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-06}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-07 (their severity: Major; their check: AI).
+  # Why: Keys do not fit or work loose
+  # How they verify: Keyway dims vs. standard table for the shaft size
+  # See also: D&T tutorial slides Detail Dimensions - Keyseat and Keyway (figure) (p39); Westermann Tables Taper,
+  #   Keyways and Chamfers (pdf 71L, book 136); Westermann Tables Keys and keyways, Taper keys and keyways, IS:
+  #   2292-1963 (pdf 49R, book 93); Westermann Tables Keys and keyways, Woodruff keys and keyslots, IS: 2294-1963
+  #   (pdf 49R, book 93)
+  # Note: table source to confirm (Westermann tables, scanned)
+  - id: MC-007
+    category: manufacturability
+    requirement: Keyways and keys follow the standard with correct tolerances
+    severity: major
+    check_type: lookup
+    check: keyway_standard
+    params: {table: keyways}
+    applies_to: {part_family: [round]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-07}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-08 (their severity: Major; their check: AI).
+  # Why: Rings do not seat or pop out
+  # How they verify: Groove dims vs. ring standard for the diameter
+  # Note: table source to confirm (Westermann tables, scanned)
+  - id: MC-008
+    category: manufacturability
+    requirement: Retaining-ring grooves follow the ring standard
+    severity: major
+    check_type: lookup
+    check: circlip_groove_standard
+    params: {table: circlip_grooves}
+    applies_to: {part_family: [round]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-08}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-09 (their severity: Minor; their check: AI).
+  # Why: Shaft cannot be held or reground
+  # How they verify: Long turned parts without a centre-hole note
+  # See also: Westermann Tables Centre Holes, IS: 2473-1963 (pdf 53L, book 100)
+  - id: MC-009
+    category: manufacturability
+    requirement: Centre holes are specified for shafts turned between centres
+    severity: minor
+    check_type: llm
+    applies_to: {part_family: [round]}
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-09}
+    status: draft
+
+  # LatentView Rulebook v0.2 MC-12 (their severity: Minor; their check: Manual).
+  # Why: Chatter and distortion
+  # How they verify: Wall thickness and length-to-diameter vs. limits
+  # Note: the client's own example at Meeting #1: 'confirming wall thickness feasibility after machining'
+  - id: MC-012
+    category: manufacturability
+    requirement: Thin walls and slender features can be machined without deflection
+    severity: minor
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-12}
+    status: draft
+
+  # LatentView Rulebook v0.2 MF-03 (their severity: Minor; their check: AI).
+  # Why: Wrong stock wastes material or cannot be machined
+  # How they verify: Stock note vs. bounding box
+  # See also: Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13) US-5.2; NAAMS Section A Sec. 22.3
+  #   (p5); D&T tutorial slides Dimension Guidelines; Manufacturers' gage (p45, 51); Westermann Tables Designation
+  #   of bars, stripes, tubes, etc., as per IS (pdf 73R, book 141); Westermann Tables Steel bars—dimensions and
+  #   weight; Round, square and hexagon steel rods, hot rolled, IS: 1723-1971 [?], IS: 1732-1971 (pdf 12R, book
+  #   19); Westermann Tables Steel flats, IS: 1731-1971 (heading partly legible) (pdf 13L, book 20); Westermann
+  #   Tables Indian standard rolled steel beams, IS: 808-1964; Tee Bars, IS: 1173-1967; Channel Sections, IS:
+  #   808-1964, IS: 3954-1966; Light Metal Sections, IS: 6445-1971, IS: 3909-1966, IS: 3921-1966 (pdf 14R, book
+  #   23); Westermann Tables Indian standard rolled steel beams, IS: 808-1964 (pdf 14R, book 23); Westermann Tables
+  #   Preferred Numbers and Sizes, IS: 1076-196[?] and IS: 1136-1958 (pdf 41L, book 76)
+  # Note: reports the smallest standard stock that covers the envelope + allowance; warns if none does
+  - id: MF-003
+    category: manufacturability
+    requirement: Stock form or size is given where it matters (plate thickness, bar diameter)
+    severity: info
+    check_type: lookup
+    check: stock_size_available
+    params: {table: raw_material_sizes, allowance_mm: 2}
+    source: {document: PARI India Raw material sizes 08-Feb-24.xlsx, section: Plate/Round/Square sizes; PRD-GD-DES-11 sheet 2}
+    status: draft
+
+  # Westermann Tables says: Taper 1:50 ... Nominal size is the diameter of the thin end of the taper pin.
+  # Note: The drawing should make clear that the stated diameter is the small end.
+  - id: WST-229
+    category: manufacturability
+    requirement: A hole for a taper pin is called out with the 1:50 taper and the pin's nominal size, which is the small-end diameter, chosen from the standard sizes (1.5 to 50 mm).
+    severity: major
+    check_type: lookup
+    check: taper_pin_hole_callout
+    params: {taper: '1:50', nominal_d_mm: [1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 16, 20, 25, 30, 40, 50], table: is6688_taper_pins}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Taper pins, IS: 6688-1972 (pdf 49R, book 93)'}
+    status: draft
+
+  # Westermann Tables says: Width undercut (f) for throat angle α ... Radius r ... Nominal undercut diameter g ...
+  #   M10, M11 ... 3.0 ... 2.0 1.0 d—2.1
+  # See also: related rule MC-003; Westermann Tables Thread run-out and undercut for ISO threads, IS: 1369-1961
+  #   (pdf 52R, book 99)
+  # Note: Up to M5 the book shows a radiused groove with no g value. The width depends on the chamfer (throat)
+  #   angle: normal for ≥15°, small for ≥30°.
+  - id: WST-242
+    category: manufacturability
+    requirement: 'A thread undercut has at least the width and radius IS 1369 gives for the thread size, with a diameter no larger than g on an external thread (above M5) and g1 = d + 0.5 mm on an internal thread (e.g. M10 external: width 3.0, radius 1.0, g = d - 2.1).'
+    severity: major
+    check_type: lookup
+    check: thread_undercut_matches
+    params: {table: is1369_thread_runout_undercut, g1_minus_d_mm: 0.5}
+    applies_to: {part_family: [round]}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Thread run-out and undercut for ISO threads, IS: 1369-1961 (pdf 52R, book 99)'}
+    status: draft
+
+  # Westermann Tables says: A centre hole of Type A and diameter, d1=4 mm is designated as Centre Hole A×4 IS: 2473
+  # See also: related rule MC-009; Westermann Tables Centre Holes, IS: 2473-1963 (pdf 53L, book 100)
+  # Note: Type A is a 60° cone without chamfer; type B adds a 120° protective chamfer. A note that forbids centre
+  #   holes ('CENTER DRILL NOT ALLOWED ON RESTING ...', 2 client PDFs) is not a callout and is not checked.
+  - id: WST-249
+    category: manufacturability
+    requirement: 'A centre-hole callout gives the type (A without, B with a protective chamfer), a standard pilot diameter d1 (1, 1.6, 2.5, 4, 6.3, 10 or 16 mm; type B only up to 6.3) and the standard, e.g. ''Centre Hole A×4 IS: 2473''.'
+    severity: major
+    check_type: code
+    check: centre_hole_designation_complete
+    params: {types: [A, B], d1_mm: [1, 1.6, 2.5, 4, 6.3, 10, 16], type_B_max_d1_mm: 6.3, table: is2473_centre_holes}
+    applies_to: {part_family: [round]}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Centre Holes, IS: 2473-1963 (pdf 53L, book 100)'}
+    status: draft

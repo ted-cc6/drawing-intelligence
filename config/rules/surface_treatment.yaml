@@ -1,0 +1,263 @@
+# Surface finish / coating / heat treatment rules: first draft for task R (20 rules, all status: draft).
+# Drafted from docs/rulebook/rule_mapping.csv, the triage of every LatentView rule and every rule mined from
+# the engineering books (where each went and why). The comment above each rule keeps LatentView's rationale
+# or the book's words, and the published sources; the Rule schema has no fields for them.
+
+rules:
+
+  # LatentView Rulebook v0.2 MF-06 (their severity: Minor; their check: Manual).
+  # Why: Coated threads and fits will not assemble
+  # How they verify: Coated parts with threads or fits and no masking note
+  # Also covers (merged): US-India note 1 (PARI US-India equivalent Materials Info.xlsx)
+  # See also: NASA GSFC-X-673-64-1F 2.4.4.5 (p31)
+  # Note: coated part with threads or fits and no masking note; raised as a warning
+  - id: MF-006
+    category: surface_treatment
+    requirement: Masking is stated for surfaces that must stay uncoated (threads, mating faces)
+    severity: minor
+    check_type: code
+    check: masking_note
+    source: {document: PARI US-India equivalent Materials Info.xlsx, section: Note 1 (mask the functional area)}
+    status: draft
+
+  # LatentView Rulebook v0.2 MF-10 (their severity: Major; their check: AI).
+  # Why: Incomplete hardness specs cannot be inspected
+  # How they verify: Parse hardness notes for value, scale, depth
+  # See also: PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09) (format '45-55 HRC, 0.6 to 2 mm depth');
+  #   NASA GSFC-X-673-64-1F 1.4 item 15; Fig. 2b (p20); NASA GSFC-X-673-64-1F 2.4.4.2 (p29); Westermann Tables
+  #   Hardness Comparison Tables For Steel, IS: [?]58-1967 (pdf 66R, book 127)
+  - id: MF-010
+    category: surface_treatment
+    requirement: Hardness states value, scale and case depth where relevant (e.g. 58-62 HRC, case 0.8-1.2)
+    severity: major
+    check_type: code
+    check: hardness_spec_complete
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MF-10}
+    status: draft
+
+  # LatentView Rulebook v0.2 MF-13 (their severity: Minor; their check: AI).
+  # Why: Colour mismatch with the machine
+  # How they verify: Coating notes contain a colour code
+  # See also: NASA GSFC-X-673-64-1F 2.4.4.4 (p31)
+  - id: MF-013
+    category: surface_treatment
+    requirement: Paint or powder-coat colour is specified by code (e.g. RAL)
+    severity: minor
+    check_type: code
+    check: paint_colour_code
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MF-13}
+    status: draft
+
+  # NASA GSFC-X-673-64-1F says: TAP ALL HOLES PRIOR TO COATING; INSTALL THREADED INSERT AFTER COATING.
+  # Note: Model note; the LLM judges whether the sequence is clear.
+  - id: NASA-051
+    category: surface_treatment
+    requirement: 'On a coated part with threaded inserts, the notes give the order: holes tapped before coating, inserts installed after coating.'
+    severity: minor
+    check_type: llm
+    params: {feature: [threaded_insert, coating]}
+    source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 2.4.4.7 (p33)}
+    status: draft
+
+  # See also: HNF-64101 3.10.8.13 (p22)
+  - id: RQ-003
+    category: surface_treatment
+    requirement: A heat-treatment field that refers to a note (e.g. 'REF NOTE') has that note on the drawing
+    severity: major
+    check_type: code
+    check: referenced_note_exists
+    params: {field: heat_treatment}
+    source: {document: 'Team requirements docs/01_discovery.md (PARI proxy, 2026-10-13)', section: US-6.1 AC1; O9}
+    status: draft
+
+  # LatentView Rulebook v0.2 TL-07 (their severity: Major; their check: AI).
+  # Why: Seals leak, bearings wear early
+  # How they verify: Faces with these functions vs. roughness symbols
+  # See also: NAAMS Section A Tolerance stickers - Metric detail tolerances (p6)
+  # Note: finish marks found by vector detector (Spike D); face function is a judgement
+  - id: TL-007
+    category: surface_treatment
+    requirement: Surface roughness is specified on machined, sealing, sliding and bearing surfaces
+    severity: major
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-07}
+    status: draft
+
+  # LatentView Rulebook v0.2 TL-16 (their severity: Minor; their check: AI).
+  # Why: Ra 0.4 on a milled face needs extra operations
+  # How they verify: Roughness value vs. process table; general symbol present
+  # See also: NASA GSFC-X-673-64-1F Fig. 2b (p18); NASA GSFC-X-673-64-1F 2.4.4.8 (p34); NASA GSFC-X-673-64-1F
+  #   10.2.1c (p99); NAAMS Section A Tolerance stickers - Metric detail tolerances (p6); Westermann Tables Surface
+  #   roughness expected from manufacturing processes, IS 3073-1967 (pdf 68L, book 130)
+  # Note: process roughness table not available yet
+  - id: TL-016
+    category: surface_treatment
+    requirement: Roughness values are realistic for the process, and a general roughness symbol covers other surfaces
+    severity: minor
+    check_type: llm
+    source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-16}
+    status: draft
+
+  # See also: Westermann Tables System of Designation of Iron and Steel, IS:1762-1961, IS:4843-1968 (pdf 04R, book
+  #   3); Westermann Tables Flame and induction hardening steels, IS:3930-1966 (pdf 05R, book 5); Westermann Tables
+  #   Case hardening steels, IS:4432-1967; Free Cutting Steels, IS: 4431-1967 (pdf 05R, book 5); Westermann Tables
+  #   Steels for hardening and tempering, IS:5517-1969 (pdf 06L, book 6); Westermann Tables Heat treatment of iron
+  #   and steel-glossary of terms, IS: 1956-1962 (pdf 65R, book 125)
+  # Note: e.g. 20MnCr5: case hardening only; EN41B: gas nitriding only; SS304/FG260/FG300/EN42: none
+  - id: WPM-001
+    category: surface_treatment
+    requirement: The heat treatment specified is one PARI allows for that material
+    severity: major
+    check_type: lookup
+    check: heat_treatment_allowed
+    params: {table: material_heat_treatment}
+    source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: 'Material, heat treatment type and hardness range'}
+    status: draft
+
+  # See also: Westermann Tables Flame and induction hardening steels, IS:3930-1966 (pdf 05R, book 5); Westermann
+  #   Tables Steels for hardening and tempering, IS:5517-1969 (pdf 06L, book 6)
+  # Note: e.g. C45 toughening 24-32 HRC; induction 45-55 HRC at 0.6-2 mm. Spike E case J6-3
+  - id: WPM-002
+    category: surface_treatment
+    requirement: The hardness (and case depth) is within PARI's range for the material and process
+    severity: major
+    check_type: lookup
+    check: hardness_in_range
+    params: {table: material_heat_treatment}
+    source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: Hardness ranges per material and process}
+    status: draft
+
+  # See also: D&T tutorial slides Standard Practices- Limited length or areas (p32)
+  - id: WPM-003
+    category: surface_treatment
+    requirement: For induction, flame or case hardening, the area to be hardened is shown (XXXXX) on the drawing
+    severity: minor
+    check_type: llm
+    source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: 'Column notes: area to be hardened shown by XXXXX'}
+    status: draft
+
+  # Note: chrome plating peels on nitrided parts. Spike E case J6-5
+  - id: WPM-004
+    category: surface_treatment
+    requirement: Nitrided parts are not chrome plated, and nitriding follows finish machining
+    severity: major
+    check_type: lookup
+    check: treatment_combination
+    params: {table: material_heat_treatment}
+    source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: 'Additional information (EN9, EN19, EN41B)'}
+    status: draft
+
+  # Note: Hard chrome, flash chrome, ENP, IZBP (trivalent), silver/hard anodizing, electro galvanizing, Balzer,
+  #   ZAFC, QPQ
+  - id: WPS-001
+    category: surface_treatment
+    requirement: The surface treatment is one of PARI's listed processes
+    severity: major
+    check_type: lookup
+    check: surface_treatment_approved
+    params: {table: plating_processes}
+    source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: Type of surface treatment (10 processes)}
+    status: draft
+
+  # See also: NASA GSFC-X-673-64-1F 2.4.4.4 (p31)
+  # Note: e.g. anodizing only on aluminium; IZBP only on mild/carbon steel
+  - id: WPS-002
+    category: surface_treatment
+    requirement: The surface treatment suits the base material (ferrous / non-ferrous / non-metallic)
+    severity: major
+    check_type: lookup
+    check: treatment_material_compat
+    params: {table: plating_processes}
+    source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: Material columns}
+    status: draft
+
+  # See also: Westermann Tables Cold rolled carbon steel sheets, IS:513-1963; Cold Rolled Steel Strips for general
+  #   engineering purposes, IS: 4030-1967 (pdf 06L, book 6)
+  # Note: hard chrome needs case-hardened or >= 45 HRC base; QPQ not on case-hardened parts; Balzer not on EN24
+  - id: WPS-003
+    category: surface_treatment
+    requirement: The surface treatment's prerequisites are met
+    severity: major
+    check_type: lookup
+    check: treatment_prerequisites
+    params: {table: plating_processes}
+    source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: Input surface pre-requisites; remarks}
+    status: draft
+
+  # Also covers (merged): MF-08
+  # See also: NASA GSFC-X-673-64-1F 2.4.4.1; 2.4.4.4 (p28)
+  # Note: also covers LatentView MF-08
+  - id: WPS-004
+    category: surface_treatment
+    requirement: Plating thickness is allowed for on tight fits and threads
+    severity: major
+    check_type: llm
+    source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: 'Process constraints: plating thickness allowance before final sizing'}
+    status: draft
+
+  # Note: raised as a warning
+  - id: WPS-005
+    category: surface_treatment
+    requirement: Hard chrome, flash chrome and QPQ parts have sharp edges blended by radius, not chamfer
+    severity: minor
+    check_type: code
+    check: plating_edge_radius
+    params: {processes: [hard chrome, flash chrome, QPQ]}
+    source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: Process constraints}
+    status: draft
+
+  # Note: the Cam Plate's I.Z.B.P. (TRIVALENT) passes
+  - id: WPS-006
+    category: surface_treatment
+    requirement: Iron-zinc black passivation is specified as trivalent
+    severity: minor
+    check_type: code
+    check: izbp_trivalent
+    source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: 'Row 4: Iron Zinc Black Passivation (Trivalent only)'}
+    status: draft
+
+  # Westermann Tables says: Heat treatment: Combination of heating and cooling operation in a prescribed manner ...
+  #   to induce desired properties in metals and alloys in the solid state.
+  # See also: related rule WPM-001
+  # Note: Softening range is from pdf 11R (book 17): 'Thermoplastics soften at high temperature, normally between
+  #   60°C and 120°C.' Catches heat-treatment notes copied from a steel drawing (NM-008). Book page of pdf 65R
+  #   inferred.
+  - id: WST-123
+    category: surface_treatment
+    requirement: A heat-treatment requirement is applied only to a metal part; a part in a plastic or laminate (thermoplastics soften at about 60-120 °C) carries no heat treatment.
+    severity: major
+    check_type: lookup
+    check: heat_treatment_only_on_metals
+    params: {table: plastics_families, non_metals: [PVC, nylon, PTFE, polystyrene, polycarbonate, acetal, acrylic (perspex), celluloid, phenolic (Bakelite), laminate (Formica), vulcanized fibre], thermoplastic_softening_C: [60, 120]}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Heat treatment of iron and steel-glossary of terms, IS: 1956-1962; Engineering Plastics (pdf 65R, book 125)'}
+    status: draft
+
+  # Westermann Tables says: Sub-zero treatment: Treatment given to certain hardened steels by cooling to
+  #   temperatures below zero (0°C) ... Tempering: Heating ... below transformation zone of hardened steels
+  # See also: related rule WPS-003
+  # Note: Fires on 3 client PDFs, all with the note 'TO BE TEMPERING UPTO 52~55 HRC' and a case depth but no
+  #   hardening process named, which leaves the shop to guess the process. Book page inferred.
+  - id: WST-126
+    category: surface_treatment
+    requirement: Treatments defined only for hardened steel (tempering, sub-zero treatment) appear together with a hardening process on the same part; a 'TEMPER' or 'SUB-ZERO' note with no hardening is flagged.
+    severity: minor
+    check_type: code
+    check: hardened_only_treatments_have_hardening
+    params: {needs_prior_hardening: [tempering, sub-zero treatment], hardening_terms: [hardening, hardened and tempered, toughening, H&T, martempering, case hardening, carburizing, flame hardening, induction hardening]}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Heat treatment of iron and steel-glossary of terms, IS: 1956-1962 (pdf 65R, book 125)'}
+    status: draft
+
+  # Westermann Tables says: limited to materials having a maximum Brinell Hardness of 400 with steel ball and of
+  #   700 with carbide ball ... HRc between 20 to 67 ... HRb between 60 to 99
+  # See also: related rule MF-010
+  # Note: Values below 20 HRC belong in HB or HRB. Read '58 ± 2 HRC' as 56-60. No client drawing fires; the only
+  #   hits are in PARI's guideline PDFs. IS number only partly legible; book page inferred.
+  - id: WST-129
+    category: surface_treatment
+    requirement: A hardness value lies in the working range of its scale (HRC 20-67, HRB 60-99, HB up to 400 with a steel ball or 700 with a carbide ball); a value outside it (e.g. '15 HRC', '450 HB', '250 HRC') means the wrong scale or a typo.
+    severity: major
+    check_type: code
+    check: hardness_value_in_scale_range
+    params: {HRC: [20, 67], HRB: [60, 99], HB_max_steel_ball: 400, HB_max_carbide_ball: 700}
+    source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Hardness Comparison Tables For Steel, IS: [?]58-1967 (pdf 66R, book 127)'}
+    status: draft
