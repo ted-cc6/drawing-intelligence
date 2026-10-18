@@ -1,0 +1,28 @@
+4 drawing(s) with qwen3-vl-plus (thinking off): rough estimate $0.075 if nothing
+is cached (30k in + 10k out tokens per page).
+Make these API calls? [y/N]: title_block_truth.json is a draft (_verified: false): criterion 2 is 
+provisional.
+                  Understanding scorecard (green = target met)                  
+┏━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━┳━━━━━━━━┓
+┃        ┃        ┃        ┃ 2      ┃        ┃        ┃        ┃      ┃        ┃
+┃        ┃        ┃ 1      ┃ title  ┃        ┃ 4      ┃        ┃      ┃        ┃
+┃ source ┃ drawi… ┃ valid  ┃ block  ┃ 3 dims ┃ inven… ┃ symbo… ┃ time ┃ cost   ┃
+┡━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━╇━━━━━━━━┩
+│ qwen3… │ 10K_C… │ yes    │ 100%   │ 21/21  │ 0      │ 0      │ 69 s │ $0.011 │
+│        │ PLATE  │        │        │        │        │        │      │        │
+│ qwen3… │ 10K_C… │ yes    │ 93%    │ 27/27  │ 0      │ 10     │ 74 s │ $0.013 │
+│        │ ROD    │        │        │        │        │        │      │        │
+│        │ MTG_02 │        │        │        │        │        │      │        │
+│ qwen3… │ 20_IN… │ yes    │ 100%   │ 18/18  │ 0      │ 0      │ 50 s │ $0.010 │
+│        │ HOSE   │        │        │        │        │        │      │        │
+│        │ PIPE   │        │        │        │        │        │      │        │
+│        │ CLAMP… │        │        │        │        │        │      │        │
+│ qwen3… │ 31K_P… │ yes    │ 100%   │ 15/15  │ 0      │ 0      │ 44 s │ $0.009 │
+│        │ CLAMP  │        │        │        │        │        │      │        │
+│        │ BLK_02 │        │        │        │        │        │      │        │
+└────────┴────────┴────────┴────────┴────────┴────────┴────────┴──────┴────────┘
+Title-block fields that differ from labels/title_block_truth.json
+  qwen3-vl-plus/off · 10K_CYLINDER ROD MTG_02 · heat_treatment: expected 'REF 
+NOTE', got 'TO BE TOUGHENED UPTO 24-32 HRC.'
+Time and cost are those of the original call, also for cached replies.
+EXIT:0

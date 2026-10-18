@@ -1,0 +1,818 @@
+{
+ "schema_version": "1.0",
+ "page_number": 1,
+ "model": "qwen3.8-max",
+ "thinking": "on",
+ "knowledge": {
+  "drawing": {
+   "number": "P24BSA064533",
+   "title": "10K_CAM PLATE",
+   "revision": "00",
+   "material": "M.S.",
+   "surface_treatment": "I.Z.B.P. (TRIVALENT)",
+   "heat_treatment": "---",
+   "scale": "1 : 1",
+   "sheet_size": "A3",
+   "units": "mm",
+   "general_tolerance_standard": "Gen Tol.: IS 2102",
+   "drawn_date": "01/10/2025",
+   "checked_date": "01/10/2025",
+   "approved_date": "01/10/2025",
+   "weight": "0.25 kg"
+  },
+  "views": [
+   {
+    "id": "view1",
+    "name": "FRONT VIEW",
+    "scale": null
+   },
+   {
+    "id": "view2",
+    "name": "TOP VIEW",
+    "scale": null
+   },
+   {
+    "id": "view3",
+    "name": "SECTION B-B",
+    "scale": "1:1"
+   },
+   {
+    "id": "view4",
+    "name": "DETAIL A",
+    "scale": "2:1"
+   },
+   {
+    "id": "view5",
+    "name": "ISOMETRIC VIEW",
+    "scale": null
+   }
+  ],
+  "dimensions": [
+   {
+    "id": "D1",
+    "text": "10±0.1",
+    "value": 10.0,
+    "unit": "mm",
+    "tolerance": "±0.1",
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view2",
+    "feature_id": "F11",
+    "source": "pdf_text",
+    "bbox": [
+     215.6,
+     117.0,
+     225.2,
+     147.5
+    ]
+   },
+   {
+    "id": "D2",
+    "text": "35",
+    "value": 35.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F10",
+    "source": "pdf_text",
+    "bbox": [
+     305.8,
+     271.9,
+     316.4,
+     281.5
+    ]
+   },
+   {
+    "id": "D3",
+    "text": "30",
+    "value": 30.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F10",
+    "source": "pdf_text",
+    "bbox": [
+     398.0,
+     271.9,
+     408.6,
+     281.5
+    ]
+   },
+   {
+    "id": "D4",
+    "text": "(35)",
+    "value": 35.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": true,
+    "view_id": "view1",
+    "feature_id": "F10",
+    "source": "pdf_text",
+    "bbox": [
+     490.2,
+     271.9,
+     500.8,
+     281.5
+    ]
+   },
+   {
+    "id": "D5",
+    "text": "3 x 45°",
+    "value": 3.0,
+    "unit": "deg",
+    "tolerance": null,
+    "type": "chamfer",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F5",
+    "source": "pdf_text",
+    "bbox": [
+     465.9,
+     301.1,
+     495.7,
+     310.7
+    ]
+   },
+   {
+    "id": "D6",
+    "text": "15",
+    "value": 15.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F10",
+    "source": "pdf_text",
+    "bbox": [
+     224.4,
+     336.2,
+     233.9,
+     346.8
+    ]
+   },
+   {
+    "id": "D7",
+    "text": "R 8",
+    "value": 8.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "radius",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F8",
+    "source": "pdf_text",
+    "bbox": [
+     306.0,
+     325.1,
+     322.2,
+     334.7
+    ]
+   },
+   {
+    "id": "D8",
+    "text": "15",
+    "value": 15.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F10",
+    "source": "pdf_text",
+    "bbox": [
+     583.2,
+     336.2,
+     592.7,
+     346.8
+    ]
+   },
+   {
+    "id": "D9",
+    "text": "R 8",
+    "value": 8.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "radius",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F9",
+    "source": "pdf_text",
+    "bbox": [
+     452.8,
+     344.5,
+     469.1,
+     354.1
+    ]
+   },
+   {
+    "id": "D10",
+    "text": "28.5±0.1",
+    "value": 28.5,
+    "unit": "mm",
+    "tolerance": "±0.1",
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F1",
+    "source": "pdf_text",
+    "bbox": [
+     362.4,
+     388.0,
+     371.9,
+     426.6
+    ]
+   },
+   {
+    "id": "D11",
+    "text": "30",
+    "value": 30.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F10",
+    "source": "pdf_text",
+    "bbox": [
+     224.4,
+     399.9,
+     233.9,
+     410.5
+    ]
+   },
+   {
+    "id": "D12",
+    "text": "⌀ 16 H7 (+0.018/0)",
+    "value": 16.0,
+    "unit": "mm",
+    "tolerance": "H7 (+0.018/0)",
+    "type": "diameter",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F1",
+    "source": "pdf_text",
+    "bbox": [
+     557.0,
+     403.0,
+     633.0,
+     421.4
+    ]
+   },
+   {
+    "id": "D13",
+    "text": "20",
+    "value": 20.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F2",
+    "source": "pdf_text",
+    "bbox": [
+     245.4,
+     414.1,
+     254.9,
+     424.7
+    ]
+   },
+   {
+    "id": "D14",
+    "text": "3",
+    "value": 3.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": "F4",
+    "source": "pdf_text",
+    "bbox": [
+     826.3,
+     412.8,
+     835.9,
+     418.1
+    ]
+   },
+   {
+    "id": "D15",
+    "text": "40±0.1",
+    "value": 40.0,
+    "unit": "mm",
+    "tolerance": "±0.1",
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F2",
+    "source": "pdf_text",
+    "bbox": [
+     331.4,
+     468.9,
+     361.9,
+     478.4
+    ]
+   },
+   {
+    "id": "D16",
+    "text": "40±0.1",
+    "value": 40.0,
+    "unit": "mm",
+    "tolerance": "±0.1",
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F3",
+    "source": "pdf_text",
+    "bbox": [
+     444.8,
+     468.9,
+     475.3,
+     478.4
+    ]
+   },
+   {
+    "id": "D17",
+    "text": "3 x 45°",
+    "value": 3.0,
+    "unit": "deg",
+    "tolerance": null,
+    "type": "chamfer",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F6",
+    "source": "pdf_text",
+    "bbox": [
+     557.3,
+     471.5,
+     566.8,
+     501.1
+    ]
+   },
+   {
+    "id": "D18",
+    "text": "50±0.1",
+    "value": 50.0,
+    "unit": "mm",
+    "tolerance": "±0.1",
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F1",
+    "source": "pdf_text",
+    "bbox": [
+     317.2,
+     482.5,
+     347.8,
+     492.1
+    ]
+   },
+   {
+    "id": "D19",
+    "text": "100",
+    "value": 100.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view1",
+    "feature_id": "F10",
+    "source": "pdf_text",
+    "bbox": [
+     395.4,
+     504.1,
+     411.4,
+     513.7
+    ]
+   },
+   {
+    "id": "D20",
+    "text": "R 3.5",
+    "value": 3.5,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "radius",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": "F4",
+    "source": "pdf_text",
+    "bbox": [
+     681.2,
+     509.4,
+     705.5,
+     519.0
+    ]
+   },
+   {
+    "id": "D21",
+    "text": "1 x 30°",
+    "value": 1.0,
+    "unit": "deg",
+    "tolerance": null,
+    "type": "chamfer",
+    "is_reference": false,
+    "view_id": "view3",
+    "feature_id": "F7",
+    "source": "pdf_text",
+    "bbox": [
+     441.1,
+     559.1,
+     470.8,
+     568.7
+    ]
+   },
+   {
+    "id": "V1",
+    "text": "=7= TYP",
+    "value": 7.0,
+    "unit": "mm",
+    "tolerance": null,
+    "type": "linear",
+    "is_reference": false,
+    "view_id": "view4",
+    "feature_id": "F4",
+    "source": "vision",
+    "bbox": [
+     713.4,
+     381.1,
+     732.5,
+     400.9
+    ]
+   }
+  ],
+  "features": [
+   {
+    "id": "F1",
+    "type": "hole",
+    "description": "Central bore ⌀16 H7 (+0.018/0), positioned 28.5±0.1 above bottom edge and 50±0.1 from left edge",
+    "dimension_ids": [
+     "D12",
+     "D10",
+     "D18"
+    ],
+    "view_id": "view1"
+   },
+   {
+    "id": "F2",
+    "type": "slot",
+    "description": "Left obround slot, centre 40±0.1 left of bore centre, 20 above bottom edge",
+    "dimension_ids": [
+     "D15",
+     "D13"
+    ],
+    "view_id": "view1"
+   },
+   {
+    "id": "F3",
+    "type": "slot",
+    "description": "Right obround slot, centre 40±0.1 right of bore centre",
+    "dimension_ids": [
+     "D16"
+    ],
+    "view_id": "view1"
+   },
+   {
+    "id": "F4",
+    "type": "slot",
+    "description": "Slot shape (TYP, both slots): width =7=, straight side 3, end radius R 3.5 (DETAIL A)",
+    "dimension_ids": [
+     "V1",
+     "D14",
+     "D20"
+    ],
+    "view_id": "view4"
+   },
+   {
+    "id": "F5",
+    "type": "chamfer",
+    "description": "3 x 45° TYP chamfer on raised boss corner edges",
+    "dimension_ids": [
+     "D5"
+    ],
+    "view_id": "view1"
+   },
+   {
+    "id": "F6",
+    "type": "chamfer",
+    "description": "3 x 45° TYP chamfer on plate corner edges",
+    "dimension_ids": [
+     "D17"
+    ],
+    "view_id": "view1"
+   },
+   {
+    "id": "F7",
+    "type": "chamfer",
+    "description": "1 x 30° chamfer on bore edge, shown in SECTION B-B",
+    "dimension_ids": [
+     "D21"
+    ],
+    "view_id": "view3"
+   },
+   {
+    "id": "F8",
+    "type": "fillet",
+    "description": "R 8 fillet at left neck of raised boss",
+    "dimension_ids": [
+     "D7"
+    ],
+    "view_id": "view1"
+   },
+   {
+    "id": "F9",
+    "type": "fillet",
+    "description": "R 8 fillet at right neck of raised boss",
+    "dimension_ids": [
+     "D9"
+    ],
+    "view_id": "view1"
+   },
+   {
+    "id": "F10",
+    "type": "outline",
+    "description": "Plate profile: overall 100 long, boss width 30, step heights 15 and (30)",
+    "dimension_ids": [
+     "D2",
+     "D3",
+     "D4",
+     "D6",
+     "D8",
+     "D11",
+     "D19"
+    ],
+    "view_id": "view1"
+   },
+   {
+    "id": "F11",
+    "type": "step",
+    "description": "Plate thickness 10±0.1",
+    "dimension_ids": [
+     "D1"
+    ],
+    "view_id": "view2"
+   }
+  ],
+  "symbols": [
+   {
+    "id": "S1",
+    "type": "surface_finish",
+    "value": "▽▽ (machining / surface finish symbol in MACHINING field)",
+    "datum": null,
+    "view_id": null,
+    "tile": "title_block.png",
+    "bbox": [
+     895.0,
+     735.0,
+     925.0,
+     746.0
+    ],
+    "source": "vision"
+   },
+   {
+    "id": "S2",
+    "type": "other",
+    "value": "projection method symbol (concentric circles beside truncated cone)",
+    "datum": null,
+    "view_id": null,
+    "tile": "title_block.png",
+    "bbox": [
+     1092.0,
+     672.0,
+     1157.0,
+     692.0
+    ],
+    "source": "vision"
+   }
+  ],
+  "notes": [
+   {
+    "id": "N1",
+    "text": "1.ALL DIMENSIONS ARE IN mm",
+    "category": "general"
+   },
+   {
+    "id": "N2",
+    "text": "2.DO NOT SCALE DRAWING.",
+    "category": "general"
+   },
+   {
+    "id": "N3",
+    "text": "3.IF IN DOUBT , ASK TEAM MEMBER",
+    "category": "general"
+   },
+   {
+    "id": "N4",
+    "text": "NOTE : STANDARD FASTENER TORQUE AS PER STD-DES-01-00",
+    "category": "standard"
+   },
+   {
+    "id": "N5",
+    "text": "DEBURR AND REMOVE SHARP EDGES UNLESS SHARP EDGE REQUIREMENT SPECIFIED",
+    "category": "general"
+   },
+   {
+    "id": "N6",
+    "text": "UNSP.RADII 0.5 R",
+    "category": "general"
+   },
+   {
+    "id": "N7",
+    "text": "UNSP.CHF. 0.5 X 45°",
+    "category": "general"
+   },
+   {
+    "id": "N8",
+    "text": "NOTE FOR WIPRO PARI DESIGN -REF. ONLY WEAR DETAILS : N.A.",
+    "category": "other"
+   },
+   {
+    "id": "N9",
+    "text": "RESERVED SPACE FOR CONTROLLED COPY STAMP",
+    "category": "other"
+   },
+   {
+    "id": "N10",
+    "text": "ALL RIGHTS OF REPRODUCTION & DISTRIBUTION ARE RESERVED",
+    "category": "other"
+   }
+  ],
+  "general_tolerances": [
+   {
+    "kind": "angular",
+    "process": "fabrication",
+    "range": "UP TO 10",
+    "tolerance": "±1.5°"
+   },
+   {
+    "kind": "angular",
+    "process": "fabrication",
+    "range": "10 UP TO 50",
+    "tolerance": "±0°50'"
+   },
+   {
+    "kind": "angular",
+    "process": "fabrication",
+    "range": "50 UP TO 120",
+    "tolerance": "±0°25'"
+   },
+   {
+    "kind": "angular",
+    "process": "fabrication",
+    "range": "120 UP TO 400",
+    "tolerance": "±0°15'"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "0.5 UP TO 3",
+    "tolerance": "±0.1"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "3 UP TO 6",
+    "tolerance": "±0.2"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "6 UP TO 30",
+    "tolerance": "±0.5"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "30 UP TO 120",
+    "tolerance": "±0.8"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "120 UP TO 315",
+    "tolerance": "±1.2"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "315 UP TO 1000",
+    "tolerance": "±2"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "1000 UP TO 2000",
+    "tolerance": "±3"
+   },
+   {
+    "kind": "linear",
+    "process": "fabrication",
+    "range": "OVER 2000",
+    "tolerance": "±4"
+   },
+   {
+    "kind": "angular",
+    "process": "machining",
+    "range": "UP TO 10",
+    "tolerance": "±1°"
+   },
+   {
+    "kind": "angular",
+    "process": "machining",
+    "range": "10 UP TO 50",
+    "tolerance": "±0°30'"
+   },
+   {
+    "kind": "angular",
+    "process": "machining",
+    "range": "50 UP TO 120",
+    "tolerance": "±0°20'"
+   },
+   {
+    "kind": "angular",
+    "process": "machining",
+    "range": "120 UP TO 400",
+    "tolerance": "±0°10'"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "0.5 UP TO 3",
+    "tolerance": "±0.1"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "3 UP TO 6",
+    "tolerance": "±0.1"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "6 UP TO 30",
+    "tolerance": "±0.2"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "30 UP TO 120",
+    "tolerance": "±0.3"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "120 UP TO 315",
+    "tolerance": "±0.5"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "315 UP TO 1000",
+    "tolerance": "±0.8"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "1000 UP TO 2000",
+    "tolerance": "±1.2"
+   },
+   {
+    "kind": "linear",
+    "process": "machining",
+    "range": "OVER 2000",
+    "tolerance": "±2"
+   }
+  ],
+  "revisions": [],
+  "uncertain": [
+   {
+    "item": "projection symbol (S2)",
+    "reason": "cone orientation in title block ambiguous; first- vs third-angle not confirmed"
+   },
+   {
+    "item": "D11",
+    "reason": "image shows the value in parentheses (30) i.e. reference, but extracted text layer gives '30' without parentheses"
+   },
+   {
+    "item": "=7= and =3= marks",
+    "reason": "double-line marks around 7 and 3 in DETAIL A may denote basic dimensions; meaning not confirmed"
+   },
+   {
+    "item": "SECTION B-B cutting plane",
+    "reason": "arrows B near the central bore suggest a horizontal cut through the bore, inferred from graphics only"
+   }
+  ]
+ },
+ "valid": true,
+ "attempts": 1,
+ "problems": [],
+ "input_tokens": 31138,
+ "output_tokens": 17294,
+ "cost_usd": 0.16604,
+ "latency_s": 160.71,
+ "cached": false
+}
