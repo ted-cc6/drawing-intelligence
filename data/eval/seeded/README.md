@@ -16,8 +16,8 @@ Each case folder `<case>/` holds:
 - `expected_findings.json`: the **answer key**, written by hand from the approved case list before any reviewer
   existed. Never change a key to fit a reviewer's output; if a key is wrong, fix it on its own, with a reason.
 
-Rebuild the drawings with `uv run python -m drawing_intelligence.eval.seed` (or `--only <case>`); the output is
-byte-identical. The cases are defined in `CASES` in `src/drawing_intelligence/eval/seed.py`. Load the keys with
+Rebuild the drawings with `uv run di eval seed` (or `--only <case>`); the output is byte-identical, and the
+script stops if an edit would remove any other text. The cases are defined in `CASES` in `src/drawing_intelligence/eval/seed.py`. Load the keys with
 `load_answer_keys()` in `src/drawing_intelligence/eval/answer_key.py`, whose docstring defines the format.
 
 ## The cases

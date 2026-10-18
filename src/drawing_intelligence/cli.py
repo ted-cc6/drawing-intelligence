@@ -267,6 +267,29 @@ def eval_baseline(
     console.print(t)
 
 
+@eval_app.command("seed")
+def eval_seed(
+    only: Annotated[
+        list[str] | None, typer.Option("--only", help="build only this case (repeatable)")
+    ] = None,
+) -> None:
+    """Rebuild the planted-error drawings (A5a) in data/eval/seeded from the samples in data/raw."""
+    from drawing_intelligence.eval.seed import UnknownCaseError, seed_all
+
+    s = get_settings()
+    try:
+        results = seed_all(s.raw_dir, s.data_path / "eval" / "seeded", only)
+    except UnknownCaseError as e:
+        raise typer.BadParameter(str(e), param_hint="--only") from e
+    # what each case changed is in its case.json and the folder's README (its symbols trip some consoles)
+    t = Table(title=f"Planted-error drawings ({len(results)} built)")
+    for col in ("case", "kind", "edits"):
+        t.add_column(col)
+    for r in results:
+        t.add_row(r.case, r.kind, str(len(r.edits)))
+    console.print(t)
+
+
 def _score_table(scores, targets) -> None:
     def cell(text: str, ok: bool | None) -> str:
         return text if ok is None else (f"[green]{text}[/green]" if ok else f"[red]{text}[/red]")

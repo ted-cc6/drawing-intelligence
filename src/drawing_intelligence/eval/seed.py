@@ -9,7 +9,7 @@ flagged, and clean cases copy a sample unchanged, so the eval can count false al
 The answer key for each case (`expected_findings.json`) is written separately, from the approved case list and
 before any reviewer exists. This module only builds the drawings and records what it changed (`case.json`).
 
-Run: uv run python -m drawing_intelligence.eval.seed [--only CASE ...]
+Run: uv run di eval seed [--only CASE ...] (or uv run python -m drawing_intelligence.eval.seed)
 Outputs: data/eval/seeded/<case>/<case>.pdf and case.json
 """
 
@@ -373,9 +373,10 @@ def apply_edits(
         for box in boxes:
             page.add_redact_annot(box)
         page.apply_redactions(images=_KEEP_IMAGES, graphics=_KEEP_LINE_ART)
-        # one edit, one change: no other word on the page may go with it
+        # one edit, one change: every word that went must be a word of the edited text itself
+        own = [pymupdf.Rect(s["bbox"]) for _, _, spans, _ in targets for s in spans]
         lost = before - _words(page)
-        stray = [w for w in lost if not any(pymupdf.Rect(w[1:]).intersects(b) for b in boxes)]
+        stray = [w for w in lost if not any(o.contains(_center(pymupdf.Rect(w[1:]))) for o in own)]
         if stray:
             raise ValueError(f"the edits would also remove {sorted(w[0] for w in stray)}")
         if erase:
@@ -450,7 +451,14 @@ def seed_case(case: Case, raw_dir: Path, out_dir: Path, remaps: list[GlyphRemap]
     return result
 
 
+class UnknownCaseError(ValueError):
+    """A case name that is not in CASES."""
+
+
 def seed_all(raw_dir: Path, out_dir: Path, only: list[str] | None = None) -> list[SeedResult]:
+    unknown = sorted(set(only or ()) - {c.name for c in CASES})
+    if unknown:
+        raise UnknownCaseError(f"no such case: {', '.join(unknown)}")
     remaps = load_template().glyph_remap
     cases = [c for c in CASES if not only or c.name in only]
     return [seed_case(c, raw_dir, out_dir, remaps) for c in cases]

@@ -163,8 +163,9 @@ No labelled error drawings exist yet, so evaluation is built from what is availa
   3. every extracted dimension returned unchanged
   4. no invented numbers
   7. time and cost per drawing
-- **Review (planned):** drawings with **seeded errors** (known mistakes planted in copies of the samples),
-  then the engineer feedback log as it grows.
+- **Review:** 28 drawings with **seeded errors** in `data/eval/seeded/` (A5a: 22 planted, 2 near-miss, 4
+  clean; rebuilt by `di eval seed`), each with a hand-written answer key in rulebook rule ids. Scoring a review
+  against them (`di eval review`, A5b) is next; then the engineer feedback log as it grows.
 
 ### Results at M1 (2026-10-06)
 
@@ -186,7 +187,7 @@ No labelled error drawings exist yet, so evaluation is built from what is availa
 | M0 | Repo, tooling, CI on Windows/macOS/Linux, docs and ADRs | ✅ |
 | M1 | Notebooks 01/02 ported and upgraded: typed contracts, multi-page, template config, model registry, telemetry, session data, LangGraph intake → understand, CLI, eval | ✅ |
 | M2 | Review contracts and rulebook loader (A2 ✅); rulebook from the client checklist and guidelines; consistency + standards reviewers; verifier | in progress |
-| M3 | Manufacturability + design-intent reviewers; seeded-error eval set; report | |
+| M3 | Manufacturability + design-intent reviewers; seeded-error eval set (drawings and keys: A5a ✅; scoring: A5b); report | |
 | M4 | Q&A agent; feedback log | |
 | M5 | API + dashboard (model picker, cost and latency) | |
 
