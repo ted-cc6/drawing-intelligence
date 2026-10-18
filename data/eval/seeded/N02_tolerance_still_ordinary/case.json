@@ -1,0 +1,21 @@
+{
+ "case": "N02_tolerance_still_ordinary",
+ "base": "31K_PIPE CLAMP BLK_02",
+ "kind": "near_miss",
+ "summary": "70±0.2 -> 70±0.1, tighter but ordinary",
+ "pdf": "N02_tolerance_still_ordinary.pdf",
+ "edits": [
+  {
+   "find": "70±0.2",
+   "to": "70±0.1",
+   "bbox": [
+    293.0,
+    161.4,
+    323.5,
+    171.0
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  }
+ ]
+}

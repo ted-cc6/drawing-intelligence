@@ -1,0 +1,21 @@
+{
+ "case": "P17_tempering_without_hardening",
+ "base": "10K_CYLINDER ROD MTG_02",
+ "kind": "planted",
+ "summary": "TOUGHENED -> TEMPERED: tempering with no hardening process",
+ "pdf": "P17_tempering_without_hardening.pdf",
+ "edits": [
+  {
+   "find": "1) TO BE TOUGHENED UPTO 24-32 HRC.",
+   "to": "1) TO BE TEMPERED UPTO 24-32 HRC.",
+   "bbox": [
+    146.2,
+    695.8,
+    331.3,
+    705.3
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  }
+ ]
+}

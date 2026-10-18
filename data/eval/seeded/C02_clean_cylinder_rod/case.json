@@ -1,0 +1,8 @@
+{
+ "case": "C02_clean_cylinder_rod",
+ "base": "10K_CYLINDER ROD MTG_02",
+ "kind": "clean",
+ "summary": "unchanged sample",
+ "pdf": "C02_clean_cylinder_rod.pdf",
+ "edits": []
+}

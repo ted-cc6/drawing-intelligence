@@ -1,0 +1,33 @@
+{
+ "case": "P05_hole_no_size",
+ "base": "31K_PIPE CLAMP BLK_02",
+ "kind": "planted",
+ "summary": "hole size 2-⌀6.4 removed",
+ "pdf": "P05_hole_no_size.pdf",
+ "edits": [
+  {
+   "find": "2-⌀",
+   "to": null,
+   "bbox": [
+    694.9,
+    375.7,
+    711.0,
+    386.5
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  },
+  {
+   "find": "6.4",
+   "to": null,
+   "bbox": [
+    712.4,
+    376.9,
+    725.8,
+    386.5
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  }
+ ]
+}

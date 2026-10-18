@@ -1,0 +1,21 @@
+{
+ "case": "P12_revision_mismatch",
+ "base": "31K_PIPE CLAMP BLK_02",
+ "kind": "planted",
+ "summary": "revision 00 -> 01 with an empty revision table",
+ "pdf": "P12_revision_mismatch.pdf",
+ "edits": [
+  {
+   "find": "00",
+   "to": "01",
+   "bbox": [
+    1088.5,
+    785.2,
+    1106.5,
+    801.8
+   ],
+   "font": "Helvetica-Bold",
+   "size": 16.65
+  }
+ ]
+}

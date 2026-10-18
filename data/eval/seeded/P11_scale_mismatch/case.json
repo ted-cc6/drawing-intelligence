@@ -1,0 +1,21 @@
+{
+ "case": "P11_scale_mismatch",
+ "base": "20_INCH HOSE PIPE CLAMP_PU_01",
+ "kind": "planted",
+ "summary": "title-block scale 1 : 1 -> 2 : 1 while the views say SCALE 1:1",
+ "pdf": "P11_scale_mismatch.pdf",
+ "edits": [
+  {
+   "find": "1 : 1",
+   "to": "2 : 1",
+   "bbox": [
+    1125.6,
+    776.6,
+    1142.6,
+    785.3
+   ],
+   "font": "Helvetica",
+   "size": 8.7
+  }
+ ]
+}

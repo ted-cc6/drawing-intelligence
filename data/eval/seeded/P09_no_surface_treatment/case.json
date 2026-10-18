@@ -1,0 +1,21 @@
+{
+ "case": "P09_no_surface_treatment",
+ "base": "10K_CYLINDER ROD MTG_02",
+ "kind": "planted",
+ "summary": "surface treatment removed",
+ "pdf": "P09_no_surface_treatment.pdf",
+ "edits": [
+  {
+   "find": "I.Z.B.P. (TRIVALENT)",
+   "to": null,
+   "bbox": [
+    804.8,
+    736.9,
+    874.8,
+    744.1
+   ],
+   "font": "Helvetica",
+   "size": 7.2
+  }
+ ]
+}

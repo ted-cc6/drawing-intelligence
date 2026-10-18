@@ -1,0 +1,21 @@
+{
+ "case": "P01_chain_overall",
+ "base": "10K_CAM PLATE",
+ "kind": "planted",
+ "summary": "overall 100 -> 105, so 35 + 30 + (35) no longer adds up",
+ "pdf": "P01_chain_overall.pdf",
+ "edits": [
+  {
+   "find": "100",
+   "to": "105",
+   "bbox": [
+    395.4,
+    504.1,
+    411.4,
+    513.7
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  }
+ ]
+}

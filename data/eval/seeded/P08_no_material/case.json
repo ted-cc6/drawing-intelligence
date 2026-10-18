@@ -1,0 +1,21 @@
+{
+ "case": "P08_no_material",
+ "base": "10K_CAM PLATE",
+ "kind": "planted",
+ "summary": "material removed",
+ "pdf": "P08_no_material.pdf",
+ "edits": [
+  {
+   "find": "M.S.",
+   "to": null,
+   "bbox": [
+    894.7,
+    776.0,
+    912.6,
+    784.7
+   ],
+   "font": "Helvetica",
+   "size": 8.7
+  }
+ ]
+}

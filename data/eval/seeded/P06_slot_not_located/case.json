@@ -1,0 +1,21 @@
+{
+ "case": "P06_slot_not_located",
+ "base": "10K_CAM PLATE",
+ "kind": "planted",
+ "summary": "slot height 20 removed",
+ "pdf": "P06_slot_not_located.pdf",
+ "edits": [
+  {
+   "find": "20",
+   "to": null,
+   "bbox": [
+    245.4,
+    414.1,
+    254.9,
+    424.7
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  }
+ ]
+}

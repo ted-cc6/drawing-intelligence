@@ -1,0 +1,21 @@
+{
+ "case": "P22_zinc_on_plastic",
+ "base": "20_INCH HOSE PIPE CLAMP_PU_01",
+ "kind": "planted",
+ "summary": "surface treatment I.Z.B.P. on a polyurethane part (mild / carbon steel only)",
+ "pdf": "P22_zinc_on_plastic.pdf",
+ "edits": [
+  {
+   "find": "N.A.",
+   "to": "I.Z.B.P. (TRIVALENT)",
+   "bbox": [
+    832.8,
+    736.9,
+    846.6,
+    744.1
+   ],
+   "font": "Helvetica",
+   "size": 7.2
+  }
+ ]
+}
