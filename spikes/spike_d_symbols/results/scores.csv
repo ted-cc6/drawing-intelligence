@@ -1,0 +1,11 @@
+setting,type,key,model,template,correct_loc,phantom_loc,missed_loc,phantom_rate_loc,miss_rate_loc,miss_rate_count,phantom_rate_count,gdt_char_right_of_matched
+off,datum,9,0,0,0,0,9,,1.0,1.0,,
+off,gdt,39,18,0,16,2,23,0.111,0.59,0.538,0.0,5/16
+off,other,0,2,9,0,2,0,1.0,,,1.0,
+off,surface_finish,32,0,1,0,0,32,,1.0,1.0,,
+off,weld,0,0,0,0,0,0,,,,,
+on,datum,1,1,0,1,0,0,0.0,0.0,0.0,0.0,
+on,gdt,4,2,0,2,0,2,0.0,0.5,0.5,0.0,0/2
+on,other,0,0,3,0,0,0,,,,,
+on,surface_finish,2,1,1,1,0,1,0.0,0.5,0.5,0.0,
+on,weld,0,0,0,0,0,0,,,,,

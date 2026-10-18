@@ -38,7 +38,7 @@ confidentiality, scope and schedule, cost.
 | R3 | Too many false alarms; checkers stop reading | AI quality | 4 | 4 | **16** | Reduce | 2–4 | Open |
 | R4 | Wrong findings with valid citations pass the verifier | AI quality | 4 | 4 | **16** | Reduce | 2–4 | Open |
 | R9 | Client drawings in a public repository | Security & confidentiality | 3 | 5 | **15** | Reduce | 0 | Open |
-| R5 | Vision model invents or misses symbols | AI quality | 4 | 3 | 12 | Reduce | 1–3 | Open |
+| R5 | Vision model invents or misses symbols | AI quality | 5 | 3 | 15 | Avoid | 1–3 | Mitigation chosen |
 | R7 | Round-part features are handled worse than prismatic ones | Data / AI quality | 3 | 4 | 12 | Reduce | 1–3 | Open |
 | R8 | Planted errors are unrealistic, so metrics overstate quality | Data | 4 | 3 | 12 | Reduce | 2 | Open |
 | R19 | Title-block variants and placeholder values cause wrong or noisy title-block findings | Data / AI quality | 4 | 3 | 12 | Reduce | 1–2 | Open |
@@ -179,13 +179,20 @@ confidentiality, scope and schedule, cost.
   report symbols that are not there or miss ones that are, which would cause false or missed findings in J4.
 - **Evidence:** In the notebook experiments one model reported 6 symbols on the Cam Plate that are not on the
   drawing; the first package run reported none.
-- **Category:** AI quality · **L** 4 · **I** 3 · **Score** 12
-- **Strategy:** Reduce
+- **Evidence:** Spike D (2026-10-15), 10 drawings / 13 pages, qwen3-vl-plus thinking off: **0/32** finish marks,
+  **0/9** datum flags, **16/39** GD&T frames found (characteristic right on 5/16); phantoms 2/18 (11%, datum
+  letters filed as GD&T). Every matched frame came from the text layer (identical bbox), not the image. GD&T is
+  exact from the `SolidEdgeANSI1Symbols` text; datum flags and finish marks are found by vector detectors.
+  Re-scored L 4 → 5 (misses are near certain), strategy Reduce → Avoid.
+- **Category:** AI quality · **L** 5 · **I** 3 · **Score** 15
+- **Strategy:** Avoid — do not take symbols from vision
 - **Mitigation:** Spike D; mark every symbol `source: vision`; complete `data/labels/symbol_counts.json`;
   consider extracting symbols from PDF vector paths where possible.
 - **Trigger:** Phantom-symbol rate above `[10]`% in Spike D.
 - **Contingency:** Report symbol-based findings as *warnings to confirm* only.
-- **Phase:** 1–3 · **Status:** Open
+- **Decision (Spike D):** decode the glyph font and parse GD&T frames in stage 1; detect datum flags and finish
+  marks from vectors; vision-only symbols are *warnings to confirm*.
+- **Phase:** 1–3 · **Status:** Mitigation chosen
 
 ### R6 · Template variations break extraction
 
