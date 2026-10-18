@@ -326,7 +326,7 @@ def seed_case(case: Case, raw_dir: Path, out_dir: Path, remaps: list[GlyphRemap]
         doc.close()
     result = SeedResult(case.name, case.base, case.kind, case.summary, pdf.name, applied)
     (folder / "case.json").write_text(
-        json.dumps(asdict(result), indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
+        json.dumps(asdict(result), indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n"
     )
     return result
 
