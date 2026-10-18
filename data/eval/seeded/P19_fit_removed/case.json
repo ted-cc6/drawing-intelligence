@@ -1,0 +1,59 @@
+{
+ "case": "P19_fit_removed",
+ "base": "10K_CAM PLATE",
+ "kind": "planted",
+ "summary": "H7 (+0.018/0) removed from the ⌀ 16 locating bore; ⌀ 16 stays",
+ "pdf": "P19_fit_removed.pdf",
+ "edits": [
+  {
+   "find": "⌀ 16 H7",
+   "to": null,
+   "bbox": [
+    583.5,
+    411.9,
+    595.7,
+    421.4
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  },
+  {
+   "find": "+0.018",
+   "to": null,
+   "bbox": [
+    603.6,
+    403.0,
+    633.0,
+    412.5
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  },
+  {
+   "find": "0",
+   "to": null,
+   "bbox": [
+    609.0,
+    411.9,
+    614.3,
+    421.4
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  }
+ ],
+ "erased": [
+  [
+   598.5,
+   403,
+   602,
+   420
+  ],
+  [
+   634.8,
+   403,
+   638,
+   420
+  ]
+ ]
+}

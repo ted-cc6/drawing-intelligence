@@ -1,0 +1,22 @@
+{
+ "case": "P10_checked_before_drawn",
+ "base": "10K_CAM PLATE",
+ "kind": "planted",
+ "summary": "checked date 01/10/2025 -> 25/09/2025, before the drawn date 01/10/2025",
+ "pdf": "P10_checked_before_drawn.pdf",
+ "edits": [
+  {
+   "find": "01/10/2025 01/10/2025",
+   "to": "25/09/2025",
+   "bbox": [
+    781.2,
+    802.7,
+    819.1,
+    810.2
+   ],
+   "font": "Helvetica",
+   "size": 7.52
+  }
+ ],
+ "erased": []
+}

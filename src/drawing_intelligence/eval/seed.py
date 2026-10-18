@@ -37,34 +37,49 @@ BLK = "31K_PIPE CLAMP BLK_02"
 
 # text direction on the unrotated page -> insert_text rotation (degrees, counter-clockwise)
 _ANGLE = {(1, 0): 0, (0, -1): 90, (-1, 0): 180, (0, 1): 270}
-# redact text only: PyMuPDF's PDF_REDACT_IMAGE_NONE, PDF_REDACT_LINE_ART_NONE (both 0; missing from its stubs)
+# redaction modes: PyMuPDF's PDF_REDACT_IMAGE_NONE, PDF_REDACT_LINE_ART_NONE,
+# PDF_REDACT_LINE_ART_REMOVE_IF_COVERED and PDF_REDACT_TEXT_NONE (missing from its stubs)
 _KEEP_IMAGES = 0
 _KEEP_LINE_ART = 0
+_REMOVE_COVERED_LINE_ART = 1
+_KEEP_TEXT = 1
+
+Box = tuple[float, float, float, float]
+# base-14 fonts in the samples -> PyMuPDF's name for their width metrics
+_METRICS = {"Helvetica": "helv", "Helvetica-Bold": "hebo"}
 
 
 @dataclass(frozen=True)
 class Edit:
     """Change one line of text. `to=None` removes it.
 
-    The line must match `find` exactly (after symbol-font remapping, so "2-⌀6.4" works). When the text appears
-    more than once, `near` (a label printed next to it, e.g. "HEAT TREATMENT") or `at` (a point in visual page
-    coordinates) picks the closest match; an edit that matches nothing, or more than one line without a
-    locator, is an error rather than a guess.
+    The line must match `find` exactly (after symbol-font remapping, so "⌀ 16 H7" works). When the text
+    appears more than once, `near` (a label printed next to it, e.g. "HEAT TREATMENT") or `at` (a point in
+    visual page coordinates) picks the closest match; an edit that matches nothing, or more than one line
+    without a locator, is an error rather than a guess. `span` changes only one piece of the line (its index
+    among the line's non-blank spans), e.g. one of two dates printed as one line. A replacement is centred
+    where the old text was, or keeps its `start` or `end`.
     """
 
     find: str
     to: str | None = None
     near: str | None = None
     at: Point | None = None
+    span: int | None = None
+    align: Literal["centre", "start", "end"] = "centre"
 
 
 @dataclass(frozen=True)
 class Case:
+    """One seeded drawing. `erase` removes the line art lying wholly inside each box (visual coordinates), for
+    things drawn as vector strokes rather than text: a fit's brackets, a note's dashed frame."""
+
     name: str
     base: str
     kind: Kind
     edits: tuple[Edit, ...] = ()
     summary: str = ""
+    erase: tuple[Box, ...] = ()
 
 
 # The approved case list (.scratch/a5a-planted-errors/issues/02-propose-cases.md, 2026-10-18).
@@ -115,6 +130,14 @@ CASES: tuple[Case, ...] = (
         (Edit("I.Z.B.P. (TRIVALENT)"),),
         "surface treatment removed",
     ),
+    # the CHKD.BY and APPD.BY dates are one text line of two pieces; the DRN.BY date is a line of its own
+    Case(
+        "P10_checked_before_drawn",
+        CAM,
+        "planted",
+        (Edit("01/10/2025 01/10/2025", "25/09/2025", span=0),),
+        "checked date 01/10/2025 -> 25/09/2025, before the drawn date 01/10/2025",
+    ),
     Case(
         "P11_scale_mismatch",
         HOSE,
@@ -130,6 +153,14 @@ CASES: tuple[Case, ...] = (
         "revision 00 -> 01 with an empty revision table",
     ),
     Case(
+        "P13_fit_limits_inverted",
+        CAM,
+        "planted",
+        # a sign typo; swapping the two limits would break Solid Edge's digit alignment of stacked limits
+        (Edit("+0.018", "-0.018", at=(618, 408), align="end"),),
+        "⌀ 16 H7 upper limit +0.018 -> -0.018, so (-0.018/0) has the lower limit above the upper",
+    ),
+    Case(
         "P14_decimals_vs_tolerance",
         CAM,
         "planted",
@@ -137,6 +168,19 @@ CASES: tuple[Case, ...] = (
         "28.5±0.1 -> 28.500±0.1",
     ),
     Case("P15_tight_tolerance", BLK, "planted", (Edit("70±0.2", "70±0.002"),), "70±0.2 -> 70±0.002"),
+    Case(
+        "P16_note_removed",
+        CYL,
+        "planted",
+        (
+            Edit("HEAT TREATMENT  :-"),
+            Edit("1) TO BE TOUGHENED UPTO 24-32 HRC."),
+            Edit("2) RETAPPING TO BE DONE AFTER SURFACE TREATMENT"),
+            Edit("AT SUPPLIER END.( IF APPLICABLE )"),
+        ),
+        "heat-treatment note box removed; the title-block field still says REF NOTE",
+        erase=((140, 680, 426, 730),),  # the note's dashed frame
+    ),
     Case(
         "P17_tempering_without_hardening",
         CYL,
@@ -150,6 +194,14 @@ CASES: tuple[Case, ...] = (
         "planted",
         (Edit("---", "HARDENED 40-45 HRC", near="HEAT TREATMENT"),),
         "heat treatment HARDENED 40-45 HRC on a polyurethane part",
+    ),
+    Case(
+        "P19_fit_removed",
+        CAM,
+        "planted",
+        (Edit("⌀ 16 H7", span=2), Edit("+0.018", at=(618, 408)), Edit("0", at=(612, 417))),
+        "H7 (+0.018/0) removed from the ⌀ 16 locating bore; ⌀ 16 stays",
+        erase=((598.5, 403, 602, 420), (634.8, 403, 638, 420)),  # the brackets, drawn as short strokes
     ),
     Case(
         "P20_corner_radius",
@@ -215,6 +267,7 @@ class SeedResult:
     summary: str
     pdf: str
     edits: list[AppliedEdit] = field(default_factory=list)
+    erased: list[list[float]] = field(default_factory=list)  # boxes whose line art was removed (visual)
 
 
 def _lines(page: pymupdf.Page, to_visual: pymupdf.Matrix, remaps: list[GlyphRemap]) -> list[_Line]:
@@ -262,42 +315,71 @@ def _rgb(color: int) -> tuple[float, float, float]:
     return ((color >> 16 & 255) / 255, (color >> 8 & 255) / 255, (color & 255) / 255)
 
 
-def apply_edits(page: pymupdf.Page, edits: tuple[Edit, ...], remaps: list[GlyphRemap]) -> list[AppliedEdit]:
-    """Apply the edits to one page in place and return where each one was made."""
+def _pieces(line: _Line, span: int | None) -> tuple[list[dict[str, Any]], pymupdf.Rect]:
+    """The spans an edit changes and their box (unrotated): the whole line, or one of its non-blank spans."""
+    if span is None:
+        return line.spans, line.raw_bbox
+    pieces = [s for s in line.spans if s["text"].strip()]
+    if not 0 <= span < len(pieces):
+        raise ValueError(f"{line.text!r} has {len(pieces)} pieces, not a piece {span}")
+    return [pieces[span]], pymupdf.Rect(pieces[span]["bbox"])
+
+
+def apply_edits(
+    page: pymupdf.Page, edits: tuple[Edit, ...], remaps: list[GlyphRemap], erase: tuple[Box, ...] = ()
+) -> list[AppliedEdit]:
+    """Apply the edits (and erasures) to one page in place and return where each edit was made."""
     rotation = page.rotation
     to_visual = page.rotation_matrix
     page.set_rotation(0)  # work in the content stream's own coordinates; restored below
     try:
         lines = _lines(page, to_visual, remaps)
-        targets = [(edit, _locate(lines, edit)) for edit in edits]
-        for _, line in targets:
+        targets = []
+        for edit in edits:
+            line = _locate(lines, edit)
+            spans, raw = _pieces(line, edit.span)
+            targets.append((edit, line, spans, raw))
+        for *_, r in targets:
             # shrink the box a little so neighbouring text that only touches it survives
-            r = line.raw_bbox
             page.add_redact_annot(pymupdf.Rect(r.x0 + 0.4, r.y0 + 0.4, r.x1 - 0.4, r.y1 - 0.4))
         page.apply_redactions(images=_KEEP_IMAGES, graphics=_KEEP_LINE_ART)
+        if erase:
+            for box in erase:
+                page.add_redact_annot(pymupdf.Rect(box) * ~to_visual)
+            page.apply_redactions(images=_KEEP_IMAGES, graphics=_REMOVE_COVERED_LINE_ART, text=_KEEP_TEXT)
+        # write new text with the page's own font resource (basefont -> reference name, e.g. Helvetica -> F1):
+        # the same font record keeps the original's text-box metrics, which the extraction relies on (stacked
+        # limits are linked by their boxes), and adds no font to the file
+        font_refs = {f[3]: f[4] for f in page.get_fonts()}
         applied = []
-        for edit, line in targets:
-            first = line.spans[0]
+        for edit, line, spans, raw in targets:
+            first = spans[0]
             if edit.to is not None:
-                if len({(s["font"], round(s["size"], 2)) for s in line.spans if s["text"].strip()}) > 1:
+                if len({(s["font"], round(s["size"], 2)) for s in spans if s["text"].strip()}) > 1:
                     raise ValueError(f"{edit.find!r} mixes fonts or sizes; replace it span by span")
-                # keep the new text centred where the old text was, as title-block values and dimensions are
-                size = first["size"]
-                shift = (
-                    pymupdf.get_text_length(edit.to, "helv", size)
-                    - pymupdf.get_text_length(line.text, "helv", size)
-                ) / 2
+                if first["font"] not in _METRICS or first["font"] not in font_refs:
+                    raise ValueError(
+                        f"{edit.find!r} is in font {first['font']!r}; only Helvetica can be rewritten"
+                    )
+                # place the new text where the old text was: centred (title-block values, dimensions), or
+                # keeping its end so stacked limits stay aligned on their digits
+                size, metrics = first["size"], _METRICS[first["font"]]
+                old = remap_text(spans, remaps).strip()
+                grow = pymupdf.get_text_length(edit.to, metrics, size) - pymupdf.get_text_length(
+                    old, metrics, size
+                )
+                shift = {"centre": grow / 2, "start": 0.0, "end": grow}[edit.align]
                 dx, dy = line.direction
                 origin = (first["origin"][0] - shift * dx, first["origin"][1] - shift * dy)
                 page.insert_text(
                     origin,
                     edit.to,
-                    fontname="helv",
+                    fontname=font_refs[first["font"]],
                     fontsize=size,
                     rotate=_ANGLE[line.direction],
                     color=_rgb(first["color"]),
                 )
-            vb = line.visual_bbox
+            vb = raw * to_visual
             applied.append(
                 AppliedEdit(
                     edit.find,
@@ -320,11 +402,13 @@ def seed_case(case: Case, raw_dir: Path, out_dir: Path, remaps: list[GlyphRemap]
     pdf = folder / f"{case.name}.pdf"
     doc = pymupdf.open(src)
     try:
-        applied = apply_edits(doc[0], case.edits, remaps) if case.edits else []
+        applied = apply_edits(doc[0], case.edits, remaps, case.erase) if case.edits or case.erase else []
         doc.save(pdf, garbage=3, deflate=True, no_new_id=True)
     finally:
         doc.close()
-    result = SeedResult(case.name, case.base, case.kind, case.summary, pdf.name, applied)
+    result = SeedResult(
+        case.name, case.base, case.kind, case.summary, pdf.name, applied, [list(b) for b in case.erase]
+    )
     (folder / "case.json").write_text(
         json.dumps(asdict(result), indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n"
     )
