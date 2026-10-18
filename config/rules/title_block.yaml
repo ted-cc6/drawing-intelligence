@@ -117,7 +117,7 @@ rules:
     source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 7.2; 7.4 (p80)}
     status: draft
 
-  # Note: Capstone I found inverted revision dates on the Laser Sensor Mtg Block
+  # Note: Capstone I found inverted revision dates on a PARI sample drawing
   - id: RQ-001
     category: title_block
     requirement: 'Dates are in order: checked/approved not before drawn; revision dates ascending with revision'
@@ -191,7 +191,8 @@ rules:
   # See also: NASA GSFC-X-673-64-1F 5a; App. A (f) (p72); NASA GSFC-X-673-64-1F 5.1b (p73); HNF-64101 3.11.3;
   #   3.11.4; 3.11.5 Table 4 (p25); HNF-64101 3.11.5 (p24); Westermann Tables Standard sheet sizes and scales:
   #   title block, IS 696-1960 (pdf 67L, book 128)
-  # Note: presence checkable now; numbering pattern to agree with PARI (samples use P24BSA064533, UEG000000634)
+  # Note: presence checkable now; numbering pattern to agree with PARI (the sample drawings use more than one
+  #   format)
   - id: TB-001
     category: title_block
     requirement: Drawing number is present and follows the company numbering format

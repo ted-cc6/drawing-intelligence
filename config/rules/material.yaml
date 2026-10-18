@@ -25,8 +25,8 @@ rules:
     source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: Material table (13 grades) + US-India equivalents}
     status: draft
 
-  # Note: Capstone I found inconsistent material nomenclature on the X-Axis Beam ('M.S' and 'M.S.'); the same pair
-  #   appears on 1 of the 1,175 client drawings. Related: US-3.2 (approved material names) and MF-011
+  # Note: Capstone I found inconsistent material nomenclature on a PARI sample drawing ('M.S' and 'M.S.'); the same
+  #   pair appears on 1 of the 1,175 client drawings. Related: US-3.2 (approved material names) and MF-011
   - id: RQ-004
     category: material
     requirement: A material is written the same way everywhere it appears on the drawing (title block, parts list, notes)

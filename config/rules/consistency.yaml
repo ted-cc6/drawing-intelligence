@@ -138,7 +138,7 @@ rules:
   # Note: HNF states it for a drawing set; applied per drawing here. Exempt inch thread and pipe designations
   #   (1/4-20 UNC, G 1/2, NPT) and dual dimensions declared by a note. PARI's template prints its SURFACE AREA
   #   field in in^2 (1,160 of 1,175 client sheets, e.g. '15.54 in^2'), so that field is left out until PARI says
-  #   whether it is intended; Capstone I flagged it on the X-Axis Beam as a unit conflict.
+  #   whether it is intended; Capstone I flagged it on a PARI sample drawing as a unit conflict.
   - id: HNF-005
     category: consistency
     requirement: 'A metric drawing uses SI units only: no inch-pound values or units (inch marks, fractions, in, lb, lbf, psi), except declared dual dimensions and native inch trade designations (e.g. G 1/2 pipe threads).'

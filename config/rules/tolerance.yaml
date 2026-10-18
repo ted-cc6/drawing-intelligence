@@ -103,9 +103,9 @@ rules:
   # See also: related rule TB-008; Westermann Tables Allowable deviations for dimensions without specified
   #   tolerances, IS 2102-1969 (pdf 73L, book 140)
   # Note: PARI's template table follows this book's IS 2102-1969: the 'UNSPECIFIED TOL.(M)' linear and angular
-  #   tables on the Laser Sensor Mtg Block equal its medium row, with steps at 120-315 and 315-1000 mm (ISO 2768-1
-  #   steps at 400 mm instead). So the IS 2102 lookup table should be built from this edition (pdf 73L). Fine has
-  #   no values above 4000 mm, and coarse and extra coarse none up to 3 mm.
+  #   tables on a PARI sample drawing equal its medium row, with steps at 120-315 and 315-1000 mm (ISO 2768-1 steps
+  #   at 400 mm instead). So the IS 2102 lookup table should be built from this edition (pdf 73L). Fine has no
+  #   values above 4000 mm, and coarse and extra coarse none up to 3 mm.
   - id: WST-078
     category: tolerance
     requirement: A general-tolerance table printed on the drawing (linear or angular) matches IS 2102 for the class it names.
