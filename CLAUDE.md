@@ -22,7 +22,8 @@ src/drawing_intelligence/
   extraction/          stage 1 - text layer, token cleanup, classification, geometry/chain checks, images
   llm/                 model registry + one OpenAI-SDK client for OpenAI and Qwen (cost, latency, cache)
   understanding/       stage 2 - prompt, message building, call + validate + retry
-  review/              stage 3 - rulebook (Rule, load_rulebook, new_finding); reviewers come next
+  review/              stage 3 - rulebook (Rule, load_rulebook, new_finding); check functions and
+                       reviewers come next, built as ADR 0010 describes
   graph/               LangGraph state and graph (intake -> understand)
   storage/             session workspaces (ephemeral), telemetry DB, response cache
   eval/                baseline diff, understanding scorecard
