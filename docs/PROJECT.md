@@ -121,6 +121,13 @@ How the rulebook is run. Reviewers are split by **how** a rule is checked, not b
 A rule whose check isn't built yet is `not_checked`, never `pass`, so the report shows how much of the rulebook
 actually ran.
 
+Two inputs the checks rely on:
+- **Title-block fields come from stage 1**, read by position from the template's cells
+  (`extraction/title_block.py`). Fails therefore rest on exact text. Variant title blocks (about 1 in 5 client
+  sheets) are detected by their labels; nothing is read from them.
+- **Drawn lengths** (dimension line ÷ value) tell which scales a sheet is drawn at. `conflicting_values` (CN-002)
+  and `scale_consistent` (TB-006) use them.
+
 ### Hard rules
 
 1. **Never invent.** Every value is traceable to the PDF text, or marked `source: "vision"`. Unknown → `null`.
@@ -222,8 +229,8 @@ No labelled error drawings exist yet, so evaluation is built from what is availa
 |---|---|---|
 | M0 | Repo, tooling, CI on Windows/macOS/Linux, docs and ADRs | ✅ |
 | M1 | Notebooks 01/02 ported and upgraded: typed contracts, multi-page, template config, model registry, telemetry, session data, LangGraph intake → understand, CLI, eval | ✅ |
-| M2 | Review contracts and rulebook loader (A2 ✅); default understanding model (A1 ✅, ADR 0009); draft rulebook, 174 rules (R ✅); review-stage design (ADR 0010); `checks` reviewer with the consistency checks (A4); verifier (A3); symbols from text and vectors in stage 1 (Spike D) | in progress |
-| M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`); seeded-error eval set (drawings and keys: A5a ✅; scoring: A5b); graph fan-out and report (A6) | |
+| M2 | Review contracts and rulebook loader (A2 ✅); default understanding model (A1 ✅, ADR 0009); draft rulebook, 174 rules (R ✅); review-stage design (ADR 0010 ✅, proposed); title-block fields in stage 1 ✅; `checks` reviewer with its first 10 check functions (A4, in progress: 15 of 135 code/lookup rules built); verifier (A3 ✅); next: tolerance parsing and checks (P13–P17), reference tables for the lookup rules, symbols from text and vectors in stage 1 (Spike D) | in progress |
+| M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`); seeded-error eval set (drawings and keys: A5a ✅; `di eval review`: A5b ✅); graph fan-out (A6 part 1 ✅) and report (Excel + annotated sheet) | |
 | M4 | Q&A agent; feedback log | |
 | M5 | API + dashboard (model picker, cost and latency) | |
 

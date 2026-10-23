@@ -64,5 +64,5 @@ on what not to flag. Each row's `note` records the call.
 
 Everything is `status: draft`. Severities are LatentView's, except three lowered in triage (DM-002, MF-003,
 TL-003; see their notes); the severities of the PARI, team and book rules are the team's proposals. The rules name
-130 check functions and none is built yet. Until a rule's reviewer exists, the rule should report `not_checked`
-(US-1.1).
+130 check functions; 10 are built (`di rules` shows which). Until a rule's check or reviewer exists, the rule
+reports `not_checked` (US-1.1, ADR 0010).

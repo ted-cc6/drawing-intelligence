@@ -78,11 +78,12 @@ A4 builds the first check function. The other 129 will copy its pattern, so the 
   `ReviewResult.reviewers_skipped`, and its rules are `not_checked`.
 - **A reviewer that crashes** writes its output with the error, and its rules become `not_checked`. The graph
   goes on.
-- **`verify`** reads every output, sorted by reviewer name so the result doesn't depend on which node finished
-  first, and then:
+- **`verify`** reads every output in the planned-reviewer order, so the result doesn't depend on which node
+  finished first, and then:
   1. **drops** a finding whose evidence doesn't resolve: its dimension, symbol or note id doesn't exist on that
-     page, its bbox is outside `page_size_pts`, its title-block field is unknown, or its `rule_id` isn't in the
-     rulebook. Each drop is kept with a reason in `review/rejected.json`, and the count goes in
+     page, its bbox is outside `page_size_pts`, its title-block field is unknown, its `rule_id` isn't in the
+     rulebook, or a `pdf_text` quote isn't what the drawing says (a cited dimension or title-block field must
+     read exactly the quote; quoted text must appear on the page). Each drop is kept with a reason in `review/rejected.json`, and the count goes in
      `ReviewResult.extra`.
   2. **merges duplicates** by finding id (same rule, same evidence; ADR 0008). The first one is kept and the
      reviewers are listed in its comment.
@@ -96,10 +97,22 @@ A4 builds the first check function. The other 129 will copy its pattern, so the 
 ## Consequences
 - A4 builds the framework (registry, `ReviewContext`, runner, the `checks` node) together with the first
   consistency checks. After that, adding a rule's check is one function and its tests, with no graph change.
-- Rules can be added or edited in YAML without code, as long as their check exists. `di rules` catches typos.
+- Rules can be added or edited in YAML without code, as long as their check exists. `di rules` validates the
+  params of every built check. An unknown check name is not an error: it shows as "not built", so a typo
+  shows up in the coverage count.
 - 135 of 174 rules cost $0 and are reproducible. LLM cost is three text-only calls per drawing.
 - Until a check is built, its rule is `not_checked`, never silently `pass`. The report shows how much of the
   rulebook actually ran.
 - **Open:** an `llm` rule with no finding is reported `pass`. Spike E found high recall (10/10), but that rests
   on a small sample. If A5b shows misses, report it as `not_checked` instead.
 - This refines the stage-3 list in ADR 0001. The workflow-plus-agent decision there stands.
+
+## Added while building the first slice (2026-10-23)
+- **Title-block values come from stage 1, by position.** Each field is read from its template cell
+  (`config/templates/*.yaml`), so title-block findings rest on exact `pdf_text` evidence and can fail. A sheet
+  whose template labels are not where expected is a variant title block: no fields are read, and its title-block
+  rules are `not_checked`.
+- **CN-002 (`conflicting_values`) uses geometry first.** Two dimensions drawn the same length, where one matches
+  the sheet's scale and the other doesn't, are flagged. An LLM "same feature" relation can be added later.
+- **Session workspaces are no longer committed.** `data/sessions/` is git-ignored (a narrow exception to ADR
+  0007: it is run history, not client data). `di eval review` runs its sessions in a temporary folder.
