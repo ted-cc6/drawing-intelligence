@@ -23,6 +23,8 @@ from drawing_intelligence.schemas.review import (
     EvidenceRef,
     Finding,
     FindingFeedback,
+    RejectedFinding,
+    ReviewerOutput,
     ReviewResult,
     RuleStatus,
 )
@@ -40,7 +42,9 @@ __all__ = [
     "ImageSet",
     "MatchedLine",
     "PageExtraction",
+    "RejectedFinding",
     "ReviewResult",
+    "ReviewerOutput",
     "RuleStatus",
     "TextItem",
     "TextLine",

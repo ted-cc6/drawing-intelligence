@@ -1,0 +1,363 @@
+"""The check machinery and the first code checks (ADR 0010), on synthetic stage 1 data. No PDF, no LLM."""
+
+from __future__ import annotations
+
+import pytest
+
+from drawing_intelligence.extraction import load_template
+from drawing_intelligence.review import load_rulebook
+from drawing_intelligence.review.checks import NotApplicable, NotCheckable, param_models, registered
+from drawing_intelligence.review.checks._geometry import MM_PTS
+from drawing_intelligence.review.checks._registry import CheckSpec, NoParams
+from drawing_intelligence.review.context import ReviewContext
+from drawing_intelligence.review.reviewers import LLM_REVIEWER_FOR_CATEGORY, reviewer_for
+from drawing_intelligence.review.rulebook import Rule, Rulebook, RuleSource, new_finding
+from drawing_intelligence.review.runner import run_checks, run_rule
+from drawing_intelligence.schemas import (
+    ChainCheck,
+    EvidenceRef,
+    Extraction,
+    MatchedLine,
+    PageExtraction,
+    TextItem,
+    TextLine,
+    TitleBlockField,
+)
+
+TEMPLATE = load_template()
+GOOD_FIELDS = {
+    "number": "P24TEST000001",
+    "title": "TEST PLATE",
+    "material": "M.S.",
+    "surface_treatment": "N.A.",
+    "weight": "0.25 kg",
+    "units": "mm",
+    "general_tolerance_standard": "IS 2102",
+    "revision": "00",
+    "scale": "1 : 1",
+    "drawn_date": "01/10/2025",
+    "checked_date": None,
+    "approved_date": None,
+}
+
+
+def fields(**overrides: str | None) -> dict[str, TitleBlockField]:
+    values = {**GOOD_FIELDS, **overrides}
+    return {k: TitleBlockField(value=v, bbox=(900.0, 780.0, 950.0, 790.0)) for k, v in values.items()}
+
+
+def dim(i: int, text: str, x: float = 100.0, y: float = 100.0) -> TextItem:
+    return TextItem(id=f"D{i}", text=text, bbox=(x, y, x + 10, y + 8))
+
+
+def drawn(i: int, text: str, length_mm: float, orientation: str = "horizontal", y: float = 100.0):
+    """A dimension and its matched line, `length_mm` long on paper."""
+    d = dim(i, text, y=y)
+    length = length_mm * MM_PTS
+    line = (
+        (100.0, y + 10, 100.0 + length, y + 10)
+        if orientation == "horizontal"
+        else (100.0, y, 100.0, y + length)
+    )
+    return d, MatchedLine(dimension_id=d.id or "", line=line, orientation=orientation)  # type: ignore[arg-type]
+
+
+def page(**kw) -> PageExtraction:
+    base = {
+        "page_number": 1,
+        "page_size_pts": (1191.0, 842.0),
+        "rotation": 0,
+        "title_block_layout": "standard",
+        "title_block_fields": fields(),
+        "scale_pts_per_mm": MM_PTS,
+    }
+    return PageExtraction(**{**base, **kw})
+
+
+def rule(check: str, check_type: str = "code", **params) -> Rule:
+    return Rule(
+        id="XX-001",
+        category="consistency",
+        requirement="test requirement",
+        severity="major",
+        check_type=check_type,  # type: ignore[arg-type]
+        check=check,
+        params=params,
+        source=RuleSource(document="test", section="1"),
+    )
+
+
+def ctx(*pages: PageExtraction, rules: list[Rule] | None = None) -> ReviewContext:
+    ex = Extraction(source_file="t.pdf", template="wipro_pari", n_pages=len(pages), pages=list(pages))
+    return ReviewContext(extraction=ex, rulebook=Rulebook(version="t", rules=rules or []), template=TEMPLATE)
+
+
+def run(check: str, *pages: PageExtraction, **params):
+    r = rule(check, **params)
+    return run_rule(ctx(*pages), r, registered()[check])
+
+
+# --- machinery ----------------------------------------------------------------------------------------------
+
+
+def test_every_rule_names_a_check_whose_params_fit():
+    # Loading with the registry validates the params of every built check against the real rulebook.
+    book = load_rulebook(checks=param_models())
+    built = {r.check for r in book.rules if r.check in param_models()}
+    assert built == set(param_models())  # every registered check is used by at least one rule
+
+
+def test_unbuilt_check_is_not_checked_and_inapplicable_rule_is_not_applicable():
+    r = rule("no_such_check")
+    findings, status = run_rule(ctx(page()), r, None)
+    assert (findings, status.status) == ([], "not_checked") and "not built" in (status.note or "")
+    r2 = r.model_copy(update={"applies_to": r.applies_to.model_copy(update={"part_family": ["round"]})})
+    c = ctx(page())
+    c = ReviewContext(**{**c.__dict__, "part_family": "prismatic"})
+    assert run_rule(c, r2, None)[1].status == "not_applicable"
+
+
+def _spec(fn) -> CheckSpec:
+    return CheckSpec("test", fn, NoParams)
+
+
+def test_outcome_exceptions_and_crashes_become_statuses():
+    def na(*_):
+        raise NotApplicable("no threads")
+
+    def nc(*_):
+        raise NotCheckable("no title block")
+
+    def boom(*_):
+        raise ZeroDivisionError("bug")
+
+    r = rule("test")
+    assert run_rule(ctx(page()), r, _spec(na))[1].model_dump()["status"] == "not_applicable"
+    assert run_rule(ctx(page()), r, _spec(nc))[1].note == "no title block"
+    status = run_rule(ctx(page()), r, _spec(boom))[1]
+    assert status.status == "not_checked" and "ZeroDivisionError" in (status.note or "")
+
+
+def test_findings_for_another_rule_are_refused_and_duplicates_merged():
+    r = rule("test")
+    other = r.model_copy(update={"id": "XX-002"})
+    ev = [EvidenceRef(kind="dimension", ref="D1", page=1, quote="10", provenance="pdf_text")]
+
+    def twice(c, rl, _):
+        return [new_finding(rl, reviewer="checks", evidence=ev, comment="a") for _ in range(2)]
+
+    def wrong(c, rl, _):
+        return [new_finding(other, reviewer="checks", evidence=ev, comment="a")]
+
+    findings, status = run_rule(ctx(page()), r, _spec(twice))
+    assert len(findings) == 1 and status.status == "fail" and status.finding_ids == [findings[0].id]
+    assert run_rule(ctx(page()), r, _spec(wrong))[1].status == "not_checked"
+
+
+def test_run_checks_covers_code_and_lookup_rules_only():
+    rules = [
+        rule("chain_sum"),
+        rule("x", check_type="llm").model_copy(update={"id": "XX-002", "check": None}),
+    ]
+    out = run_checks(ctx(page(), rules=rules))
+    assert out.reviewer == "checks" and [s.rule_id for s in out.rule_statuses] == ["XX-001"]
+
+
+def test_every_llm_rule_has_a_reviewer():
+    book = load_rulebook()
+    assert {reviewer_for(r) for r in book.rules if r.check_type == "llm"} <= set(
+        LLM_REVIEWER_FOR_CATEGORY.values()
+    )
+    assert {reviewer_for(r) for r in book.rules if r.check_type != "llm"} == {"checks"}
+
+
+# --- consistency --------------------------------------------------------------------------------------------
+
+
+def chain(match: bool) -> PageExtraction:
+    return page(
+        dimensions=[dim(1, "35"), dim(2, "30"), dim(3, "(35)"), dim(4, "105" if not match else "100")],
+        chain_checks=[
+            ChainCheck(
+                chain_texts=["35", "30", "(35)"],
+                chain_ids=["D1", "D2", "D3"],
+                chain_sum=100,
+                overall_text="105" if not match else "100",
+                overall_id="D4",
+                overall_value=105 if not match else 100,
+                match=match,
+                diff=5 if not match else 0,
+            )
+        ],
+    )
+
+
+def test_chain_sum():
+    findings, status = run("chain_sum", chain(match=False))
+    assert status.status == "fail" and {e.ref for e in findings[0].evidence} == {"D1", "D2", "D3", "D4"}
+    assert run("chain_sum", chain(match=True))[1].status == "pass"
+    assert run("chain_sum", page())[1].status == "not_applicable"
+
+
+def test_reference_dim_consistent_cites_the_reference_first():
+    findings, status = run("reference_dim_consistent", chain(match=False))
+    assert status.status == "fail" and findings[0].evidence[0].ref == "D3"
+    plain = chain(match=False)
+    plain.dimensions[2] = dim(3, "35")
+    assert run("reference_dim_consistent", plain)[1].status == "not_applicable"
+
+
+def scaled_page(*dims_and_lines, **kw) -> PageExtraction:
+    return page(dimensions=[d for d, _ in dims_and_lines], matched_lines=[m for _, m in dims_and_lines], **kw)
+
+
+def test_conflicting_values_flags_a_value_drawn_like_its_neighbour():
+    to_scale = [drawn(1, "40", 40, y=100), drawn(2, "60", 60, y=150), drawn(3, "15", 15, "vertical", y=200)]
+    typo = drawn(4, "17", 15, "vertical", y=300)  # drawn 15 mm long, says 17
+    findings, status = run("conflicting_values", scaled_page(*to_scale, typo))
+    assert status.status == "fail" and [e.ref for e in findings[0].evidence] == ["D4", "D3"]
+    assert run("conflicting_values", scaled_page(*to_scale))[1].status == "pass"
+
+
+def test_conflicting_values_ignores_radii_angles_references_and_detail_views():
+    to_scale = [drawn(1, "40", 40, y=100), drawn(2, "60", 60, y=150), drawn(3, "15", 15, "vertical", y=200)]
+    for text in ("R 17", "17°", "(17)"):
+        assert (
+            run("conflicting_values", scaled_page(*to_scale, drawn(4, text, 15, "vertical", y=300)))[1].status
+            == "pass"
+        )
+    # A 2:1 detail: values drawn at twice their size, supported by enough dimensions, are not typos.
+    detail = [drawn(5, "10", 20, y=400), drawn(6, "12", 24, y=420), drawn(7, "7.5", 15, "vertical", y=440)]
+    assert run("conflicting_values", scaled_page(*to_scale, *detail))[1].status == "pass"
+
+
+def test_conflicting_values_needs_a_measurable_scale():
+    assert run("conflicting_values", page())[1].status == "not_checked"
+
+
+def test_inch_mark_after_a_value_is_flagged_but_not_in_notes():
+    p = page(
+        other_numeric=[TextItem(text='3.94"', bbox=(300, 500, 320, 510))],
+        notes=[TextItem(text='1/2" BSP PORT', bbox=(100, 700, 160, 710))],
+    )
+    findings, status = run("no_mixed_unit_systems", p, flag_units=["psi"], flag_on_dimensions=['"', "in"])
+    assert status.status == "fail" and [f.evidence[0].quote for f in findings] == ['3.94"']
+
+
+def test_units_flagged_anywhere_except_excluded_fields():
+    p = page(
+        notes=[TextItem(text="TEST TO 200 psi", bbox=(100, 700, 160, 710))],
+        title_block_fields=fields(surface_area="15.54 psi"),
+    )
+    findings, _ = run("no_mixed_unit_systems", p, flag_units=["psi"], exclude_fields=["surface_area"])
+    assert [f.evidence[0].quote for f in findings] == ["TEST TO 200 psi"]
+
+
+def test_units_check_skips_non_metric_and_unknown_units():
+    assert (
+        run("no_mixed_unit_systems", page(title_block_fields=fields(units="inch")))[1].status
+        == "not_applicable"
+    )
+    assert (
+        run("no_mixed_unit_systems", page(title_block_fields=fields(units=None)))[1].status == "not_checked"
+    )
+
+
+# --- title block --------------------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("value", "params", "status"),
+    [
+        ("M.S.", {"field": "material"}, "pass"),
+        (None, {"field": "material"}, "fail"),
+        ("---", {"field": "material"}, "fail"),
+        ("#", {"field": "material", "placeholder_ok": ["#"]}, "pass"),
+        ("IS 2102", {"field": "material", "must_contain": ["IS 2102"]}, "pass"),
+        ("ISO 2768-m", {"field": "material", "must_contain": ["IS 2102"]}, "fail"),
+    ],
+)
+def test_title_block_field(value, params, status):
+    assert (
+        run("title_block_field", page(title_block_fields=fields(material=value)), **params)[1].status
+        == status
+    )
+
+
+def test_title_block_checks_need_a_read_title_block():
+    p = page(title_block_layout="variant", title_block_fields={})
+    assert run("title_block_field", p, field="material")[1].status == "not_checked"
+
+
+def test_title_block_pattern():
+    assert run("title_block_pattern", page(), field="number")[1].status == "pass"
+    assert (
+        run("title_block_pattern", page(title_block_fields=fields(number=None)), field="number")[1].status
+        == "fail"
+    )
+    assert (
+        run("title_block_pattern", page(), field="number", pattern=r"P\d{2}[A-Z]{3}\d{6}")[1].status == "fail"
+    )
+
+
+def test_dates_in_order_reads_day_month_year():
+    ok = page(title_block_fields=fields(drawn_date="01/10/2025", checked_date="02/10/2025"))
+    assert run("dates_in_order", ok)[1].status == "pass"
+    # 25/09 is before 01/10 day-first; month-first it would be an invalid date and could not be compared.
+    bad = page(title_block_fields=fields(drawn_date="01/10/2025", checked_date="25/09/2025"))
+    findings, status = run("dates_in_order", bad)
+    assert status.status == "fail" and [e.ref for e in findings[0].evidence] == ["checked_date", "drawn_date"]
+    assert run("dates_in_order", page())[1].status == "not_checked"  # nothing to compare
+
+
+def test_scale_against_view_labels():
+    labels = [
+        TextItem(text="SCALE 1:1", bbox=(300, 650, 340, 660)),
+        TextItem(text="SCALE 2:1", bbox=(500, 650, 540, 660)),
+    ]
+    assert run("scale_consistent", page(view_labels=labels))[1].status == "pass"  # a 2:1 detail is fine
+    findings, status = run(
+        "scale_consistent", page(view_labels=labels[:1], title_block_fields=fields(scale="2 : 1"))
+    )
+    assert status.status == "fail" and findings[0].evidence[1].quote == "SCALE 1:1"
+
+
+def test_scale_against_drawn_dimensions_without_labels():
+    at_2_to_1 = [drawn(1, "40", 80, y=100), drawn(2, "60", 120, y=150), drawn(3, "15", 30, "vertical", y=200)]
+    findings, status = run("scale_consistent", scaled_page(*at_2_to_1))
+    assert status.status == "fail" and "2 : 1" in findings[0].comment
+    assert (
+        run("scale_consistent", scaled_page(*at_2_to_1, title_block_fields=fields(scale="2 : 1")))[1].status
+        == "pass"
+    )
+    assert run("scale_consistent", page(title_block_fields=fields(scale="1 :")))[1].status == "not_checked"
+
+
+def test_revision_matches_table():
+    numbers = [TextLine(text="1", bbox=(640, 640, 645, 648)), TextLine(text="2", bbox=(640, 628, 645, 636))]
+    assert run("revision_matches_table", page())[1].status == "pass"  # 00 and no rows
+    findings, status = run("revision_matches_table", page(title_block_fields=fields(revision="01")))
+    assert status.status == "fail" and {e.kind for e in findings[0].evidence} == {"title_block", "region"}
+    assert (
+        run(
+            "revision_matches_table", page(revision_numbers=numbers, title_block_fields=fields(revision="02"))
+        )[1].status
+        == "pass"
+    )
+    assert (
+        run("revision_matches_table", page(title_block_fields=fields(revision="A")))[1].status
+        == "not_checked"
+    )
+
+
+def test_fields_blank_at_submission():
+    params = {"fields": ["checked_date", "approved_date"]}
+    assert run("fields_blank_at_submission", page(), **params)[1].status == "pass"
+    signed = page(title_block_fields=fields(checked_date="01/10/2025", approved_date="01/10/2025"))
+    findings, status = run("fields_blank_at_submission", signed, **params)
+    assert status.status == "fail" and len(findings) == 1 and len(findings[0].evidence) == 2
+
+
+def test_checks_are_pure_functions_of_their_input():
+    p = chain(match=False)
+    assert run("chain_sum", p)[0] == run("chain_sum", p)[0]

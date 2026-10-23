@@ -145,7 +145,8 @@ rules:
     severity: major
     check_type: code
     check: no_mixed_unit_systems
-    params: {flag_units: [psi, ksi, lbf, lb, in-lb, ft-lb, °F], exclude_fields: [surface_area]}
+    # flag_on_dimensions: unit marks flagged only right after a dimension value (inch trade names in notes are fine)
+    params: {flag_units: [psi, ksi, lbf, lb, in-lb, ft-lb, °F], exclude_fields: [surface_area], flag_on_dimensions: ['"', in]}
     source: {document: 'HNF-64101 Rev 00 Preparation Standards for Engineering Drawings (Hanford, US DOE, 2020)', section: 3.6 (p12)}
     status: draft
 

@@ -15,8 +15,9 @@ Each file holds a list of rules:
         status: draft                   # draft | client_confirmed
 
 `load_rulebook()` validates every file and reports *all* problems at once, so a drafted rulebook can be fixed
-in one pass. With `checks` (check name -> params model), it also checks that each code/lookup rule names a
-real check and that its params fit it.
+in one pass. With `checks` (check name -> params model), it also checks the params of every rule whose check
+is built. A check name with no function is not an error: the rule is "not built" and reports `not_checked`
+until its check exists (ADR 0010), so the rulebook can run ahead of the code.
 """
 
 from __future__ import annotations
@@ -91,6 +92,10 @@ class Rulebook(BaseModel):
                 return r
         raise KeyError(f"no rule {rule_id!r} in the rulebook")
 
+    def not_built(self, checks: Mapping[str, Any]) -> list[Rule]:
+        """Code and lookup rules whose check function does not exist yet."""
+        return [r for r in self.rules if r.check is not None and r.check not in checks]
+
     def applicable(
         self, part_family: PartFamily | None = None, drawing_type: DrawingType | None = None
     ) -> list[Rule]:
@@ -147,9 +152,7 @@ def load_rulebook(path: Path | None = None, checks: Mapping[str, type[BaseModel]
             seen[rule.id] = f.name
             if checks is not None and rule.check is not None:
                 params_model = checks.get(rule.check)
-                if params_model is None:
-                    problems.append(f"{label}: unknown check {rule.check!r}; registered: {sorted(checks)}")
-                else:
+                if params_model is not None:
                     try:
                         params_model.model_validate(rule.params)
                     except ValidationError as e:
