@@ -1,16 +1,20 @@
-"""The LangGraph review workflow. Built today: intake -> understand (ADR 0001).
+"""The LangGraph review workflow (ADR 0001, ADR 0010): intake -> understand -> reviewers -> verify.
 
 Nodes keep only file paths in the graph state: the artifacts themselves live in the session workspace, so
-checkpoints stay small and everything is deleted with the workspace.
+checkpoints stay small and everything is deleted with the workspace. The reviewers run in parallel; each
+appends the path of its output to `reviewer_outputs`, and `verify` joins them.
 """
 
 from __future__ import annotations
 
+import json
+import operator
 import shutil
 import sqlite3
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Required, TypedDict
+from typing import Annotated, Any, Required, TypedDict
 
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, START, StateGraph
@@ -18,7 +22,20 @@ from langgraph.graph import END, START, StateGraph
 from drawing_intelligence.extraction import EXTRACTION_FILE, ImagingConfig, extract_pdf, load_template
 from drawing_intelligence.llm import LLMClient, load_registry
 from drawing_intelligence.llm.client import CompletionFn, openai_completion
-from drawing_intelligence.schemas import Extraction, UnderstandingResult
+from drawing_intelligence.review import Rulebook, load_rulebook
+from drawing_intelligence.review.checks import param_models
+from drawing_intelligence.review.context import ReviewContext
+from drawing_intelligence.review.reviewers import BUILT_REVIEWERS, PLANNED_REVIEWERS
+from drawing_intelligence.review.runner import run_checks
+from drawing_intelligence.review.verify import verify
+from drawing_intelligence.schemas import (
+    DrawingKnowledge,
+    Extraction,
+    RejectedFinding,
+    ReviewerOutput,
+    ReviewResult,
+    UnderstandingResult,
+)
 from drawing_intelligence.settings import Settings
 from drawing_intelligence.storage import Session
 from drawing_intelligence.understanding import understand_page
@@ -31,6 +48,17 @@ class WorkflowState(TypedDict, total=False):
     understand_thinking: str | None
     extraction_path: str
     understanding_paths: list[str]
+    reviewer_outputs: Annotated[list[str], operator.add]  # parallel reviewers append, never overwrite
+    review_result_path: str
+    rejected_path: str
+
+
+REVIEW_RESULT_FILE = "review_result.json"
+REJECTED_FILE = "rejected.json"
+
+# Reviewer name -> what it runs. LLM reviewers join here when they are built (ADR 0010).
+ReviewerFn = Callable[[ReviewContext], ReviewerOutput]
+REVIEWER_FNS: dict[str, ReviewerFn] = {"checks": run_checks}
 
 
 @dataclass
@@ -38,7 +66,27 @@ class WorkflowResult:
     session_id: str
     extraction: Extraction
     understanding: list[UnderstandingResult] = field(default_factory=list)
+    review: ReviewResult | None = None
+    rejected: list[RejectedFinding] = field(default_factory=list)
     exported_to: Path | None = None
+
+
+def _load_extraction(state: WorkflowState) -> Extraction:
+    return Extraction.model_validate_json(Path(state.get("extraction_path", "")).read_text(encoding="utf-8"))
+
+
+def _load_knowledge(state: WorkflowState) -> dict[int, DrawingKnowledge | None]:
+    out: dict[int, DrawingKnowledge | None] = {}
+    for p in state.get("understanding_paths", []):
+        r = UnderstandingResult.model_validate_json(Path(p).read_text(encoding="utf-8"))
+        out[r.page_number] = r.knowledge if r.valid else None
+    return out
+
+
+def skipped_reviewers(understand: bool) -> list[str]:
+    """Planned reviewers that won't run: not built yet, or LLM reviewers without the understanding step."""
+    run = [r for r in BUILT_REVIEWERS if r in REVIEWER_FNS and (understand or r == "checks")]
+    return [r for r in PLANNED_REVIEWERS if r not in run]
 
 
 def build_graph(
@@ -46,7 +94,9 @@ def build_graph(
     client: LLMClient | None,
     imaging: ImagingConfig | None = None,
     understand: bool = True,
+    rulebook: Rulebook | None = None,
 ):
+    """The workflow graph. With a rulebook, the review stage follows: reviewers in parallel, then verify."""
     ws = session.workspace
 
     def intake(state: WorkflowState) -> dict[str, Any]:  # nodes return partial state updates
@@ -72,15 +122,66 @@ def build_graph(
             session.heartbeat()
         return {"understanding_paths": paths}
 
+    def reviewer_node(name: str, fn: ReviewerFn):
+        def node(state: WorkflowState) -> dict[str, Any]:
+            assert rulebook is not None
+            out_dir = ws / "review"
+            out_dir.mkdir(exist_ok=True)
+            try:
+                ctx = ReviewContext(
+                    extraction=_load_extraction(state),
+                    rulebook=rulebook,
+                    template=load_template(state.get("template", "wipro_pari")),
+                    knowledge=_load_knowledge(state),
+                )
+                output = fn(ctx)
+            except Exception as e:  # a crashed reviewer is reported, and the others still count
+                output = ReviewerOutput(reviewer=name, error=f"{type(e).__name__}: {e}")
+            path = out_dir / f"{name}.json"
+            path.write_text(output.model_dump_json(indent=1), encoding="utf-8")
+            session.heartbeat()
+            return {"reviewer_outputs": [str(path)]}
+
+        return node
+
+    def verify_node(state: WorkflowState) -> dict[str, Any]:
+        assert rulebook is not None
+        outputs = [
+            ReviewerOutput.model_validate_json(Path(p).read_text(encoding="utf-8"))
+            for p in state.get("reviewer_outputs", [])
+        ]
+        result, rejected = verify(
+            outputs, _load_extraction(state), rulebook, _load_knowledge(state), skipped_reviewers(understand)
+        )
+        out_dir = ws / "review"
+        out_dir.mkdir(exist_ok=True)
+        (out_dir / REVIEW_RESULT_FILE).write_text(result.model_dump_json(indent=1), encoding="utf-8")
+        (out_dir / REJECTED_FILE).write_text(
+            "[" + ",".join(r.model_dump_json() for r in rejected) + "]", encoding="utf-8"
+        )
+        return {
+            "review_result_path": str(out_dir / REVIEW_RESULT_FILE),
+            "rejected_path": str(out_dir / REJECTED_FILE),
+        }
+
     g = StateGraph(WorkflowState)
     g.add_node("intake", intake)
     g.add_edge(START, "intake")
+    last = "intake"
     if understand:
         g.add_node("understand", understand_node)
         g.add_edge("intake", "understand")
-        g.add_edge("understand", END)
-    else:
-        g.add_edge("intake", END)
+        last = "understand"
+    if rulebook is None:
+        g.add_edge(last, END)
+        return g
+    reviewers = [r for r in PLANNED_REVIEWERS if r not in skipped_reviewers(understand)]
+    for name in reviewers:
+        g.add_node(name, reviewer_node(name, REVIEWER_FNS[name]))
+        g.add_edge(last, name)
+    g.add_node("verify", verify_node)
+    g.add_edge(reviewers, "verify")  # waits for every reviewer
+    g.add_edge("verify", END)
     return g
 
 
@@ -89,13 +190,14 @@ def run_workflow(
     settings: Settings,
     *,
     understand: bool = True,
+    review: bool = False,
     model: str | None = None,
     thinking: str | None = None,
     imaging: ImagingConfig | None = None,
     export_dir: Path | None = None,
     completion_fn: CompletionFn = openai_completion,
 ) -> WorkflowResult:
-    """Run one drawing through the workflow in its own session.
+    """Run one drawing through the workflow in its own session; with `review`, through to the verified review.
 
     Results are loaded into memory before the session closes. In ephemeral mode the workspace is then
     deleted; `export_dir` is the explicit way to keep a copy (with annotated images).
@@ -111,9 +213,11 @@ def run_workflow(
                 session.id,
                 completion_fn,
             )
+        rulebook = load_rulebook(settings.config_path / "rules", checks=param_models()) if review else None
         conn = sqlite3.connect(session.checkpoint_db, check_same_thread=False)
         try:
-            app = build_graph(session, client, imaging, understand).compile(checkpointer=SqliteSaver(conn))
+            graph = build_graph(session, client, imaging, understand, rulebook)
+            app = graph.compile(checkpointer=SqliteSaver(conn))
             final = app.invoke(
                 {
                     "pdf_path": str(pdf_path),
@@ -131,14 +235,25 @@ def run_workflow(
             UnderstandingResult.model_validate_json(Path(p).read_text(encoding="utf-8"))
             for p in final.get("understanding_paths", [])
         ]
+        review_result = None
+        rejected: list[RejectedFinding] = []
+        if "review_result_path" in final:
+            review_result = ReviewResult.model_validate_json(
+                Path(final["review_result_path"]).read_text(encoding="utf-8")
+            )
+            rejected = [
+                RejectedFinding.model_validate(r)
+                for r in json.loads(Path(final["rejected_path"]).read_text(encoding="utf-8"))
+            ]
         session.n_pages = extraction.n_pages
         session.status = "ok" if all(r.valid for r in results) else "invalid_output"
 
-        if export_dir is not None:
-            _export(ex_path.parent, extraction, results, export_dir / Path(pdf_path).stem)
-        return WorkflowResult(
-            session.id, extraction, results, export_dir / Path(pdf_path).stem if export_dir else None
-        )
+        dest = export_dir / Path(pdf_path).stem if export_dir else None
+        if dest is not None:
+            _export(ex_path.parent, extraction, results, dest)
+            for f in sorted((session.workspace / "review").glob("*.json")):  # no review dir -> nothing
+                shutil.copyfile(f, dest / f.name)
+        return WorkflowResult(session.id, extraction, results, review_result, rejected, dest)
 
 
 def _export(ex_dir: Path, ex: Extraction, results: list[UnderstandingResult], dest: Path) -> None:

@@ -133,3 +133,43 @@ def test_keep_mode_reuses_the_cache(make_pdf, settings):
 def test_unknown_model_fails_fast(make_pdf, settings):
     with pytest.raises(ValueError, match="unknown model"):
         run_workflow(make_pdf(), settings, imaging=SMALL, model="gpt-0", completion_fn=FakeModel())
+
+
+# --- review stage (ADR 0010) ------------------------------------------------------------------------------
+
+
+def test_review_runs_through_to_a_verified_result(make_pdf, settings, tmp_path):
+    from drawing_intelligence.review import load_rulebook
+
+    pdf = make_pdf(overall="405")  # the chain 135 + 130 + (135) adds up to 400
+    res = run_workflow(
+        pdf, settings, imaging=SMALL, completion_fn=FakeModel(), review=True, export_dir=tmp_path / "x"
+    )
+    assert res.review is not None
+    statuses = {s.rule_id: s.status for s in res.review.rule_statuses}
+    assert len(statuses) == len(load_rulebook().rules)  # every rule has exactly one status
+    assert statuses["CN-001"] == "fail" and statuses["CN-004"] == "fail"
+    assert res.review.reviewers_run == ["checks"]
+    assert set(res.review.reviewers_skipped) == {"drawing_practice", "manufacturability", "design_intent"}
+    assert res.exported_to is not None and (res.exported_to / "review_result.json").exists()
+    assert not (settings.sessions_dir / res.session_id).exists()  # still ephemeral
+
+
+def test_review_without_understanding_needs_no_model(make_pdf, settings):
+    settings.openai_api_key = settings.qwen_api_key = None
+    res = run_workflow(make_pdf(), settings, understand=False, review=True, imaging=SMALL)
+    assert res.review is not None and not res.understanding
+    assert {s.rule_id: s.status for s in res.review.rule_statuses}["CN-001"] == "pass"
+
+
+def test_a_crashing_reviewer_does_not_lose_the_review(make_pdf, settings, monkeypatch):
+    from drawing_intelligence.graph import workflow
+
+    def boom(ctx):
+        raise RuntimeError("checks crashed")
+
+    monkeypatch.setitem(workflow.REVIEWER_FNS, "checks", boom)
+    res = run_workflow(make_pdf(), settings, understand=False, review=True, imaging=SMALL)
+    assert res.review is not None and "checks" in res.review.reviewers_skipped
+    assert {s.status for s in res.review.rule_statuses} == {"not_checked"}
+    assert "checks crashed" in res.review.extra["reviewer_errors"]["checks"]

@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     )
 
     data_dir: Path = Path("data")
+    sessions_root: Path | None = (
+        None  # where session workspaces go; default data/sessions (the eval uses a temp dir)
+    )
     config_dir: Path = Path("config")
     retention: Retention = "ephemeral"
     api_timeout_s: float = 600.0
@@ -55,7 +58,7 @@ class Settings(BaseSettings):
 
     @property
     def sessions_dir(self) -> Path:
-        return self.data_path / "sessions"
+        return self._abs(self.sessions_root) if self.sessions_root else self.data_path / "sessions"
 
     @property
     def cache_dir(self) -> Path:
