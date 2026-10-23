@@ -1,0 +1,87 @@
+{
+ "schema_version": "1.0",
+ "case": "P03_two_values",
+ "kind": "planted",
+ "base": "10K_CAM PLATE",
+ "pdf": "P03_two_values.pdf",
+ "planted": "left boss height 15 -> 17; the right one stays 15 and both are drawn equal",
+ "expected": [
+  {
+   "rule_id": "CN-002",
+   "category": "consistency",
+   "severity": "critical",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D6",
+     "page": 1,
+     "bbox": [
+      224.4,
+      336.2,
+      233.9,
+      346.8
+     ],
+     "quote": "17",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "dimension",
+     "ref": "D8",
+     "page": 1,
+     "bbox": [
+      583.2,
+      336.2,
+      592.7,
+      346.8
+     ],
+     "quote": "15",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The two bosses are drawn the same height, but one is dimensioned 17 and the other 15.",
+   "also_acceptable": [
+    "DSM-023"
+   ]
+  }
+ ],
+ "must_not_flag": [],
+ "pre_existing": [
+  {
+   "rule_id": "TB-016",
+   "category": "title_block",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "checked_date",
+     "page": 1,
+     "bbox": [
+      781.2,
+      802.7,
+      819.1,
+      810.2
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "approved_date",
+     "page": 1,
+     "bbox": [
+      823.8,
+      803.1,
+      861.7,
+      810.6
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The checked and approved dates are filled in. The samples are released drawings, so this rule, written for drawings submitted for checking, fires on every one of them.",
+   "also_acceptable": []
+  }
+ ]
+}

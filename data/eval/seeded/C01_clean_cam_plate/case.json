@@ -1,0 +1,9 @@
+{
+ "case": "C01_clean_cam_plate",
+ "base": "10K_CAM PLATE",
+ "kind": "clean",
+ "summary": "unchanged sample",
+ "pdf": "C01_clean_cam_plate.pdf",
+ "edits": [],
+ "erased": []
+}

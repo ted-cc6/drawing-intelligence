@@ -1,0 +1,22 @@
+{
+ "case": "P15_tight_tolerance",
+ "base": "31K_PIPE CLAMP BLK_02",
+ "kind": "planted",
+ "summary": "70±0.2 -> 70±0.002",
+ "pdf": "P15_tight_tolerance.pdf",
+ "edits": [
+  {
+   "find": "70±0.2",
+   "to": "70±0.002",
+   "bbox": [
+    293.0,
+    161.4,
+    323.5,
+    171.0
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  }
+ ],
+ "erased": []
+}

@@ -1,0 +1,22 @@
+{
+ "case": "P21_anodizing_on_steel",
+ "base": "10K_CAM PLATE",
+ "kind": "planted",
+ "summary": "surface treatment HARD ANODIZING on an M.S. part (aluminium only)",
+ "pdf": "P21_anodizing_on_steel.pdf",
+ "edits": [
+  {
+   "find": "I.Z.B.P. (TRIVALENT)",
+   "to": "HARD ANODIZING",
+   "bbox": [
+    804.8,
+    736.9,
+    874.8,
+    744.1
+   ],
+   "font": "Helvetica",
+   "size": 7.2
+  }
+ ],
+ "erased": []
+}

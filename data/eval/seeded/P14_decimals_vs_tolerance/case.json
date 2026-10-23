@@ -1,0 +1,22 @@
+{
+ "case": "P14_decimals_vs_tolerance",
+ "base": "10K_CAM PLATE",
+ "kind": "planted",
+ "summary": "28.5±0.1 -> 28.500±0.1",
+ "pdf": "P14_decimals_vs_tolerance.pdf",
+ "edits": [
+  {
+   "find": "28.5±0.1",
+   "to": "28.500±0.1",
+   "bbox": [
+    362.4,
+    388.0,
+    371.9,
+    426.6
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  }
+ ],
+ "erased": []
+}

@@ -1,0 +1,22 @@
+{
+ "case": "P13_fit_limits_inverted",
+ "base": "10K_CAM PLATE",
+ "kind": "planted",
+ "summary": "⌀ 16 H7 upper limit +0.018 -> -0.018, so (-0.018/0) has the lower limit above the upper",
+ "pdf": "P13_fit_limits_inverted.pdf",
+ "edits": [
+  {
+   "find": "+0.018",
+   "to": "-0.018",
+   "bbox": [
+    603.6,
+    403.0,
+    633.0,
+    412.5
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  }
+ ],
+ "erased": []
+}

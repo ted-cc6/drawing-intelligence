@@ -1,0 +1,109 @@
+{
+ "schema_version": "1.0",
+ "case": "P12_revision_mismatch",
+ "kind": "planted",
+ "base": "31K_PIPE CLAMP BLK_02",
+ "pdf": "P12_revision_mismatch.pdf",
+ "planted": "revision 00 -> 01 with an empty revision table",
+ "expected": [
+  {
+   "rule_id": "TB-004",
+   "category": "title_block",
+   "severity": "critical",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "revision",
+     "page": 1,
+     "bbox": [
+      1088.5,
+      785.2,
+      1107.0,
+      801.8
+     ],
+     "quote": "01",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "region",
+     "page": 1,
+     "bbox": [
+      634.0,
+      622.0,
+      1073.0,
+      667.0
+     ],
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The revision is 01, but the revision table has no entries.",
+   "also_acceptable": [
+    "RV-001",
+    "RV-003"
+   ]
+  }
+ ],
+ "must_not_flag": [],
+ "pre_existing": [
+  {
+   "rule_id": "TB-016",
+   "category": "title_block",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "checked_date",
+     "page": 1,
+     "bbox": [
+      781.2,
+      802.7,
+      819.1,
+      810.2
+     ],
+     "quote": "07/04/2026",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "approved_date",
+     "page": 1,
+     "bbox": [
+      823.8,
+      803.1,
+      861.7,
+      810.6
+     ],
+     "quote": "07/04/2026",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The checked and approved dates are filled in. The samples are released drawings, so this rule, written for drawings submitted for checking, fires on every one of them.",
+   "also_acceptable": []
+  },
+  {
+   "rule_id": "MF-013",
+   "category": "surface_treatment",
+   "severity": "minor",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "surface_treatment",
+     "page": 1,
+     "bbox": [
+      822.9,
+      736.9,
+      856.7,
+      744.1
+     ],
+     "quote": "PAINTING",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The surface treatment is PAINTING, but no colour code (e.g. RAL) is given anywhere.",
+   "also_acceptable": []
+  }
+ ]
+}

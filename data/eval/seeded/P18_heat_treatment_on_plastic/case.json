@@ -1,0 +1,22 @@
+{
+ "case": "P18_heat_treatment_on_plastic",
+ "base": "20_INCH HOSE PIPE CLAMP_PU_01",
+ "kind": "planted",
+ "summary": "heat treatment HARDENED 40-45 HRC on a polyurethane part",
+ "pdf": "P18_heat_treatment_on_plastic.pdf",
+ "edits": [
+  {
+   "find": "---",
+   "to": "HARDENED 40-45 HRC",
+   "bbox": [
+    1091.2,
+    752.8,
+    1100.2,
+    760.0
+   ],
+   "font": "Helvetica",
+   "size": 7.2
+  }
+ ],
+ "erased": []
+}

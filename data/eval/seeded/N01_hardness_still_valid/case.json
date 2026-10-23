@@ -1,0 +1,22 @@
+{
+ "case": "N01_hardness_still_valid",
+ "base": "10K_CYLINDER ROD MTG_02",
+ "kind": "near_miss",
+ "summary": "24-32 HRC -> 28-32 HRC, still within PARI's range for C-45 toughening",
+ "pdf": "N01_hardness_still_valid.pdf",
+ "edits": [
+  {
+   "find": "1) TO BE TOUGHENED UPTO 24-32 HRC.",
+   "to": "1) TO BE TOUGHENED UPTO 28-32 HRC.",
+   "bbox": [
+    146.2,
+    695.8,
+    331.3,
+    705.3
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  }
+ ],
+ "erased": []
+}

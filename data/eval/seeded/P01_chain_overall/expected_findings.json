@@ -1,0 +1,114 @@
+{
+ "schema_version": "1.0",
+ "case": "P01_chain_overall",
+ "kind": "planted",
+ "base": "10K_CAM PLATE",
+ "pdf": "P01_chain_overall.pdf",
+ "planted": "overall 100 -> 105, so 35 + 30 + (35) no longer adds up",
+ "expected": [
+  {
+   "rule_id": "CN-001",
+   "category": "consistency",
+   "severity": "critical",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D19",
+     "page": 1,
+     "bbox": [
+      395.4,
+      504.1,
+      411.3,
+      513.7
+     ],
+     "quote": "105",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "dimension",
+     "ref": "D2",
+     "page": 1,
+     "bbox": [
+      305.8,
+      271.9,
+      316.4,
+      281.5
+     ],
+     "quote": "35",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "dimension",
+     "ref": "D3",
+     "page": 1,
+     "bbox": [
+      398.0,
+      271.9,
+      408.6,
+      281.5
+     ],
+     "quote": "30",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "dimension",
+     "ref": "D4",
+     "page": 1,
+     "bbox": [
+      490.2,
+      271.9,
+      500.8,
+      281.5
+     ],
+     "quote": "(35)",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The overall length reads 105, but the chain 35 + 30 + (35) adds up to 100.",
+   "also_acceptable": [
+    "CN-004",
+    "DSM-023"
+   ]
+  }
+ ],
+ "must_not_flag": [],
+ "pre_existing": [
+  {
+   "rule_id": "TB-016",
+   "category": "title_block",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "checked_date",
+     "page": 1,
+     "bbox": [
+      781.2,
+      802.7,
+      819.1,
+      810.2
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "approved_date",
+     "page": 1,
+     "bbox": [
+      823.8,
+      803.1,
+      861.7,
+      810.6
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The checked and approved dates are filled in. The samples are released drawings, so this rule, written for drawings submitted for checking, fires on every one of them.",
+   "also_acceptable": []
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "case": "P07_no_drawing_number",
+ "base": "31K_PIPE CLAMP BLK_02",
+ "kind": "planted",
+ "summary": "drawing number removed",
+ "pdf": "P07_no_drawing_number.pdf",
+ "edits": [
+  {
+   "find": "P24BSP810318",
+   "to": null,
+   "bbox": [
+    953.6,
+    785.1,
+    1070.5,
+    802.2
+   ],
+   "font": "Helvetica-Bold",
+   "size": 17.08
+  }
+ ],
+ "erased": []
+}

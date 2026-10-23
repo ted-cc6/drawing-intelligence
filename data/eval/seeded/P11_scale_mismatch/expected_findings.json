@@ -1,0 +1,155 @@
+{
+ "schema_version": "1.0",
+ "case": "P11_scale_mismatch",
+ "kind": "planted",
+ "base": "20_INCH HOSE PIPE CLAMP_PU_01",
+ "pdf": "P11_scale_mismatch.pdf",
+ "planted": "title-block scale 1 : 1 -> 2 : 1 while the views say SCALE 1:1",
+ "expected": [
+  {
+   "rule_id": "TB-006",
+   "category": "title_block",
+   "severity": "minor",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "scale",
+     "page": 1,
+     "bbox": [
+      1125.6,
+      776.6,
+      1142.5,
+      785.3
+     ],
+     "quote": "2 : 1",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "text",
+     "page": 1,
+     "bbox": [
+      329.5,
+      653.9,
+      376.7,
+      663.5
+     ],
+     "quote": "SCALE 1:1",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The title block gives the scale as 2 : 1, but the views are drawn at SCALE 1:1.",
+   "also_acceptable": [
+    "DSM-023"
+   ]
+  }
+ ],
+ "must_not_flag": [],
+ "pre_existing": [
+  {
+   "rule_id": "TB-016",
+   "category": "title_block",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "checked_date",
+     "page": 1,
+     "bbox": [
+      781.2,
+      802.7,
+      819.1,
+      810.2
+     ],
+     "quote": "06/05/2025",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "approved_date",
+     "page": 1,
+     "bbox": [
+      823.8,
+      803.1,
+      861.7,
+      810.6
+     ],
+     "quote": "06/05/2025",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The checked and approved dates are filled in. The samples are released drawings, so this rule, written for drawings submitted for checking, fires on every one of them.",
+   "also_acceptable": []
+  },
+  {
+   "rule_id": "MF-011",
+   "category": "material",
+   "severity": "minor",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "material",
+     "page": 1,
+     "bbox": [
+      878.0,
+      776.0,
+      929.3,
+      784.7
+     ],
+     "quote": "Polyurethene",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The material is misspelt 'Polyurethene' (polyurethane), so it matches no approved material name.",
+   "also_acceptable": []
+  },
+  {
+   "rule_id": "LY-005",
+   "category": "tolerance",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D10",
+     "page": 1,
+     "bbox": [
+      191.4,
+      442.7,
+      200.9,
+      466.6
+     ],
+     "quote": "34.97",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "34.97 has no tolerance of its own but two decimal places, finer than the general tolerance (±0.3) can hold. Possibly intended; to confirm with PARI.",
+   "also_acceptable": []
+  },
+  {
+   "rule_id": "LY-005",
+   "category": "tolerance",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D11",
+     "page": 1,
+     "bbox": [
+      164.1,
+      463.9,
+      173.7,
+      487.8
+     ],
+     "quote": "49.97",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "49.97 has no tolerance of its own but two decimal places, finer than the general tolerance (±0.3) can hold. Possibly intended; to confirm with PARI.",
+   "also_acceptable": []
+  }
+ ]
+}

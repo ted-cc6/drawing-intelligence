@@ -1,0 +1,65 @@
+{
+ "case": "P16_note_removed",
+ "base": "10K_CYLINDER ROD MTG_02",
+ "kind": "planted",
+ "summary": "heat-treatment note box removed; the title-block field still says REF NOTE",
+ "pdf": "P16_note_removed.pdf",
+ "edits": [
+  {
+   "find": "HEAT TREATMENT  :-",
+   "to": null,
+   "bbox": [
+    146.2,
+    685.6,
+    243.8,
+    695.1
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  },
+  {
+   "find": "1) TO BE TOUGHENED UPTO 24-32 HRC.",
+   "to": null,
+   "bbox": [
+    146.2,
+    695.8,
+    331.3,
+    705.3
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  },
+  {
+   "find": "2) RETAPPING TO BE DONE AFTER SURFACE TREATMENT",
+   "to": null,
+   "bbox": [
+    146.2,
+    706.0,
+    416.4,
+    715.5
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  },
+  {
+   "find": "AT SUPPLIER END.( IF APPLICABLE )",
+   "to": null,
+   "bbox": [
+    146.2,
+    716.2,
+    325.1,
+    725.7
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  }
+ ],
+ "erased": [
+  [
+   140,
+   680,
+   426,
+   730
+  ]
+ ]
+}

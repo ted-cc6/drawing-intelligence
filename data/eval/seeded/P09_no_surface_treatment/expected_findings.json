@@ -1,0 +1,96 @@
+{
+ "schema_version": "1.0",
+ "case": "P09_no_surface_treatment",
+ "kind": "planted",
+ "base": "10K_CYLINDER ROD MTG_02",
+ "pdf": "P09_no_surface_treatment.pdf",
+ "planted": "surface treatment removed",
+ "expected": [
+  {
+   "rule_id": "TB-013",
+   "category": "title_block",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "page": 1,
+     "bbox": [
+      804.8,
+      736.9,
+      874.8,
+      744.1
+     ],
+     "provenance": "pdf_text",
+     "ref": "surface_treatment"
+    }
+   ],
+   "description": "The surface treatment field is empty; it doesn't say N.A. either.",
+   "also_acceptable": [
+    "WPS-001"
+   ]
+  }
+ ],
+ "must_not_flag": [],
+ "pre_existing": [
+  {
+   "rule_id": "TB-016",
+   "category": "title_block",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "checked_date",
+     "page": 1,
+     "bbox": [
+      781.2,
+      802.7,
+      819.1,
+      810.2
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "approved_date",
+     "page": 1,
+     "bbox": [
+      823.8,
+      803.1,
+      861.7,
+      810.6
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The checked and approved dates are filled in. The samples are released drawings, so this rule, written for drawings submitted for checking, fires on every one of them.",
+   "also_acceptable": []
+  },
+  {
+   "rule_id": "RQ-002",
+   "category": "tolerance",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D3",
+     "page": 1,
+     "bbox": [
+      621.9,
+      73.0,
+      640.4,
+      101.4
+     ],
+     "quote": "11 (-0.2/-0.1)",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The 11 is printed with -0.2 above -0.1, so its upper limit is below its lower one. This is in PARI's original drawing (to confirm with PARI).",
+   "also_acceptable": []
+  }
+ ]
+}

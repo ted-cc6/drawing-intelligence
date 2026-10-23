@@ -1,0 +1,94 @@
+{
+ "schema_version": "1.0",
+ "case": "P07_no_drawing_number",
+ "kind": "planted",
+ "base": "31K_PIPE CLAMP BLK_02",
+ "pdf": "P07_no_drawing_number.pdf",
+ "planted": "drawing number removed",
+ "expected": [
+  {
+   "rule_id": "TB-001",
+   "category": "title_block",
+   "severity": "critical",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "page": 1,
+     "bbox": [
+      953.6,
+      785.1,
+      1070.5,
+      802.2
+     ],
+     "provenance": "pdf_text",
+     "ref": "number"
+    }
+   ],
+   "description": "The drawing number field is empty.",
+   "also_acceptable": []
+  }
+ ],
+ "must_not_flag": [],
+ "pre_existing": [
+  {
+   "rule_id": "TB-016",
+   "category": "title_block",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "checked_date",
+     "page": 1,
+     "bbox": [
+      781.2,
+      802.7,
+      819.1,
+      810.2
+     ],
+     "quote": "07/04/2026",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "approved_date",
+     "page": 1,
+     "bbox": [
+      823.8,
+      803.1,
+      861.7,
+      810.6
+     ],
+     "quote": "07/04/2026",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The checked and approved dates are filled in. The samples are released drawings, so this rule, written for drawings submitted for checking, fires on every one of them.",
+   "also_acceptable": []
+  },
+  {
+   "rule_id": "MF-013",
+   "category": "surface_treatment",
+   "severity": "minor",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "surface_treatment",
+     "page": 1,
+     "bbox": [
+      822.9,
+      736.9,
+      856.7,
+      744.1
+     ],
+     "quote": "PAINTING",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The surface treatment is PAINTING, but no colour code (e.g. RAL) is given anywhere.",
+   "also_acceptable": []
+  }
+ ]
+}

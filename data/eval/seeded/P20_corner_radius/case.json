@@ -1,0 +1,22 @@
+{
+ "case": "P20_corner_radius",
+ "base": "10K_CAM PLATE",
+ "kind": "planted",
+ "summary": "internal corner R 8 -> R 0.2, too small for standard cutters",
+ "pdf": "P20_corner_radius.pdf",
+ "edits": [
+  {
+   "find": "R 8",
+   "to": "R 0.2",
+   "bbox": [
+    306.0,
+    325.1,
+    322.2,
+    334.7
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  }
+ ],
+ "erased": []
+}

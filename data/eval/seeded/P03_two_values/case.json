@@ -1,0 +1,22 @@
+{
+ "case": "P03_two_values",
+ "base": "10K_CAM PLATE",
+ "kind": "planted",
+ "summary": "left boss height 15 -> 17; the right one stays 15 and both are drawn equal",
+ "pdf": "P03_two_values.pdf",
+ "edits": [
+  {
+   "find": "15",
+   "to": "17",
+   "bbox": [
+    224.4,
+    336.2,
+    233.9,
+    346.8
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  }
+ ],
+ "erased": []
+}

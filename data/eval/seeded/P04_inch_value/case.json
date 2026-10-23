@@ -1,0 +1,22 @@
+{
+ "case": "P04_inch_value",
+ "base": "31K_PIPE CLAMP BLK_02",
+ "kind": "planted",
+ "summary": "overall 100 -> 3.94\" on a metric drawing",
+ "pdf": "P04_inch_value.pdf",
+ "edits": [
+  {
+   "find": "100",
+   "to": "3.94\"",
+   "bbox": [
+    300.3,
+    529.2,
+    316.3,
+    538.8
+   ],
+   "font": "Helvetica",
+   "size": 9.56
+  }
+ ],
+ "erased": []
+}

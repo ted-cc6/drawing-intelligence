@@ -1,0 +1,73 @@
+{
+ "schema_version": "1.0",
+ "case": "P08_no_material",
+ "kind": "planted",
+ "base": "10K_CAM PLATE",
+ "pdf": "P08_no_material.pdf",
+ "planted": "material removed",
+ "expected": [
+  {
+   "rule_id": "TB-012",
+   "category": "title_block",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "page": 1,
+     "bbox": [
+      894.7,
+      776.0,
+      912.6,
+      784.7
+     ],
+     "provenance": "pdf_text",
+     "ref": "material"
+    }
+   ],
+   "description": "The material field is empty.",
+   "also_acceptable": [
+    "MF-011"
+   ]
+  }
+ ],
+ "must_not_flag": [],
+ "pre_existing": [
+  {
+   "rule_id": "TB-016",
+   "category": "title_block",
+   "severity": "major",
+   "result": "fail",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "checked_date",
+     "page": 1,
+     "bbox": [
+      781.2,
+      802.7,
+      819.1,
+      810.2
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "approved_date",
+     "page": 1,
+     "bbox": [
+      823.8,
+      803.1,
+      861.7,
+      810.6
+     ],
+     "quote": "01/10/2025",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The checked and approved dates are filled in. The samples are released drawings, so this rule, written for drawings submitted for checking, fires on every one of them.",
+   "also_acceptable": []
+  }
+ ]
+}
