@@ -24,6 +24,7 @@ A4 builds the first check function. The other 129 will copy its pattern, so the 
   class ChainSumParams(BaseModel):
       model_config = ConfigDict(extra="forbid")
 
+
   @check("chain_sum", ChainSumParams)
   def chain_sum(ctx: ReviewContext, rule: Rule, params: ChainSumParams) -> list[Finding]: ...
   ```

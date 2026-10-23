@@ -10,6 +10,7 @@ from drawing_intelligence.schemas.extraction import (
     TextItem,
     TextLine,
     Tile,
+    TitleBlockField,
 )
 from drawing_intelligence.schemas.knowledge import (
     KNOWLEDGE_SCHEMA_VERSION,
@@ -45,5 +46,6 @@ __all__ = [
     "TextLine",
     "Tile",
     "TitleBlock",
+    "TitleBlockField",
     "UnderstandingResult",
 ]

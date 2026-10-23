@@ -21,6 +21,7 @@ from drawing_intelligence.extraction.geometry import (
 from drawing_intelligence.extraction.imaging import ImagingConfig, export_page_images
 from drawing_intelligence.extraction.template import Rect, Template, load_template
 from drawing_intelligence.extraction.text_layer import Row, all_text_lines, line_segments, raw_rows
+from drawing_intelligence.extraction.title_block import read_title_block
 from drawing_intelligence.schemas import (
     Extraction,
     MatchedLine,
@@ -85,6 +86,10 @@ def extract_page(
     for t, bbox in all_text_lines(page, template.glyph_remap):
         text[_region_of(bbox, regions)].append(TextLine(text=t, bbox=bbox))
 
+    tb = read_title_block(
+        page, text["title_block"] + text["tolerance_table"] + text["drawing_body"], template
+    )
+
     page_no = page.number + 1 if page.number is not None else 1
     images = None
     if out_dir is not None:
@@ -95,6 +100,8 @@ def extract_page(
     warnings = []
     if not text["title_block"]:
         warnings.append("title block empty - template regions may not fit this sheet")
+    elif tb.layout == "variant":
+        warnings.append("variant title block - its labels are not where the template expects; no fields read")
     ref_w, ref_h = template.reference_sheet_pts
     if abs(w - ref_w) > 5 or abs(h - ref_h) > 5:
         warnings.append(
@@ -108,6 +115,10 @@ def extract_page(
         rotation=page.rotation,
         images=images,
         title_block_text=text["title_block"],
+        title_block_layout=tb.layout,
+        title_block_fields=tb.fields,
+        revision_rows=tb.revision_rows,
+        revision_numbers=tb.revision_numbers,
         tolerance_table_text=text["tolerance_table"],
         body_text=text["drawing_body"],
         dimensions=[_item(r, dim_ids[id(r)]) for r in dims],
@@ -123,7 +134,7 @@ def extract_page(
             for m in matches
         ],
         scale_pts_per_mm=calibrate_scale(matches),
-        chain_checks=check_chain_vs_overall(chains, matches),
+        chain_checks=check_chain_vs_overall(chains, matches, dim_ids),
         warnings=warnings,
     )
 

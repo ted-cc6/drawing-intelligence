@@ -114,12 +114,18 @@ def find_chains(
 
 
 def check_chain_vs_overall(
-    chains: list[tuple[Orientation, list[Match]]], matches: list[Match], abs_tol: float = 0.05
+    chains: list[tuple[Orientation, list[Match]]],
+    matches: list[Match],
+    dim_ids: dict[int, str] | None = None,
+    abs_tol: float = 0.05,
 ) -> list[ChainCheck]:
     """For each chain, find an overall dimension spanning the same range and check the sum.
 
+    `dim_ids` maps `id(row)` to the dimension id (D1...), so each check can cite its dimensions.
+
     Pass rule: |chain sum - overall| <= abs_tol (mm). The original 2 % rule let 6995 vs 7000 pass.
     """
+    ids = dim_ids or {}
     results = []
     for orientation, chain in chains:
         span0 = min(_span(m, orientation)[0] for m in chain)
@@ -141,8 +147,10 @@ def check_chain_vs_overall(
             results.append(
                 ChainCheck(
                     chain_texts=[m.row.text for m in chain],
+                    chain_ids=[ids[id(m.row)] for m in chain if id(m.row) in ids],
                     chain_sum=round(chain_sum, 3),
                     overall_text=overall.row.text,
+                    overall_id=ids.get(id(overall.row)),
                     overall_value=overall.value,
                     match=diff <= abs_tol,
                     diff=round(diff, 3),

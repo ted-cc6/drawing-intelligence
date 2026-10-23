@@ -10,7 +10,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-EXTRACTION_SCHEMA_VERSION = "2.0"
+EXTRACTION_SCHEMA_VERSION = "2.1"  # 2.1: title-block fields, revision rows, chain ids
 
 BBox = tuple[float, float, float, float]
 
@@ -43,11 +43,20 @@ class ChainCheck(BaseModel):
     """A chain of end-to-end dimensions compared with the overall dimension spanning it."""
 
     chain_texts: list[str]
+    chain_ids: list[str] = Field(default=[], description="the chain's dimension ids, in order")
     chain_sum: float
     overall_text: str
+    overall_id: str | None = None
     overall_value: float
     match: bool
     diff: float
+
+
+class TitleBlockField(BaseModel):
+    """One title-block value read by position from its cell in the template (stage 1, exact text)."""
+
+    value: str | None = Field(description="the words in the cell in reading order; None if the cell is empty")
+    bbox: BBox = Field(description="the printed value's bbox, or the cell's when it is empty")
 
 
 class Tile(BaseModel):
@@ -70,6 +79,16 @@ class PageExtraction(BaseModel):
     rotation: int
     images: ImageSet | None = None
     title_block_text: list[TextLine] = []
+    title_block_layout: Literal["standard", "variant"] | None = Field(
+        default=None, description="variant: the template's anchor labels are not where expected, so no fields"
+    )
+    title_block_fields: dict[str, TitleBlockField] = Field(
+        default={}, description="keyed by the `TitleBlock` field names (number, material, drawn_date, ...)"
+    )
+    revision_rows: list[TextLine] = Field(default=[], description="filled rows of the revision table")
+    revision_numbers: list[TextLine] = Field(
+        default=[], description="the revision numbers in the table's first column (1, 2, ...)"
+    )
     tolerance_table_text: list[TextLine] = []
     body_text: list[TextLine] = []
     dimensions: list[TextItem] = []
@@ -83,7 +102,7 @@ class PageExtraction(BaseModel):
 
 
 class Extraction(BaseModel):
-    schema_version: Literal["2.0"] = EXTRACTION_SCHEMA_VERSION
+    schema_version: Literal["2.0", "2.1"] = EXTRACTION_SCHEMA_VERSION
     source_file: str
     template: str
     n_pages: int
