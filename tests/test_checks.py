@@ -484,3 +484,14 @@ def test_hardened_only_treatments_have_hardening(note, status):
         run("hardened_only_treatments_have_hardening", notes_page("REF NOTE", note), **HARDENING)[1].status
         == status
     )
+
+
+def test_decimals_can_ignore_cad_trailing_zeros_under_the_general_tolerance():
+    p = tol_page("18.00", "34.97", "28.500±0.1")
+    findings, _ = run("decimals_vs_tolerance", p, ignore_trailing_zeros_under_general=True)
+    assert [f.evidence[0].quote for f in findings] == [
+        "34.97",
+        "28.500±0.1",
+    ]  # an explicit ± is taken as printed
+    findings, _ = run("decimals_vs_tolerance", p)
+    assert [f.evidence[0].quote for f in findings] == ["18.00", "34.97", "28.500±0.1"]

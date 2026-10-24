@@ -114,5 +114,11 @@ A4 builds the first check function. The other 129 will copy its pattern, so the 
   rules are `not_checked`.
 - **CN-002 (`conflicting_values`) uses geometry first.** Two dimensions drawn the same length, where one matches
   the sheet's scale and the other doesn't, are flagged. An LLM "same feature" relation can be added later.
+- **What stage 1 derives by code stays out of the understanding prompt** (title-block fields, tolerance-table
+  rows, ordered limits, chain ids). Their raw text is in the prompt already, and the prompt stays the one ADR 0009
+  chose the model on; a test checks it. Adding them would be a prompt change, to measure with `di eval
+  understand` first.
+- **Stacked limits are ordered by where they are printed** (`TextItem.limits`, upper first). The joined text
+  keeps the PDF's storage order, which is not always upper first.
 - **Session workspaces are no longer committed.** `data/sessions/` is git-ignored (a narrow exception to ADR
   0007: it is run history, not client data). `di eval review` runs its sessions in a temporary folder.

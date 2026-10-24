@@ -36,8 +36,15 @@ def tolerance_limits_valid(ctx: ReviewContext, rule: Rule, _: object) -> list[Fi
     return out
 
 
-@check("decimals_vs_tolerance")
-def decimals_vs_tolerance(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+class DecimalsParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    # Untoleranced sizes are compared with the general tolerance without their trailing zeros ("18.00" -> 18),
+    # which CAD adds by default. A size with its own tolerance is always compared as printed (10.000±0.1).
+    ignore_trailing_zeros_under_general: bool = False
+
+
+@check("decimals_vs_tolerance", DecimalsParams)
+def decimals_vs_tolerance(ctx: ReviewContext, rule: Rule, params: DecimalsParams) -> list[Finding]:
     """A size shows no more decimals than its tolerance (its own, else the general one for its size)."""
     out = []
     checked = False
@@ -57,6 +64,8 @@ def decimals_vs_tolerance(ctx: ReviewContext, rule: Rule, _: object) -> list[Fin
                 continue  # a fit without limits, or no general tolerance for this size
             checked = True
             shown = decimals(t.nominal_text)
+            if not t.explicit and params.ignore_trailing_zeros_under_general and "." in t.nominal_text:
+                shown = decimals(t.nominal_text.rstrip("0").rstrip("."))
             if shown > allowed:
                 out.append(
                     new_finding(

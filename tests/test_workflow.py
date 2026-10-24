@@ -68,6 +68,18 @@ def test_message_has_prompt_images_and_exact_text(make_pdf, tmp_path):
     assert "matched_lines" not in parts[-1].text  # type: ignore[union-attr]
 
 
+def test_message_leaves_out_what_stage_1_derives_by_code(make_pdf, tmp_path):
+    # The prompt stays the one ADR 0009 chose the model on: raw text yes, code-derived fields no.
+    out = tmp_path / "ex"
+    page = extract_pdf(make_pdf(), out, imaging=SMALL).pages[0]
+    text = json.loads(build_parts(page, out)[-1].text.split("\n", 1)[1])  # type: ignore[union-attr]
+    for key in ("title_block_fields", "title_block_layout", "general_tolerances", "revision_rows"):
+        assert key not in text
+    assert all("limits" not in d for d in text["dimensions"])
+    assert all("chain_ids" not in c and "overall_id" not in c for c in text["chain_checks"])
+    assert text["title_block_text"] and text["dimensions"]  # the raw text is all still there
+
+
 def test_understand_page_valid(make_pdf, settings, tmp_path):
     out = tmp_path / "ex"
     page = extract_pdf(make_pdf(), out, imaging=SMALL).pages[0]

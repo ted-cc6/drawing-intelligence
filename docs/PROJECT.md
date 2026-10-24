@@ -257,9 +257,11 @@ understanding; its replies are cached, so re-runs are free. Code checks alone ta
   drawn at 2:1 on a sheet stating 1:1).
 - RQ-002 (inverted limits) fails on 4 of 13 sheets with stacked limits. A first version read the limits in the
   PDF's storage order and failed 13; stage 1 now orders them by where they are printed.
-- LY-005 (decimals vs tolerance) fails on 91 of 195 sheets, nearly all CAD-default trailing zeros such as
-  `18.00` under a general tolerance of ±0.2. That is what the rule says (the answer keys count `34.97` under ±0.3
-  as a real issue), but it is too noisy to show engineers as is: PARI should say whether trailing zeros count.
+- LY-005 (decimals vs tolerance) failed on 91 of 195 sheets, mostly CAD-default trailing zeros such as `18.00`
+  under a general tolerance of ±0.2. Until PARI decides, trailing zeros on untoleranced sizes are not counted
+  (rule param `ignore_trailing_zeros_under_general`; an explicit `10.000±0.1` still fails). It still fails on 74
+  sheets (313 findings): two-decimal sizes such as `15.21` under ±0.2, which the answer keys count as real
+  (`34.97` under ±0.3). PARI should confirm that this is what they want flagged.
 - TL-003 (much tighter than general) warns on 15 of 157 sheets, e.g. `40±0.01`. Its ratio (20x) is provisional.
 
 ## 9. Roadmap

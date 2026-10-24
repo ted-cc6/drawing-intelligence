@@ -10,6 +10,7 @@ import json
 import re
 from importlib import resources
 from pathlib import Path
+from typing import Any
 
 from pydantic import ValidationError
 
@@ -19,8 +20,24 @@ from drawing_intelligence.schemas import DrawingKnowledge, PageExtraction, Under
 NODE = "understand"
 PROMPT = resources.files(__package__).joinpath("prompts/understand.md").read_text(encoding="utf-8")
 
-# Sent to the model as the extracted text: everything except image bookkeeping and line geometry.
-_EXCLUDE_FROM_TEXT = {"images", "matched_lines"}
+# Sent to the model as the extracted text: everything except image bookkeeping and line geometry, and the
+# fields stage 1 derives by code (title-block fields, tolerance table rows, ordered limits, chain ids). Their
+# raw text is in the prompt already; leaving them out keeps the prompt that ADR 0009 chose the model on.
+_PER_ITEM = {"__all__": {"limits"}}
+_EXCLUDE_FROM_TEXT: dict[str, Any] = {
+    "images": True,
+    "matched_lines": True,
+    "title_block_layout": True,
+    "title_block_fields": True,
+    "revision_rows": True,
+    "revision_numbers": True,
+    "general_tolerances": True,
+    "dimensions": _PER_ITEM,
+    "view_labels": _PER_ITEM,
+    "notes": _PER_ITEM,
+    "other_numeric": _PER_ITEM,
+    "chain_checks": {"__all__": {"chain_ids", "overall_id"}},
+}
 
 
 def image_caption(page: PageExtraction, file: str) -> str:
