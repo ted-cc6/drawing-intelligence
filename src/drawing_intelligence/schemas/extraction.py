@@ -10,7 +10,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-EXTRACTION_SCHEMA_VERSION = "2.1"  # 2.1: title-block fields, revision rows, chain ids
+EXTRACTION_SCHEMA_VERSION = "2.1"  # 2.1: title-block fields, revision rows, chain ids, general tolerances
 
 BBox = tuple[float, float, float, float]
 
@@ -29,6 +29,9 @@ class TextItem(BaseModel):
     text: str
     is_reference: bool = False
     bbox: BBox
+    limits: tuple[str, str] | None = Field(
+        default=None, description="(upper, lower) of a stacked tolerance, ordered by where they are printed"
+    )
 
 
 class MatchedLine(BaseModel):
@@ -59,6 +62,18 @@ class TitleBlockField(BaseModel):
     bbox: BBox = Field(description="the printed value's bbox, or the cell's when it is empty")
 
 
+class GeneralToleranceRow(BaseModel):
+    """One row of the general tolerance table (IS 2102): the tolerance for sizes over `over` up to `up_to`."""
+
+    process: Literal["machining", "fabrication"]
+    kind: Literal["linear", "angular"]
+    over: float
+    up_to: float | None = Field(description="None for the open-ended last row (OVER 2000)")
+    tolerance: str = Field(description="as printed, e.g. ±0.2 or ±0°30'")
+    value_mm: float | None = Field(description="the ± value in mm, for linear rows")
+    bbox: BBox = Field(description="the row's size-range text")
+
+
 class Tile(BaseModel):
     file: str = Field(description="path relative to the extraction folder")
     pixel_box: tuple[int, int, int, int]
@@ -86,6 +101,9 @@ class PageExtraction(BaseModel):
         default={}, description="keyed by the `TitleBlock` field names (number, material, drawn_date, ...)"
     )
     revision_rows: list[TextLine] = Field(default=[], description="filled rows of the revision table")
+    general_tolerances: list[GeneralToleranceRow] = Field(
+        default=[], description="the general tolerance table's rows, read from the tolerance strip"
+    )
     revision_numbers: list[TextLine] = Field(
         default=[], description="the revision numbers in the table's first column (1, 2, ...)"
     )

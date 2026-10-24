@@ -225,35 +225,42 @@ No labelled error drawings exist yet, so evaluation is built from what is availa
 
 ### Results of the first review slice (2026-10-23)
 
-`di eval review` on the 28 seeded cases: the `checks` reviewer with its first 10 check functions (15 of 135
-code/lookup rules), through the full graph.
+`di eval review` on the 28 seeded cases, through the full graph: the `checks` reviewer with 15 check functions
+(20 of 135 code/lookup rules).
 
-| | code checks only (`--no-understand`) | with understanding (`qwen3-vl-plus`, thinking off) |
+| | first 10 checks | + tolerance and heat-treatment checks |
 |---|---|---|
-| Recall, all 22 planted errors | 10/22 (45%) | 10/22 (45%) |
-| Recall, planted errors with a built check | 10/10 (100%) | 10/10 (100%) |
-| Precision | 40/40 (100%) | 40/40 (100%) |
+| Recall, all 22 planted errors | 10/22 (45%) | **15/22 (68%)** |
+| Recall, planted errors with a built check | 10/10 | 15/15 |
+| Precision | 40/40 | 60/60 |
 | False alarms on clean and near-miss drawings | 0 | 0 |
-| Cost for 28 drawings | $0 | $0.324 (cached since: re-runs $0) |
-| Time | ~1 min | ~52 min (~111 s per drawing, nearly all understanding) |
+
+With understanding (`qwen3-vl-plus`, thinking off) the first table was identical; none of these checks needs it
+yet (CN-002 uses drawn lengths). That run cost $0.324 for 28 drawings and took ~111 s per drawing, nearly all
+understanding; its replies are cached, so re-runs are free. Code checks alone take ~1 min for all 28.
 
 | Category | Caught / planted |
 |---|---|
 | title block | 6/6 |
 | consistency | 4/6 (P05, P06 need the `llm` missing-dimension rules) |
-| tolerance | 0/3 (needs tolerance parsing) |
-| surface treatment | 0/5 (needs lookup tables and the heat-treatment checks) |
+| tolerance | 3/3 |
+| surface treatment | 2/5 (P18, P21, P22 need the lookup tables) |
 | design intent, manufacturability | 0/1 each (LLM reviewers) |
 
-- The 40 findings are the 12 that catch a planted error (P01 and P02 each also raise the other chain rule, which
-  their keys accept) and 28 real issues already in the client's drawings, as listed in the keys' `pre_existing`
-  (TB-016 on all 28 cases).
-- The understanding step does not change the score yet: none of the 10 checks needs it (CN-002 uses drawn
-  lengths). It will matter for the LLM reviewers.
-- On 200 client drawings (no answer key), TB-006 (scale) fails on 17 of 139 sheets with a readable title block.
-  The examples looked like real mismatches (e.g. 11 dimensions drawn at 2:1 on a sheet stating 1:1); an engineer
-  should confirm them.
-- `tests/regression/test_review_eval.py` keeps this in CI: no false alarms, and at least 10 planted errors caught.
+- The 60 findings are 17 that catch a planted error (P01 and P02 each also raise the other chain rule, which
+  their keys accept) and 43 real issues already in the client's drawings (the keys' `pre_existing`: TB-016 on
+  every case, RQ-002 on the cylinder rod, LY-005 and MF-011 on the hose clamp, MF-013 on the pipe-clamp block).
+- `tests/regression/test_review_eval.py` keeps this in CI: no false alarms, and at least 15 planted errors caught.
+
+**On 200 client drawings (no answer key; an engineer should confirm):**
+- TB-006 (scale) fails on 17 of 139 sheets with a readable title block. The examples look real (e.g. 11 dimensions
+  drawn at 2:1 on a sheet stating 1:1).
+- RQ-002 (inverted limits) fails on 4 of 13 sheets with stacked limits. A first version read the limits in the
+  PDF's storage order and failed 13; stage 1 now orders them by where they are printed.
+- LY-005 (decimals vs tolerance) fails on 91 of 195 sheets, nearly all CAD-default trailing zeros such as
+  `18.00` under a general tolerance of ±0.2. That is what the rule says (the answer keys count `34.97` under ±0.3
+  as a real issue), but it is too noisy to show engineers as is: PARI should say whether trailing zeros count.
+- TL-003 (much tighter than general) warns on 15 of 157 sheets, e.g. `40±0.01`. Its ratio (20x) is provisional.
 
 ## 9. Roadmap
 
@@ -261,7 +268,7 @@ code/lookup rules), through the full graph.
 |---|---|---|
 | M0 | Repo, tooling, CI on Windows/macOS/Linux, docs and ADRs | ✅ |
 | M1 | Notebooks 01/02 ported and upgraded: typed contracts, multi-page, template config, model registry, telemetry, session data, LangGraph intake → understand, CLI, eval | ✅ |
-| M2 | Review contracts and rulebook loader (A2 ✅); default understanding model (A1 ✅, ADR 0009); draft rulebook, 174 rules (R ✅); review-stage design (ADR 0010 ✅, proposed); title-block fields in stage 1 ✅; `checks` reviewer with its first 10 check functions (A4, in progress: 15 of 135 code/lookup rules built); verifier (A3 ✅); next: tolerance parsing and checks (P13–P17), reference tables for the lookup rules, symbols from text and vectors in stage 1 (Spike D) | in progress |
+| M2 | Review contracts and rulebook loader (A2 ✅); default understanding model (A1 ✅, ADR 0009); draft rulebook, 174 rules (R ✅); review-stage design (ADR 0010 ✅, proposed); title-block fields in stage 1 ✅; `checks` reviewer with 15 check functions (A4, in progress: 20 of 135 code/lookup rules built); general tolerance table and stacked limits in stage 1 ✅; verifier (A3 ✅); next: reference tables for the lookup rules (P18, P21, P22), symbols from text and vectors in stage 1 (Spike D) | in progress |
 | M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`); seeded-error eval set (drawings and keys: A5a ✅; `di eval review`: A5b ✅); graph fan-out (A6 part 1 ✅) and report (Excel + annotated sheet) | |
 | M4 | Q&A agent; feedback log | |
 | M5 | API + dashboard (model picker, cost and latency) | |

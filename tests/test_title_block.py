@@ -122,3 +122,64 @@ def test_chain_checks_carry_dimension_ids(make_pdf):
     ids = {d.text: d.id for d in page.dimensions}
     assert chain.overall_id == ids["400"]
     assert len(chain.chain_ids) == len(chain.chain_texts) == 3
+
+
+# --- general tolerance table and stacked limits (stage 1) -------------------------------------------------
+
+
+def test_general_tolerance_table_rows_by_section(tmp_path: Path):
+    doc = pymupdf.open()
+    page = doc.new_page(width=A3[0], height=A3[1])
+    x = A3[0] - 110
+    for text, y, dx in [
+        ("UNSPECIFIED TOL.(M/C)", 500, 0),
+        ("FOR LINEAR IN mm.", 508, 0),
+        ("6 UP TO 30", 520, 0),
+        ("±0.2", 520, 60),
+        ("30 UP TO 120", 532, 0),
+        ("±0.3", 532, 60),
+        ("OVER 2000", 544, 0),
+        ("±2", 544, 60),
+    ]:
+        page.insert_text((x + dx, y), text, fontsize=5)
+    path = tmp_path / "tol.pdf"
+    doc.save(path)
+    rows = extract_pdf(path).pages[0].general_tolerances
+    assert [(r.process, r.kind, r.over, r.up_to, r.value_mm) for r in rows] == [
+        ("machining", "linear", 6.0, 30.0, 0.2),
+        ("machining", "linear", 30.0, 120.0, 0.3),
+        ("machining", "linear", 2000.0, None, 2.0),
+    ]
+
+
+def _stacked(tmp_path: Path, rotate: int, upper: str, lower: str, lower_first: bool = False):
+    """A nominal 11 with its limits printed in place; `lower_first` writes the lower one first into the PDF.
+
+    `rotate` 0: horizontal, the upper limit on top. 90: reading upwards, the nominal below and the upper limit
+    in the left column (the text's "up").
+    """
+    doc = pymupdf.open()
+    page = doc.new_page(width=A3[0], height=A3[1])
+    if rotate == 0:
+        page.insert_text((500, 500), "11", fontsize=10)
+        slots = [(upper, (516, 494)), (lower, (516, 502))]
+    else:
+        page.insert_text((500, 500), "11", fontsize=10, rotate=90)
+        slots = [(upper, (494, 484)), (lower, (502, 484))]
+    for text, pos in reversed(slots) if lower_first else slots:
+        page.insert_text(pos, text, fontsize=6, rotate=rotate)
+    path = tmp_path / f"stacked_{rotate}_{lower_first}.pdf"
+    doc.save(path)
+    return [d for d in extract_pdf(path).pages[0].dimensions if d.limits]
+
+
+@pytest.mark.parametrize("rotate", [0, 90])
+@pytest.mark.parametrize("lower_first", [False, True])
+def test_stacked_limits_are_ordered_by_position_not_pdf_order(tmp_path: Path, rotate: int, lower_first: bool):
+    (dim,) = _stacked(tmp_path, rotate, "-0.1", "-0.2", lower_first)
+    assert dim.limits == ("-0.1", "-0.2")
+
+
+def test_another_dimensions_value_is_not_a_limit(tmp_path: Path):
+    dims = _stacked(tmp_path, 0, "+0.2", "16.5")  # 16.5 is a size, not a limit
+    assert dims == []

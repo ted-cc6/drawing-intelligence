@@ -7,7 +7,12 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from drawing_intelligence.review.checks import consistency, title_block  # noqa: F401 - registers the checks
+from drawing_intelligence.review.checks import (  # noqa: F401 - importing registers the checks
+    consistency,
+    surface_treatment,
+    title_block,
+    tolerance,
+)
 from drawing_intelligence.review.checks._registry import (
     REGISTRY,
     CheckSpec,

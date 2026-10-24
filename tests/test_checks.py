@@ -9,6 +9,7 @@ from drawing_intelligence.review import load_rulebook
 from drawing_intelligence.review.checks import NotApplicable, NotCheckable, param_models, registered
 from drawing_intelligence.review.checks._geometry import MM_PTS
 from drawing_intelligence.review.checks._registry import CheckSpec, NoParams
+from drawing_intelligence.review.checks._tolerance import general_for, parse
 from drawing_intelligence.review.context import ReviewContext
 from drawing_intelligence.review.reviewers import LLM_REVIEWER_FOR_CATEGORY, reviewer_for
 from drawing_intelligence.review.rulebook import Rule, Rulebook, RuleSource, new_finding
@@ -17,6 +18,7 @@ from drawing_intelligence.schemas import (
     ChainCheck,
     EvidenceRef,
     Extraction,
+    GeneralToleranceRow,
     MatchedLine,
     PageExtraction,
     TextItem,
@@ -361,3 +363,124 @@ def test_fields_blank_at_submission():
 def test_checks_are_pure_functions_of_their_input():
     p = chain(match=False)
     assert run("chain_sum", p)[0] == run("chain_sum", p)[0]
+
+
+# --- tolerance ----------------------------------------------------------------------------------------------
+
+GENERAL = [
+    GeneralToleranceRow(
+        process="machining", kind="linear", over=o, up_to=u, tolerance=f"±{v:g}", value_mm=v,
+        bbox=(0, 0, 1, 1),
+    )
+    for o, u, v in [(0.5, 3, 0.1), (3, 6, 0.1), (6, 30, 0.2), (30, 120, 0.3), (120, 315, 0.5)]
+]  # fmt: skip
+
+
+def tol_page(*texts: str, limits: dict[str, tuple[str, str]] | None = None) -> PageExtraction:
+    dims = [
+        TextItem(
+            id=f"D{i}", text=t, bbox=(100, 100 + 20 * i, 130, 110 + 20 * i), limits=(limits or {}).get(t)
+        )
+        for i, t in enumerate(texts, 1)
+    ]
+    return page(dimensions=dims, general_tolerances=GENERAL)
+
+
+@pytest.mark.parametrize(
+    ("text", "nominal", "fit", "upper", "lower"),
+    [
+        ("28.5±0.1", 28.5, None, 0.1, -0.1),
+        ("30 ±0.1", 30, None, 0.1, -0.1),
+        ("⌀ 16 H7 (+0.018/0)", 16, "H7", 0.018, 0),
+        ("R 8", 8, None, None, None),
+        ("⌀8   H7", 8, "H7", None, None),
+    ],
+)
+def test_tolerance_parsing(text, nominal, fit, upper, lower):
+    t = parse(dim(1, text))
+    assert t is not None and (t.nominal, t.fit, t.upper, t.lower) == (nominal, fit, upper, lower)
+
+
+@pytest.mark.parametrize("text", ["3 x 45°", "(35)", "2-⌀15", "⌀8 H7 THRU", "0.00 (-35.00/-35.00)"])
+def test_not_a_toleranced_size(text):
+    assert parse(dim(1, text)) is None
+
+
+def test_limits_come_from_their_printed_order_not_the_text():
+    t = parse(TextItem(id="D1", text="42 (-0.2/0)", bbox=(0, 0, 1, 1), limits=("0", "-0.2")))
+    assert t is not None and (t.upper, t.lower) == (0, -0.2)
+
+
+def test_general_tolerance_lookup_by_size():
+    p = tol_page()
+    assert general_for(p, 2.5).tolerance == "±0.1"  # type: ignore[union-attr]
+    assert general_for(p, 30).tolerance == "±0.2"  # type: ignore[union-attr]  # 6 < 30 <= 30
+    assert general_for(p, 30.5).tolerance == "±0.3"  # type: ignore[union-attr]
+    assert general_for(p, 0.2) is None
+
+
+def test_tolerance_limits_valid():
+    bad = tol_page("11 (-0.2/-0.1)", limits={"11 (-0.2/-0.1)": ("-0.2", "-0.1")})
+    findings, status = run("tolerance_limits_valid", bad)
+    assert status.status == "fail" and findings[0].evidence[0].ref == "D1"
+    good = tol_page("42 (-0.2/0)", limits={"42 (-0.2/0)": ("0", "-0.2")})
+    assert run("tolerance_limits_valid", good)[1].status == "pass"
+    assert run("tolerance_limits_valid", tol_page("40±0.1"))[1].status == "not_applicable"
+
+
+def test_decimals_vs_tolerance():
+    findings, status = run(
+        "decimals_vs_tolerance", tol_page("28.500±0.1", "28.5±0.1", "20±0.02", "34.97", "2.5")
+    )
+    assert status.status == "fail" and [f.evidence[0].quote for f in findings] == ["28.500±0.1", "34.97"]
+    assert run("decimals_vs_tolerance", tol_page("⌀8   H7"))[1].status == "not_checked"  # a fit says nothing
+
+
+def test_tolerance_tighter_than_general_is_a_warning():
+    p = tol_page("70±0.002", "70±0.1", "20±0.02", "⌀ 16 H7 (+0.018/0)")
+    findings, status = run("tolerance_tighter_than_general", p, ratio=20)
+    assert status.status == "warning" and [f.evidence[0].quote for f in findings] == ["70±0.002"]
+    assert run("tolerance_tighter_than_general", p)[1].status == "not_checked"  # no ratio agreed
+
+
+# --- surface treatment --------------------------------------------------------------------------------------
+
+
+def notes_page(heat: str | None, *notes: str) -> PageExtraction:
+    items = [TextItem(text=n, bbox=(100, 600 + 10 * i, 300, 608 + 10 * i)) for i, n in enumerate(notes)]
+    return page(notes=items, title_block_fields=fields(heat_treatment=heat))
+
+
+def test_referenced_note_exists():
+    ok = notes_page("REF NOTE", "HEAT TREATMENT  :-", "1) TO BE TOUGHENED UPTO 24-32 HRC.")
+    assert run("referenced_note_exists", ok, field="heat_treatment")[1].status == "pass"
+    gone = notes_page("REF NOTE", "HEAT TREATMENT  :-")  # the heading alone specifies nothing
+    findings, status = run("referenced_note_exists", gone, field="heat_treatment")
+    assert status.status == "fail" and findings[0].evidence[0].ref == "heat_treatment"
+    assert (
+        run("referenced_note_exists", notes_page("---"), field="heat_treatment")[1].status == "not_applicable"
+    )
+
+
+HARDENING = {
+    "needs_prior_hardening": ["tempering", "sub-zero treatment"],
+    "hardening_terms": ["hardening", "hardened and tempered", "toughening", "carburizing"],
+}
+
+
+@pytest.mark.parametrize(
+    ("note", "status"),
+    [
+        ("1) TO BE TEMPERED UPTO 24-32 HRC.", "fail"),
+        ("1) TO BE TEMPERING UPTO 52~55 HRC.", "fail"),
+        ("SUB ZERO TREATMENT AFTER MACHINING", "fail"),
+        ("HARDENED AND TEMPERED TO 40-45 HRC", "pass"),
+        ("CARBURISED AND TEMPERED", "pass"),  # British spelling of a hardening process
+        ("1) TO BE TOUGHENED UPTO 28-32 HRC.", "not_applicable"),
+    ],
+)
+def test_hardened_only_treatments_have_hardening(note, status):
+    assert (
+        run("hardened_only_treatments_have_hardening", notes_page("REF NOTE", note), **HARDENING)[1].status
+        == status
+    )

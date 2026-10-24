@@ -74,7 +74,9 @@ rules:
     severity: minor
     check_type: code
     check: tolerance_tighter_than_general
-    params: {ratio: null}
+    # ratio: provisional, to agree with PARI. 20x tighter than the general tolerance flags ±0.002 on 70 mm (general
+    #   ±0.3) but not ±0.02 on 20 mm (general ±0.2), which the samples use. Fits (H7, g6) are not compared.
+    params: {ratio: 20}
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-03}
     status: draft
 

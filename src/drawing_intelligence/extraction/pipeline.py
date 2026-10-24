@@ -22,6 +22,7 @@ from drawing_intelligence.extraction.imaging import ImagingConfig, export_page_i
 from drawing_intelligence.extraction.template import Rect, Template, load_template
 from drawing_intelligence.extraction.text_layer import Row, all_text_lines, line_segments, raw_rows
 from drawing_intelligence.extraction.title_block import read_title_block
+from drawing_intelligence.extraction.tolerance_table import read_general_tolerances
 from drawing_intelligence.schemas import (
     Extraction,
     MatchedLine,
@@ -49,6 +50,7 @@ def _item(r: Row, item_id: str | None = None) -> TextItem:
         text=r.text,
         is_reference=r.is_reference,
         bbox=(round(r.x0, 1), round(r.y0, 1), round(r.x1, 1), round(r.y1, 1)),
+        limits=r.limits,
     )
 
 
@@ -119,6 +121,7 @@ def extract_page(
         title_block_fields=tb.fields,
         revision_rows=tb.revision_rows,
         revision_numbers=tb.revision_numbers,
+        general_tolerances=read_general_tolerances(text["tolerance_table"]),
         tolerance_table_text=text["tolerance_table"],
         body_text=text["drawing_body"],
         dimensions=[_item(r, dim_ids[id(r)]) for r in dims],
