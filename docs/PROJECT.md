@@ -235,9 +235,10 @@ No labelled error drawings exist yet, so evaluation is built from what is availa
 | Precision | 40/40 | 60/60 |
 | False alarms on clean and near-miss drawings | 0 | 0 |
 
-With understanding (`qwen3-vl-plus`, thinking off) the first table was identical; none of these checks needs it
-yet (CN-002 uses drawn lengths). That run cost $0.324 for 28 drawings and took ~111 s per drawing, nearly all
-understanding; its replies are cached, so re-runs are free. Code checks alone take ~1 min for all 28.
+With understanding (`qwen3-vl-plus`, thinking off) the results are identical; none of these checks needs it yet
+(CN-002 uses drawn lengths). A run takes ~110 s per drawing, nearly all understanding; the replies are cached in
+`data/cache/`, so re-runs are free (re-caching after the prompt was restored to ADR 0009's cost $0.256; the four
+clean cases hit A1's cache). Code checks alone take ~1 min for all 28.
 
 | Category | Caught / planted |
 |---|---|
