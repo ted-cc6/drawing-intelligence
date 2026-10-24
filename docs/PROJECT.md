@@ -223,6 +223,38 @@ No labelled error drawings exist yet, so evaluation is built from what is availa
   3 runs; `qwen3-vl-plus` with thinking off was as accurate as the others at a fraction of the cost and time,
   so it is now the default ([ADR 0009](adr/0009-understanding-model-default.md)).
 
+### Results of the first review slice (2026-10-23)
+
+`di eval review` on the 28 seeded cases: the `checks` reviewer with its first 10 check functions (15 of 135
+code/lookup rules), through the full graph.
+
+| | code checks only (`--no-understand`) | with understanding (`qwen3-vl-plus`, thinking off) |
+|---|---|---|
+| Recall, all 22 planted errors | 10/22 (45%) | 10/22 (45%) |
+| Recall, planted errors with a built check | 10/10 (100%) | 10/10 (100%) |
+| Precision | 40/40 (100%) | 40/40 (100%) |
+| False alarms on clean and near-miss drawings | 0 | 0 |
+| Cost for 28 drawings | $0 | $0.324 (cached since: re-runs $0) |
+| Time | ~1 min | ~52 min (~111 s per drawing, nearly all understanding) |
+
+| Category | Caught / planted |
+|---|---|
+| title block | 6/6 |
+| consistency | 4/6 (P05, P06 need the `llm` missing-dimension rules) |
+| tolerance | 0/3 (needs tolerance parsing) |
+| surface treatment | 0/5 (needs lookup tables and the heat-treatment checks) |
+| design intent, manufacturability | 0/1 each (LLM reviewers) |
+
+- The 40 findings are the 12 that catch a planted error (P01 and P02 each also raise the other chain rule, which
+  their keys accept) and 28 real issues already in the client's drawings, as listed in the keys' `pre_existing`
+  (TB-016 on all 28 cases).
+- The understanding step does not change the score yet: none of the 10 checks needs it (CN-002 uses drawn
+  lengths). It will matter for the LLM reviewers.
+- On 200 client drawings (no answer key), TB-006 (scale) fails on 17 of 139 sheets with a readable title block.
+  The examples looked like real mismatches (e.g. 11 dimensions drawn at 2:1 on a sheet stating 1:1); an engineer
+  should confirm them.
+- `tests/regression/test_review_eval.py` keeps this in CI: no false alarms, and at least 10 planted errors caught.
+
 ## 9. Roadmap
 
 | Milestone | Content | Status |
