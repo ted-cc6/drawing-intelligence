@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from drawing_intelligence.review.checks._registry import NotCheckable
 from drawing_intelligence.review.context import ReviewContext
 from drawing_intelligence.schemas import EvidenceRef, PageExtraction, TextItem, TextLine
@@ -9,6 +11,12 @@ from drawing_intelligence.schemas import EvidenceRef, PageExtraction, TextItem, 
 # Values that only hold a cell's place. A rule's `placeholder_ok` lists the ones it accepts as a real answer
 # (e.g. "N.A." for a surface treatment that is deliberately none).
 PLACEHOLDERS = frozenset({"#", "-", "--", "---", "N.A.", "NA", "N/A", "NIL", "TBD", "XX", "XXX"})
+_FILLER = re.compile(r"[-–—_.\s]+")  # any run of dashes or dots ("----") holds a place too
+
+
+def is_placeholder(value: str | None) -> bool:
+    v = (value or "").strip()
+    return v in PLACEHOLDERS or bool(_FILLER.fullmatch(v))
 
 
 def dimension(page: PageExtraction, dim: TextItem) -> EvidenceRef:

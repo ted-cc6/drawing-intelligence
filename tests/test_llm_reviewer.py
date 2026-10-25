@@ -154,3 +154,13 @@ def test_template_boilerplate_notes_are_not_sent(ctx):
     c = ReviewContext(**{**ctx.__dict__, "knowledge": {1: k.model_copy(update={"notes": notes})}})
     drawing = json.loads(build_message(c, BOOK.rules[:1]).split("DRAWING:\n", 1)[1])
     assert [n["id"] for n in drawing[0]["notes"]] == ["N2"]
+
+
+def test_rule_instructions_are_sent_and_held_back_rules_are_not(ctx, settings, tmp_path):
+    fake = ReviewModel([])
+    out = run_llm_reviewer(ctx, "design_intent", client(settings, tmp_path, fake))
+    text = fake.calls[0]["messages"][0]["content"][0]["text"]
+    sent = {r["id"]: r for r in json.loads(text.split("\n\nRULES:\n", 1)[1].split("\n\nDRAWING:")[0])}
+    assert "only_when" in sent["MF-007"] and "only_when" not in sent["TL-002"]
+    assert "NM-008" not in sent
+    assert "pari_standard_notes" in ({s.rule_id: s for s in out.rule_statuses}["NM-008"].note or "")

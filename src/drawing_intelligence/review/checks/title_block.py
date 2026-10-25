@@ -29,7 +29,7 @@ class FieldParams(BaseModel):
 def _missing(value: str | None, placeholder_ok: list[str]) -> bool:
     if not value:
         return True
-    return value in ev.PLACEHOLDERS and value not in placeholder_ok
+    return ev.is_placeholder(value) and value not in placeholder_ok
 
 
 @check("title_block_field", FieldParams)

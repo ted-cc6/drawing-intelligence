@@ -46,6 +46,8 @@ class Template(BaseModel):
     units_pattern: str | None = None
     date_format: str = "%d/%m/%Y"
     boilerplate_notes: list[str] = []
+    notes_marker: str | None = None
+    notes_fields: dict[str, str] = {}
 
     def is_boilerplate(self, note: str) -> bool:
         """A note made only of the template's own printed text (plus numbering and punctuation)."""

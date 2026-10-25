@@ -60,6 +60,10 @@ class TitleBlockField(BaseModel):
 
     value: str | None = Field(description="the words in the cell in reading order; None if the cell is empty")
     bbox: BBox = Field(description="the printed value's bbox, or the cell's when it is empty")
+    source: Literal["cell", "notes"] = Field(
+        default="cell",
+        description="notes: the cell held the template's 'see notes' marker (#); read from the note",
+    )
 
 
 class GeneralToleranceRow(BaseModel):

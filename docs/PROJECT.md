@@ -63,7 +63,7 @@ Engineer ◄──► Q&A agent: read-only tools over the session's saved result
 | 3 `checks` | Code | Every `code` and `lookup` rule (135 of 174): chain sums, duplicates, title-block fields, IS 2102 and PARI tables. Exact, $0, reproducible. |
 | 3 LLM reviewers | Reasoning LLM, one text-only call each | `drawing_practice`, `manufacturability`, `design_intent` run the 39 `llm` rules that need judgement. Spike E: high recall but 32–61% precision, so their findings are warnings only (ADR 0008). |
 | 4 Verify | Code | Rejects any finding whose cited dimension ID, bbox or rule does not exist. This catches invented findings at no LLM cost. Merges duplicates and sets each rule's status. |
-| 5 Report | Template | Excel sheet in the client's checklist columns and an annotated sheet image. |
+| 5 Report | Code | `review_report.xlsx`: a summary, the checklist in the client's columns (Check Category, Requirement, Pass/Fail, Severity, Comment, Drawing Location, Recommended Correction) with numbered findings then passed rules, and every rule not checked with its reason. `page_N_review.png`: the sheet with each finding boxed and numbered like its row (red fail, orange warning). Locations name the sheet zone (e.g. C4), read from the border markers. |
 | Q&A | One agent with tools | Open-ended questions are the one place where an agent choosing its own steps earns its cost. It answers from saved JSON only, so it never pays for images again. |
 
 Reviewers read the structured drawing JSON (text, cheap), not the images. Only stage 2 pays for vision.
@@ -295,6 +295,28 @@ Understanding (`qwen3-vl-plus`, off) plus the three LLM reviewers (`qwen3.8-max`
   20MnCr5). DES-12's material column lists IZBP for mild and carbon steel only, but its text says "for ferrous
   machined parts": PARI should say which holds. Most sheets print `#` for the material, so they are not compared.
 
+### Held-out validation on unseen client drawings (2026-10-25)
+
+The seeded set's precision is optimistic: the checks and the LLM reviewers were tuned on it. `di eval heldout`
+reviewed 25 client drawings no development step had looked at (24 drawings and one guideline PDF), and every one of
+the 115 findings was labelled. The labels are provisional (made by Claude from the drawings; the PARI proxy is to
+confirm them). Details and labels: `data/eval/heldout/2026-10-25/`.
+
+| | correct | incorrect | unsure | precision |
+|---|---|---|---|---|
+| Code checks and lookups | 58 | 0 | 2 | **100%** |
+| LLM reviewers | 14 | 25 | 16 | **36%** (seeded set: 58%) |
+
+- Most LLM noise is NM-008 "notes copied from another drawing" (11 of 12 wrong: PARI's standard and bilingual
+  notes) and MF-007 "material suits the function" (4 of 5 wrong). Without them: 55%.
+- PARI writes `#` in title-block fields to mean "see the notes" (`# MATERIAL: M.S`). Reading that block would let
+  the material and treatment lookups check most of the client set; today they skip it.
+- Cost ~$0.036 and ~2 minutes per drawing for the full review.
+- **After three fixes** (read the `#` notes block; hold back NM-008; MF-007 only on a stated conflict), the same 24
+  drawings: code 58 correct, 0 incorrect, 8 unsure; LLM 17 correct, 13 incorrect, 11 unsure: **57%** (was 36%).
+  On the seeded set the re-run `design_intent` reviewer missed P19 (it raised a plating warning on that hole
+  instead), so recall is 19/22: the LLM catch of P19 is not stable from run to run (Spike E: ~40% stability).
+
 ## 9. Roadmap
 
 | Milestone | Content | Status |
@@ -302,7 +324,7 @@ Understanding (`qwen3-vl-plus`, off) plus the three LLM reviewers (`qwen3.8-max`
 | M0 | Repo, tooling, CI on Windows/macOS/Linux, docs and ADRs | ✅ |
 | M1 | Notebooks 01/02 ported and upgraded: typed contracts, multi-page, template config, model registry, telemetry, session data, LangGraph intake → understand, CLI, eval | ✅ |
 | M2 | Review contracts and rulebook loader (A2 ✅); default understanding model (A1 ✅, ADR 0009); draft rulebook, 174 rules (R ✅); review-stage design (ADR 0010 ✅, proposed); title-block fields in stage 1 ✅; `checks` reviewer with 17 check functions (A4, in progress: 22 of 135 code/lookup rules built); general tolerance table and stacked limits in stage 1 ✅; verifier (A3 ✅); reference tables and the first lookup checks ✅ (materials, DES-12 plating); next: symbols from text and vectors in stage 1 (Spike D), more lookup tables (DES-11 heat treatment, raw-material sizes) | in progress |
-| M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`) ✅; seeded-error eval set (drawings and keys: A5a ✅; `di eval review`: A5b ✅); graph fan-out (A6 part 1 ✅) and report (Excel + annotated sheet) | in progress |
+| M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`) ✅; seeded-error eval set (drawings and keys: A5a ✅; `di eval review`: A5b ✅); graph fan-out (A6 part 1 ✅) and report (Excel + annotated sheet, A6 ✅); next: held-out validation on real client drawings, labelled by an engineer through the report | in progress |
 | M4 | Q&A agent; feedback log | |
 | M5 | API + dashboard (model picker, cost and latency) | |
 

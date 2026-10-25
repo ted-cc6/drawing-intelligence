@@ -90,6 +90,29 @@ def read_units(lines: list[TextLine], template: Template) -> TitleBlockField | N
     return None
 
 
+def read_marked_notes(
+    fields: dict[str, TitleBlockField], lines: list[TextLine], template: Template
+) -> dict[str, TitleBlockField]:
+    """Fields whose cell holds the "see notes" marker take the value of their note ("# MATERIAL: M.S.")."""
+    marker = template.notes_marker
+    if not marker:
+        return fields
+    out = dict(fields)
+    for label, name in template.notes_fields.items():
+        cell = fields.get(name)
+        if cell is None or not (cell.value or "").startswith(marker):
+            continue
+        pattern = re.compile(
+            rf"{re.escape(marker)}\s*{re.escape(label)}\s*:\s*([^{re.escape(marker)}]*)", re.IGNORECASE
+        )
+        for line in lines:
+            m = pattern.search(line.text)
+            if m and m.group(1).strip():
+                out[name] = TitleBlockField(value=m.group(1).strip(), bbox=line.bbox, source="notes")
+                break
+    return out
+
+
 def read_revision_rows(
     lines: list[TextLine], template: Template, width: float, height: float
 ) -> tuple[list[TextLine], list[TextLine]]:
@@ -121,7 +144,7 @@ def read_title_block(page: pymupdf.Page, lines: list[TextLine], template: Templa
     kind = layout(words, template, w, h)
     if kind == "variant":
         return TitleBlockRead(kind, {}, [], [])
-    fields = read_fields(words, template, w, h)
+    fields = read_marked_notes(read_fields(words, template, w, h), lines, template)
     units = read_units(lines, template)
     if units is not None:
         fields["units"] = units

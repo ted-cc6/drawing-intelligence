@@ -271,6 +271,10 @@ def review(
         console.print(f"Understanding: {_money(understanding_cost)} ({res.understanding[0].model})")
     assert res.review is not None
     _print_review(res.review, res.rejected)
+    if res.exported_to:
+        console.print(f"Report: {res.exported_to / 'review_report.xlsx'} and page_*_review.png")
+    else:
+        console.print("Add --export DIR to keep the Excel report and the annotated sheet.")
     _footer(res)
 
 
@@ -675,3 +679,53 @@ def eval_review(
             encoding="utf-8",
         )
         console.print(f"Scores written to {out}")
+
+
+@eval_app.command("heldout")
+def eval_heldout(
+    out: Annotated[Path, typer.Option("--out", help="where the reports and findings.csv go")],
+    n: Annotated[int, typer.Option("--n", help="how many unseen client drawings")] = 25,
+    seed: Annotated[int, typer.Option("--seed", help="random seed of the selection")] = 2026,
+    drawings_file: Annotated[
+        Path | None,
+        typer.Option("--drawings", help="re-run a listed set (paths relative to data/client_set)"),
+    ] = None,
+    no_understand: NoUnderstandOpt = False,
+    yes: Annotated[bool, typer.Option("--yes", "-y", help="skip the cost confirmation")] = False,
+) -> None:
+    """Review unseen client drawings and write findings.csv for an engineer to label (held-out validation)."""
+    from drawing_intelligence.eval.heldout import run_heldout, select_heldout
+    from drawing_intelligence.llm import load_registry
+
+    s = get_settings()
+    client = s.data_path / "client_set"
+    if drawings_file is not None:
+        names = [ln.strip() for ln in drawings_file.read_text(encoding="utf-8").splitlines() if ln.strip()]
+        drawings = [client / name for name in names]
+    else:
+        drawings = select_heldout(client, n, seed, samples_dir=s.raw_dir)
+    if not no_understand:
+        registry = load_registry(s.config_path / "models.yaml")
+        est = registry.model(None, "understand").cost(30_000, 10_000) + 3 * registry.model(
+            None, "review"
+        ).cost(10_000, 1_500)
+        console.print(
+            f"{len(drawings)} drawing(s), full review: rough estimate {_money(est * len(drawings))}."
+        )
+        if not yes:
+            typer.confirm("Make these API calls?", abort=True)
+    runs = run_heldout(s, drawings, out, understand=not no_understand)
+    t = Table("drawing", "findings", "variant title block", "cost", "error")
+    for r in runs:
+        t.add_row(
+            r.drawing,
+            str(r.findings),
+            "yes" if r.variant_title_block else "",
+            _money(r.cost_usd),
+            r.error or "",
+        )
+    console.print(t)
+    console.print(
+        f"{sum(r.findings for r in runs)} findings on {len(runs)} drawings; "
+        f"billed {_money(sum(r.cost_usd for r in runs))}. Label them in {out / 'findings.csv'}."
+    )

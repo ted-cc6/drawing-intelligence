@@ -612,3 +612,14 @@ def test_ref_drawing_or_bom_is_not_a_note_reference():
             run("referenced_note_exists", notes_page(value), field="heat_treatment")[1].status
             == "not_applicable"
         )
+
+
+def test_any_run_of_dashes_is_a_placeholder():
+    p = notes_page("----")
+    p = p.model_copy(update={"title_block_fields": fields(heat_treatment="----", material="DELRIN")})
+    params = {"table": "plastics_families", "non_metals": []}
+    assert lookup_run("heat_treatment_only_on_metals", p, **params)[1].status == "not_applicable"
+    assert (
+        run("title_block_field", page(title_block_fields=fields(material="----")), field="material")[1].status
+        == "fail"
+    )
