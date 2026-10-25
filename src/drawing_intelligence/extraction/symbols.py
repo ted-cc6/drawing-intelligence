@@ -96,13 +96,23 @@ def parse_frame(raw: str) -> dict[str, Any] | None:
 
 
 def _filled_triangles(page: pymupdf.Page) -> list[pymupdf.Rect]:
+    """Filled, roughly equilateral triangles (datum flags). The corners come from the path's points, since a
+    triangle may be stored with its third side implied by closing the path (2 line items) or drawn out (3)."""
     tris = []
     for d in page.get_drawings():
         items = d["items"]
-        if d["type"] in ("f", "fs") and len(items) == 3 and all(i[0] == "l" for i in items):
-            sides = sorted(_d(i[1], i[2]) for i in items)
-            if sides[2] / max(sides[0], 1e-6) < 1.3 and 3 <= sides[2] <= 12:
-                tris.append(d["rect"])
+        if d["type"] not in ("f", "fs") or not 2 <= len(items) <= 3 or any(i[0] != "l" for i in items):
+            continue
+        corners: list[pymupdf.Point] = []
+        for it in items:
+            for pt in (it[1], it[2]):
+                if all(_d(pt, c) >= TOL for c in corners):
+                    corners.append(pt)
+        if len(corners) != 3:
+            continue
+        sides = sorted(_d(a, b) for a, b in itertools.combinations(corners, 2))
+        if sides[2] / max(sides[0], 1e-6) < 1.3 and 3 <= sides[2] <= 12:
+            tris.append(d["rect"])
     return tris
 
 
@@ -152,7 +162,20 @@ def _box_strokes(box: pymupdf.Rect, segs: list[Seg]) -> int:
     return sum(1 for a, b in segs if a in zone and b in zone and 0.8 * size <= _d(a, b) <= 2.5 * size)
 
 
-def _touches(box: pymupdf.Rect, frame: pymupdf.Rect, gap: float = 4) -> bool:
+def _beside(box: pymupdf.Rect, other: pymupdf.Rect, direction: tuple[float, float], gap: float = 2) -> bool:
+    """`other` follows or precedes `box` along the text's reading direction, within `gap`."""
+    if abs(direction[0]) >= abs(direction[1]):  # horizontal text (in unrotated page space)
+        return (
+            min(abs(box.x0 - other.x1), abs(other.x0 - box.x1)) < gap
+            and box.y0 < other.y1
+            and other.y0 < box.y1
+        )
+    return (
+        min(abs(box.y0 - other.y1), abs(other.y0 - box.y1)) < gap and box.x0 < other.x1 and other.x0 < box.x1
+    )
+
+
+def _touches(box: pymupdf.Rect, frame: pymupdf.Rect, gap: float = 6) -> bool:
     """The letter's box sits against one side of the frame (within `gap`) and overlaps it along that side."""
     overlaps_x = box.x0 < frame.x1 + 2 and frame.x0 - 2 < box.x1
     overlaps_y = box.y0 < frame.y1 + 2 and frame.y0 - 2 < box.y1
@@ -164,12 +187,22 @@ def _touches(box: pymupdf.Rect, frame: pymupdf.Rect, gap: float = 4) -> bool:
 def datum_flags(page: pymupdf.Page, segs: list[Seg], frames: list[dict[str, Any]]) -> list[dict[str, Any]]:
     triangles = _filled_triangles(page)
     frame_rects = [pymupdf.Rect(f["rect"]) for f in frames]
+    lines = _lines(page)
+    # a single letter touching a number is part of a callout split into lines ("M" + "10" of an M10 thread)
+    numbers = [
+        pymupdf.Rect(ln["bbox"])
+        for ln in lines
+        if "".join(c["c"] for s in ln["spans"] for c in s["chars"]).strip()[:1].isdigit()
+    ]
+    # ... beside it along the reading direction, not merely above or below (a frame's "0.1" over a datum box)
     out = []
-    for line in _lines(page):
+    for line in lines:
         text = "".join(c["c"] for s in line["spans"] for c in s["chars"]).strip()
         if len(text) != 1 or not text.isupper() or SYMBOL_FONT in line["spans"][0]["font"]:
             continue
         box = pymupdf.Rect(line["bbox"])
+        if any(_beside(box, n, line["dir"]) for n in numbers):
+            continue
         centre = (box.tl + box.br) / 2
         strokes = _box_strokes(box, segs)
         by_triangle = any(_d(centre, (t.tl + t.br) / 2) < 40 for t in triangles)
@@ -230,9 +263,38 @@ def _check_mark(s1: Seg, s2: Seg) -> bool:
     return False
 
 
+_TABLE_TEXT = re.compile(
+    r"UP TO|OVER \d|±|UNSPECIFIED|UNSP\.|LIMITS|DEBURR|SHARP EDGE|REQUIREMENT|Gen Tol|FOR (LINEAR|ANGULAR)",
+    re.IGNORECASE,
+)
+
+
+def _masked(page: pymupdf.Page, template: Template) -> list[Rect]:
+    """Template areas symbols cannot be in. The tolerance-table strip runs the full sheet height but the table
+    fills only part of it, and a datum flag can sit above it: only the table's own text area is masked."""
+    w, h = page.rect.width, page.rect.height
+    regions = template.regions_for(w, h)
+    masked = [regions[n] for n in template.exclude_from_dimensions if n != "tolerance_table"]
+    strip = regions.get("tolerance_table")
+    if strip is None:
+        return masked
+    rmat = page.rotation_matrix
+    table = None
+    for ln in _lines(page):
+        if not _TABLE_TEXT.search("".join(c["c"] for s in ln["spans"] for c in s["chars"])):
+            continue  # only the table's own text: not a note above it, not a single datum letter
+        v = pymupdf.Rect(ln["bbox"]) * rmat
+        v.normalize()
+        if strip[0] <= (v.x0 + v.x1) / 2 <= strip[2] and strip[1] <= (v.y0 + v.y1) / 2 <= strip[3]:
+            table = v if table is None else table | v
+    if table is not None:
+        masked.append((table.x0, table.y0, table.x1, table.y1))
+    return masked
+
+
 def read_symbols(page: pymupdf.Page, template: Template) -> list[SymbolItem]:
     """Every GD&T frame, datum flag and finish mark on the page, numbered S1, S2, ... in reading order."""
-    skip = template.excluded_rects(page.rect.width, page.rect.height)
+    skip = _masked(page, template)
     segs = _strokes(page)
     frames = gdt_frames(page)
     found: list[SymbolItem] = []

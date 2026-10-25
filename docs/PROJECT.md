@@ -58,7 +58,7 @@ Engineer ◄──► Q&A agent: read-only tools over the session's saved result
 
 | Stage | Kind | Why |
 |---|---|---|
-| 1 Intake | Deterministic code | The PDF text layer is exact. No LLM can improve on it, so none is paid for. Symbols belong here too (planned, Spike D): GD&T frames decoded from the `SolidEdgeANSI1Symbols` font, datum flags and finish marks from vector detectors. |
+| 1 Intake | Deterministic code | The PDF text layer is exact. No LLM can improve on it, so none is paid for. Symbols are read here too (Spike D): GD&T frames decoded exactly from the `SolidEdgeANSI1Symbols` font, datum flags and finish marks from vector detectors (`extraction/symbols.py`; 80/80 on the reviewed answer key). |
 | 2 Understand | One vision-LLM call per page | Organise and interpret the exact text: views, features, which dimension belongs to which feature, title block. Never re-read numbers from pixels. Spike D: vision misses most symbols (0/32 finish marks, 0/9 datum flags), so anything only vision sees is `source: "vision"` and can only support a warning. |
 | 3 `checks` | Code | Every `code` and `lookup` rule (135 of 174): chain sums, duplicates, title-block fields, IS 2102 and PARI tables. Exact, $0, reproducible. |
 | 3 LLM reviewers | Reasoning LLM, one text-only call each | `drawing_practice`, `manufacturability`, `design_intent` run the 39 `llm` rules that need judgement. Spike E: high recall but 32–61% precision, so their findings are warnings only (ADR 0008). |
@@ -325,7 +325,7 @@ the 115 findings was labelled (by Claude from the drawings, confirmed by the PAR
 |---|---|---|
 | M0 | Repo, tooling, CI on Windows/macOS/Linux, docs and ADRs | ✅ |
 | M1 | Notebooks 01/02 ported and upgraded: typed contracts, multi-page, template config, model registry, telemetry, session data, LangGraph intake → understand, CLI, eval | ✅ |
-| M2 | Review contracts and rulebook loader (A2 ✅); default understanding model (A1 ✅, ADR 0009); draft rulebook, 174 rules (R ✅); review-stage design (ADR 0010 ✅, proposed); title-block fields in stage 1 ✅; `checks` reviewer with 17 check functions (A4, in progress: 22 of 135 code/lookup rules built); general tolerance table and stacked limits in stage 1 ✅; verifier (A3 ✅); reference tables and the first lookup checks ✅ (materials, DES-12 plating); next: symbols from text and vectors in stage 1 (Spike D), more lookup tables (DES-11 heat treatment, raw-material sizes) | in progress |
+| M2 | Review contracts and rulebook loader (A2 ✅); default understanding model (A1 ✅, ADR 0009); draft rulebook, 174 rules (R ✅); review-stage design (ADR 0010 ✅, proposed); title-block fields in stage 1 ✅; `checks` reviewer with 17 check functions (A4, in progress: 22 of 135 code/lookup rules built); general tolerance table and stacked limits in stage 1 ✅; verifier (A3 ✅); reference tables and the first lookup checks ✅ (materials, DES-12 plating); next: symbols from text and vectors in stage 1 ✅ (Spike D) with 6 GD&T and datum checks; next: open the `needs: symbols` LLM rules, more lookup tables (DES-11 heat treatment, raw-material sizes) | in progress |
 | M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`) ✅; seeded-error eval set (drawings and keys: A5a ✅; `di eval review`: A5b ✅); graph fan-out (A6 part 1 ✅) and report (Excel + annotated sheet, A6 ✅); next: held-out validation on real client drawings, labelled by an engineer through the report | in progress |
 | M4 | Q&A agent; feedback log | |
 | M5 | API + dashboard (model picker, cost and latency) | |
