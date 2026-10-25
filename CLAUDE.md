@@ -10,8 +10,9 @@ client LatentView Analytics). Pipeline:
   report.
 - One Q&A agent over the saved results.
 
-Built so far: intake, understand, and the review stage up to verify, with one reviewer (`checks`, the code
-checks; 17 check functions so far). The LLM reviewers and the report come next. The original notebooks live in `D:\Capstone\demo` (read-only reference;
+Built so far: intake, understand, and the review stage up to verify: the code reviewer (`checks`, 17 check
+functions) and three LLM reviewers (`review/llm_reviewer.py`, warnings only). The report comes next.
+The original notebooks live in `D:\Capstone\demo` (read-only reference;
 do not edit them).
 
 ## Layout

@@ -103,8 +103,8 @@ A4 builds the first check function. The other 129 will copy its pattern, so the 
 - 135 of 174 rules cost $0 and are reproducible. LLM cost is three text-only calls per drawing.
 - Until a check is built, its rule is `not_checked`, never silently `pass`. The report shows how much of the
   rulebook actually ran.
-- **Open:** an `llm` rule with no finding is reported `pass`. Spike E found high recall (10/10), but that rests
-  on a small sample. If A5b shows misses, report it as `not_checked` instead.
+- ~~**Open:** an `llm` rule with no finding is reported `pass`.~~ Decided 2026-10-25: it is `not_checked`, with
+  the note "LLM judged: no issue raised". Silence from a reviewer at 32–61% precision (Spike E) is not a pass.
 - This refines the stage-3 list in ADR 0001. The workflow-plus-agent decision there stands.
 
 ## Added while building the first slice (2026-10-23)
@@ -120,5 +120,12 @@ A4 builds the first check function. The other 129 will copy its pattern, so the 
   understand` first.
 - **Stacked limits are ordered by where they are printed** (`TextItem.limits`, upper first). The joined text
   keeps the PDF's storage order, which is not always upper first.
+- **The LLM reviewers (2026-10-25)** answer in a schema whose `rule_id` is an enum of their own rules, so they
+  cannot raise the rule-less "observations" section 2 allowed; that is where most of Spike E's noise came from.
+  The template's own printed notes (`boilerplate_notes` in the template) are not sent to them. A rule whose
+  judgement needs input stage 1 does not read yet carries `params.needs` (`symbols`, `geometry`) and is
+  `not_checked` with that reason instead of being guessed.
+- **LLM false alarms are measured, not gated.** `di eval review` counts LLM warnings on clean and near-miss
+  drawings apart from the code checks' false alarms. Only the code checks must have none (CI gate, $0, no API).
 - **Session workspaces are no longer committed.** `data/sessions/` is git-ignored (a narrow exception to ADR
   0007: it is run history, not client data). `di eval review` runs its sessions in a temporary folder.

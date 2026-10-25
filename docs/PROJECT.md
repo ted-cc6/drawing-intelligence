@@ -248,8 +248,32 @@ clean cases hit A1's cache). Code checks alone take ~1 min for all 28.
 | surface treatment | 5/5 |
 | design intent, manufacturability | 0/1 each (LLM reviewers) |
 
-The four planted errors left (P05, P06, P19, P20) are all `llm` rules: missing dimensions, a removed fit, a sharp
-internal corner. They need the LLM reviewers.
+### With the LLM reviewers (2026-10-25)
+
+Understanding (`qwen3-vl-plus`, off) plus the three LLM reviewers (`qwen3.8-max`, thinking off), all 28 cases:
+
+| | code checks only | + LLM reviewers |
+|---|---|---|
+| Recall, all 22 planted errors | 18/22 | **20/22 (91%)** |
+| Recall, planted errors whose rule is checked | 18/18 | 20/20 |
+| Precision, all findings | 63/63 | 78/89 (88%) |
+| Precision, LLM findings | – | 15/26 (58%) |
+| LLM warnings on clean and near-miss drawings (measured, not a gate) | – | 1 |
+| False alarms of the code checks | 0 | 0 |
+| Cost per drawing | $0 | ~$0.025 (understanding $0.011 + reviewers ~$0.015); cached re-runs $0 |
+
+- Caught by the LLM reviewers: P19 (TL-002, the ⌀16 locating bore lost its fit) and P20 (MC-001, R 0.2 internal
+  corner). Not caught: P05 and P06 (missing size and location). Their rules need feature locations, which the
+  text-only reviewers don't get, so they are `not_checked` (`params.needs: [geometry]`).
+- A first calibration (8 cases) had 25 false alarms in 26 LLM findings. Most were the template's own notes
+  ("notes copied from another drawing") and rules about symbols the reviewers cannot see (roughness, GD&T,
+  datums). Template boilerplate is now left out, and those rules are held back until stage 1 reads symbols.
+- The reviewers also raised WPS-004 on every case with a zinc-plated H7 hole: I.Z.B.P. (8–12 µm) can take up
+  the whole 18 µm H7 band. The PARI proxy confirmed it is real, so it was added to the keys as a pre-existing
+  issue.
+- The remaining LLM false alarms: MF-005 "heat-treatment stage not stated" (5, including Shore hardness on
+  plastic parts), TL-002 calling clearance holes functional (2), NM-008 (2), WPS-004 where the fit or plating
+  was changed (2).
 
 - The 60 findings are 17 that catch a planted error (P01 and P02 each also raise the other chain rule, which
   their keys accept) and 43 real issues already in the client's drawings (the keys' `pre_existing`: TB-016 on
@@ -278,7 +302,7 @@ internal corner. They need the LLM reviewers.
 | M0 | Repo, tooling, CI on Windows/macOS/Linux, docs and ADRs | ✅ |
 | M1 | Notebooks 01/02 ported and upgraded: typed contracts, multi-page, template config, model registry, telemetry, session data, LangGraph intake → understand, CLI, eval | ✅ |
 | M2 | Review contracts and rulebook loader (A2 ✅); default understanding model (A1 ✅, ADR 0009); draft rulebook, 174 rules (R ✅); review-stage design (ADR 0010 ✅, proposed); title-block fields in stage 1 ✅; `checks` reviewer with 17 check functions (A4, in progress: 22 of 135 code/lookup rules built); general tolerance table and stacked limits in stage 1 ✅; verifier (A3 ✅); reference tables and the first lookup checks ✅ (materials, DES-12 plating); next: symbols from text and vectors in stage 1 (Spike D), more lookup tables (DES-11 heat treatment, raw-material sizes) | in progress |
-| M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`); seeded-error eval set (drawings and keys: A5a ✅; `di eval review`: A5b ✅); graph fan-out (A6 part 1 ✅) and report (Excel + annotated sheet) | |
+| M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`) ✅; seeded-error eval set (drawings and keys: A5a ✅; `di eval review`: A5b ✅); graph fan-out (A6 part 1 ✅) and report (Excel + annotated sheet) | in progress |
 | M4 | Q&A agent; feedback log | |
 | M5 | API + dashboard (model picker, cost and latency) | |
 
@@ -288,6 +312,7 @@ internal corner. They need the LLM reviewers.
   confirms them (`status: client_confirmed`), and the 49 `needs_pari` decisions in `docs/rulebook/`.
 - Which model wins each role? Understanding: decided (`qwen3-vl-plus`, thinking off, ADR 0009). Review and
   Q&A: still open, decided by `di eval review` (A5b), not by public benchmarks.
-- Should an `llm` rule with no finding be reported `pass` or `not_checked`? ADR 0010 says `pass` for now;
-  A5b's recall on the seeded set decides.
+- ~~Should an `llm` rule with no finding be `pass` or `not_checked`?~~ `not_checked` (2026-10-25).
+- Feature locations for the LLM reviewers (P05/P06, missing dimensions): view and feature bboxes in the
+  understanding output are a prompt and schema change, to measure against ADR 0009 first.
 - Confirm `qwen3.8-max` pricing on Alibaba's official page (the registry uses a third-party figure).

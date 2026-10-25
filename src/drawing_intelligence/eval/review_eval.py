@@ -164,13 +164,24 @@ def summarize(scores: Iterable[CaseScore]) -> Summary:
     return s
 
 
-def built_rule_ids(rules_dir: Path) -> set[str]:
-    """Rules whose check function exists (code and lookup rules only, for now)."""
+def built_rule_ids(rules_dir: Path, llm: bool = False) -> set[str]:
+    """Rules something actually checks: code and lookup rules whose function exists, and, when the LLM
+    reviewers run, the `llm` rules they judge (all but those held back for input stage 1 doesn't read yet)."""
     from drawing_intelligence.review import load_rulebook
     from drawing_intelligence.review.checks import param_models
+    from drawing_intelligence.review.llm_reviewer import AVAILABLE_INPUTS
 
     checks = param_models()
-    return {r.id for r in load_rulebook(rules_dir, checks=checks).rules if r.check in checks}
+    rules = load_rulebook(rules_dir, checks=checks).rules
+    built = {r.id for r in rules if r.check in checks}
+    if llm:
+        ready = [
+            r
+            for r in rules
+            if r.check_type == "llm" and not set(r.params.get("needs", [])) - AVAILABLE_INPUTS
+        ]
+        built |= {r.id for r in ready}
+    return built
 
 
 def run_review_eval(
@@ -194,7 +205,7 @@ def run_review_eval(
 
     root = cases_dir or settings.data_path / "eval" / "seeded"
     keys = [k for k in load_answer_keys(root) if not only or any(k.case.startswith(o) for o in only)]
-    built = built_rule_ids(settings.config_path / "rules")
+    built = built_rule_ids(settings.config_path / "rules", llm=understand and llm_review)
     tmp = Path(tempfile.mkdtemp(prefix="di-eval-"))
     run_settings = settings.model_copy(update={"sessions_root": tmp / "sessions", "retention": "keep"})
     try:

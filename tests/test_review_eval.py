@@ -94,3 +94,14 @@ def test_llm_warnings_on_quiet_drawings_are_measured_apart_from_the_code_gate():
     s = summarize([score_case(key(kind="clean"), review(llm, code), set())])
     assert [f.rule_id for _, f in s.false_alarms_on_quiet] == ["CN-001"]
     assert [f.rule_id for _, f in s.llm_alarms_on_quiet] == ["MC-001"]
+
+
+def test_llm_rules_count_as_covered_only_when_their_reviewer_can_judge_them():
+    from drawing_intelligence.eval.review_eval import built_rule_ids
+    from drawing_intelligence.settings import get_settings
+
+    rules = get_settings().config_path / "rules"
+    code_only, with_llm = built_rule_ids(rules), built_rule_ids(rules, llm=True)
+    assert "TL-002" not in code_only and "TL-002" in with_llm
+    assert "MX-001" not in with_llm  # needs feature locations stage 1 does not read yet
+    assert "CN-001" in code_only and "CN-001" in with_llm
