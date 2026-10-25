@@ -22,6 +22,7 @@ from langgraph.graph import END, START, StateGraph
 from drawing_intelligence.extraction import EXTRACTION_FILE, ImagingConfig, extract_pdf, load_template
 from drawing_intelligence.llm import LLMClient, load_registry
 from drawing_intelligence.llm.client import CompletionFn, openai_completion
+from drawing_intelligence.report import build_report
 from drawing_intelligence.review import Rulebook, load_rulebook
 from drawing_intelligence.review.checks import param_models
 from drawing_intelligence.review.context import ReviewContext
@@ -53,6 +54,7 @@ class WorkflowState(TypedDict, total=False):
     reviewer_outputs: Annotated[list[str], operator.add]  # parallel reviewers append, never overwrite
     review_result_path: str
     rejected_path: str
+    report_paths: list[str]
 
 
 REVIEW_RESULT_FILE = "review_result.json"
@@ -179,6 +181,18 @@ def build_graph(
             "rejected_path": str(out_dir / REJECTED_FILE),
         }
 
+    def report_node(state: WorkflowState) -> dict[str, Any]:
+        assert rulebook is not None
+        ex_path = Path(state.get("extraction_path", ""))
+        result = ReviewResult.model_validate_json(
+            Path(state.get("review_result_path", "")).read_text(encoding="utf-8")
+        )
+        extraction = _load_extraction(state)
+        paths = build_report(
+            result, rulebook, extraction, load_template(extraction.template), ex_path.parent, ws / "review"
+        )
+        return {"report_paths": [str(p) for p in paths]}
+
     g = StateGraph(WorkflowState)
     g.add_node("intake", intake)
     g.add_edge(START, "intake")
@@ -202,7 +216,9 @@ def build_graph(
         g.add_edge(last, name)
     g.add_node("verify", verify_node)
     g.add_edge(reviewers, "verify")  # waits for every reviewer
-    g.add_edge("verify", END)
+    g.add_node("report", report_node)
+    g.add_edge("verify", "report")
+    g.add_edge("report", END)
     return g
 
 
@@ -288,7 +304,7 @@ def run_workflow(
         dest = export_dir / Path(pdf_path).stem if export_dir else None
         if dest is not None:
             _export(ex_path.parent, extraction, results, dest)
-            for f in sorted((session.workspace / "review").glob("*.json")):  # no review dir -> nothing
+            for f in sorted((session.workspace / "review").glob("*.*")):  # no review dir -> nothing
                 shutil.copyfile(f, dest / f.name)
         return WorkflowResult(session.id, extraction, results, review_result, rejected, dest)
 

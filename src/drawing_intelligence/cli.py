@@ -271,6 +271,10 @@ def review(
         console.print(f"Understanding: {_money(understanding_cost)} ({res.understanding[0].model})")
     assert res.review is not None
     _print_review(res.review, res.rejected)
+    if res.exported_to:
+        console.print(f"Report: {res.exported_to / 'review_report.xlsx'} and page_*_review.png")
+    else:
+        console.print("Add --export DIR to keep the Excel report and the annotated sheet.")
     _footer(res)
 
 

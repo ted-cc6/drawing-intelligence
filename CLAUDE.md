@@ -11,7 +11,8 @@ client LatentView Analytics). Pipeline:
 - One Q&A agent over the saved results.
 
 Built so far: intake, understand, and the review stage up to verify: the code reviewer (`checks`, 17 check
-functions) and three LLM reviewers (`review/llm_reviewer.py`, warnings only). The report comes next.
+functions) and three LLM reviewers (`review/llm_reviewer.py`, warnings only), and the report (`report/`:
+Excel checklist in the client's columns plus the annotated sheet).
 The original notebooks live in `D:\Capstone\demo` (read-only reference;
 do not edit them).
 
@@ -28,7 +29,8 @@ src/drawing_intelligence/
   review/              stages 3-4 (ADR 0010) - rulebook, checks/ (one module per category, @check registry),
                        context.py (ReviewContext), runner.py (the `checks` reviewer), reviewers.py (which
                        reviewer runs which rules), verify.py
-  graph/               LangGraph state and graph (intake -> understand -> reviewers -> verify)
+  report/              stage 5 - Excel checklist (client's columns) and annotated sheet; zones from the border
+  graph/               LangGraph state and graph (intake -> understand -> reviewers -> verify -> report)
   storage/             session workspaces (ephemeral), telemetry DB, response cache
   eval/                baseline diff, understanding scorecard, seeded cases + answer keys, review eval
   viz/                 annotated images for humans (never needed by the pipeline)
@@ -61,7 +63,7 @@ data/                  committed (ADR 0007): raw PDFs, client_set, baseline, lab
 uv sync                         # install
 uv run pytest                   # unit tests (synthetic PDFs, fake LLM)
 uv run pytest -m regression     # real sample drawings and the seeded cases (also run in CI)
-uv run di review <pdf> --no-understand    # review one drawing with the code checks ($0)
+uv run di review <pdf> --no-understand --export out    # code checks only ($0); Excel report in out/
 uv run di eval review --no-understand     # recall / precision / false alarms on data/eval/seeded ($0)
 uv run ruff check . && uv run ruff format --check . && uv run pyright
 uv run di --help

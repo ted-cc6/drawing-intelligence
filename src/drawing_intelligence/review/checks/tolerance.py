@@ -73,8 +73,8 @@ def decimals_vs_tolerance(ctx: ReviewContext, rule: Rule, params: DecimalsParams
                         reviewer=REVIEWER,
                         evidence=[ev.dimension(page, t.dim)],
                         comment=f"{t.dim.text} gives {shown} decimal places for {of} ({allowed}).",
-                        recommended_correction=f"Write the size with {allowed} decimal places, or give "
-                        "it the tolerance those decimals imply.",
+                        recommended_correction=f"Write the size with {allowed} decimal "
+                        f"place{'' if allowed == 1 else 's'}, or give it the tolerance those decimals imply.",
                     )
                 )
     if not checked:

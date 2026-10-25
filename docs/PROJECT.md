@@ -63,7 +63,7 @@ Engineer ◄──► Q&A agent: read-only tools over the session's saved result
 | 3 `checks` | Code | Every `code` and `lookup` rule (135 of 174): chain sums, duplicates, title-block fields, IS 2102 and PARI tables. Exact, $0, reproducible. |
 | 3 LLM reviewers | Reasoning LLM, one text-only call each | `drawing_practice`, `manufacturability`, `design_intent` run the 39 `llm` rules that need judgement. Spike E: high recall but 32–61% precision, so their findings are warnings only (ADR 0008). |
 | 4 Verify | Code | Rejects any finding whose cited dimension ID, bbox or rule does not exist. This catches invented findings at no LLM cost. Merges duplicates and sets each rule's status. |
-| 5 Report | Template | Excel sheet in the client's checklist columns and an annotated sheet image. |
+| 5 Report | Code | `review_report.xlsx`: a summary, the checklist in the client's columns (Check Category, Requirement, Pass/Fail, Severity, Comment, Drawing Location, Recommended Correction) with numbered findings then passed rules, and every rule not checked with its reason. `page_N_review.png`: the sheet with each finding boxed and numbered like its row (red fail, orange warning). Locations name the sheet zone (e.g. C4), read from the border markers. |
 | Q&A | One agent with tools | Open-ended questions are the one place where an agent choosing its own steps earns its cost. It answers from saved JSON only, so it never pays for images again. |
 
 Reviewers read the structured drawing JSON (text, cheap), not the images. Only stage 2 pays for vision.
@@ -302,7 +302,7 @@ Understanding (`qwen3-vl-plus`, off) plus the three LLM reviewers (`qwen3.8-max`
 | M0 | Repo, tooling, CI on Windows/macOS/Linux, docs and ADRs | ✅ |
 | M1 | Notebooks 01/02 ported and upgraded: typed contracts, multi-page, template config, model registry, telemetry, session data, LangGraph intake → understand, CLI, eval | ✅ |
 | M2 | Review contracts and rulebook loader (A2 ✅); default understanding model (A1 ✅, ADR 0009); draft rulebook, 174 rules (R ✅); review-stage design (ADR 0010 ✅, proposed); title-block fields in stage 1 ✅; `checks` reviewer with 17 check functions (A4, in progress: 22 of 135 code/lookup rules built); general tolerance table and stacked limits in stage 1 ✅; verifier (A3 ✅); reference tables and the first lookup checks ✅ (materials, DES-12 plating); next: symbols from text and vectors in stage 1 (Spike D), more lookup tables (DES-11 heat treatment, raw-material sizes) | in progress |
-| M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`) ✅; seeded-error eval set (drawings and keys: A5a ✅; `di eval review`: A5b ✅); graph fan-out (A6 part 1 ✅) and report (Excel + annotated sheet) | in progress |
+| M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`) ✅; seeded-error eval set (drawings and keys: A5a ✅; `di eval review`: A5b ✅); graph fan-out (A6 part 1 ✅) and report (Excel + annotated sheet, A6 ✅); next: held-out validation on real client drawings, labelled by an engineer through the report | in progress |
 | M4 | Q&A agent; feedback log | |
 | M5 | API + dashboard (model picker, cost and latency) | |
 
