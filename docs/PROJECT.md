@@ -318,6 +318,10 @@ the 115 findings was labelled (by Claude from the drawings, confirmed by the PAR
 - **After narrowing WPS-004** to fits and tight bands: LLM 15 correct, 2 incorrect, 11 unsure on the same drawings
   (88% of decided; seeded precision 77/81). These 24 drawings have now guided three rounds of fixes, so the figure
   is optimistic until a fresh unseen set confirms it.
+- **Symbols given to the LLM reviewers** (the 8 rules held back for `needs: symbols` released): the 14 new findings
+  had none confirmed (0 correct, 3 incorrect, 11 unsure) and LLM precision fell to 57%. These rules need to know
+  which faces mate, seal or rotate, which a list of symbols does not say, so they are held back again
+  (`needs: [symbols, functional_faces]`); the reviewer messages are back to the 88% run's, cached ($0 to re-run).
 
 ## 9. Roadmap
 
