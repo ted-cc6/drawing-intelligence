@@ -120,3 +120,9 @@ reviewers got each page's exact symbols (`findings_symbols.csv`; $0.430).
   noise came back under NM-002.
 - The six GD&T code checks raised nothing on these drawings.
 - Conclusion: symbols alone do not let the LLM judge these rules; they need to know which faces are functional.
+
+## With 16 more code checks (same 24 drawings, from the cache: $0)
+
+Batch 1 of the remaining code checks (text, title block, sheets, material; `findings_more_checks.csv`; LLM rules as
+in the 88% run). Code findings: 64 correct, 0 incorrect, 9 unsure. The 6 new ones: NASA-032 (x4, the unfilled
+T+S note), WPS-006 (IZBP not stated as trivalent) and RQ-004 (an item code in the material cell; unsure).

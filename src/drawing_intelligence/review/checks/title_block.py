@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict
 from drawing_intelligence.extraction.template import resolve_rect
 from drawing_intelligence.review.checks import _evidence as ev
 from drawing_intelligence.review.checks._geometry import drawn_dimensions, supported_scales
-from drawing_intelligence.review.checks._registry import NotCheckable, check
+from drawing_intelligence.review.checks._registry import NotApplicable, NotCheckable, check
 from drawing_intelligence.review.context import ReviewContext
 from drawing_intelligence.review.rulebook import Rule, new_finding
 from drawing_intelligence.schemas import EvidenceRef, Finding, PageExtraction
@@ -256,3 +256,207 @@ def fields_blank_at_submission(ctx: ReviewContext, rule: Rule, params: BlankPara
                 )
             )
     return out
+
+
+class DateFieldsParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    fields: list[str]
+
+
+@check("dates_valid", DateFieldsParams)
+def dates_valid(ctx: ReviewContext, rule: Rule, params: DateFieldsParams) -> list[Finding]:
+    """The listed date fields are filled with a date in the template's format."""
+    out = []
+    for page in ev.title_block_pages(ctx):
+        for name in params.fields:
+            value = ev.value(page, name)
+            if _missing(value, []):
+                problem = "is empty"
+            elif ctx.parse_date(value) is None:
+                problem = f"says {value!r}, not a date in the {ctx.template.date_format} format"
+            else:
+                continue
+            out.append(
+                new_finding(
+                    rule,
+                    reviewer=REVIEWER,
+                    evidence=[ev.field(page, name)],
+                    comment=f"The {name.replace('_', ' ')} field {problem}.",
+                    recommended_correction="Enter the date.",
+                )
+            )
+    return out
+
+
+_SHEET = re.compile(r"^\s*(\d+)\s*OF\s*(\d+)\s*$", re.IGNORECASE)
+
+
+@check("sheet_numbering")
+def sheet_numbering(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """'Sheet x of y' is consistent: x within 1..y, and the sheets in one file numbered in order."""
+    pages = [(p, _SHEET.match(ev.value(p, "sheet") or "")) for p in ev.title_block_pages(ctx)]
+    read = [(p, int(m[1]), int(m[2])) for p, m in pages if m]
+    if not read:
+        raise NotCheckable("no 'sheet x of y' field read")
+    out = []
+    for i, (page, x, y) in enumerate(read):
+        prev = read[i - 1] if i else None
+        if not 1 <= x <= y:
+            problem = f"says sheet {x} of {y}"
+        elif prev and (x != prev[1] + 1 or y != prev[2]):
+            problem = f"says sheet {x} of {y} after sheet {prev[1]} of {prev[2]}"
+        else:
+            continue
+        out.append(
+            new_finding(
+                rule,
+                reviewer=REVIEWER,
+                evidence=[ev.field(page, "sheet")],
+                comment=f"The sheet field {problem}.",
+                recommended_correction="Correct the sheet numbering.",
+            )
+        )
+    return out
+
+
+# ISO 216 sheet sizes in PDF points (short side, long side).
+SHEET_SIZES = {
+    "A4": (595, 842),
+    "A3": (842, 1191),
+    "A2": (1191, 1684),
+    "A1": (1684, 2384),
+    "A0": (2384, 3370),
+}
+
+
+@check("sheet_size_matches_page")
+def sheet_size_matches_page(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """The sheet size in the title block is the size of the page it is printed on."""
+    out = []
+    checked = False
+    for page in ev.title_block_pages(ctx):
+        stated = (ev.value(page, "sheet_size") or "").strip().upper()
+        if stated not in SHEET_SIZES:
+            continue
+        checked = True
+        short, long = sorted(page.page_size_pts)
+        es, el = SHEET_SIZES[stated]
+        if abs(short - es) <= 0.03 * es and abs(long - el) <= 0.03 * el:
+            continue
+        actual = next(
+            (
+                n
+                for n, (s, ln) in SHEET_SIZES.items()
+                if abs(short - s) <= 0.03 * s and abs(long - ln) <= 0.03 * ln
+            ),
+            f"{page.page_size_pts[0]:.0f} x {page.page_size_pts[1]:.0f} pt",
+        )
+        out.append(
+            new_finding(
+                rule,
+                reviewer=REVIEWER,
+                evidence=[ev.field(page, "sheet_size")],
+                comment=f"The title block says {stated}, but the sheet is {actual}.",
+                recommended_correction="Use the template for the sheet size, or correct the field.",
+            )
+        )
+    if not checked:
+        raise NotCheckable("no standard sheet size (A0-A4) read from the title block")
+    return out
+
+
+class TemplateTextParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    text: str
+
+
+def _squash(text: str) -> str:
+    return re.sub(r"\s+", " ", text).strip().upper()
+
+
+@check("template_text_present", TemplateTextParams)
+def template_text_present(ctx: ReviewContext, rule: Rule, params: TemplateTextParams) -> list[Finding]:
+    """The template's ownership note is on the drawing (it is printed with the title block)."""
+    # the note is printed over two lines, so look for its distinctive words, not the joined text
+    words = set(re.findall(r"[A-Z]{4,}", params.text.upper()))
+    for page in ctx.pages:
+        lines = [*page.title_block_text, *page.body_text, *page.tolerance_table_text]
+        found = {w for t in lines for w in re.findall(r"[A-Z]{4,}", t.text.upper())}
+        if words <= found:
+            return []
+    page = ctx.pages[0]
+    w, h = page.page_size_pts
+    return [
+        new_finding(
+            rule,
+            reviewer=REVIEWER,
+            evidence=[
+                EvidenceRef(kind="region", page=page.page_number, bbox=[0, 0, w, h], provenance="pdf_text")
+            ],
+            comment=f"The note '{params.text}' is not on the drawing.",
+            recommended_correction="Use the company template, which carries the note.",
+        )
+    ]
+
+
+@check("revision_sequence")
+def revision_sequence(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """The revision table's numbers run 1, 2, 3 ... with no gap or repeat."""
+    pages = [p for p in ctx.pages if p.revision_numbers]
+    if not pages:
+        raise NotApplicable("no revision rows")
+    out = []
+    for page in pages:
+        numbers = sorted(int(n.text) for n in page.revision_numbers)
+        if numbers != list(range(1, len(numbers) + 1)):
+            table = _revision_table(ctx, page)
+            out.append(
+                new_finding(
+                    rule,
+                    reviewer=REVIEWER,
+                    evidence=[table] if table else [ev.field(page, "revision")],
+                    comment=f"The revision table numbers its rows {', '.join(map(str, numbers))}.",
+                    recommended_correction="Number the revisions 1, 2, 3 ... without gaps or repeats.",
+                )
+            )
+    return out
+
+
+class SheetsParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    min_sheets: int = 2
+
+
+def _across_sheets(
+    ctx: ReviewContext, rule: Rule, params: SheetsParams, name: str, what: str
+) -> list[Finding]:
+    pages = [p for p in ev.title_block_pages(ctx) if ev.value(p, name)]
+    if len(ctx.pages) < params.min_sheets:
+        raise NotApplicable("a single sheet")
+    if len(pages) < 2:
+        raise NotCheckable(f"the {what} was read on fewer than two sheets")
+    first = ev.value(pages[0], name)
+    return [
+        new_finding(
+            rule,
+            reviewer=REVIEWER,
+            evidence=[ev.field(pages[0], name), ev.field(p, name)],
+            comment=f"Sheet {p.page_number} has {what} {ev.value(p, name)!r}, sheet {pages[0].page_number} "
+            f"{first!r}.",
+            recommended_correction=f"Give every sheet the same {what}.",
+        )
+        for p in pages[1:]
+        if _squash(ev.value(p, name) or "") != _squash(first or "")
+    ]
+
+
+@check("sheets_same_revision", SheetsParams)
+def sheets_same_revision(ctx: ReviewContext, rule: Rule, params: SheetsParams) -> list[Finding]:
+    """All sheets of a multi-sheet drawing carry the same revision."""
+    return _across_sheets(ctx, rule, params, "revision", "revision")
+
+
+@check("sheets_same_size", SheetsParams)
+def sheets_same_size(ctx: ReviewContext, rule: Rule, params: SheetsParams) -> list[Finding]:
+    """All sheets of a multi-sheet drawing are the same size."""
+    return _across_sheets(ctx, rule, params, "sheet_size", "sheet size")

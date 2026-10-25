@@ -17,9 +17,23 @@ REVIEWER = "checks"
 _REFERS_TO_NOTE = re.compile(r"NOTE", re.IGNORECASE)  # REF NOTE, REFER NOTE, REF.NOTE; not REF. DRG / REF BOM
 # Words that make a note a heat-treatment specification, not just its heading.
 HEAT_TREATMENT_TERMS = (
-    "harden", "tough", "temper", "anneal", "normali", "carburi", "nitrid", "case", "induction", "flame",
-    "quench", "stress reliev", "HRC", "HRB", "HB", "HV",
-)  # fmt: skip
+    "harden",
+    "tough",
+    "temper",
+    "anneal",
+    "normali",
+    "carburi",
+    "nitrid",
+    "case",
+    "induction",
+    "flame",
+    "quench",
+    "stress reliev",
+    "HRC",
+    "HRB",
+    "HB",
+    "HV",
+)
 
 
 def _term(term: str) -> re.Pattern[str]:
@@ -208,3 +222,25 @@ def heat_treatment_only_on_metals(ctx: ReviewContext, rule: Rule, params: NonMet
     if not specified:
         raise NotApplicable("no heat treatment specified")
     return out
+
+
+_IZBP = re.compile(r"I\.?\s*Z\.?\s*B\.?\s*P|IRON\s+ZINC", re.IGNORECASE)
+
+
+@check("izbp_trivalent")
+def izbp_trivalent(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """Iron-zinc black passivation is called out as trivalent (PARI's DES-12 allows trivalent only)."""
+    pages = [p for p in ev.title_block_pages(ctx) if _IZBP.search(ev.value(p, "surface_treatment") or "")]
+    if not pages:
+        raise NotApplicable("no IZBP surface treatment")
+    return [
+        new_finding(
+            rule,
+            reviewer=REVIEWER,
+            evidence=[ev.field(page, "surface_treatment")],
+            comment=f"The surface treatment {ev.value(page, 'surface_treatment')!r} does not say trivalent.",
+            recommended_correction="Write I.Z.B.P. (TRIVALENT).",
+        )
+        for page in pages
+        if "TRIVALENT" not in (ev.value(page, "surface_treatment") or "").upper()
+    ]

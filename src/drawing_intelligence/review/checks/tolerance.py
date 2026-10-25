@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from pydantic import BaseModel, ConfigDict
 
 from drawing_intelligence.review.checks import _evidence as ev
@@ -120,3 +122,24 @@ def tolerance_tighter_than_general(ctx: ReviewContext, rule: Rule, params: Tight
     if not checked:
         raise NotApplicable("no ± tolerance with a general tolerance to compare")
     return out
+
+
+@check("reference_dim_untoleranced")
+def reference_dim_untoleranced(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """A reference dimension (in brackets) carries no tolerance: it only informs, it is not inspected."""
+    refs = [
+        (p, d) for p in ctx.pages for d in p.dimensions if d.is_reference or d.text.strip().startswith("(")
+    ]
+    if not refs:
+        raise NotApplicable("no reference dimensions")
+    return [
+        new_finding(
+            rule,
+            reviewer=REVIEWER,
+            evidence=[ev.dimension(page, d)],
+            comment=f"The reference dimension {d.text} carries a tolerance.",
+            recommended_correction="Remove the tolerance, or make it a normal dimension.",
+        )
+        for page, d in refs
+        if "±" in d.text or d.limits or re.search(r"\(\s*[+\-]?\d+(?:\.\d+)?\s*/", d.text)
+    ]

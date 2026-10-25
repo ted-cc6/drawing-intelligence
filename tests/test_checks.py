@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal
 
 import pytest
 
@@ -373,11 +374,16 @@ def test_checks_are_pure_functions_of_their_input():
 
 GENERAL = [
     GeneralToleranceRow(
-        process="machining", kind="linear", over=o, up_to=u, tolerance=f"±{v:g}", value_mm=v,
+        process="machining",
+        kind="linear",
+        over=o,
+        up_to=u,
+        tolerance=f"±{v:g}",
+        value_mm=v,
         bbox=(0, 0, 1, 1),
     )
     for o, u, v in [(0.5, 3, 0.1), (3, 6, 0.1), (6, 30, 0.2), (30, 120, 0.3), (120, 315, 0.5)]
-]  # fmt: skip
+]
 
 
 def tol_page(*texts: str, limits: dict[str, tuple[str, str]] | None = None) -> PageExtraction:
@@ -629,14 +635,26 @@ def test_any_run_of_dashes_is_a_placeholder():
 # --- GD&T and datums (stage 1 symbols) ----------------------------------------------------------------------
 
 
-def sym(i: int, kind: str, text: str, **kw) -> SymbolItem:
-    return SymbolItem(id=f"S{i}", type=kind, text=text, bbox=(100 + 20 * i, 100, 115 + 20 * i, 110),  # type: ignore[arg-type]
-                      provenance="pdf_text" if kind == "gdt" else "vector", **kw)  # fmt: skip
+def sym(i: int, kind: Literal["gdt", "datum", "surface_finish"], text: str, **kw) -> SymbolItem:
+    return SymbolItem(
+        id=f"S{i}",
+        type=kind,
+        text=text,
+        bbox=(100 + 20 * i, 100, 115 + 20 * i, 110),
+        provenance="pdf_text" if kind == "gdt" else "vector",
+        **kw,
+    )
 
 
 def frame(i: int, characteristic: str, datums=(), tolerance="0.05") -> SymbolItem:
-    return sym(i, "gdt", f"{characteristic} {tolerance}", characteristic=characteristic, tolerance=tolerance,
-               datums=list(datums))  # fmt: skip
+    return sym(
+        i,
+        "gdt",
+        f"{characteristic} {tolerance}",
+        characteristic=characteristic,
+        tolerance=tolerance,
+        datums=list(datums),
+    )
 
 
 def flag(i: int, letter: str) -> SymbolItem:
@@ -678,8 +696,13 @@ def test_datum_letters_valid():
 
 
 def test_datum_unused_counts_frames_and_notes():
-    p = sym_page(frame(1, "parallelism", ["A"]), flag(2, "A"), flag(3, "B"), flag(4, "C"),
-                 notes=["CO PLANERITY OF SURFACE C SHOULD BE WITHIN 0.03"])  # fmt: skip
+    p = sym_page(
+        frame(1, "parallelism", ["A"]),
+        flag(2, "A"),
+        flag(3, "B"),
+        flag(4, "C"),
+        notes=["CO PLANERITY OF SURFACE C SHOULD BE WITHIN 0.03"],
+    )
     findings, status = run("datum_unused", p)
     assert status.status == "fail" and [f.evidence[0].ref for f in findings] == ["S3"]  # only B is unused
 
@@ -697,3 +720,133 @@ def test_fcf_grammar():
     )
     findings, status = run("fcf_grammar", p)
     assert status.status == "fail" and [f.evidence[0].ref for f in findings] == ["S1", "S2"]
+
+
+# --- notes, drawing form, sheets, material ------------------------------------------------------------------
+
+
+def body_page(*lines: str, **kw) -> PageExtraction:
+    text = [TextLine(text=t, bbox=(100, 600 + 10 * i, 400, 608 + 10 * i)) for i, t in enumerate(lines)]
+    return page(body_text=text, **kw)
+
+
+def test_no_model_deferral():
+    params = {"phrases": ["SEE 3D", "AS PER MODEL"]}
+    assert run("no_model_deferral", body_page("PROFILE AS PER MODEL"), **params)[1].status == "fail"
+    assert run("no_model_deferral", body_page("DEBURR ALL SHARP EDGES"), **params)[1].status == "pass"
+
+
+def test_placeholders_count_only_in_a_field_not_as_an_area_marker():
+    params = {"patterns": ["XXX", "TBD"]}
+    findings, status = run(
+        "no_placeholder_text", body_page("H.T.PROCESS : XXXXX", "XXXXX", "COLOUR TBD"), **params
+    )
+    assert status.status == "fail" and [f.evidence[0].quote for f in findings] == [
+        "H.T.PROCESS : XXXXX",
+        "COLOUR TBD",
+    ]
+
+
+def test_leading_zero_but_not_hole_tags():
+    findings, _ = run("leading_zero_decimal", page(dimensions=[dim(1, ".5"), dim(2, "0.5"), dim(3, "A.1")]))
+    assert [f.evidence[0].quote for f in findings] == [".5"]
+
+
+def test_comma_thousands():
+    findings, _ = run("digit_grouping", page(dimensions=[dim(1, "1,200"), dim(2, "1200"), dim(3, "12,5")]))
+    assert [f.evidence[0].quote for f in findings] == ["1,200"]
+
+
+HARD = {"HRC": [20, 67], "HRB": [60, 99], "HB_max_steel_ball": 400, "HB_max_carbide_ball": 700}
+
+
+def test_hardness_in_scale_range():
+    findings, status = run(
+        "hardness_value_in_scale_range", body_page("TO BE TOUGHENED UPTO 24-32 HRC", "HARDEN 15 HRC"), **HARD
+    )
+    assert status.status == "fail" and "15" in findings[0].comment
+    assert run("hardness_value_in_scale_range", body_page("DEBURR"), **HARD)[1].status == "not_applicable"
+
+
+def test_hardness_spec_complete():
+    ok = body_page("1) TO BE CASE HARDENED UPTO 56~60 HRC.", "2) CASE DEPTH 0.8~1.2mm.")
+    assert run("hardness_spec_complete", ok)[1].status == "pass"
+    no_depth = body_page("1) TO BE CASE HARDENED UPTO 56~60 HRC.")
+    assert "case depth" in run("hardness_spec_complete", no_depth)[0][0].comment
+    bought_out = body_page("LM GUIDE ROD OD 20 (HARDENED & GROUND)")  # names a part, gives no instruction
+    assert run("hardness_spec_complete", bought_out)[1].status == "not_applicable"
+
+
+def test_dates_valid_accepts_other_separators():
+    assert (
+        run("dates_valid", page(title_block_fields=fields(drawn_date="06-05-2024")), fields=["drawn_date"])[
+            1
+        ].status
+        == "pass"
+    )
+    assert (
+        run("dates_valid", page(title_block_fields=fields(drawn_date=None)), fields=["drawn_date"])[1].status
+        == "fail"
+    )
+    assert (
+        run("dates_valid", page(title_block_fields=fields(drawn_date="SOON")), fields=["drawn_date"])[
+            1
+        ].status
+        == "fail"
+    )
+
+
+def test_sheet_numbering():
+    one = page(title_block_fields=fields(sheet="1 OF 2"))
+    two = page(page_number=2, title_block_fields=fields(sheet="3 OF 2"))
+    findings, status = run("sheet_numbering", one, two)
+    assert status.status == "fail" and findings[0].evidence[0].page == 2
+
+
+def test_sheet_size_matches_page():
+    assert (
+        run("sheet_size_matches_page", page(title_block_fields=fields(sheet_size="A3")))[1].status == "pass"
+    )
+    findings, _ = run("sheet_size_matches_page", page(title_block_fields=fields(sheet_size="A2")))
+    assert "A3" in findings[0].comment
+
+
+def test_template_text_over_two_lines():
+    params = {"text": "ALL RIGHTS OF REPRODUCTION & DISTRIBUTION ARE RESERVED"}
+    split = body_page("C ALL RIGHTS OF REPRODUCTION &", "DISTRIBUTION ARE RESERVED")
+    assert run("template_text_present", split, **params)[1].status == "pass"
+    assert run("template_text_present", body_page("DEBURR"), **params)[1].status == "fail"
+
+
+def test_revision_sequence():
+    nums = [TextLine(text=n, bbox=(640, 630 + 10 * i, 645, 638 + 10 * i)) for i, n in enumerate(["1", "3"])]
+    assert run("revision_sequence", page(revision_numbers=nums))[1].status == "fail"
+
+
+def test_sheets_agree():
+    a = page(title_block_fields=fields(revision="01", sheet_size="A3"))
+    b = page(page_number=2, title_block_fields=fields(revision="00", sheet_size="A3"))
+    assert run("sheets_same_revision", a, b, min_sheets=2)[1].status == "fail"
+    assert run("sheets_same_size", a, b, min_sheets=2)[1].status == "pass"
+    assert run("sheets_same_revision", a, min_sheets=2)[1].status == "not_applicable"
+
+
+def test_reference_dims_untoleranced():
+    findings, _ = run("reference_dim_untoleranced", page(dimensions=[dim(1, "(35)"), dim(2, "(35±0.1)")]))
+    assert [f.evidence[0].quote for f in findings] == ["(35±0.1)"]
+
+
+def test_izbp_trivalent():
+    assert (
+        run("izbp_trivalent", page(title_block_fields=fields(surface_treatment="IZBP")))[1].status == "fail"
+    )
+    ok = page(title_block_fields=fields(surface_treatment="I.Z.B.P. (TRIVALENT)"))
+    assert run("izbp_trivalent", ok)[1].status == "pass"
+
+
+def test_material_written_consistently():
+    p = body_page("# MATERIAL: EN8", title_block_fields=fields(material="EN-9"))
+    findings, status = run("material_written_consistently", p)
+    assert status.status == "fail" and {e.kind for e in findings[0].evidence} == {"title_block", "text"}
+    same = body_page("# MATERIAL: M.S", title_block_fields=fields(material="M.S."))
+    assert run("material_written_consistently", same)[1].status == "pass"

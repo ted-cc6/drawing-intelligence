@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import date, datetime
@@ -39,7 +40,9 @@ class ReviewContext:
         """A title-block date in the template's format (PARI: day/month/year); None if it doesn't parse."""
         if not text:
             return None
+        sep = next((c for c in "/-." if c in self.template.date_format), "/")
+        normal = re.sub(r"[/\-.]", sep, text.strip())  # 06-05-2024 and 06.05.2024 are 06/05/2024
         try:
-            return datetime.strptime(text.strip(), self.template.date_format).date()
+            return datetime.strptime(normal, self.template.date_format).date()
         except ValueError:
             return None

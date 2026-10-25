@@ -41,6 +41,7 @@ title_block_fields:
   approved_date: [W-369, H-44, W-330, H-28]
   general_tolerance_standard: [W-105, H-186, W-40, H-172]
   drawing_type: [W-105, H-136, W-30, H-120]   # MACHINING / FABRICATION: which general tolerances apply
+  sheet: [W-72, H-44, W-30, H-28]              # "1 OF 2"
 
 # Printed label text that comes before the value in the same cell.
 title_block_prefixes: {general_tolerance_standard: "Gen Tol.:"}
