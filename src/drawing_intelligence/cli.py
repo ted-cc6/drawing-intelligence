@@ -686,6 +686,10 @@ def eval_heldout(
     out: Annotated[Path, typer.Option("--out", help="where the reports and findings.csv go")],
     n: Annotated[int, typer.Option("--n", help="how many unseen client drawings")] = 25,
     seed: Annotated[int, typer.Option("--seed", help="random seed of the selection")] = 2026,
+    drawings_file: Annotated[
+        Path | None,
+        typer.Option("--drawings", help="re-run a listed set (paths relative to data/client_set)"),
+    ] = None,
     no_understand: NoUnderstandOpt = False,
     yes: Annotated[bool, typer.Option("--yes", "-y", help="skip the cost confirmation")] = False,
 ) -> None:
@@ -694,7 +698,12 @@ def eval_heldout(
     from drawing_intelligence.llm import load_registry
 
     s = get_settings()
-    drawings = select_heldout(s.data_path / "client_set", n, seed, samples_dir=s.raw_dir)
+    client = s.data_path / "client_set"
+    if drawings_file is not None:
+        names = [ln.strip() for ln in drawings_file.read_text(encoding="utf-8").splitlines() if ln.strip()]
+        drawings = [client / name for name in names]
+    else:
+        drawings = select_heldout(client, n, seed, samples_dir=s.raw_dir)
     if not no_understand:
         registry = load_registry(s.config_path / "models.yaml")
         est = registry.model(None, "understand").cost(30_000, 10_000) + 3 * registry.model(

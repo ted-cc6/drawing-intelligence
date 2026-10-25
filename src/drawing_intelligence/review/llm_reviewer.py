@@ -70,7 +70,12 @@ def output_schema(rule_ids: list[str]) -> type[BaseModel]:
 
 
 def build_message(ctx: ReviewContext, rules: list[Rule]) -> str:
-    rules_json = [{"id": r.id, "requirement": r.requirement} for r in rules]
+    # A rule's `llm_instruction` narrows what may be reported under it (MF-007: only a stated conflict).
+    rules_json = [
+        {"id": r.id, "requirement": r.requirement}
+        | ({"only_when": r.params["llm_instruction"]} if r.params.get("llm_instruction") else {})
+        for r in rules
+    ]
     pages = []
     for p in ctx.pages:
         k = ctx.knowledge_of(p)
@@ -118,7 +123,11 @@ def run_llm_reviewer(
     for r in blocked:
         missing = ", ".join(sorted(set(r.params["needs"]) - AVAILABLE_INPUTS))
         statuses.append(
-            RuleStatus(rule_id=r.id, status="not_checked", note=f"needs {missing}, not read by stage 1 yet")
+            RuleStatus(
+                rule_id=r.id,
+                status="not_checked",
+                note=f"needs {missing}, which the review does not have yet",
+            )
         )
     rules = [r for r in rules if r not in blocked]
     if not rules:

@@ -73,6 +73,9 @@ rules:
     requirement: 'Material suits the function: strength, corrosion, wear, weldability'
     severity: major
     check_type: llm
+    # llm_instruction: on 24 unseen drawings 4 of its 5 findings were general suitability opinions; the right one
+    #   was a title block contradicting a note (held-out run, 2026-10-25)
+    params: {llm_instruction: 'Report only when the drawing itself states a fact the material conflicts with (another material named in a note or field, a treatment or property the material cannot have). Do not judge whether the material is a good choice in general.'}
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MF-07}
     status: draft
 
@@ -96,6 +99,9 @@ rules:
     requirement: No notes copied from another drawing that do not apply to this part
     severity: minor
     check_type: llm
+    # needs: held back until PARI lists its standard notes (bilingual copies, NDT, retapping, template notes): on
+    #   24 unseen drawings 11 of its 12 findings were those (held-out run, 2026-10-25)
+    params: {needs: [pari_standard_notes]}
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: NM-08}
     status: draft
 
