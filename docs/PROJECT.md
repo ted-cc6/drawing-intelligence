@@ -225,15 +225,15 @@ No labelled error drawings exist yet, so evaluation is built from what is availa
 
 ### Results of the first review slice (2026-10-23)
 
-`di eval review` on the 28 seeded cases, through the full graph: the `checks` reviewer with 15 check functions
-(20 of 135 code/lookup rules).
+`di eval review` on the 28 seeded cases, through the full graph: the `checks` reviewer with 17 check functions
+(22 of 135 code/lookup rules) and two reference tables (`config/reference/`: materials, PARI DES-12 plating).
 
-| | first 10 checks | + tolerance and heat-treatment checks |
-|---|---|---|
-| Recall, all 22 planted errors | 10/22 (45%) | **15/22 (68%)** |
-| Recall, planted errors with a built check | 10/10 | 15/15 |
-| Precision | 40/40 | 60/60 |
-| False alarms on clean and near-miss drawings | 0 | 0 |
+| | first 10 checks | + tolerance, heat treatment | + lookup tables (2026-10-25) |
+|---|---|---|---|
+| Recall, all 22 planted errors | 10/22 (45%) | 15/22 (68%) | **18/22 (82%)** |
+| Recall, planted errors with a built check | 10/10 | 15/15 | 18/18 |
+| Precision | 40/40 | 60/60 | 63/63 |
+| False alarms on clean and near-miss drawings | 0 | 0 | 0 |
 
 With understanding (`qwen3-vl-plus`, thinking off) the results are identical; none of these checks needs it yet
 (CN-002 uses drawn lengths). A run takes ~110 s per drawing, nearly all understanding; the replies are cached in
@@ -245,8 +245,11 @@ clean cases hit A1's cache). Code checks alone take ~1 min for all 28.
 | title block | 6/6 |
 | consistency | 4/6 (P05, P06 need the `llm` missing-dimension rules) |
 | tolerance | 3/3 |
-| surface treatment | 2/5 (P18, P21, P22 need the lookup tables) |
+| surface treatment | 5/5 |
 | design intent, manufacturability | 0/1 each (LLM reviewers) |
+
+The four planted errors left (P05, P06, P19, P20) are all `llm` rules: missing dimensions, a removed fit, a sharp
+internal corner. They need the LLM reviewers.
 
 - The 60 findings are 17 that catch a planted error (P01 and P02 each also raise the other chain rule, which
   their keys accept) and 43 real issues already in the client's drawings (the keys' `pre_existing`: TB-016 on
@@ -264,6 +267,9 @@ clean cases hit A1's cache). Code checks alone take ~1 min for all 28.
   sheets (313 findings): two-decimal sizes such as `15.21` under ±0.2, which the answer keys count as real
   (`34.97` under ±0.3). PARI should confirm that this is what they want flagged.
 - TL-003 (much tighter than general) warns on 15 of 157 sheets, e.g. `40±0.01`. Its ratio (20x) is provisional.
+- WPS-002 (treatment suits the material) fails on 3 of the 11 sheets it can compare, all IZBP on alloy steel (EN24,
+  20MnCr5). DES-12's material column lists IZBP for mild and carbon steel only, but its text says "for ferrous
+  machined parts": PARI should say which holds. Most sheets print `#` for the material, so they are not compared.
 
 ## 9. Roadmap
 
@@ -271,7 +277,7 @@ clean cases hit A1's cache). Code checks alone take ~1 min for all 28.
 |---|---|---|
 | M0 | Repo, tooling, CI on Windows/macOS/Linux, docs and ADRs | ✅ |
 | M1 | Notebooks 01/02 ported and upgraded: typed contracts, multi-page, template config, model registry, telemetry, session data, LangGraph intake → understand, CLI, eval | ✅ |
-| M2 | Review contracts and rulebook loader (A2 ✅); default understanding model (A1 ✅, ADR 0009); draft rulebook, 174 rules (R ✅); review-stage design (ADR 0010 ✅, proposed); title-block fields in stage 1 ✅; `checks` reviewer with 15 check functions (A4, in progress: 20 of 135 code/lookup rules built); general tolerance table and stacked limits in stage 1 ✅; verifier (A3 ✅); next: reference tables for the lookup rules (P18, P21, P22), symbols from text and vectors in stage 1 (Spike D) | in progress |
+| M2 | Review contracts and rulebook loader (A2 ✅); default understanding model (A1 ✅, ADR 0009); draft rulebook, 174 rules (R ✅); review-stage design (ADR 0010 ✅, proposed); title-block fields in stage 1 ✅; `checks` reviewer with 17 check functions (A4, in progress: 22 of 135 code/lookup rules built); general tolerance table and stacked limits in stage 1 ✅; verifier (A3 ✅); reference tables and the first lookup checks ✅ (materials, DES-12 plating); next: symbols from text and vectors in stage 1 (Spike D), more lookup tables (DES-11 heat treatment, raw-material sizes) | in progress |
 | M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`); seeded-error eval set (drawings and keys: A5a ✅; `di eval review`: A5b ✅); graph fan-out (A6 part 1 ✅) and report (Excel + annotated sheet) | |
 | M4 | Q&A agent; feedback log | |
 | M5 | API + dashboard (model picker, cost and latency) | |

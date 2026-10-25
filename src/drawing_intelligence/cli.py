@@ -82,12 +82,14 @@ def rules(
 
     from drawing_intelligence.review import RulebookError, load_rulebook
     from drawing_intelligence.review.checks import param_models
+    from drawing_intelligence.review.reference import ReferenceTableError, load_reference
     from drawing_intelligence.schemas.review import CATEGORY_LABELS
 
     checks = param_models()
     try:
         book = load_rulebook(folder, checks=checks)
-    except RulebookError as e:
+        tables = load_reference(folder.parent / "reference" if folder else None)
+    except (RulebookError, ReferenceTableError) as e:
         console.print(f"[red]{e}[/red]")
         raise typer.Exit(1) from e
     if not book.rules:
@@ -115,6 +117,7 @@ def rules(
         f"{len(book.not_built(checks))} code/lookup rules are not built yet and report not_checked. "
         "LLM rules run in the LLM reviewers."
     )
+    console.print(f"Reference tables: {', '.join(sorted(tables)) or 'none'}.")
 
 
 def _print_extraction(ex) -> None:

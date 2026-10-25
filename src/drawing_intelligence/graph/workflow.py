@@ -25,6 +25,7 @@ from drawing_intelligence.llm.client import CompletionFn, openai_completion
 from drawing_intelligence.review import Rulebook, load_rulebook
 from drawing_intelligence.review.checks import param_models
 from drawing_intelligence.review.context import ReviewContext
+from drawing_intelligence.review.reference import load_reference
 from drawing_intelligence.review.reviewers import BUILT_REVIEWERS, PLANNED_REVIEWERS
 from drawing_intelligence.review.runner import run_checks
 from drawing_intelligence.review.verify import verify
@@ -95,8 +96,12 @@ def build_graph(
     imaging: ImagingConfig | None = None,
     understand: bool = True,
     rulebook: Rulebook | None = None,
+    reference: dict[str, Any] | None = None,
 ):
-    """The workflow graph. With a rulebook, the review stage follows: reviewers in parallel, then verify."""
+    """The workflow graph. With a rulebook, the review stage follows: reviewers in parallel, then verify.
+
+    `reference` holds the lookup tables (config/reference) the lookup checks read.
+    """
     ws = session.workspace
 
     def intake(state: WorkflowState) -> dict[str, Any]:  # nodes return partial state updates
@@ -133,6 +138,7 @@ def build_graph(
                     rulebook=rulebook,
                     template=load_template(state.get("template", "wipro_pari")),
                     knowledge=_load_knowledge(state),
+                    reference=reference or {},
                 )
                 output = fn(ctx)
             except Exception as e:  # a crashed reviewer is reported, and the others still count
@@ -214,9 +220,10 @@ def run_workflow(
                 completion_fn,
             )
         rulebook = load_rulebook(settings.config_path / "rules", checks=param_models()) if review else None
+        reference = load_reference(settings.config_path / "reference") if review else None
         conn = sqlite3.connect(session.checkpoint_db, check_same_thread=False)
         try:
-            graph = build_graph(session, client, imaging, understand, rulebook)
+            graph = build_graph(session, client, imaging, understand, rulebook, reference)
             app = graph.compile(checkpointer=SqliteSaver(conn))
             final = app.invoke(
                 {

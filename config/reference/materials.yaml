@@ -1,0 +1,23 @@
+# Material classes: title-block designation -> class -> family. Used by the material and surface-treatment
+# lookup rules (WPS-002, WST-123).
+# Sources: PARI PRD-GD-DES-11 (high-carbon and alloy steel selection), "US-India equivalent Materials Info.xlsx",
+# and the designations printed on the client drawings (data/client_set, surveyed 2026-10-25), including their
+# spelling variants (Polyurethene, M.S, EN-9).
+source: {document: 'PARI PRD-GD-DES-11; US-India equivalent Materials Info.xlsx; client drawing survey', section: title-block material field}
+
+families:
+  ferrous: [mild_steel, carbon_steel, alloy_steel, tool_steel, stainless_steel, cast_iron, steel]
+  non_ferrous: [aluminium, copper_alloy]
+  non_metallic: [plastic]
+
+classes:  # first match wins
+  - {class: stainless_steel, patterns: ['\bSS\s*-?\s*[34]\d\d', 'STAINLESS']}
+  - {class: tool_steel, patterns: ['\bOHNS\b', '\bD[23]\b', '\bA2\b', '\bO2\b', '\bH13\b']}
+  - {class: alloy_steel, patterns: ['\bEN\s*-?\s*(19|24|31|36)\b', '\b(16|20)\s*MnCr\s*5\b', '\b42\s*CrMo\s*4\b']}
+  - {class: carbon_steel, patterns: ['\bC\s*-?\s*(35|40|45|50|55)\b', '\bEN\s*-?\s*(8|9)\b']}
+  - {class: mild_steel, patterns: ['^\s*M\.?\s*S\b', 'MILD\s+STEEL', '\bIS\s*:?\s*2062\b', '\bE\s*250\b']}
+  - {class: cast_iron, patterns: ['\bC\.?I\.?\b', 'CAST\s+IRON', '\bFG\s*-?\s*2\d0\b', '\bSG\s*-?\s*\d']}
+  - {class: aluminium, patterns: ['ALUMIN(I)?UM', '\bHE\s*-?\s*30\b', '\b(6061|6082|6063|7075|5083)\b']}
+  - {class: copper_alloy, patterns: ['BRASS', 'BRONZE', 'COPPER']}
+  - {class: plastic, patterns: ['POLYURETH[AE]NE', '\bPU\b', 'NYLON', 'DELRIN', 'ACETAL', '\bPOM\b', 'PTFE', 'TEFLON', 'UHMW', '\bABS\b', '\bPVC\b', 'POLYCARBONATE', '\bPEEK\b', 'ACRYLIC', 'PERSPEX', 'BAKELITE', 'PHENOLIC']}
+  - {class: steel, patterns: ['^\s*STEEL\s*$']}  # a steel, grade not stated

@@ -11,7 +11,7 @@ client LatentView Analytics). Pipeline:
 - One Q&A agent over the saved results.
 
 Built so far: intake, understand, and the review stage up to verify, with one reviewer (`checks`, the code
-checks; 15 check functions so far). The LLM reviewers and the report come next. The original notebooks live in `D:\Capstone\demo` (read-only reference;
+checks; 17 check functions so far). The LLM reviewers and the report come next. The original notebooks live in `D:\Capstone\demo` (read-only reference;
 do not edit them).
 
 ## Layout
@@ -35,6 +35,7 @@ src/drawing_intelligence/
 config/models.yaml     model registry: prices, capabilities, roles, thinking options, role defaults
 config/templates/      drawing-template regions and glyph remaps
 config/rules/          the rulebook, one YAML list of rules per file (see its README)
+config/reference/      lookup tables the lookup rules read (materials, PARI plating processes; see its README)
 data/                  committed (ADR 0007): raw PDFs, client_set, baseline, labels, eval/seeded, cache,
                        telemetry.db. Not committed: data/sessions/ (run history; ADR 0010)
 ```

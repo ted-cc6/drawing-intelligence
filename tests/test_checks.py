@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from drawing_intelligence.extraction import load_template
@@ -11,6 +13,7 @@ from drawing_intelligence.review.checks._geometry import MM_PTS
 from drawing_intelligence.review.checks._registry import CheckSpec, NoParams
 from drawing_intelligence.review.checks._tolerance import general_for, parse
 from drawing_intelligence.review.context import ReviewContext
+from drawing_intelligence.review.reference import load_reference
 from drawing_intelligence.review.reviewers import LLM_REVIEWER_FOR_CATEGORY, reviewer_for
 from drawing_intelligence.review.rulebook import Rule, Rulebook, RuleSource, new_finding
 from drawing_intelligence.review.runner import run_checks, run_rule
@@ -495,3 +498,117 @@ def test_decimals_can_ignore_cad_trailing_zeros_under_the_general_tolerance():
     ]  # an explicit ± is taken as printed
     findings, _ = run("decimals_vs_tolerance", p)
     assert [f.evidence[0].quote for f in findings] == ["18.00", "34.97", "28.500±0.1"]
+
+
+# --- lookup checks and their reference tables ---------------------------------------------------------------
+
+REFERENCE = load_reference()
+
+
+def lookup_run(check: str, p: PageExtraction, **params):
+    c = ctx(p)
+    c = ReviewContext(**{**c.__dict__, "reference": REFERENCE})
+    return run_rule(c, rule(check, check_type="lookup", **params), registered()[check])
+
+
+@pytest.mark.parametrize(
+    ("printed", "cls", "family"),
+    [
+        ("M.S.", "mild_steel", "ferrous"),
+        ("M.S 2", "mild_steel", "ferrous"),  # a stray zone digit in the cell
+        ("C-45", "carbon_steel", "ferrous"),
+        ("EN-24", "alloy_steel", "ferrous"),
+        ("20MNCR5", "alloy_steel", "ferrous"),
+        ("Aluminum, HE30/6082", "aluminium", "non_ferrous"),
+        ("PHOSPHOR BRONZE", "copper_alloy", "non_ferrous"),
+        ("Polyurethene", "plastic", "non_metallic"),  # as misspelt on the drawings
+        ("Delrin", "plastic", "non_metallic"),
+        ("#", None, None),
+    ],
+)
+def test_materials_table(printed, cls, family):
+    materials = REFERENCE["materials"]
+    assert materials.classify(printed) == cls and materials.family(cls) == family
+
+
+@pytest.mark.parametrize(
+    ("printed", "process"),
+    [
+        ("I.Z.B.P. (TRIVALENT)", "izbp"),
+        ("IZBP", "izbp"),
+        ("HARD ANODIZING", "hard_anodizing"),
+        ("SELF-ANODIZING", "silver_anodizing"),
+        ("ELECTOLESS NICKEL PLATING", "enp"),  # as misspelt on a drawing
+        ("E.N.P.", "enp"),
+        ("QPQ", "qpq"),
+        ("PAINTING", None),  # not a DES-12 plating process
+    ],
+)
+def test_plating_processes_table(printed, process):
+    found = REFERENCE["plating_processes"].identify(printed)
+    assert (found.id if found else None) == process
+
+
+def test_reference_tables_change_the_rulebook_version(tmp_path: Path):
+    rules = tmp_path / "rules"
+    rules.mkdir()
+    before = load_rulebook(rules).version
+    (tmp_path / "reference").mkdir()
+    (tmp_path / "reference" / "extra.yaml").write_text("a: 1\n", encoding="utf-8")
+    assert load_rulebook(rules).version != before
+
+
+@pytest.mark.parametrize(
+    ("treatment", "material", "status"),
+    [
+        ("HARD ANODIZING", "M.S.", "fail"),
+        ("I.Z.B.P. (TRIVALENT)", "Polyurethene", "fail"),
+        ("I.Z.B.P. (TRIVALENT)", "C-45", "pass"),
+        ("HARD ANODIZING", "Aluminum, 6061-T6", "pass"),
+        ("ENP", "Delrin", "pass"),  # DES-12: "Plastic (ABS) and Other"
+        ("PAINTING", "M.S.", "not_applicable"),  # not a DES-12 process
+        ("IZBP", "#", "not_checked"),  # material not stated
+        ("IZBP", "Steel", "not_checked"),  # steel, grade not stated
+    ],
+)
+def test_treatment_material_compat(treatment, material, status):
+    p = page(title_block_fields=fields(surface_treatment=treatment, material=material))
+    findings, s = lookup_run("treatment_material_compat", p, table="plating_processes")
+    assert s.status == status
+    if status == "fail":
+        assert {e.ref for e in findings[0].evidence} == {"surface_treatment", "material"}
+
+
+def test_treatment_check_needs_its_table():
+    p = page(title_block_fields=fields(surface_treatment="IZBP"))
+    assert run("treatment_material_compat", p, table="plating_processes")[1].status == "not_checked"
+
+
+@pytest.mark.parametrize(
+    ("heat", "material", "notes", "status"),
+    [
+        ("HARDENED 40-45 HRC", "Polyurethene", [], "fail"),
+        ("HARDENED 40-45 HRC", "C-45", [], "pass"),
+        ("REF NOTE", "NYLON", ["1) TO BE HARDENED UPTO 40 HRC."], "fail"),  # the note it refers to
+        (
+            "---",
+            "Polyurethene",
+            ["SHORE HARDNESS- 80"],
+            "not_applicable",
+        ),  # shore hardness is not a treatment
+        ("HARDENED 40-45 HRC", "#", [], "not_checked"),
+    ],
+)
+def test_heat_treatment_only_on_metals(heat, material, notes, status):
+    p = notes_page(heat, *notes)
+    p = p.model_copy(update={"title_block_fields": fields(heat_treatment=heat, material=material)})
+    params = {"table": "plastics_families", "non_metals": ["PVC", "nylon"]}
+    assert lookup_run("heat_treatment_only_on_metals", p, **params)[1].status == status
+
+
+def test_ref_drawing_or_bom_is_not_a_note_reference():
+    for value in ("REF. DRG", "REF BOM"):
+        assert (
+            run("referenced_note_exists", notes_page(value), field="heat_treatment")[1].status
+            == "not_applicable"
+        )

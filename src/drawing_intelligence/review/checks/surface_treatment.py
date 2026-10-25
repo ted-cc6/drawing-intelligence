@@ -7,13 +7,14 @@ import re
 from pydantic import BaseModel, ConfigDict
 
 from drawing_intelligence.review.checks import _evidence as ev
-from drawing_intelligence.review.checks._registry import NotApplicable, check
+from drawing_intelligence.review.checks._registry import NotApplicable, NotCheckable, check
 from drawing_intelligence.review.context import ReviewContext
+from drawing_intelligence.review.reference import Materials, PlatingProcesses
 from drawing_intelligence.review.rulebook import Rule, new_finding
-from drawing_intelligence.schemas import Finding, PageExtraction, TextItem
+from drawing_intelligence.schemas import EvidenceRef, Finding, PageExtraction, TextItem
 
 REVIEWER = "checks"
-_REFERS_TO_NOTE = re.compile(r"\bREF\b|\bNOTE\b|\bSEE\b", re.IGNORECASE)
+_REFERS_TO_NOTE = re.compile(r"NOTE", re.IGNORECASE)  # REF NOTE, REFER NOTE, REF.NOTE; not REF. DRG / REF BOM
 # Words that make a note a heat-treatment specification, not just its heading.
 HEAT_TREATMENT_TERMS = (
     "harden", "tough", "temper", "anneal", "normali", "carburi", "nitrid", "case", "induction", "flame",
@@ -95,3 +96,115 @@ def hardened_only_treatments_have_hardening(
         )
         for p, n, t in asking
     ]
+
+
+def _table(ctx: ReviewContext, name: str, model: type) -> object:
+    table = ctx.reference.get(name)
+    if not isinstance(table, model):
+        raise NotCheckable(f"reference table {name!r} not loaded (config/reference/{name}.yaml)")
+    return table
+
+
+def _materials(ctx: ReviewContext) -> Materials:
+    table = _table(ctx, "materials", Materials)
+    assert isinstance(table, Materials)
+    return table
+
+
+class TableParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    table: str
+
+
+@check("treatment_material_compat", TableParams)
+def treatment_material_compat(ctx: ReviewContext, rule: Rule, params: TableParams) -> list[Finding]:
+    """The surface treatment is one PARI's DES-12 allows on the material (e.g. anodizing: aluminium only).
+
+    Treatments DES-12 does not list (painting, black oxide) and materials the table does not recognise are not
+    compared; a steel whose grade is not stated is not compared either.
+    """
+    processes = _table(ctx, params.table, PlatingProcesses)
+    assert isinstance(processes, PlatingProcesses)
+    materials = _materials(ctx)
+    out = []
+    listed = compared = False
+    for page in ev.title_block_pages(ctx):
+        process = processes.identify(ev.value(page, "surface_treatment"))
+        if process is None:
+            continue
+        listed = True
+        material = ev.value(page, "material")
+        cls = materials.classify(material)
+        if cls is None or cls == "steel":
+            continue
+        compared = True
+        if cls in process.materials:
+            continue
+        out.append(
+            new_finding(
+                rule,
+                reviewer=REVIEWER,
+                evidence=[ev.field(page, "surface_treatment"), ev.field(page, "material")],
+                comment=f"{process.name} ({ev.value(page, 'surface_treatment')}) on {material} "
+                f"({cls.replace('_', ' ')}): PARI's DES-12 allows it on "
+                f"{', '.join(m.replace('_', ' ') for m in process.materials)} only.",
+                recommended_correction="Use a treatment DES-12 lists for this material, or fix the material.",
+            )
+        )
+    if not listed:
+        raise NotApplicable("no DES-12 plating process in the surface treatment field")
+    if not compared:
+        raise NotCheckable("the material is not one the materials table recognises")
+    return out
+
+
+class NonMetalParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    table: str
+    non_metals: list[str] = []
+    thermoplastic_softening_C: list[float] = []
+
+
+def _heat_treatment(page: PageExtraction) -> list[EvidenceRef]:
+    """Where this page specifies a heat treatment: the field itself, or the notes it refers to."""
+    value = ev.value(page, "heat_treatment")
+    if not value or value in ev.PLACEHOLDERS:
+        return []
+    if not _REFERS_TO_NOTE.search(value):
+        return [ev.field(page, "heat_treatment")]
+    terms = [_term(t) for t in HEAT_TREATMENT_TERMS]
+    return [ev.text(page, n) for n in _notes(page) if any(t.search(n.text) for t in terms)]
+
+
+@check("heat_treatment_only_on_metals", NonMetalParams)
+def heat_treatment_only_on_metals(ctx: ReviewContext, rule: Rule, params: NonMetalParams) -> list[Finding]:
+    """A heat treatment (hardening, tempering, ...) is specified only for a metal part, never a plastic."""
+    materials = _materials(ctx)
+    extra = [re.compile(re.escape(n.split("(")[0].strip()), re.IGNORECASE) for n in params.non_metals]
+    out = []
+    specified = False
+    for page in ev.title_block_pages(ctx):
+        treatment = _heat_treatment(page)
+        if not treatment:
+            continue
+        specified = True
+        material = ev.value(page, "material")
+        cls = materials.classify(material)
+        plastic = materials.family(cls) == "non_metallic" or any(p.search(material or "") for p in extra)
+        if cls is None and not plastic:
+            raise NotCheckable("the material is not one the materials table recognises")
+        if not plastic:
+            continue
+        out.append(
+            new_finding(
+                rule,
+                reviewer=REVIEWER,
+                evidence=[*treatment, ev.field(page, "material")],
+                comment=f"A heat treatment ({treatment[0].quote!r}) is specified for a part in {material}, a "
+                "non-metal: plastics are not heat treated.",
+                recommended_correction="Remove the heat treatment, or correct the material.",
+            )
+        )
+    if not specified:
+        raise NotApplicable("no heat treatment specified")
+    return out

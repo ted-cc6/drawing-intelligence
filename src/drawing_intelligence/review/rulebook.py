@@ -163,7 +163,10 @@ def load_rulebook(path: Path | None = None, checks: Mapping[str, type[BaseModel]
             rules.append(rule)
     if problems:
         raise RulebookError(problems)
-    return Rulebook(version=_version(files), rules=rules)
+    # The lookup tables next to the rules are part of the version: a table change is a rulebook change.
+    from drawing_intelligence.review.reference import reference_files
+
+    return Rulebook(version=_version(files + reference_files(folder.parent / "reference")), rules=rules)
 
 
 def new_finding(
