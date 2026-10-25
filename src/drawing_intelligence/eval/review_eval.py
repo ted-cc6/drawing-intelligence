@@ -17,7 +17,11 @@ overlap of the two bboxes on the same page.
 
 **Recall** is reported twice: over every planted error (coverage of the rulebook), and over the planted errors
 whose rule (or an acceptable one) has a built check (quality of the checks that exist). **Precision** is the
-share of findings that are not false alarms. A false alarm on a clean or near-miss drawing is a bug to fix.
+share of findings that are not false alarms, overall and per reviewer.
+
+**False alarms on clean and near-miss drawings** are counted separately for code and LLM findings
+(2026-10-25). A code false alarm is a bug to fix; LLM warnings are measured and tuned, not a gate (Spike E:
+32-61% precision).
 """
 
 from __future__ import annotations
@@ -108,7 +112,12 @@ class Summary:
     caught_covered: int
     findings: int
     correct: int
-    false_alarms_on_quiet: list[tuple[str, Finding]] = field(default_factory=list)  # clean + near-miss cases
+    false_alarms_on_quiet: list[tuple[str, Finding]] = field(
+        default_factory=list
+    )  # code findings, clean+near-miss
+    llm_alarms_on_quiet: list[tuple[str, Finding]] = field(
+        default_factory=list
+    )  # LLM warnings there: measured only
     by_category: dict[str, tuple[int, int]] = field(default_factory=dict)  # category -> (caught, planted)
     by_reviewer: dict[str, tuple[int, int]] = field(default_factory=dict)  # reviewer -> (correct, findings)
     labels: Counter[str] = field(default_factory=Counter)
@@ -148,7 +157,8 @@ def summarize(scores: Iterable[CaseScore]) -> Summary:
             rev[0] += lab in CORRECT
             rev[1] += 1
         if c.kind in ("clean", "near_miss"):
-            s.false_alarms_on_quiet += [(c.case, f) for f in c.false_alarms]
+            s.false_alarms_on_quiet += [(c.case, f) for f in c.false_alarms if f.source != "llm"]
+            s.llm_alarms_on_quiet += [(c.case, f) for f in c.false_alarms if f.source == "llm"]
     s.by_category = {k: (v[0], v[1]) for k, v in sorted(cats.items())}
     s.by_reviewer = {k: (v[0], v[1]) for k, v in sorted(revs.items())}
     return s
@@ -168,9 +178,12 @@ def run_review_eval(
     cases_dir: Path | None = None,
     *,
     understand: bool = True,
+    llm_review: bool = True,
     only: list[str] | None = None,
     model: str | None = None,
     thinking: str | None = None,
+    review_model: str | None = None,
+    review_thinking: str | None = None,
 ) -> list[CaseScore]:
     """Review every seeded case through the full workflow and score it against its key.
 
@@ -192,8 +205,11 @@ def run_review_eval(
                 run_settings,
                 understand=understand,
                 review=True,
+                llm_review=llm_review,
                 model=model,
                 thinking=thinking,
+                review_model=review_model,
+                review_thinking=review_thinking,
             )
             assert res.review is not None
             score = score_case(key, res.review, built)

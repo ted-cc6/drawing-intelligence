@@ -25,6 +25,14 @@ ThinkingOpt = Annotated[str | None, typer.Option("--thinking", "-t", help="think
 ExportOpt = Annotated[
     Path | None, typer.Option("--export", help="keep a copy of the outputs and annotated images here")
 ]
+NoUnderstandOpt = Annotated[
+    bool, typer.Option("--no-understand", help="skip the LLM step: code checks on the exact PDF text only")
+]
+NoLlmReviewOpt = Annotated[
+    bool, typer.Option("--no-llm-review", help="understand, but run only the code checks")
+]
+ReviewModelOpt = Annotated[str | None, typer.Option("--review-model", help="model for the LLM reviewers")]
+ReviewThinkingOpt = Annotated[str | None, typer.Option("--review-thinking", help="their thinking option")]
 
 
 def _money(v: float) -> str:
@@ -238,10 +246,10 @@ def review(
     model: ModelOpt = None,
     thinking: ThinkingOpt = None,
     export: ExportOpt = None,
-    no_understand: Annotated[
-        bool,
-        typer.Option("--no-understand", help="skip the LLM step: code checks on the exact PDF text only"),
-    ] = False,
+    no_understand: NoUnderstandOpt = False,
+    no_llm_review: NoLlmReviewOpt = False,
+    review_model: ReviewModelOpt = None,
+    review_thinking: ReviewThinkingOpt = None,
 ) -> None:
     """Review one drawing against the rulebook: intake → understand → reviewers → verify."""
     from drawing_intelligence.graph import run_workflow
@@ -251,8 +259,11 @@ def review(
         get_settings(),
         understand=not no_understand,
         review=True,
+        llm_review=not no_llm_review,
         model=model,
         thinking=thinking,
+        review_model=review_model,
+        review_thinking=review_thinking,
         export_dir=export,
     )
     understanding_cost = sum(r.cost_usd for r in res.understanding)
@@ -540,10 +551,10 @@ def _pct(part: int, whole: int) -> str:
 def eval_review(
     model: ModelOpt = None,
     thinking: ThinkingOpt = None,
-    no_understand: Annotated[
-        bool,
-        typer.Option("--no-understand", help="skip the LLM step: code checks on the exact PDF text only"),
-    ] = False,
+    no_understand: NoUnderstandOpt = False,
+    no_llm_review: NoLlmReviewOpt = False,
+    review_model: ReviewModelOpt = None,
+    review_thinking: ReviewThinkingOpt = None,
     only: Annotated[
         list[str] | None, typer.Option("--only", help="case id prefix, e.g. P03 (repeatable)")
     ] = None,
@@ -559,15 +570,28 @@ def eval_review(
     root = s.data_path / "eval" / "seeded"
     n = len([k for k in load_answer_keys(root) if not only or any(k.case.startswith(o) for o in only)])
     if not no_understand:
-        spec = load_registry(s.config_path / "models.yaml").model(model, "understand")
+        registry = load_registry(s.config_path / "models.yaml")
+        spec = registry.model(model, "understand")
         est = spec.cost(30_000, 10_000) * n
-        console.print(
-            f"{n} case(s) with {spec.name} (thinking {spec.thinking_level(thinking)}) for understanding: "
-            f"rough estimate {_money(est)} if nothing is cached; cached replies in data/cache are free."
-        )
+        line = f"{n} case(s): understanding with {spec.name} (thinking {spec.thinking_level(thinking)})"
+        if not no_llm_review:
+            rspec = registry.model(review_model, "review")
+            est += rspec.cost(10_000, 1_500) * 3 * n
+            line += f", 3 LLM reviewers with {rspec.name} (thinking {rspec.thinking_level(review_thinking)})"
+        console.print(f"{line}: rough estimate {_money(est)} if nothing is cached; cached replies are free.")
         if not yes:
             typer.confirm("Make these API calls?", abort=True)
-    scores = run_review_eval(s, root, understand=not no_understand, only=only, model=model, thinking=thinking)
+    scores = run_review_eval(
+        s,
+        root,
+        understand=not no_understand,
+        llm_review=not no_llm_review,
+        only=only,
+        model=model,
+        thinking=thinking,
+        review_model=review_model,
+        review_thinking=review_thinking,
+    )
 
     t = Table(title="Review on the planted-error drawings")
     for col in ("case", "kind", "planted error caught", "findings", "false alarms"):
@@ -592,9 +616,18 @@ def eval_review(
     )
     quiet = sm.false_alarms_on_quiet
     style = "red" if quiet else "green"
-    console.print(f"[{style}]False alarms on clean and near-miss drawings: {len(quiet)}[/{style}]")
+    console.print(
+        f"[{style}]False alarms on clean and near-miss drawings (code checks): {len(quiet)}[/{style}]"
+    )
     for case, f in quiet:
         console.print(f"  {case}: {f.rule_id} - {f.comment}")
+    llm_quiet = sm.llm_alarms_on_quiet
+    if any(f.source == "llm" for c in scores for f, _ in c.labels):
+        console.print(
+            f"LLM warnings on clean and near-miss drawings (measured, not a gate): {len(llm_quiet)}"
+        )
+        for case, f in llm_quiet:
+            console.print(f"  {case}: {f.rule_id} ({f.reviewer}) - {f.comment}")
     cat = Table("category", "caught / planted")
     for k, (hit, total) in sm.by_category.items():
         cat.add_row(k, _pct(hit, total))
@@ -614,6 +647,7 @@ def eval_review(
                     "recall_covered": sm.recall_covered,
                     "precision": sm.precision,
                     "false_alarms_on_quiet": len(quiet),
+                    "llm_alarms_on_quiet": len(llm_quiet),
                     "labels": dict(sm.labels),
                     "by_category": sm.by_category,
                     "by_reviewer": sm.by_reviewer,
@@ -623,7 +657,15 @@ def eval_review(
                             "kind": c.kind,
                             "caught": c.caught,
                             "covered": c.covered,
-                            "findings": [{"rule_id": f.rule_id, "label": lab} for f, lab in c.labels],
+                            "findings": [
+                                {
+                                    "rule_id": f.rule_id,
+                                    "reviewer": f.reviewer,
+                                    "label": lab,
+                                    "comment": f.comment,
+                                }
+                                for f, lab in c.labels
+                            ],
                         }
                         for c in scores
                     ],

@@ -40,13 +40,19 @@ def knowledge_from_request(kwargs: dict[str, Any], drop: int = 0) -> dict[str, A
 
 
 class FakeModel:
-    """Answers like a model would; optionally returns garbage first to exercise the retry."""
+    """Answers like a model would; optionally returns garbage first to exercise the retry.
 
-    def __init__(self, garbage_first: bool = False, drop: int = 0):
+    Reviewer calls (schema `Review`) get `review_findings`: by reviewer node name, or the same for all.
+    """
+
+    def __init__(self, garbage_first: bool = False, drop: int = 0, review_findings: Any = None):
         self.garbage_first, self.drop, self.calls = garbage_first, drop, []
+        self.review_findings = review_findings or []
 
     def __call__(self, kwargs, api_key, base_url, timeout) -> RawCompletion:
         self.calls.append(kwargs)
+        if kwargs.get("response_format", {}).get("json_schema", {}).get("name") == "Review":
+            return RawCompletion(json.dumps({"findings": self.review_findings}), 8_000, 300)
         if self.garbage_first and len(self.calls) == 1:
             return RawCompletion('{"drawing": "oops"}', 1000, 10)
         return RawCompletion(json.dumps(knowledge_from_request(kwargs, self.drop)), 30_000, 5_000)
@@ -161,8 +167,8 @@ def test_review_runs_through_to_a_verified_result(make_pdf, settings, tmp_path):
     statuses = {s.rule_id: s.status for s in res.review.rule_statuses}
     assert len(statuses) == len(load_rulebook().rules)  # every rule has exactly one status
     assert statuses["CN-001"] == "fail" and statuses["CN-004"] == "fail"
-    assert res.review.reviewers_run == ["checks"]
-    assert set(res.review.reviewers_skipped) == {"drawing_practice", "manufacturability", "design_intent"}
+    assert res.review.reviewers_run == ["checks", "drawing_practice", "manufacturability", "design_intent"]
+    assert res.review.reviewers_skipped == []
     assert res.exported_to is not None and (res.exported_to / "review_result.json").exists()
     assert not (settings.sessions_dir / res.session_id).exists()  # still ephemeral
 

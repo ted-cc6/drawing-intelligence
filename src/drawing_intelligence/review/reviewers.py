@@ -24,7 +24,8 @@ LLM_REVIEWER_FOR_CATEGORY: dict[str, str] = {
 PLANNED_REVIEWERS: tuple[str, ...] = (CHECKS, "drawing_practice", "manufacturability", "design_intent")
 
 # The ones built so far; the others are listed as skipped in every review result.
-BUILT_REVIEWERS: tuple[str, ...] = (CHECKS,)
+BUILT_REVIEWERS: tuple[str, ...] = PLANNED_REVIEWERS
+LLM_REVIEWERS: tuple[str, ...] = tuple(r for r in PLANNED_REVIEWERS if r != CHECKS)
 
 
 def reviewer_for(rule: Rule) -> str:

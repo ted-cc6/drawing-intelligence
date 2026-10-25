@@ -85,3 +85,12 @@ def test_score_and_summary():
     assert (s.correct, s.findings) == (1, 2)
     assert [(case, f.rule_id) for case, f in s.false_alarms_on_quiet] == [("X_near_miss", "TL-003")]
     assert s.by_reviewer == {"checks": (1, 2)}
+
+
+def test_llm_warnings_on_quiet_drawings_are_measured_apart_from_the_code_gate():
+    llm_rule = rule("MC-001").model_copy(update={"check_type": "llm", "check": None})
+    llm = new_finding(llm_rule, reviewer="manufacturability", evidence=[ev()], comment="c")
+    code = finding("CN-001")
+    s = summarize([score_case(key(kind="clean"), review(llm, code), set())])
+    assert [f.rule_id for _, f in s.false_alarms_on_quiet] == ["CN-001"]
+    assert [f.rule_id for _, f in s.llm_alarms_on_quiet] == ["MC-001"]

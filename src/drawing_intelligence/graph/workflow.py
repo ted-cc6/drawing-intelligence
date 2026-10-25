@@ -25,8 +25,9 @@ from drawing_intelligence.llm.client import CompletionFn, openai_completion
 from drawing_intelligence.review import Rulebook, load_rulebook
 from drawing_intelligence.review.checks import param_models
 from drawing_intelligence.review.context import ReviewContext
+from drawing_intelligence.review.llm_reviewer import run_llm_reviewer
 from drawing_intelligence.review.reference import load_reference
-from drawing_intelligence.review.reviewers import BUILT_REVIEWERS, PLANNED_REVIEWERS
+from drawing_intelligence.review.reviewers import BUILT_REVIEWERS, LLM_REVIEWERS, PLANNED_REVIEWERS
 from drawing_intelligence.review.runner import run_checks
 from drawing_intelligence.review.verify import verify
 from drawing_intelligence.schemas import (
@@ -57,7 +58,7 @@ class WorkflowState(TypedDict, total=False):
 REVIEW_RESULT_FILE = "review_result.json"
 REJECTED_FILE = "rejected.json"
 
-# Reviewer name -> what it runs. LLM reviewers join here when they are built (ADR 0010).
+# Reviewer name -> what it runs. The LLM reviewers need the session's client, so build_graph adds them.
 ReviewerFn = Callable[[ReviewContext], ReviewerOutput]
 REVIEWER_FNS: dict[str, ReviewerFn] = {"checks": run_checks}
 
@@ -84,9 +85,10 @@ def _load_knowledge(state: WorkflowState) -> dict[int, DrawingKnowledge | None]:
     return out
 
 
-def skipped_reviewers(understand: bool) -> list[str]:
-    """Planned reviewers that won't run: not built yet, or LLM reviewers without the understanding step."""
-    run = [r for r in BUILT_REVIEWERS if r in REVIEWER_FNS and (understand or r == "checks")]
+def skipped_reviewers(understand: bool, llm_review: bool = True) -> list[str]:
+    """Planned reviewers that won't run: not built, or LLM reviewers without understanding or turned off."""
+    llm = understand and llm_review
+    run = [r for r in BUILT_REVIEWERS if (r in LLM_REVIEWERS and llm) or r in REVIEWER_FNS]
     return [r for r in PLANNED_REVIEWERS if r not in run]
 
 
@@ -97,6 +99,9 @@ def build_graph(
     understand: bool = True,
     rulebook: Rulebook | None = None,
     reference: dict[str, Any] | None = None,
+    llm_review: bool = True,
+    review_model: str | None = None,
+    review_thinking: str | None = None,
 ):
     """The workflow graph. With a rulebook, the review stage follows: reviewers in parallel, then verify.
 
@@ -157,7 +162,11 @@ def build_graph(
             for p in state.get("reviewer_outputs", [])
         ]
         result, rejected = verify(
-            outputs, _load_extraction(state), rulebook, _load_knowledge(state), skipped_reviewers(understand)
+            outputs,
+            _load_extraction(state),
+            rulebook,
+            _load_knowledge(state),
+            skipped_reviewers(understand, llm_review),
         )
         out_dir = ws / "review"
         out_dir.mkdir(exist_ok=True)
@@ -181,9 +190,15 @@ def build_graph(
     if rulebook is None:
         g.add_edge(last, END)
         return g
-    reviewers = [r for r in PLANNED_REVIEWERS if r not in skipped_reviewers(understand)]
+    fns = dict(REVIEWER_FNS)
+    for name in LLM_REVIEWERS:
+        if client is not None:
+            fns[name] = lambda ctx, name=name: run_llm_reviewer(
+                ctx, name, client, review_model, review_thinking
+            )
+    reviewers = [r for r in PLANNED_REVIEWERS if r not in skipped_reviewers(understand, llm_review)]
     for name in reviewers:
-        g.add_node(name, reviewer_node(name, REVIEWER_FNS[name]))
+        g.add_node(name, reviewer_node(name, fns[name]))
         g.add_edge(last, name)
     g.add_node("verify", verify_node)
     g.add_edge(reviewers, "verify")  # waits for every reviewer
@@ -197,13 +212,18 @@ def run_workflow(
     *,
     understand: bool = True,
     review: bool = False,
+    llm_review: bool = True,
     model: str | None = None,
     thinking: str | None = None,
+    review_model: str | None = None,
+    review_thinking: str | None = None,
     imaging: ImagingConfig | None = None,
     export_dir: Path | None = None,
     completion_fn: CompletionFn = openai_completion,
 ) -> WorkflowResult:
     """Run one drawing through the workflow in its own session; with `review`, through to the verified review.
+
+    With understanding on, the review includes the LLM reviewers unless `llm_review` is False.
 
     Results are loaded into memory before the session closes. In ephemeral mode the workspace is then
     deleted; `export_dir` is the explicit way to keep a copy (with annotated images).
@@ -223,7 +243,17 @@ def run_workflow(
         reference = load_reference(settings.config_path / "reference") if review else None
         conn = sqlite3.connect(session.checkpoint_db, check_same_thread=False)
         try:
-            graph = build_graph(session, client, imaging, understand, rulebook, reference)
+            graph = build_graph(
+                session,
+                client,
+                imaging,
+                understand,
+                rulebook,
+                reference,
+                llm_review,
+                review_model,
+                review_thinking,
+            )
             app = graph.compile(checkpointer=SqliteSaver(conn))
             final = app.invoke(
                 {
