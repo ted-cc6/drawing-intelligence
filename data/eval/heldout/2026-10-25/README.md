@@ -63,3 +63,25 @@ By LLM rule:
    H7 holes and tight bands (WPS-004), title-block heat-treatment field `---` against a note that specifies
    hardening (MF-005, NM-002), a title-block material contradicting the note (MF-007, NM-002), a locating pin with
    no fit (TL-002).
+
+## After the fixes (same 24 drawings, re-run 2026-10-25)
+
+Three changes, then `di eval heldout --drawings drawings.txt` on the same drawings (`findings_after_fixes.csv`;
+labels carried over for unchanged findings, new ones labelled the same way; $0.212, only `design_intent` re-ran):
+- title-block fields printed `#` are read from the `# MATERIAL:` / `# FINISH:` notes, so the material and
+  treatment lookups now see these drawings;
+- NM-008 is held back until PARI lists its standard notes;
+- MF-007 may only be raised on a fact the drawing states (`only_when`).
+
+| | correct | incorrect | unsure | precision |
+|---|---|---|---|---|
+| Code checks and lookups (66) | 58 | 0 | 8 | **100%** |
+| LLM reviewers (41, was 55) | 17 | 13 | 11 | **57%** (was 36%) |
+| All (107) | 75 | 13 | 19 | 85% |
+
+- The 6 new code findings are all WPS-002, IZBP on alloy steel, now visible through the `#` notes. That is the
+  open PARI question (unsure): on the 200-drawing development sample 39 of 141 comparable sheets do it, so it looks
+  like accepted practice.
+- The largest remaining LLM noise is WPS-004 (8 of 18 wrong): plating warnings on untoleranced diameters and on
+  internal threads already covered by the "retapping after surface treatment" note. An `only_when` (a fit or a
+  band under 0.1 mm; not threads covered by retapping) is the next fix to try.

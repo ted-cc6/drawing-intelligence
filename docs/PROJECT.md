@@ -312,6 +312,10 @@ confirm them). Details and labels: `data/eval/heldout/2026-10-25/`.
 - PARI writes `#` in title-block fields to mean "see the notes" (`# MATERIAL: M.S`). Reading that block would let
   the material and treatment lookups check most of the client set; today they skip it.
 - Cost ~$0.036 and ~2 minutes per drawing for the full review.
+- **After three fixes** (read the `#` notes block; hold back NM-008; MF-007 only on a stated conflict), the same 24
+  drawings: code 58 correct, 0 incorrect, 8 unsure; LLM 17 correct, 13 incorrect, 11 unsure: **57%** (was 36%).
+  On the seeded set the re-run `design_intent` reviewer missed P19 (it raised a plating warning on that hole
+  instead), so recall is 19/22: the LLM catch of P19 is not stable from run to run (Spike E: ~40% stability).
 
 ## 9. Roadmap
 
