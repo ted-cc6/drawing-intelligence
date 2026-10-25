@@ -16,7 +16,7 @@ from drawing_intelligence.settings import get_settings
 app = typer.Typer(
     help="Drawing Intelligence: agentic AI review of 2D engineering drawings.", no_args_is_help=True
 )
-eval_app = typer.Typer(help="Evaluate extraction and understanding.", no_args_is_help=True)
+eval_app = typer.Typer(help="Evaluate extraction, understanding and review.", no_args_is_help=True)
 app.add_typer(eval_app, name="eval")
 console = Console()
 
@@ -25,6 +25,14 @@ ThinkingOpt = Annotated[str | None, typer.Option("--thinking", "-t", help="think
 ExportOpt = Annotated[
     Path | None, typer.Option("--export", help="keep a copy of the outputs and annotated images here")
 ]
+NoUnderstandOpt = Annotated[
+    bool, typer.Option("--no-understand", help="skip the LLM step: code checks on the exact PDF text only")
+]
+NoLlmReviewOpt = Annotated[
+    bool, typer.Option("--no-llm-review", help="understand, but run only the code checks")
+]
+ReviewModelOpt = Annotated[str | None, typer.Option("--review-model", help="model for the LLM reviewers")]
+ReviewThinkingOpt = Annotated[str | None, typer.Option("--review-thinking", help="their thinking option")]
 
 
 def _money(v: float) -> str:
@@ -77,35 +85,47 @@ def models() -> None:
 def rules(
     folder: Annotated[Path | None, typer.Argument(help="rules folder (default config/rules)")] = None,
 ) -> None:
-    """Validate the rulebook and summarise it: rules per category, check type and status."""
+    """Validate the rulebook and summarise it: rules per category, check type, built checks and status."""
     from collections import Counter
 
     from drawing_intelligence.review import RulebookError, load_rulebook
+    from drawing_intelligence.review.checks import param_models
+    from drawing_intelligence.review.reference import ReferenceTableError, load_reference
     from drawing_intelligence.schemas.review import CATEGORY_LABELS
 
+    checks = param_models()
     try:
-        book = load_rulebook(folder)
-    except RulebookError as e:
+        book = load_rulebook(folder, checks=checks)
+        tables = load_reference(folder.parent / "reference" if folder else None)
+    except (RulebookError, ReferenceTableError) as e:
         console.print(f"[red]{e}[/red]")
         raise typer.Exit(1) from e
     if not book.rules:
         console.print("The rulebook is empty: add rules in config/rules/*.yaml (see config/rules/README.md).")
         return
     t = Table(title=f"Rulebook {book.version} ({len(book.rules)} rules)")
-    for col in ("category", "rules", "code", "lookup", "llm", "client confirmed"):
+    for col in ("category", "rules", "code", "lookup", "llm", "check built", "client confirmed"):
         t.add_column(col)
     by_cat: dict[str, Counter] = {}
     for r in book.rules:
         c = by_cat.setdefault(r.category, Counter())
         c["rules"] += 1
         c[r.check_type] += 1
+        c["built"] += r.check in checks
         c["confirmed"] += r.status == "client_confirmed"
     for cat, c in by_cat.items():
         t.add_row(
             CATEGORY_LABELS[cat],
-            *(str(c[k]) for k in ("rules", "code", "lookup", "llm", "confirmed")),
+            *(str(c[k]) for k in ("rules", "code", "lookup", "llm", "built", "confirmed")),
         )
     console.print(t)
+    built = sum(c["built"] for c in by_cat.values())
+    console.print(
+        f"{built} rules have a built check ({len(checks)} check functions); "
+        f"{len(book.not_built(checks))} code/lookup rules are not built yet and report not_checked. "
+        "LLM rules run in the LLM reviewers."
+    )
+    console.print(f"Reference tables: {', '.join(sorted(tables)) or 'none'}.")
 
 
 def _print_extraction(ex) -> None:
@@ -178,6 +198,79 @@ def run(pdf: Path, model: ModelOpt = None, thinking: ThinkingOpt = None, export:
     for r in res.understanding:
         for p in r.problems:
             console.print(f"[yellow]page {r.page_number}:[/yellow] {p}")
+    _footer(res)
+
+
+_STATUS_ORDER = ("fail", "warning", "pass", "not_applicable", "not_checked")
+_SEVERITY_STYLE = {"critical": "bold red", "major": "red", "minor": "yellow", "info": "dim"}
+
+
+def _location(f) -> str:
+    return "; ".join(f"p{e.page} {e.ref or e.quote or e.kind}" for e in f.evidence)
+
+
+def _print_review(review, rejected) -> None:
+    from collections import Counter
+
+    t = Table(title=f"Review of {review.source_file} (rulebook {review.rulebook_version})")
+    for col in ("severity", "result", "rule", "category", "comment", "location"):
+        t.add_column(col, overflow="fold")
+    for f in review.by_severity():
+        style = _SEVERITY_STYLE[f.severity]
+        t.add_row(
+            f"[{style}]{f.severity}[/{style}]",
+            f.result,
+            f.rule_id or "-",
+            f.category,
+            f.comment,
+            _location(f),
+        )
+    console.print(t if review.findings else "No findings.")
+    counts = Counter(s.status for s in review.rule_statuses)
+    parts = [f"{counts[k]} {k.replace('_', ' ')}" for k in _STATUS_ORDER if counts[k]]
+    console.print(f"{len(review.rule_statuses)} rules: " + " · ".join(parts))
+    console.print(
+        f"Reviewers run: {', '.join(review.reviewers_run) or 'none'}; "
+        f"skipped: {', '.join(review.reviewers_skipped) or 'none'}. "
+        f"Review cost {_money(review.cost_usd)}, {review.latency_s:.1f} s."
+    )
+    if rejected:
+        console.print(f"[yellow]{len(rejected)} finding(s) dropped by verify:[/yellow]")
+        for r in rejected:
+            console.print(f"  {r.finding.rule_id}: {r.reason} - {r.detail}")
+
+
+@app.command()
+def review(
+    pdf: Path,
+    model: ModelOpt = None,
+    thinking: ThinkingOpt = None,
+    export: ExportOpt = None,
+    no_understand: NoUnderstandOpt = False,
+    no_llm_review: NoLlmReviewOpt = False,
+    review_model: ReviewModelOpt = None,
+    review_thinking: ReviewThinkingOpt = None,
+) -> None:
+    """Review one drawing against the rulebook: intake → understand → reviewers → verify."""
+    from drawing_intelligence.graph import run_workflow
+
+    res = run_workflow(
+        pdf,
+        get_settings(),
+        understand=not no_understand,
+        review=True,
+        llm_review=not no_llm_review,
+        model=model,
+        thinking=thinking,
+        review_model=review_model,
+        review_thinking=review_thinking,
+        export_dir=export,
+    )
+    understanding_cost = sum(r.cost_usd for r in res.understanding)
+    if res.understanding:
+        console.print(f"Understanding: {_money(understanding_cost)} ({res.understanding[0].model})")
+    assert res.review is not None
+    _print_review(res.review, res.rejected)
     _footer(res)
 
 
@@ -448,3 +541,137 @@ def eval_understand(
                 str(res["title_block_variants"]),
             )
         console.print(st)
+
+
+def _pct(part: int, whole: int) -> str:
+    return f"{part}/{whole} ({part / whole:.0%})" if whole else "-"
+
+
+@eval_app.command("review")
+def eval_review(
+    model: ModelOpt = None,
+    thinking: ThinkingOpt = None,
+    no_understand: NoUnderstandOpt = False,
+    no_llm_review: NoLlmReviewOpt = False,
+    review_model: ReviewModelOpt = None,
+    review_thinking: ReviewThinkingOpt = None,
+    only: Annotated[
+        list[str] | None, typer.Option("--only", help="case id prefix, e.g. P03 (repeatable)")
+    ] = None,
+    out: Annotated[Path | None, typer.Option("--out", help="also write the scores as JSON here")] = None,
+    yes: Annotated[bool, typer.Option("--yes", "-y", help="skip the cost confirmation")] = False,
+) -> None:
+    """Score the review on the planted-error drawings: recall, precision and false alarms (A5b)."""
+    from drawing_intelligence.eval.answer_key import load_answer_keys
+    from drawing_intelligence.eval.review_eval import run_review_eval, summarize
+    from drawing_intelligence.llm import load_registry
+
+    s = get_settings()
+    root = s.data_path / "eval" / "seeded"
+    n = len([k for k in load_answer_keys(root) if not only or any(k.case.startswith(o) for o in only)])
+    if not no_understand:
+        registry = load_registry(s.config_path / "models.yaml")
+        spec = registry.model(model, "understand")
+        est = spec.cost(30_000, 10_000) * n
+        line = f"{n} case(s): understanding with {spec.name} (thinking {spec.thinking_level(thinking)})"
+        if not no_llm_review:
+            rspec = registry.model(review_model, "review")
+            est += rspec.cost(10_000, 1_500) * 3 * n
+            line += f", 3 LLM reviewers with {rspec.name} (thinking {rspec.thinking_level(review_thinking)})"
+        console.print(f"{line}: rough estimate {_money(est)} if nothing is cached; cached replies are free.")
+        if not yes:
+            typer.confirm("Make these API calls?", abort=True)
+    scores = run_review_eval(
+        s,
+        root,
+        understand=not no_understand,
+        llm_review=not no_llm_review,
+        only=only,
+        model=model,
+        thinking=thinking,
+        review_model=review_model,
+        review_thinking=review_thinking,
+    )
+
+    t = Table(title="Review on the planted-error drawings")
+    for col in ("case", "kind", "planted error caught", "findings", "false alarms"):
+        t.add_column(col, overflow="fold")
+    for c in scores:
+        if c.kind == "planted":
+            hit = "[green]yes[/green]" if all(c.caught) else ("no" if not any(c.covered) else "[red]no[/red]")
+            hit += "" if any(c.covered) else " [dim](no check yet)[/dim]"
+        else:
+            hit = "-"
+        fa = ", ".join(sorted({f.rule_id or "?" for f in c.false_alarms}))
+        t.add_row(c.case, c.kind, hit, str(len(c.labels)), f"[red]{fa}[/red]" if fa else "0")
+    console.print(t)
+
+    sm = summarize(scores)
+    console.print(f"Recall, all planted errors: {_pct(sm.caught, sm.planted)}")
+    console.print(f"Recall, where a check is built: {_pct(sm.caught_covered, sm.covered)}")
+    console.print(
+        f"Precision: {_pct(sm.correct, sm.findings)} (findings: "
+        + ", ".join(f"{k} {v}" for k, v in sorted(sm.labels.items()))
+        + ")"
+    )
+    quiet = sm.false_alarms_on_quiet
+    style = "red" if quiet else "green"
+    console.print(
+        f"[{style}]False alarms on clean and near-miss drawings (code checks): {len(quiet)}[/{style}]"
+    )
+    for case, f in quiet:
+        console.print(f"  {case}: {f.rule_id} - {f.comment}")
+    llm_quiet = sm.llm_alarms_on_quiet
+    if any(f.source == "llm" for c in scores for f, _ in c.labels):
+        console.print(
+            f"LLM warnings on clean and near-miss drawings (measured, not a gate): {len(llm_quiet)}"
+        )
+        for case, f in llm_quiet:
+            console.print(f"  {case}: {f.rule_id} ({f.reviewer}) - {f.comment}")
+    cat = Table("category", "caught / planted")
+    for k, (hit, total) in sm.by_category.items():
+        cat.add_row(k, _pct(hit, total))
+    rev = Table("reviewer", "correct / findings")
+    for k, (ok, total) in sm.by_reviewer.items():
+        rev.add_row(k, _pct(ok, total))
+    console.print(cat, rev)
+    cost = sum(c.cost_usd for c in scores)
+    console.print(f"Billed this run: {_money(cost)} · review time {sum(c.latency_s for c in scores):.1f} s")
+    if out is not None:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(
+            json.dumps(
+                {
+                    "understand": not no_understand,
+                    "recall": sm.recall,
+                    "recall_covered": sm.recall_covered,
+                    "precision": sm.precision,
+                    "false_alarms_on_quiet": len(quiet),
+                    "llm_alarms_on_quiet": len(llm_quiet),
+                    "labels": dict(sm.labels),
+                    "by_category": sm.by_category,
+                    "by_reviewer": sm.by_reviewer,
+                    "cases": [
+                        {
+                            "case": c.case,
+                            "kind": c.kind,
+                            "caught": c.caught,
+                            "covered": c.covered,
+                            "findings": [
+                                {
+                                    "rule_id": f.rule_id,
+                                    "reviewer": f.reviewer,
+                                    "label": lab,
+                                    "comment": f.comment,
+                                }
+                                for f, lab in c.labels
+                            ],
+                        }
+                        for c in scores
+                    ],
+                },
+                indent=1,
+            ),
+            encoding="utf-8",
+        )
+        console.print(f"Scores written to {out}")

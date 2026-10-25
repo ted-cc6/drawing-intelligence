@@ -23,3 +23,70 @@ exclude_from_dimensions: [border_top, border_bottom, border_left, border_right, 
 # whose font name contains `font_contains`.
 glyph_remap:
   - {font_contains: Symbols, char: "O", replace_with: "⌀"}
+
+# Title-block fields, read by position (stage 1). Each value cell is [x0, y0, x1, y1]; a word belongs to the cell
+# that contains its centre. Field names are the `TitleBlock` names, so code and the model read the same fields.
+title_block_fields:
+  title: [W-460, H-135, W-105, H-120]
+  surface_treatment: [W-400, H-109, W-302, H-94]
+  heat_treatment: [W-145, H-92, W-72, H-79]
+  material: [W-330, H-68, W-245, H-54]
+  weight: [W-330, H-44, W-245, H-28]
+  number: [W-245, H-66, W-110, H-30]
+  revision: [W-108, H-66, W-72, H-30]
+  scale: [W-72, H-67, W-30, H-53]
+  sheet_size: [W-72, H-109, W-30, H-92]
+  drawn_date: [W-455, H-44, W-411, H-28]
+  checked_date: [W-411, H-44, W-369, H-28]
+  approved_date: [W-369, H-44, W-330, H-28]
+  general_tolerance_standard: [W-105, H-186, W-40, H-172]
+  drawing_type: [W-105, H-136, W-30, H-120]   # MACHINING / FABRICATION: which general tolerances apply
+
+# Printed label text that comes before the value in the same cell.
+title_block_prefixes: {general_tolerance_standard: "Gen Tol.:"}
+
+# Labels printed by the template itself, at the top-left corner of their first word. When fewer than
+# `title_block_min_anchors` are within 4 pt of their place, the sheet uses a variant title block (Spike C:
+# ~17% of the client set): no fields are read, and the rules that need them are not checked.
+title_block_anchors:
+  - {text: DESCRIPTION, at: [W-449, H-143]}
+  - {text: SURFACE, at: [W-403, H-119]}
+  - {text: HEAT, at: [W-226, H-90]}
+  - {text: MATERIAL, at: [W-308, H-78]}
+  - {text: DRG./PART, at: [W-215, H-76]}
+  - {text: REV., at: [W-103, H-77]}
+  - {text: SCALE, at: [W-68, H-77]}
+  - {text: DRN.BY, at: [W-447, H-77]}
+title_block_min_anchors: 6
+
+# The rows of the revision table, above its header line (REVISION / DESCRIPTION / DATE / DRN.BY).
+# Empty rows are filled with "." placeholders. The revision number is alone in the first column.
+revision_rows: [W-557, H-220, W-118, H-189]
+revision_number_column: [W-557, H-220, W-520, H-189]
+
+# The unit statement in the notes ("ALL DIMENSIONS ARE IN mm"): group 1 is the unit. Read into the `units` field.
+units_pattern: '\bIN\s+(mm|MM|cm|inch|INCH|inches|INCHES)\b'
+
+# How title-block dates are printed (Python strptime). PARI prints day/month/year.
+date_format: "%d/%m/%Y"
+
+# Notes the template prints on every sheet. They are not the designer's notes, so the LLM reviewers do not see
+# them (a reviewer judging "notes copied from another drawing" flagged them on every drawing). Regexes, case-
+# insensitive; a note is left out when nothing but these, numbering and punctuation remains.
+boilerplate_notes:
+  - 'ALL\s+DIMENSIONS\s+ARE(\s+IN\s+mm)?'
+  - 'DO\s+NOT\s+SCALE(\s+DRAWING)?'
+  - 'IF\s+IN\s+DOUBT\s*,?\s*ASK\s+TEAM\s+MEMBER'
+  - 'ALL\s+RIGHTS\s+OF\s+REPRODUCTION\s*&\s*DISTRIBUTION\s+ARE\s+RESERVED'
+  - 'DEBURR\s+AND\s+REMOVE\s+SHARP\s+EDGES\s+UNLESS\s+SHARP\s+EDGE\s+REQUIREMENT\s+SPECIFIED'
+  - 'NOTE\s+FOR\s+WIPRO\s+PARI\s+DESIGN\s*-?\s*REF\.?\s*ONLY'
+  - 'WEAR\s+DETAILS\s*:\s*N\.?A\.?'
+  - 'NOTE\s*:\s*STANDARD\s+FASTENER\s+TORQUE\s+AS\s+PER\s+STD-DES-01(-00)?'
+  - 'FR-DES-006-\d\d'
+  - 'RESERVED\s+SPACE(\s+FOR\s+CONTROLLED\s+COPY\s+STAMP)?'
+  - 'CONTROLLED\s+COPY'
+  - '\bSTAMP\b'
+  - 'LOCATION\s*:\s*\w*'
+  - 'www\.wipropari\.com'
+  - 'UNSP\.\s*(CHF|RADII)\.?\s*[\d.]+\s*(X\s*45°|R)?'
+  - '^\s*REVISION\s*$'

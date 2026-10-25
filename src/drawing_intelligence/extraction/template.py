@@ -23,24 +23,59 @@ class GlyphRemap(BaseModel):
     replace_with: str
 
 
+Coords = tuple[str | float, str | float, str | float, str | float]
+
+
+class Anchor(BaseModel):
+    text: str
+    at: tuple[str | float, str | float]
+
+
 class Template(BaseModel):
     name: str
     reference_sheet_pts: tuple[float, float]
-    regions: dict[str, tuple[str | float, str | float, str | float, str | float]]
+    regions: dict[str, Coords]
     exclude_from_dimensions: list[str]
     glyph_remap: list[GlyphRemap] = []
+    title_block_fields: dict[str, Coords] = {}
+    title_block_prefixes: dict[str, str] = {}
+    title_block_anchors: list[Anchor] = []
+    title_block_min_anchors: int = 0
+    revision_rows: Coords | None = None
+    revision_number_column: Coords | None = None
+    units_pattern: str | None = None
+    date_format: str = "%d/%m/%Y"
+    boilerplate_notes: list[str] = []
+
+    def is_boilerplate(self, note: str) -> bool:
+        """A note made only of the template's own printed text (plus numbering and punctuation)."""
+        rest = note
+        for pattern in self.boilerplate_notes:
+            rest = re.sub(pattern, " ", rest, flags=re.IGNORECASE | re.MULTILINE)
+        return len(re.sub(r"[\W\d_]|\b[A-Z]\b", "", rest)) == 0
 
     def regions_for(self, width: float, height: float) -> dict[str, Rect]:
         """Every region resolved to absolute PDF points for a sheet of this size."""
-        out: dict[str, Rect] = {}
-        for name, coords in self.regions.items():
-            x0, y0, x1, y1 = (_resolve(c, width, height) for c in coords)
-            out[name] = (x0, y0, x1, y1)
-        return out
+        return {name: resolve_rect(coords, width, height) for name, coords in self.regions.items()}
+
+    def field_cells(self, width: float, height: float) -> dict[str, Rect]:
+        return {name: resolve_rect(coords, width, height) for name, coords in self.title_block_fields.items()}
+
+    def anchors_for(self, width: float, height: float) -> list[tuple[str, float, float]]:
+        return [
+            (a.text, _resolve(a.at[0], width, height), _resolve(a.at[1], width, height))
+            for a in self.title_block_anchors
+        ]
 
     def excluded_rects(self, width: float, height: float) -> list[Rect]:
         regions = self.regions_for(width, height)
         return [regions[name] for name in self.exclude_from_dimensions]
+
+
+def resolve_rect(coords: Coords, width: float, height: float) -> Rect:
+    """A template rectangle (numbers or W/H expressions) in absolute PDF points."""
+    x0, y0, x1, y1 = (_resolve(c, width, height) for c in coords)
+    return (x0, y0, x1, y1)
 
 
 def _resolve(value: str | float, width: float, height: float) -> float:

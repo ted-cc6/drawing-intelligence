@@ -14,6 +14,8 @@ rules:
     requirement: On weldments, fabrication (fab zero-line) dimensions start from the same edges as the machining datum dimensions.
     severity: major
     check_type: llm
+    # needs: judged only once stage 1 reads GD&T, datum or finish symbols; until then not_checked (2026-10-25)
+    params: {needs: [symbols]}
     applies_to: {drawing_type: [fabrication]}
     source: {document: 'NAAMS Global Standard Components, Section A: Design Drawing Standards and Tolerances (Auto/Steel Partnership, 2015)', section: Sec. 20.1 (p4)}
     status: draft
@@ -99,6 +101,8 @@ rules:
     requirement: Conflicting reference frames
     severity: major
     check_type: llm
+    # needs: judged only once stage 1 reads GD&T, datum or finish symbols; until then not_checked (2026-10-25)
+    params: {needs: [symbols]}
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-15}
     status: draft
 
@@ -113,6 +117,8 @@ rules:
     requirement: Common datum not shown
     severity: major
     check_type: llm
+    # needs: judged only once stage 1 reads GD&T, datum or finish symbols; until then not_checked (2026-10-25)
+    params: {needs: [symbols]}
     applies_to: {part_family: [round]}
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-16}
     status: draft

@@ -15,3 +15,4 @@ it with a new one.
 | [0007](0007-commit-client-data.md) | Commit the client data to the repository (keys stay out) | 2026-10-06 |
 | [0008](0008-review-contracts-enforce-trust.md) | Review contracts enforce the trust rules; findings are issues only | 2026-10-15 |
 | [0009](0009-understanding-model-default.md) | Default understanding model and thinking setting | 2026-10-17 |
+| [0010](0010-review-stage-design.md) | How the review stage runs the rulebook: check functions, reviewers, graph state (proposed) | 2026-10-23 |

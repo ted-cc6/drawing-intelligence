@@ -25,6 +25,8 @@ class Row:
     font_size: float = 0.0
     is_reference: bool = False
     category: Category | None = None
+    direction: tuple[float, float] = (1.0, 0.0)  # reading direction on the visual page (unit vector)
+    limits: tuple[str, str] | None = None  # (upper, lower) of a stacked tolerance, ordered by position
 
     @property
     def bbox(self) -> Rect:
@@ -61,6 +63,13 @@ def _lines(page: pymupdf.Page):
             yield line, (r.x0, r.y0, r.x1, r.y1)
 
 
+def _visual_dir(page: pymupdf.Page, line: dict[str, Any]) -> tuple[float, float]:
+    """The line's reading direction in the visual (rotation-corrected) page orientation."""
+    rmat = page.rotation_matrix
+    v = pymupdf.Point(line["dir"]) * rmat - pymupdf.Point(0, 0) * rmat
+    return (round(v.x, 3), round(v.y, 3))
+
+
 def raw_rows(page: pymupdf.Page, exclude: list[Rect], remaps: list[GlyphRemap]) -> list[Row]:
     """Text lines outside the template regions, as working rows."""
     rows = []
@@ -70,7 +79,7 @@ def raw_rows(page: pymupdf.Page, exclude: list[Rect], remaps: list[GlyphRemap]) 
         text = remap_text(line["spans"], remaps)
         if not text.strip():
             continue
-        rows.append(Row(text, *bbox, font_size=line["spans"][0]["size"]))
+        rows.append(Row(text, *bbox, font_size=line["spans"][0]["size"], direction=_visual_dir(page, line)))
     return rows
 
 

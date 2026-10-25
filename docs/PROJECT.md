@@ -1,6 +1,6 @@
 # Drawing Intelligence: project document
 
-*UChicago MS in Applied Data Science capstone · Client: LatentView Analytics · Living document; last updated 2026-10-15.*
+*UChicago MS in Applied Data Science capstone · Client: LatentView Analytics · Living document; last updated 2026-10-23.*
 
 ## 1. Problem
 
@@ -14,8 +14,9 @@ rework and delays.
 An AI workflow that takes a PDF drawing and, in a few minutes and for about a dollar:
 
 1. **Extracts** every dimension, tolerance, note and title-block field exactly.
-2. **Understands** the drawing: views, features, which dimension describes which feature, and the symbols
-   the PDF text cannot see (GD&T frames, surface-finish marks, weld symbols).
+2. **Understands** the drawing: views, features, and which dimension describes which feature. Symbols come
+   from the PDF itself where possible: GD&T frames from the symbol font in the text layer, datum flags and
+   finish marks from vector geometry ([Spike D](spikes/spike_d_symbols.md)).
 3. **Reviews** it against engineering rules and judgement, and flags issues with severity, evidence and a
    recommended correction.
 4. **Answers** an engineer's questions about the drawing, citing evidence.
@@ -34,6 +35,8 @@ at evidence on the drawing.
   tolerance standards, GD&T, datum schemes, thread/weld callouts, surface finish / coating / heat
   treatment, inspection requirements, common rejection conditions) and the *WP Specific Guidelines*
   (material selection, plating process selection, raw-material sizes, US–India material equivalents).
+  These, LatentView's *Drawing Check Rulebook* and six engineering books were drafted into **174 rules** in
+  `config/rules/` (task R, all `status: draft` until PARI confirms; triage in `docs/rulebook/`).
 
 ## 4. Architecture
 
@@ -43,10 +46,11 @@ calls every tool, and not a team of agents talking to each other (see [ADR 0001]
 ```
                 ┌────────────────────── REVIEW WORKFLOW (LangGraph, fixed path) ──────────────────────┐
 PDF ─► 1 Intake ─► 2 Understand ─► 3 Review (parallel) ─────────────────────────► 4 Verify ─► 5 Report
-       code          1 vision call     a. Consistency          code                 code         findings
-       $0            per page          b. Standards            rulebook + small LLM (citations   + evidence
-                     ─► drawing        c. Manufacturability    reasoning LLM         checked,
-                        JSON           d. Design intent        reasoning LLM         deduped)
+       code          1 vision call     checks             code + lookup rules    code         Excel +
+       text,         per page          drawing_practice   ┐                      (citations   annotated
+       vectors,      ─► drawing        manufacturability  ├ LLM rules,           resolve,     sheet
+       symbols       JSON              design_intent      ┘ warnings only        deduped,
+       $0                                                                        rule status)
                 └─────────────────────────────────────────────────────────────────────────────────────┘
                                                                                               │
 Engineer ◄──► Q&A agent: read-only tools over the session's saved results ◄───────────────────┘
@@ -54,14 +58,12 @@ Engineer ◄──► Q&A agent: read-only tools over the session's saved result
 
 | Stage | Kind | Why |
 |---|---|---|
-| 1 Intake | Deterministic code | The PDF text layer is exact. No LLM can improve on it, so none is paid for. |
-| 2 Understand | One vision-LLM call per page | Organise and interpret the exact text (views, features, title block) and add only what text cannot see (symbols). Never re-read numbers from pixels. |
-| 3a Consistency | Code | Chain sums and duplicate or missing dimensions have exact answers. |
-| 3b Standards | Rulebook lookups + small LLM | IS 2102 and PARI rules are table lookups; the LLM only interprets notation. |
-| 3c Manufacturability | Reasoning LLM | Needs machining judgement. |
-| 3d Design intent | Reasoning LLM | Needs the whole part: material, heat treatment, fits, features. |
-| 4 Verify | Code | Rejects any finding whose cited dimension ID, bbox or rule does not exist. This catches invented findings at no LLM cost. |
-| 5 Report | Template + small LLM | Engineering review report. |
+| 1 Intake | Deterministic code | The PDF text layer is exact. No LLM can improve on it, so none is paid for. Symbols belong here too (planned, Spike D): GD&T frames decoded from the `SolidEdgeANSI1Symbols` font, datum flags and finish marks from vector detectors. |
+| 2 Understand | One vision-LLM call per page | Organise and interpret the exact text: views, features, which dimension belongs to which feature, title block. Never re-read numbers from pixels. Spike D: vision misses most symbols (0/32 finish marks, 0/9 datum flags), so anything only vision sees is `source: "vision"` and can only support a warning. |
+| 3 `checks` | Code | Every `code` and `lookup` rule (135 of 174): chain sums, duplicates, title-block fields, IS 2102 and PARI tables. Exact, $0, reproducible. |
+| 3 LLM reviewers | Reasoning LLM, one text-only call each | `drawing_practice`, `manufacturability`, `design_intent` run the 39 `llm` rules that need judgement. Spike E: high recall but 32–61% precision, so their findings are warnings only (ADR 0008). |
+| 4 Verify | Code | Rejects any finding whose cited dimension ID, bbox or rule does not exist. This catches invented findings at no LLM cost. Merges duplicates and sets each rule's status. |
+| 5 Report | Template | Excel sheet in the client's checklist columns and an annotated sheet image. |
 | Q&A | One agent with tools | Open-ended questions are the one place where an agent choosing its own steps earns its cost. It answers from saved JSON only, so it never pays for images again. |
 
 Reviewers read the structured drawing JSON (text, cheap), not the images. Only stage 2 pays for vision.
@@ -86,6 +88,45 @@ Every stage reads and writes typed, versioned Pydantic models (`src/drawing_inte
 - `Rule` (`config/rules/*.yaml`, loaded by `review.load_rulebook()`, checked by `di rules`): ID, category,
   requirement, severity, check type (`code` | `lookup` | `llm`), check function and params, applies-to (part
   family, drawing type), source document and section, and status (`draft` | `client_confirmed`).
+
+### Review stage ([ADR 0010](adr/0010-review-stage-design.md))
+
+How the rulebook is run. Reviewers are split by **how** a rule is checked, not by its category.
+
+- **Check functions** (`review/checks/<category>.py`): one pure function per `check` name in the rulebook,
+  registered with its params model, so `di rules` validates every rule against it.
+  - Signature: `fn(ctx, rule, params) -> list[Finding]`.
+  - `ctx` is a read-only `ReviewContext`: the `Extraction`, the per-page `DrawingKnowledge` (or `None`), the
+    rulebook and the reference tables.
+  - Findings are made with `new_finding(rule, ...)`. An empty list means pass.
+  - `raise NotApplicable` or `raise NotCheckable` for the other outcomes. Any other error becomes
+    `not_checked`, and the review goes on.
+  - `lookup` checks read their tables from `config/reference/*.yaml`.
+- **Reviewers:**
+  - `checks` runs every `code` and `lookup` rule.
+  - `drawing_practice`, `manufacturability` and `design_intent` each make one LLM call over their `llm`
+    rules (category → reviewer mapping in `review/reviewers.py`).
+- **Graph:**
+  - `understand` fans out to the reviewers, which join at `verify`, then `report`.
+  - Each reviewer writes `review/<reviewer>.json` and appends its path to `reviewer_outputs`, a list that
+    LangGraph adds to rather than overwrites.
+  - A reviewer that isn't built, or can't run, is listed in `reviewers_skipped`, and its rules are
+    `not_checked`.
+- **Verify:**
+  - drops findings whose evidence doesn't resolve, with the reason in `review/rejected.json`
+  - merges duplicates by finding id
+  - gives every rule one status: `fail` > `warning` > `not_applicable` / `not_checked` > `pass`
+  - writes `review/review_result.json`, the only input to `report`
+
+A rule whose check isn't built yet is `not_checked`, never `pass`, so the report shows how much of the rulebook
+actually ran.
+
+Two inputs the checks rely on:
+- **Title-block fields come from stage 1**, read by position from the template's cells
+  (`extraction/title_block.py`). Fails therefore rest on exact text. Variant title blocks (about 1 in 5 client
+  sheets) are detected by their labels; nothing is read from them.
+- **Drawn lengths** (dimension line ÷ value) tell which scales a sheet is drawn at. `conflicting_values` (CN-002)
+  and `scale_consistent` (TB-006) use them.
 
 ### Hard rules
 
@@ -177,8 +218,82 @@ No labelled error drawings exist yet, so evaluation is built from what is availa
   schema also rejects one `qwen3-vl-plus` output for inventing feature types (e.g. `"distance"`).
 - **First live run in the package** (`qwen3-vl-plus`, thinking off, 10K Cam Plate): valid, 21/21 dimensions,
   no symbols reported (the notebook run reported 6, which were not on the drawing), 69 s, $0.011.
-- Not yet measured: `qwen3.8-max` and `gpt-6-astra` through the package, thinking on vs off, stability
-  over repeated runs.
+- Not yet measured at M1: `qwen3.8-max` and `gpt-6-astra` through the package, thinking on vs off,
+  stability over repeated runs. A1 measured the Qwen settings (2026-10-17). Every setting was stable over
+  3 runs; `qwen3-vl-plus` with thinking off was as accurate as the others at a fraction of the cost and time,
+  so it is now the default ([ADR 0009](adr/0009-understanding-model-default.md)).
+
+### Results of the first review slice (2026-10-23)
+
+`di eval review` on the 28 seeded cases, through the full graph: the `checks` reviewer with 17 check functions
+(22 of 135 code/lookup rules) and two reference tables (`config/reference/`: materials, PARI DES-12 plating).
+
+| | first 10 checks | + tolerance, heat treatment | + lookup tables (2026-10-25) |
+|---|---|---|---|
+| Recall, all 22 planted errors | 10/22 (45%) | 15/22 (68%) | **18/22 (82%)** |
+| Recall, planted errors with a built check | 10/10 | 15/15 | 18/18 |
+| Precision | 40/40 | 60/60 | 63/63 |
+| False alarms on clean and near-miss drawings | 0 | 0 | 0 |
+
+With understanding (`qwen3-vl-plus`, thinking off) the results are identical; none of these checks needs it yet
+(CN-002 uses drawn lengths). A run takes ~110 s per drawing, nearly all understanding; the replies are cached in
+`data/cache/`, so re-runs are free (re-caching after the prompt was restored to ADR 0009's cost $0.256; the four
+clean cases hit A1's cache). Code checks alone take ~1 min for all 28.
+
+| Category | Caught / planted |
+|---|---|
+| title block | 6/6 |
+| consistency | 4/6 (P05, P06 need the `llm` missing-dimension rules) |
+| tolerance | 3/3 |
+| surface treatment | 5/5 |
+| design intent, manufacturability | 0/1 each (LLM reviewers) |
+
+### With the LLM reviewers (2026-10-25)
+
+Understanding (`qwen3-vl-plus`, off) plus the three LLM reviewers (`qwen3.8-max`, thinking off), all 28 cases:
+
+| | code checks only | + LLM reviewers |
+|---|---|---|
+| Recall, all 22 planted errors | 18/22 | **20/22 (91%)** |
+| Recall, planted errors whose rule is checked | 18/18 | 20/20 |
+| Precision, all findings | 63/63 | 78/89 (88%) |
+| Precision, LLM findings | – | 15/26 (58%) |
+| LLM warnings on clean and near-miss drawings (measured, not a gate) | – | 1 |
+| False alarms of the code checks | 0 | 0 |
+| Cost per drawing | $0 | ~$0.025 (understanding $0.011 + reviewers ~$0.015); cached re-runs $0 |
+
+- Caught by the LLM reviewers: P19 (TL-002, the ⌀16 locating bore lost its fit) and P20 (MC-001, R 0.2 internal
+  corner). Not caught: P05 and P06 (missing size and location). Their rules need feature locations, which the
+  text-only reviewers don't get, so they are `not_checked` (`params.needs: [geometry]`).
+- A first calibration (8 cases) had 25 false alarms in 26 LLM findings. Most were the template's own notes
+  ("notes copied from another drawing") and rules about symbols the reviewers cannot see (roughness, GD&T,
+  datums). Template boilerplate is now left out, and those rules are held back until stage 1 reads symbols.
+- The reviewers also raised WPS-004 on every case with a zinc-plated H7 hole: I.Z.B.P. (8–12 µm) can take up
+  the whole 18 µm H7 band. The PARI proxy confirmed it is real, so it was added to the keys as a pre-existing
+  issue.
+- The remaining LLM false alarms: MF-005 "heat-treatment stage not stated" (5, including Shore hardness on
+  plastic parts), TL-002 calling clearance holes functional (2), NM-008 (2), WPS-004 where the fit or plating
+  was changed (2).
+
+- The 60 findings are 17 that catch a planted error (P01 and P02 each also raise the other chain rule, which
+  their keys accept) and 43 real issues already in the client's drawings (the keys' `pre_existing`: TB-016 on
+  every case, RQ-002 on the cylinder rod, LY-005 and MF-011 on the hose clamp, MF-013 on the pipe-clamp block).
+- `tests/regression/test_review_eval.py` keeps this in CI: no false alarms, and at least 15 planted errors caught.
+
+**On 200 client drawings (no answer key; an engineer should confirm):**
+- TB-006 (scale) fails on 17 of 139 sheets with a readable title block. The examples look real (e.g. 11 dimensions
+  drawn at 2:1 on a sheet stating 1:1).
+- RQ-002 (inverted limits) fails on 4 of 13 sheets with stacked limits. A first version read the limits in the
+  PDF's storage order and failed 13; stage 1 now orders them by where they are printed.
+- LY-005 (decimals vs tolerance) failed on 91 of 195 sheets, mostly CAD-default trailing zeros such as `18.00`
+  under a general tolerance of ±0.2. Until PARI decides, trailing zeros on untoleranced sizes are not counted
+  (rule param `ignore_trailing_zeros_under_general`; an explicit `10.000±0.1` still fails). It still fails on 74
+  sheets (313 findings): two-decimal sizes such as `15.21` under ±0.2, which the answer keys count as real
+  (`34.97` under ±0.3). PARI should confirm that this is what they want flagged.
+- TL-003 (much tighter than general) warns on 15 of 157 sheets, e.g. `40±0.01`. Its ratio (20x) is provisional.
+- WPS-002 (treatment suits the material) fails on 3 of the 11 sheets it can compare, all IZBP on alloy steel (EN24,
+  20MnCr5). DES-12's material column lists IZBP for mild and carbon steel only, but its text says "for ferrous
+  machined parts": PARI should say which holds. Most sheets print `#` for the material, so they are not compared.
 
 ## 9. Roadmap
 
@@ -186,13 +301,18 @@ No labelled error drawings exist yet, so evaluation is built from what is availa
 |---|---|---|
 | M0 | Repo, tooling, CI on Windows/macOS/Linux, docs and ADRs | ✅ |
 | M1 | Notebooks 01/02 ported and upgraded: typed contracts, multi-page, template config, model registry, telemetry, session data, LangGraph intake → understand, CLI, eval | ✅ |
-| M2 | Review contracts and rulebook loader (A2 ✅); rulebook from the client checklist and guidelines; consistency + standards reviewers; verifier | in progress |
-| M3 | Manufacturability + design-intent reviewers; seeded-error eval set (drawings and keys: A5a ✅; scoring: A5b); report | |
+| M2 | Review contracts and rulebook loader (A2 ✅); default understanding model (A1 ✅, ADR 0009); draft rulebook, 174 rules (R ✅); review-stage design (ADR 0010 ✅, proposed); title-block fields in stage 1 ✅; `checks` reviewer with 17 check functions (A4, in progress: 22 of 135 code/lookup rules built); general tolerance table and stacked limits in stage 1 ✅; verifier (A3 ✅); reference tables and the first lookup checks ✅ (materials, DES-12 plating); next: symbols from text and vectors in stage 1 (Spike D), more lookup tables (DES-11 heat treatment, raw-material sizes) | in progress |
+| M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`) ✅; seeded-error eval set (drawings and keys: A5a ✅; `di eval review`: A5b ✅); graph fan-out (A6 part 1 ✅) and report (Excel + annotated sheet) | in progress |
 | M4 | Q&A agent; feedback log | |
 | M5 | API + dashboard (model picker, cost and latency) | |
 
 ## 10. Open questions
 
-- Who writes the first rulebook entries: PARI engineers, or the team from IS 2102 and machining handbooks?
-- Which model wins each role? Decided by `di eval` on the samples, not by public benchmarks.
+- ~~Who writes the first rulebook entries?~~ The team drafted 174 rules (task R). Open now: who at PARI
+  confirms them (`status: client_confirmed`), and the 49 `needs_pari` decisions in `docs/rulebook/`.
+- Which model wins each role? Understanding: decided (`qwen3-vl-plus`, thinking off, ADR 0009). Review and
+  Q&A: still open, decided by `di eval review` (A5b), not by public benchmarks.
+- ~~Should an `llm` rule with no finding be `pass` or `not_checked`?~~ `not_checked` (2026-10-25).
+- Feature locations for the LLM reviewers (P05/P06, missing dimensions): view and feature bboxes in the
+  understanding output are a prompt and schema change, to measure against ADR 0009 first.
 - Confirm `qwen3.8-max` pricing on Alibaba's official page (the registry uses a third-party figure).

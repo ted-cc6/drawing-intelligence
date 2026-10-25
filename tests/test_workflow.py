@@ -40,13 +40,19 @@ def knowledge_from_request(kwargs: dict[str, Any], drop: int = 0) -> dict[str, A
 
 
 class FakeModel:
-    """Answers like a model would; optionally returns garbage first to exercise the retry."""
+    """Answers like a model would; optionally returns garbage first to exercise the retry.
 
-    def __init__(self, garbage_first: bool = False, drop: int = 0):
+    Reviewer calls (schema `Review`) get `review_findings`: by reviewer node name, or the same for all.
+    """
+
+    def __init__(self, garbage_first: bool = False, drop: int = 0, review_findings: Any = None):
         self.garbage_first, self.drop, self.calls = garbage_first, drop, []
+        self.review_findings = review_findings or []
 
     def __call__(self, kwargs, api_key, base_url, timeout) -> RawCompletion:
         self.calls.append(kwargs)
+        if kwargs.get("response_format", {}).get("json_schema", {}).get("name") == "Review":
+            return RawCompletion(json.dumps({"findings": self.review_findings}), 8_000, 300)
         if self.garbage_first and len(self.calls) == 1:
             return RawCompletion('{"drawing": "oops"}', 1000, 10)
         return RawCompletion(json.dumps(knowledge_from_request(kwargs, self.drop)), 30_000, 5_000)
@@ -66,6 +72,18 @@ def test_message_has_prompt_images_and_exact_text(make_pdf, tmp_path):
     assert kinds[0] == "TextPart" and kinds.count("ImagePart") == 4  # full + 2 tiles + title block
     assert parts[-1].text.startswith("EXTRACTED TEXT (JSON):")  # type: ignore[union-attr]
     assert "matched_lines" not in parts[-1].text  # type: ignore[union-attr]
+
+
+def test_message_leaves_out_what_stage_1_derives_by_code(make_pdf, tmp_path):
+    # The prompt stays the one ADR 0009 chose the model on: raw text yes, code-derived fields no.
+    out = tmp_path / "ex"
+    page = extract_pdf(make_pdf(), out, imaging=SMALL).pages[0]
+    text = json.loads(build_parts(page, out)[-1].text.split("\n", 1)[1])  # type: ignore[union-attr]
+    for key in ("title_block_fields", "title_block_layout", "general_tolerances", "revision_rows"):
+        assert key not in text
+    assert all("limits" not in d for d in text["dimensions"])
+    assert all("chain_ids" not in c and "overall_id" not in c for c in text["chain_checks"])
+    assert text["title_block_text"] and text["dimensions"]  # the raw text is all still there
 
 
 def test_understand_page_valid(make_pdf, settings, tmp_path):
@@ -133,3 +151,43 @@ def test_keep_mode_reuses_the_cache(make_pdf, settings):
 def test_unknown_model_fails_fast(make_pdf, settings):
     with pytest.raises(ValueError, match="unknown model"):
         run_workflow(make_pdf(), settings, imaging=SMALL, model="gpt-0", completion_fn=FakeModel())
+
+
+# --- review stage (ADR 0010) ------------------------------------------------------------------------------
+
+
+def test_review_runs_through_to_a_verified_result(make_pdf, settings, tmp_path):
+    from drawing_intelligence.review import load_rulebook
+
+    pdf = make_pdf(overall="405")  # the chain 135 + 130 + (135) adds up to 400
+    res = run_workflow(
+        pdf, settings, imaging=SMALL, completion_fn=FakeModel(), review=True, export_dir=tmp_path / "x"
+    )
+    assert res.review is not None
+    statuses = {s.rule_id: s.status for s in res.review.rule_statuses}
+    assert len(statuses) == len(load_rulebook().rules)  # every rule has exactly one status
+    assert statuses["CN-001"] == "fail" and statuses["CN-004"] == "fail"
+    assert res.review.reviewers_run == ["checks", "drawing_practice", "manufacturability", "design_intent"]
+    assert res.review.reviewers_skipped == []
+    assert res.exported_to is not None and (res.exported_to / "review_result.json").exists()
+    assert not (settings.sessions_dir / res.session_id).exists()  # still ephemeral
+
+
+def test_review_without_understanding_needs_no_model(make_pdf, settings):
+    settings.openai_api_key = settings.qwen_api_key = None
+    res = run_workflow(make_pdf(), settings, understand=False, review=True, imaging=SMALL)
+    assert res.review is not None and not res.understanding
+    assert {s.rule_id: s.status for s in res.review.rule_statuses}["CN-001"] == "pass"
+
+
+def test_a_crashing_reviewer_does_not_lose_the_review(make_pdf, settings, monkeypatch):
+    from drawing_intelligence.graph import workflow
+
+    def boom(ctx):
+        raise RuntimeError("checks crashed")
+
+    monkeypatch.setitem(workflow.REVIEWER_FNS, "checks", boom)
+    res = run_workflow(make_pdf(), settings, understand=False, review=True, imaging=SMALL)
+    assert res.review is not None and "checks" in res.review.reviewers_skipped
+    assert {s.status for s in res.review.rule_statuses} == {"not_checked"}
+    assert "checks crashed" in res.review.extra["reviewer_errors"]["checks"]

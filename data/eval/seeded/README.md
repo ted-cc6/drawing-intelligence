@@ -75,6 +75,12 @@ any released drawing); CYL's `11` printed `-0.2` above `-0.1` (RQ-002, to confir
 `Polyurethene` (MF-011) and its untoleranced `34.97` and `49.97` (LY-005, possibly intended); BLK's `PAINTING`
 with no colour code (MF-013).
 
+Added 2026-10-25, after the LLM reviewers raised it: the H7 holes on CAM (`⌀ 16 H7`) and CYL (`⌀8 H7`) are
+zinc plated (I.Z.B.P., 8-12 µm per PARI DES-12) with no allowance for the plating, which can take up the whole
+18 µm H7 band (WPS-004). It is in the original drawings, so it is `pre_existing` in every case that keeps both the
+H7 hole and the plating (not P09, P19 or P21). Confirmed as a real issue by the PARI proxy; the planted errors
+are unchanged.
+
 ## Notes for the reviewer builders
 
 - **WST-123** (P18): its `non_metals` list has no polyurethane, and the samples spell it `Polyurethene`.

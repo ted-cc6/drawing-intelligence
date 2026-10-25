@@ -10,7 +10,9 @@ client LatentView Analytics). Pipeline:
   report.
 - One Q&A agent over the saved results.
 
-Built so far: intake and understand. The original notebooks live in `D:\Capstone\demo` (read-only reference;
+Built so far: intake, understand, and the review stage up to verify: the code reviewer (`checks`, 17 check
+functions) and three LLM reviewers (`review/llm_reviewer.py`, warnings only). The report comes next.
+The original notebooks live in `D:\Capstone\demo` (read-only reference;
 do not edit them).
 
 ## Layout
@@ -19,19 +21,24 @@ src/drawing_intelligence/
   settings.py          env + .env settings (DI_* variables, API keys as SecretStr)
   schemas/             Pydantic data contracts: Extraction, DrawingKnowledge, review (Finding, RuleStatus,
                        ReviewResult, FindingFeedback) - versioned
-  extraction/          stage 1 - text layer, token cleanup, classification, geometry/chain checks, images
+  extraction/          stage 1 - text layer, token cleanup, classification, geometry/chain checks, images,
+                       title-block fields read by position (title_block.py)
   llm/                 model registry + one OpenAI-SDK client for OpenAI and Qwen (cost, latency, cache)
   understanding/       stage 2 - prompt, message building, call + validate + retry
-  review/              stage 3 - rulebook (Rule, load_rulebook, new_finding); reviewers come next
-  graph/               LangGraph state and graph (intake -> understand)
+  review/              stages 3-4 (ADR 0010) - rulebook, checks/ (one module per category, @check registry),
+                       context.py (ReviewContext), runner.py (the `checks` reviewer), reviewers.py (which
+                       reviewer runs which rules), verify.py
+  graph/               LangGraph state and graph (intake -> understand -> reviewers -> verify)
   storage/             session workspaces (ephemeral), telemetry DB, response cache
-  eval/                baseline diff, understanding scorecard
+  eval/                baseline diff, understanding scorecard, seeded cases + answer keys, review eval
   viz/                 annotated images for humans (never needed by the pipeline)
   cli.py               the `di` command
 config/models.yaml     model registry: prices, capabilities, roles, thinking options, role defaults
 config/templates/      drawing-template regions and glyph remaps
 config/rules/          the rulebook, one YAML list of rules per file (see its README)
-data/                  committed (ADR 0007): raw PDFs, client_set, baseline, labels, cache, telemetry.db
+config/reference/      lookup tables the lookup rules read (materials, PARI plating processes; see its README)
+data/                  committed (ADR 0007): raw PDFs, client_set, baseline, labels, eval/seeded, cache,
+                       telemetry.db. Not committed: data/sessions/ (run history; ADR 0010)
 ```
 
 ## Hard rules
@@ -53,7 +60,9 @@ data/                  committed (ADR 0007): raw PDFs, client_set, baseline, lab
 ```
 uv sync                         # install
 uv run pytest                   # unit tests (synthetic PDFs, fake LLM)
-uv run pytest -m regression     # real sample drawings in data/raw (also run in CI)
+uv run pytest -m regression     # real sample drawings and the seeded cases (also run in CI)
+uv run di review <pdf> --no-understand    # review one drawing with the code checks ($0)
+uv run di eval review --no-understand     # recall / precision / false alarms on data/eval/seeded ($0)
 uv run ruff check . && uv run ruff format --check . && uv run pyright
 uv run di --help
 ```

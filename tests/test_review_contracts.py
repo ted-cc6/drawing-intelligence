@@ -301,10 +301,12 @@ class FieldParams(BaseModel):
     placeholder_ok: list[str] = []
 
 
-def test_loader_checks_names_and_params_against_registered_checks(rules_dir):
-    assert len(load_rulebook(rules_dir, checks={"title_block_field": FieldParams}).rules) == 2
-    with pytest.raises(RulebookError, match="unknown check 'title_block_field'"):
-        load_rulebook(rules_dir, checks={"chain_sum": FieldParams})
+def test_loader_checks_params_of_built_checks_and_lists_the_rest(rules_dir):
+    book = load_rulebook(rules_dir, checks={"title_block_field": FieldParams})
+    assert len(book.rules) == 2 and book.not_built({"title_block_field": FieldParams}) == []
+    # A check with no function yet is not an error: its rule is "not built" (ADR 0010).
+    book = load_rulebook(rules_dir, checks={"chain_sum": FieldParams})
+    assert [r.check for r in book.not_built({"chain_sum": FieldParams})] == ["title_block_field"]
 
     class Strict(BaseModel):
         field: int

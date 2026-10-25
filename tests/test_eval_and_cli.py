@@ -77,3 +77,16 @@ def test_cli_extract_is_ephemeral(cli_settings, make_pdf):
 def test_cli_unknown_thinking_option(cli_settings, make_pdf):
     r = runner.invoke(cli.app, ["run", str(make_pdf()), "--model", "gpt-6-astra", "--thinking", "off"])
     assert r.exit_code != 0 and "no thinking option" in str(r.exception)
+
+
+def test_cli_review_without_understanding(cli_settings, make_pdf):
+    r = runner.invoke(cli.app, ["review", str(make_pdf(overall="405")), "--no-understand"])
+    assert r.exit_code == 0, r.output
+    assert "CN-001" in r.output and "rules:" in r.output and "not checked" in r.output
+
+
+def test_cli_rules_shows_built_checks(cli_settings):
+    r = runner.invoke(cli.app, ["rules"])
+    assert r.exit_code == 0, r.output
+    text = " ".join(r.output.split())  # rich wraps to the terminal width
+    assert "have a built check" in text and "not built yet" in text

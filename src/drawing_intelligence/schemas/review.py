@@ -19,7 +19,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-REVIEW_SCHEMA_VERSION = "1.0"
+REVIEW_SCHEMA_VERSION = "1.1"  # 1.1: ReviewerOutput and RejectedFinding (ADR 0010)
 
 
 class _Strict(BaseModel):
@@ -172,10 +172,45 @@ class FindingFeedback(_Strict):
     at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
+class ReviewerOutput(_Strict):
+    """What one reviewer node saves (`review/<reviewer>.json`): its findings and the status of its own rules.
+
+    The verifier reads every reviewer's output and sets the final rule statuses (ADR 0010).
+    """
+
+    schema_version: Literal["1.0", "1.1"] = REVIEW_SCHEMA_VERSION
+    reviewer: str
+    findings: list[Finding] = []
+    rule_statuses: list[RuleStatus] = []
+    cost_usd: float = 0.0
+    latency_s: float = 0.0
+    error: str | None = Field(
+        default=None, description="set when the reviewer crashed; its rules are not_checked"
+    )
+
+
+RejectReason = Literal[
+    "unknown_rule",
+    "unknown_ref",
+    "unknown_page",
+    "bbox_off_sheet",
+    "quote_mismatch",
+    "unknown_title_block_field",
+]
+
+
+class RejectedFinding(_Strict):
+    """A finding the verifier dropped, and why: kept for debugging, never shown as a result."""
+
+    finding: Finding
+    reason: RejectReason
+    detail: str
+
+
 class ReviewResult(BaseModel):
     """What the review workflow saves for one drawing (all pages)."""
 
-    schema_version: Literal["1.0"] = REVIEW_SCHEMA_VERSION
+    schema_version: Literal["1.0", "1.1"] = REVIEW_SCHEMA_VERSION
     source_file: str
     rulebook_version: str
     reviewers_run: list[str] = []

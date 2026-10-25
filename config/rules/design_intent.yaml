@@ -137,6 +137,8 @@ rules:
     requirement: Form and orientation controls are applied where flatness or perpendicularity matters (sealing faces, mounting faces)
     severity: major
     check_type: llm
+    # needs: judged only once stage 1 reads GD&T, datum or finish symbols; until then not_checked (2026-10-25)
+    params: {needs: [symbols]}
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-11}
     status: draft
 
@@ -148,6 +150,8 @@ rules:
     requirement: Rotating features carry runout relative to the bearing axis
     severity: major
     check_type: llm
+    # needs: judged only once stage 1 reads GD&T, datum or finish symbols; until then not_checked (2026-10-25)
+    params: {needs: [symbols]}
     applies_to: {part_family: [round]}
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-14}
     status: draft

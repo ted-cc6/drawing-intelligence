@@ -28,7 +28,7 @@ def merge_adjacent_spans(rows: list[Row], max_gap: float = 3.0) -> list[Row]:
         if used[i]:
             continue
         used[i] = True
-        cur = Row(r.text, r.x0, r.y0, r.x1, r.y1, r.font_size, r.is_reference)
+        cur = Row(r.text, r.x0, r.y0, r.x1, r.y1, r.font_size, r.is_reference, direction=r.direction)
         if _is_protected_label(r.text):
             merged.append(cur)
             continue
@@ -56,13 +56,36 @@ _NOMINAL = re.compile(r"^\(?[⌀R]?\s*\d+([.,]\d+)?\)?$|^H\d+$|^[⌀R]\s*\d+([.,
 
 
 def link_stacked_tolerances(rows: list[Row], max_gap: float = 15) -> list[Row]:
-    """Join a nominal value with its upper/lower limit pair, e.g. "11" + "-0.2" + "-0.1" -> "11 (-0.2/-0.1)".
+    """Join a nominal value with its limit pair, e.g. "11" + "-0.2" + "-0.1" -> "11 (-0.2/-0.1)".
+
+    The text keeps the order the PDF stores the pair in, which is not always upper first; `Row.limits` holds
+    (upper, lower) as placed on the drawing.
 
     Handles both layouts seen so far: pair stacked vertically with the nominal to the LEFT (horizontal
     dimensions), or pair side by side with the nominal BELOW (rotated dimensions).
     """
     tol_tokens = [r for r in rows if _SIGNED.match(r.text.strip())]
     partners = [r for r in rows if _TOL_PARTNER.match(r.text.strip())]
+
+    def can_partner(t1: Row, t2: Row) -> bool:
+        # An unsigned partner is a limit like "0", never another dimension's value ("16.5"): below 1,
+        # and printed in the limit's font size.
+        if _SIGNED.match(t2.text.strip()):
+            return True
+        small = abs(float(t2.text.strip().replace(",", "."))) < 1
+        return small and abs(t2.font_size - t1.font_size) <= 0.15 * max(t1.font_size, 0.1)
+
+    def upper_first(t1: Row, t2: Row) -> tuple[Row, Row]:
+        # The upper limit is the one further in the text's "up" direction: above it for horizontal text,
+        # to its left for text reading upwards (rotated dimensions).
+        dx, dy = t1.direction
+        up = (dy, -dx)
+
+        def height(r: Row) -> float:
+            return (r.x0 + r.x1) / 2 * up[0] + (r.y0 + r.y1) / 2 * up[1]
+
+        return (t1, t2) if height(t1) >= height(t2) else (t2, t1)
+
     result: list[Row] = []
     consumed: set[int] = set()
 
@@ -73,7 +96,7 @@ def link_stacked_tolerances(rows: list[Row], max_gap: float = 15) -> list[Row]:
         if id(t1) in consumed:
             continue
         for t2 in partners:
-            if t2 is t1 or id(t2) in consumed:
+            if t2 is t1 or id(t2) in consumed or not can_partner(t1, t2):
                 continue
             gap_v, ov_v = gap_overlap(t1.y0, t1.y1, t2.y0, t2.y1, t1.x0, t1.x1, t2.x0, t2.x1)
             gap_h, ov_h = gap_overlap(t1.x0, t1.x1, t2.x0, t2.x1, t1.y0, t1.y1, t2.y0, t2.y1)
@@ -89,14 +112,17 @@ def link_stacked_tolerances(rows: list[Row], max_gap: float = 15) -> list[Row]:
                 left_ok = -1 <= (px0 - nom.x1) < max_gap and min(nom.y1, py1) - max(nom.y0, py0) > 0
                 below_ok = -1 <= (nom.y0 - py1) < max_gap and min(nom.x1, px1) - max(nom.x0, px0) > 0
                 if left_ok or below_ok:
+                    upper, lower = upper_first(t1, t2)
                     result.append(
                         Row(
-                            f"{nom.text} ({t1.text}/{t2.text})",
+                            f"{nom.text} ({t1.text}/{t2.text})",  # exact text, in the PDF's order
                             min(nom.x0, px0),
                             min(nom.y0, py0),
                             max(nom.x1, px1),
                             max(nom.y1, py1),
                             nom.font_size,
+                            direction=nom.direction,
+                            limits=(upper.text.strip(), lower.text.strip()),
                         )
                     )
                     consumed.update([id(nom), id(t1), id(t2)])

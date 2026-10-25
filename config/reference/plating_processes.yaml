@@ -1,0 +1,46 @@
+# PARI's surface-treatment (plating) processes and the base materials each suits, from the "Ferrous / Non Ferrous /
+# Non Metallic" columns of PRD-GD-DES-12. Used by WPS-002 (treatment suits the material). Painting, black oxide
+# and other treatments are not in DES-12, so no material rule applies to them here.
+source: {document: 'Surface Treatment - Plating Process Selection PRD-GD-DES-12, rev 4 (10-Aug-23)', section: 'Ferrous / Non Ferrous / Non Metallic columns'}
+
+processes:  # first match wins: specific names first
+  - id: hard_anodizing
+    name: Hard Anodizing
+    patterns: ['HARD\s+ANODI[SZ]']
+    materials: [aluminium]  # "Only Aluminium"
+  - id: silver_anodizing
+    name: Self Anodizing / Silver Anodizing
+    patterns: ['ANODI[SZ]']
+    materials: [aluminium]  # "Only Aluminium"
+  - id: hard_chrome
+    name: Hard Chrome Plating
+    patterns: ['HARD\s+CHROME']
+    materials: [carbon_steel, alloy_steel, tool_steel, copper_alloy]  # "Steel Alloys"; copper/brass "not recommended"
+  - id: flash_chrome
+    name: Flash Chrome Plating
+    patterns: ['FLASH\s+CHROME']
+    materials: [mild_steel, carbon_steel, cast_iron, copper_alloy]
+  - id: enp
+    name: Electroless Nickel Plating (E.N.P.)
+    patterns: ['\bE\.?\s*N\.?\s*P\b', 'ELECT?R?OLESS']
+    materials: [mild_steel, carbon_steel, cast_iron, copper_alloy, aluminium, plastic]  # "Plastic (ABS) and Other"
+  - id: izbp
+    name: Iron Zinc Black Passivation (trivalent only)
+    patterns: ['I\.?\s*Z\.?\s*B\.?\s*P', 'IRON\s+ZINC', 'ZINC\s+BLACK']
+    materials: [mild_steel, carbon_steel]
+  - id: electro_galvanizing
+    name: Electro Galvanizing
+    patterns: ['GALVANI[SZ]']
+    materials: [mild_steel, carbon_steel, cast_iron]
+  - id: balzer
+    name: Balzer Coating
+    patterns: ['BAL[ZS]ER']
+    materials: [tool_steel]  # "OHNS, D2"; "do not use EN-24"
+  - id: zafc
+    name: ZAFC (Zinc Aluminium Flake Coating)
+    patterns: ['\bZAFC\b', 'ZINC\s+ALUMIN']
+    materials: [alloy_steel]  # "12.9 graded hardwares"
+  - id: qpq
+    name: Quench Polish Quench (QPQ)
+    patterns: ['\bQPQ\b']
+    materials: [carbon_steel, alloy_steel, tool_steel]  # "All through hardened steel"

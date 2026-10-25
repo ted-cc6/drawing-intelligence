@@ -1,4 +1,4 @@
-# Client data in data/ IS committed (ADR 0007). Only secrets and local tooling are ignored.
+# Client data in data/ IS committed (ADR 0007). Only secrets, local tooling and session workspaces are ignored.
 
 # --- secrets: never commit ---
 .env
@@ -29,3 +29,7 @@ Thumbs.db
 
 # --- spikes: bulky per-drawing outputs (summaries go in spikes/*/results/) ---
 spikes/*/out/
+
+# --- session workspaces: run history, not client data (ADR 0010). Committing them caused merge conflicts, and
+# the ephemeral sweep deleted the committed ones. ---
+data/sessions/

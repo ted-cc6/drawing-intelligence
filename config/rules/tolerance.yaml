@@ -29,6 +29,10 @@ rules:
     severity: major
     check_type: code
     check: decimals_vs_tolerance
+    # Provisional until PARI decides (2026-10-23): CAD-default trailing zeros on untoleranced sizes ("18.00" under
+    #   the general ±0.2) are not flagged; they fired on 91 of 195 client sheets. Explicit tolerances are compared
+    #   as printed, so "10.000 ±0.1" still fails.
+    params: {ignore_trailing_zeros_under_general: true}
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: LY-05}
     status: draft
 
@@ -74,7 +78,9 @@ rules:
     severity: minor
     check_type: code
     check: tolerance_tighter_than_general
-    params: {ratio: null}
+    # ratio: provisional, to agree with PARI. 20x tighter than the general tolerance flags ±0.002 on 70 mm (general
+    #   ±0.3) but not ±0.02 on 20 mm (general ±0.2), which the samples use. Fits (H7, g6) are not compared.
+    params: {ratio: 20}
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-03}
     status: draft
 
