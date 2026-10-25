@@ -92,6 +92,42 @@
    ],
    "description": "The 11 is printed with -0.2 above -0.1, so its upper limit is below its lower one. This is in PARI's original drawing (to confirm with PARI).",
    "also_acceptable": []
+  },
+  {
+   "rule_id": "WPS-004",
+   "category": "surface_treatment",
+   "severity": "major",
+   "result": "warning",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D24",
+     "page": 1,
+     "bbox": [
+      149.6,
+      525.5,
+      215.0,
+      536.4
+     ],
+     "quote": "⌀8   H7 THRU`",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "surface_treatment",
+     "page": 1,
+     "bbox": [
+      804.8,
+      736.9,
+      874.8,
+      744.1
+     ],
+     "quote": "I.Z.B.P. (TRIVALENT)",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The ⌀8   H7 THRU` hole is zinc plated (I.Z.B.P., 8-12 µm per PARI DES-12) with no allowance for the plating, which can take up the whole 18 µm H7 band.",
+   "also_acceptable": []
   }
  ]
 }
