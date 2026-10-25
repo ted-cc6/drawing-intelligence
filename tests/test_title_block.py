@@ -183,3 +183,21 @@ def test_stacked_limits_are_ordered_by_position_not_pdf_order(tmp_path: Path, ro
 def test_another_dimensions_value_is_not_a_limit(tmp_path: Path):
     dims = _stacked(tmp_path, 0, "+0.2", "16.5")  # 16.5 is a size, not a limit
     assert dims == []
+
+
+def test_a_marked_cell_takes_its_value_from_the_notes(sheet):
+    values = {**VALUES, "material": "#", "surface_treatment": "#"}
+    notes = [
+        ("# MATERIAL: EN8", (100, 650)),
+        ("# FINISH: I.Z.B.P. (TRIVALENT)", (100, 662)),
+        ("# MATÉRIEL : EN8", (100, 674)),  # the French copy is not read
+    ]
+    fields = extract_pdf(sheet(values, extra_text=notes)).pages[0].title_block_fields
+    assert (fields["material"].value, fields["material"].source) == ("EN8", "notes")
+    assert fields["surface_treatment"].value == "I.Z.B.P. (TRIVALENT)"
+    assert fields["number"].source == "cell"
+
+
+def test_a_marked_cell_with_no_note_stays_as_printed(sheet):
+    fields = extract_pdf(sheet({**VALUES, "material": "#"})).pages[0].title_block_fields
+    assert (fields["material"].value, fields["material"].source) == ("#", "cell")

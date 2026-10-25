@@ -168,7 +168,7 @@ class NonMetalParams(BaseModel):
 def _heat_treatment(page: PageExtraction) -> list[EvidenceRef]:
     """Where this page specifies a heat treatment: the field itself, or the notes it refers to."""
     value = ev.value(page, "heat_treatment")
-    if not value or value in ev.PLACEHOLDERS:
+    if not value or ev.is_placeholder(value):
         return []
     if not _REFERS_TO_NOTE.search(value):
         return [ev.field(page, "heat_treatment")]

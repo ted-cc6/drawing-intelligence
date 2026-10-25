@@ -90,3 +90,9 @@ boilerplate_notes:
   - 'www\.wipropari\.com'
   - 'UNSP\.\s*(CHF|RADII)\.?\s*[\d.]+\s*(X\s*45°|R)?'
   - '^\s*REVISION\s*$'
+
+# PARI writes "#" in a title-block cell to mean "see the notes", where a block of "#" lines states the value
+# (# MATERIAL: M.S. / # FINISH: I.Z.B.P. (TRIVALENT), then a French copy). Such a field takes its value from the
+# English note: note label -> title-block field.
+notes_marker: "#"
+notes_fields: {MATERIAL: material, FINISH: surface_treatment}
