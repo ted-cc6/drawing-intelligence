@@ -45,6 +45,14 @@ class Template(BaseModel):
     revision_number_column: Coords | None = None
     units_pattern: str | None = None
     date_format: str = "%d/%m/%Y"
+    boilerplate_notes: list[str] = []
+
+    def is_boilerplate(self, note: str) -> bool:
+        """A note made only of the template's own printed text (plus numbering and punctuation)."""
+        rest = note
+        for pattern in self.boilerplate_notes:
+            rest = re.sub(pattern, " ", rest, flags=re.IGNORECASE | re.MULTILINE)
+        return len(re.sub(r"[\W\d_]|\b[A-Z]\b", "", rest)) == 0
 
     def regions_for(self, width: float, height: float) -> dict[str, Rect]:
         """Every region resolved to absolute PDF points for a sheet of this size."""

@@ -14,6 +14,7 @@ from drawing_intelligence.review.context import ReviewContext
 from drawing_intelligence.review.llm_reviewer import SILENT, build_message, output_schema, run_llm_reviewer
 from drawing_intelligence.review.reviewers import reviewer_for
 from drawing_intelligence.schemas import DrawingKnowledge
+from drawing_intelligence.schemas.knowledge import Note
 from drawing_intelligence.storage import ResponseCache, Telemetry
 from tests.test_eval_and_cli import _knowledge
 from tests.test_workflow import SMALL, FakeModel
@@ -128,3 +129,28 @@ def test_llm_review_can_be_turned_off(make_pdf, settings):
     res = run_workflow(make_pdf(), settings, imaging=SMALL, review=True, llm_review=False, completion_fn=fake)
     assert res.review is not None and res.review.reviewers_run == ["checks"]
     assert len(fake.calls) == 1  # understanding only
+
+
+def test_rules_needing_symbols_or_geometry_are_not_sent(ctx, settings, tmp_path):
+    fake = ReviewModel([])
+    out = run_llm_reviewer(ctx, "design_intent", client(settings, tmp_path, fake))
+    statuses = {s.rule_id: s for s in out.rule_statuses}
+    assert statuses["TL-007"].status == "not_checked" and "symbols" in (statuses["TL-007"].note or "")
+    sent = json.loads(
+        fake.calls[0]["messages"][0]["content"][0]["text"]
+        .split("\n\nRULES:\n", 1)[1]
+        .split("\n\nDRAWING:")[0]
+    )
+    assert "TL-007" not in {r["id"] for r in sent} and "TL-002" in {r["id"] for r in sent}
+
+
+def test_template_boilerplate_notes_are_not_sent(ctx):
+    k = ctx.knowledge_of(ctx.pages[0])
+    assert k is not None
+    notes = [
+        Note(id="N1", text="NOTE FOR WIPRO PARI DESIGN -REF. ONLY", category="general"),
+        Note(id="N2", text="ALL HOLES TO BE REAMED", category="general"),
+    ]
+    c = ReviewContext(**{**ctx.__dict__, "knowledge": {1: k.model_copy(update={"notes": notes})}})
+    drawing = json.loads(build_message(c, BOOK.rules[:1]).split("DRAWING:\n", 1)[1])
+    assert [n["id"] for n in drawing[0]["notes"]] == ["N2"]

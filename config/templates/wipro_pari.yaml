@@ -69,3 +69,24 @@ units_pattern: '\bIN\s+(mm|MM|cm|inch|INCH|inches|INCHES)\b'
 
 # How title-block dates are printed (Python strptime). PARI prints day/month/year.
 date_format: "%d/%m/%Y"
+
+# Notes the template prints on every sheet. They are not the designer's notes, so the LLM reviewers do not see
+# them (a reviewer judging "notes copied from another drawing" flagged them on every drawing). Regexes, case-
+# insensitive; a note is left out when nothing but these, numbering and punctuation remains.
+boilerplate_notes:
+  - 'ALL\s+DIMENSIONS\s+ARE(\s+IN\s+mm)?'
+  - 'DO\s+NOT\s+SCALE(\s+DRAWING)?'
+  - 'IF\s+IN\s+DOUBT\s*,?\s*ASK\s+TEAM\s+MEMBER'
+  - 'ALL\s+RIGHTS\s+OF\s+REPRODUCTION\s*&\s*DISTRIBUTION\s+ARE\s+RESERVED'
+  - 'DEBURR\s+AND\s+REMOVE\s+SHARP\s+EDGES\s+UNLESS\s+SHARP\s+EDGE\s+REQUIREMENT\s+SPECIFIED'
+  - 'NOTE\s+FOR\s+WIPRO\s+PARI\s+DESIGN\s*-?\s*REF\.?\s*ONLY'
+  - 'WEAR\s+DETAILS\s*:\s*N\.?A\.?'
+  - 'NOTE\s*:\s*STANDARD\s+FASTENER\s+TORQUE\s+AS\s+PER\s+STD-DES-01(-00)?'
+  - 'FR-DES-006-\d\d'
+  - 'RESERVED\s+SPACE(\s+FOR\s+CONTROLLED\s+COPY\s+STAMP)?'
+  - 'CONTROLLED\s+COPY'
+  - '\bSTAMP\b'
+  - 'LOCATION\s*:\s*\w*'
+  - 'www\.wipropari\.com'
+  - 'UNSP\.\s*(CHF|RADII)\.?\s*[\d.]+\s*(X\s*45°|R)?'
+  - '^\s*REVISION\s*$'

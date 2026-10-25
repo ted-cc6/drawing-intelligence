@@ -29,6 +29,12 @@ log = logging.getLogger(__name__)
 PROMPT = resources.files(__package__).joinpath("prompts/reviewer.md").read_text(encoding="utf-8")
 SILENT = "LLM judged: no issue raised (not proof of a pass)"
 
+# What a rule may need beyond the drawing's text (its `params.needs`), and what stage 1 provides so far.
+# Symbols come with Spike D's stage-1 work; feature locations with view and feature geometry. Without them the
+# reviewer can only guess (calibration 2026-10-25: "no roughness specified" on drawings whose finish marks it
+# cannot see), so such rules are not_checked until their input exists.
+AVAILABLE_INPUTS: frozenset[str] = frozenset()
+
 # What the model sees of each page: the drawing's content, without bookkeeping it cannot use. Symbols are left
 # out: they come from vision, which misses most of them (Spike D), so they would invite unfounded findings.
 _KNOWLEDGE_VIEW: dict[str, Any] = {
@@ -65,11 +71,15 @@ def output_schema(rule_ids: list[str]) -> type[BaseModel]:
 
 def build_message(ctx: ReviewContext, rules: list[Rule]) -> str:
     rules_json = [{"id": r.id, "requirement": r.requirement} for r in rules]
-    pages = [
-        {"page": p.page_number, **k.model_dump(mode="json", exclude=_KNOWLEDGE_VIEW)}
-        for p in ctx.pages
-        if (k := ctx.knowledge_of(p)) is not None
-    ]
+    pages = []
+    for p in ctx.pages:
+        k = ctx.knowledge_of(p)
+        if k is None:
+            continue
+        page = {"page": p.page_number, **k.model_dump(mode="json", exclude=_KNOWLEDGE_VIEW)}
+        # the template's own printed notes are on every sheet; they are not the designer's notes
+        page["notes"] = [n for n in page["notes"] if not ctx.template.is_boilerplate(n["text"])]
+        pages.append(page)
     return (
         PROMPT
         + "\n\nRULES:\n"
@@ -104,6 +114,13 @@ def run_llm_reviewer(
         for r in mine
         if r not in rules
     ]
+    blocked = [r for r in rules if set(r.params.get("needs", [])) - AVAILABLE_INPUTS]
+    for r in blocked:
+        missing = ", ".join(sorted(set(r.params["needs"]) - AVAILABLE_INPUTS))
+        statuses.append(
+            RuleStatus(rule_id=r.id, status="not_checked", note=f"needs {missing}, not read by stage 1 yet")
+        )
+    rules = [r for r in rules if r not in blocked]
     if not rules:
         return ReviewerOutput(reviewer=name, rule_statuses=statuses)
     if not any(ctx.knowledge_of(p) for p in ctx.pages):

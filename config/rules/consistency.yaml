@@ -130,6 +130,8 @@ rules:
     requirement: Holes and other centred features are located to their centre lines (the centre line serves as the extension line), not to their edges.
     severity: minor
     check_type: llm
+    # needs: judged only once stage 1 reads feature locations; until then not_checked (2026-10-25)
+    params: {needs: [geometry]}
     source: {document: Dimensioning and Tolerancing tutorial slides (author not stated; ASME Y14.5-1994), section: 'Standard Practices- Extension lines; Basic Concepts (p21, 31)'}
     status: draft
 
@@ -301,6 +303,8 @@ rules:
     requirement: Feature with no size
     severity: critical
     check_type: llm
+    # needs: judged only once stage 1 reads feature locations; until then not_checked (2026-10-25)
+    params: {needs: [geometry]}
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-01}
     status: draft
 
@@ -315,6 +319,8 @@ rules:
     requirement: Feature with no location
     severity: critical
     check_type: llm
+    # needs: judged only once stage 1 reads feature locations; until then not_checked (2026-10-25)
+    params: {needs: [geometry]}
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-02}
     status: draft
 
@@ -344,6 +350,8 @@ rules:
     requirement: Missing overall dimensions
     severity: minor
     check_type: llm
+    # needs: judged only once stage 1 reads feature locations; until then not_checked (2026-10-25)
+    params: {needs: [geometry]}
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-05}
     status: draft
 
@@ -457,6 +465,8 @@ rules:
     requirement: Intersecting feature not located
     severity: critical
     check_type: llm
+    # needs: judged only once stage 1 reads feature locations; until then not_checked (2026-10-25)
+    params: {needs: [geometry]}
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-20}
     status: draft
 
@@ -471,6 +481,8 @@ rules:
     requirement: Opposite or mirrored side not covered
     severity: major
     check_type: llm
+    # needs: judged only once stage 1 reads feature locations; until then not_checked (2026-10-25)
+    params: {needs: [geometry]}
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-21}
     status: draft
 
