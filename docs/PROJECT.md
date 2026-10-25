@@ -295,6 +295,24 @@ Understanding (`qwen3-vl-plus`, off) plus the three LLM reviewers (`qwen3.8-max`
   20MnCr5). DES-12's material column lists IZBP for mild and carbon steel only, but its text says "for ferrous
   machined parts": PARI should say which holds. Most sheets print `#` for the material, so they are not compared.
 
+### Held-out validation on unseen client drawings (2026-10-25)
+
+The seeded set's precision is optimistic: the checks and the LLM reviewers were tuned on it. `di eval heldout`
+reviewed 25 client drawings no development step had looked at (24 drawings and one guideline PDF), and every one of
+the 115 findings was labelled. The labels are provisional (made by Claude from the drawings; the PARI proxy is to
+confirm them). Details and labels: `data/eval/heldout/2026-10-25/`.
+
+| | correct | incorrect | unsure | precision |
+|---|---|---|---|---|
+| Code checks and lookups | 58 | 0 | 2 | **100%** |
+| LLM reviewers | 14 | 25 | 16 | **36%** (seeded set: 58%) |
+
+- Most LLM noise is NM-008 "notes copied from another drawing" (11 of 12 wrong: PARI's standard and bilingual
+  notes) and MF-007 "material suits the function" (4 of 5 wrong). Without them: 55%.
+- PARI writes `#` in title-block fields to mean "see the notes" (`# MATERIAL: M.S`). Reading that block would let
+  the material and treatment lookups check most of the client set; today they skip it.
+- Cost ~$0.036 and ~2 minutes per drawing for the full review.
+
 ## 9. Roadmap
 
 | Milestone | Content | Status |
