@@ -129,3 +129,18 @@ def test_a_crashed_reviewer_is_skipped_and_its_rules_not_checked():
     assert result.reviewers_run == [] and result.reviewers_skipped == ["checks"]
     assert {s.status for s in result.rule_statuses} == {"not_checked"}
     assert result.extra["reviewer_errors"] == {"checks": "boom"}
+
+
+def test_stage_1_symbols_can_be_cited():
+    from drawing_intelligence.schemas import SymbolItem
+
+    sym = SymbolItem(
+        id="S1", type="datum", text="datum A", datums=["A"], bbox=(300, 300, 312, 312), provenance="vector"
+    )
+    ex = EXTRACTION.model_copy(update={"pages": [EXTRACTION.pages[0].model_copy(update={"symbols": [sym]})]})
+    ok = finding("CN-001", ev("symbol", ref="S1", quote="datum A", provenance="vector"))
+    bad = finding("CN-002", ev("symbol", ref="S1", quote="datum B", provenance="pdf_text"))
+    result, rejected = verify([out(ok, bad)], ex, BOOK)
+    assert [f.rule_id for f in result.findings] == ["CN-001"] and [r.reason for r in rejected] == [
+        "quote_mismatch"
+    ]

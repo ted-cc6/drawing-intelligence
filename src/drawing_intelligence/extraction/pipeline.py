@@ -19,6 +19,7 @@ from drawing_intelligence.extraction.geometry import (
     match_dimension_lines,
 )
 from drawing_intelligence.extraction.imaging import ImagingConfig, export_page_images
+from drawing_intelligence.extraction.symbols import read_symbols
 from drawing_intelligence.extraction.template import Rect, Template, load_template
 from drawing_intelligence.extraction.text_layer import Row, all_text_lines, line_segments, raw_rows
 from drawing_intelligence.extraction.title_block import read_title_block
@@ -122,6 +123,7 @@ def extract_page(
         revision_rows=tb.revision_rows,
         revision_numbers=tb.revision_numbers,
         general_tolerances=read_general_tolerances(text["tolerance_table"]),
+        symbols=read_symbols(page, template),
         tolerance_table_text=text["tolerance_table"],
         body_text=text["drawing_body"],
         dimensions=[_item(r, dim_ids[id(r)]) for r in dims],

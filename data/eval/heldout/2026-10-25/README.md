@@ -102,3 +102,21 @@ NASA-047 on PARI's standard NDT note.
 
 **Caveat:** these 24 drawings have now guided three rounds of fixes, so they are no longer held out and these
 figures are optimistic. A fresh set of unseen drawings (`di eval heldout --seed <new>`) gives the honest number.
+
+## With stage 1's symbols given to the LLM reviewers (same 24 drawings)
+
+The 8 rules held back for `needs: symbols` were released and the `drawing_practice` and `design_intent`
+reviewers got each page's exact symbols (`findings_symbols.csv`; $0.430).
+
+| | correct | incorrect | unsure | precision |
+|---|---|---|---|---|
+| Code checks and lookups (66) | 58 | 0 | 8 | **100%** |
+| LLM reviewers (53, was 28) | 16 | 12 | 25 | **57%** (was 88%) |
+
+- The released rules raised 14 findings: 0 correct, 3 incorrect, 11 unsure. WPM-003 (hardened area not shown)
+  and TL-014 (runout on rotating features) are design judgements the drawing does not settle; TL-011 and TL-016
+  were speculation (one missed the general roughness symbol in the `# MACHINING` note).
+- The re-sampled `design_intent` reviewer also drifted: WPS-004 twice ignored its `only_when`, and template-note
+  noise came back under NM-002.
+- The six GD&T code checks raised nothing on these drawings.
+- Conclusion: symbols alone do not let the LLM judge these rules; they need to know which faces are functional.

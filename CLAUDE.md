@@ -10,7 +10,7 @@ client LatentView Analytics). Pipeline:
   report.
 - One Q&A agent over the saved results.
 
-Built so far: intake, understand, and the review stage up to verify: the code reviewer (`checks`, 17 check
+Built so far: intake, understand, and the review stage up to verify: the code reviewer (`checks`, 23 check
 functions) and three LLM reviewers (`review/llm_reviewer.py`, warnings only), and the report (`report/`:
 Excel checklist in the client's columns plus the annotated sheet).
 The original notebooks live in `D:\Capstone\demo` (read-only reference;
@@ -23,7 +23,8 @@ src/drawing_intelligence/
   schemas/             Pydantic data contracts: Extraction, DrawingKnowledge, review (Finding, RuleStatus,
                        ReviewResult, FindingFeedback) - versioned
   extraction/          stage 1 - text layer, token cleanup, classification, geometry/chain checks, images,
-                       title-block fields read by position (title_block.py)
+                       title-block fields read by position (title_block.py), symbols: GD&T frames,
+                       datum flags, finish marks (symbols.py)
   llm/                 model registry + one OpenAI-SDK client for OpenAI and Qwen (cost, latency, cache)
   understanding/       stage 2 - prompt, message building, call + validate + retry
   review/              stages 3-4 (ADR 0010) - rulebook, checks/ (one module per category, @check registry),

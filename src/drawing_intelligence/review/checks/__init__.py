@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from drawing_intelligence.review.checks import (  # noqa: F401 - importing registers the checks
     consistency,
+    gdt,
     surface_treatment,
     title_block,
     tolerance,

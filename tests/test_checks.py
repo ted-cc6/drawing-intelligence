@@ -24,6 +24,7 @@ from drawing_intelligence.schemas import (
     GeneralToleranceRow,
     MatchedLine,
     PageExtraction,
+    SymbolItem,
     TextItem,
     TextLine,
     TitleBlockField,
@@ -623,3 +624,76 @@ def test_any_run_of_dashes_is_a_placeholder():
         run("title_block_field", page(title_block_fields=fields(material="----")), field="material")[1].status
         == "fail"
     )
+
+
+# --- GD&T and datums (stage 1 symbols) ----------------------------------------------------------------------
+
+
+def sym(i: int, kind: str, text: str, **kw) -> SymbolItem:
+    return SymbolItem(id=f"S{i}", type=kind, text=text, bbox=(100 + 20 * i, 100, 115 + 20 * i, 110),  # type: ignore[arg-type]
+                      provenance="pdf_text" if kind == "gdt" else "vector", **kw)  # fmt: skip
+
+
+def frame(i: int, characteristic: str, datums=(), tolerance="0.05") -> SymbolItem:
+    return sym(i, "gdt", f"{characteristic} {tolerance}", characteristic=characteristic, tolerance=tolerance,
+               datums=list(datums))  # fmt: skip
+
+
+def flag(i: int, letter: str) -> SymbolItem:
+    return sym(i, "datum", f"datum {letter}", datums=[letter])
+
+
+def sym_page(*symbols, n: int = 1, notes=()) -> PageExtraction:
+    lines = [TextLine(text=t, bbox=(100, 700, 300, 710)) for t in notes]
+    return page(page_number=n, symbols=list(symbols), body_text=lines)
+
+
+def test_datum_referenced_defined():
+    findings, status = run(
+        "datum_referenced_defined",
+        sym_page(frame(1, "parallelism", ["A"]), frame(2, "position", ["A-B"]), flag(3, "A")),
+    )
+    assert (
+        status.status == "fail" and "datum B" in findings[0].comment and findings[0].evidence[0].ref == "S2"
+    )
+    assert run("datum_referenced_defined", sym_page(frame(1, "flatness")))[1].status == "not_applicable"
+
+
+def test_fcf_has_datum():
+    params = {"characteristics": ["position", "perpendicularity", "symmetry"]}
+    findings, status = run(
+        "fcf_has_datum",
+        sym_page(frame(1, "symmetry"), frame(2, "position", ["A"]), frame(3, "flatness")),
+        **params,
+    )
+    assert status.status == "fail" and [f.evidence[0].ref for f in findings] == ["S1"]
+
+
+def test_datum_letters_valid():
+    assert (
+        run("datum_letters_valid", sym_page(flag(1, "I"), flag(2, "A")), illegal=["I", "O", "Q"])[1].status
+        == "fail"
+    )
+    assert run("datum_letters_valid", sym_page(flag(1, "A")), illegal=["I"])[1].status == "pass"
+
+
+def test_datum_unused_counts_frames_and_notes():
+    p = sym_page(frame(1, "parallelism", ["A"]), flag(2, "A"), flag(3, "B"), flag(4, "C"),
+                 notes=["CO PLANERITY OF SURFACE C SHOULD BE WITHIN 0.03"])  # fmt: skip
+    findings, status = run("datum_unused", p)
+    assert status.status == "fail" and [f.evidence[0].ref for f in findings] == ["S3"]  # only B is unused
+
+
+def test_datum_on_same_sheet():
+    pages = (sym_page(flag(1, "A"), n=1), sym_page(frame(1, "parallelism", ["A"]), n=2))
+    findings, status = run("datum_on_same_sheet", *pages)
+    assert status.status == "fail" and findings[0].evidence[0].page == 2
+    assert run("datum_on_same_sheet", sym_page(flag(1, "A")))[1].status == "not_applicable"
+
+
+def test_fcf_grammar():
+    p = sym_page(
+        frame(1, "flatness", ["A"]), frame(2, "position", ["A"], tolerance=""), frame(3, "parallelism", ["A"])
+    )
+    findings, status = run("fcf_grammar", p)
+    assert status.status == "fail" and [f.evidence[0].ref for f in findings] == ["S1", "S2"]

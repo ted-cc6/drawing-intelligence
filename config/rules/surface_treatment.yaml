@@ -80,8 +80,9 @@ rules:
     requirement: Surface roughness is specified on machined, sealing, sliding and bearing surfaces
     severity: major
     check_type: llm
-    # needs: judged only once stage 1 reads GD&T, datum or finish symbols; until then not_checked (2026-10-25)
-    params: {needs: [symbols]}
+    # needs: symbols (read since 2026-10-25) and which faces mate, seal or rotate, which the review does not know: with
+    #   symbols alone, 14 findings on 24 unseen drawings, none confirmed (held-out run, 2026-10-25)
+    params: {needs: [symbols, functional_faces]}
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-07}
     status: draft
 
@@ -97,8 +98,9 @@ rules:
     requirement: Roughness values are realistic for the process, and a general roughness symbol covers other surfaces
     severity: minor
     check_type: llm
-    # needs: judged only once stage 1 reads GD&T, datum or finish symbols; until then not_checked (2026-10-25)
-    params: {needs: [symbols]}
+    # needs: symbols (read since 2026-10-25) and which faces mate, seal or rotate, which the review does not know: with
+    #   symbols alone, 14 findings on 24 unseen drawings, none confirmed (held-out run, 2026-10-25)
+    params: {needs: [symbols, functional_faces]}
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-16}
     status: draft
 
@@ -137,8 +139,9 @@ rules:
     requirement: For induction, flame or case hardening, the area to be hardened is shown (XXXXX) on the drawing
     severity: minor
     check_type: llm
-    # needs: judged only once stage 1 reads GD&T, datum or finish symbols; until then not_checked (2026-10-25)
-    params: {needs: [symbols]}
+    # needs: symbols (read since 2026-10-25) and which faces mate, seal or rotate, which the review does not know: with
+    #   symbols alone, 14 findings on 24 unseen drawings, none confirmed (held-out run, 2026-10-25)
+    params: {needs: [symbols, functional_faces]}
     source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: 'Column notes: area to be hardened shown by XXXXX'}
     status: draft
 

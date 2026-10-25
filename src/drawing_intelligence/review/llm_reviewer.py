@@ -33,10 +33,11 @@ SILENT = "LLM judged: no issue raised (not proof of a pass)"
 # Symbols come with Spike D's stage-1 work; feature locations with view and feature geometry. Without them the
 # reviewer can only guess (calibration 2026-10-25: "no roughness specified" on drawings whose finish marks it
 # cannot see), so such rules are not_checked until their input exists.
-AVAILABLE_INPUTS: frozenset[str] = frozenset()
+AVAILABLE_INPUTS: frozenset[str] = frozenset({"symbols"})  # symbols: stage 1 reads them (Spike D)
 
-# What the model sees of each page: the drawing's content, without bookkeeping it cannot use. Symbols are left
-# out: they come from vision, which misses most of them (Spike D), so they would invite unfounded findings.
+# What the model sees of each page: the drawing's content, without bookkeeping it cannot use. The vision
+# model's symbols are left out (it misses most of them, Spike D); a reviewer whose rules need symbols
+# gets stage 1's exact ones instead (`needs_symbols`).
 _KNOWLEDGE_VIEW: dict[str, Any] = {
     "dimensions": {"__all__": {"bbox", "source"}},
     "symbols": True,
@@ -55,14 +56,28 @@ class Citation(_Strict):
     quote: str  # the text exactly as it appears in DRAWING
 
 
-def output_schema(rule_ids: list[str]) -> type[BaseModel]:
+class SymbolCitation(_Strict):
+    """A citation that may also point at a symbol (S1): for reviewers that are given the symbols."""
+
+    kind: Literal["dimension", "note", "title_block", "symbol"]
+    ref: str  # D7, N2, S3, or a title-block field name (material)
+    page: int
+    quote: str  # the text exactly as it appears in DRAWING
+
+
+def needs_symbols(rules: list[Rule]) -> bool:
+    return any("symbols" in r.params.get("needs", []) for r in rules)
+
+
+def output_schema(rule_ids: list[str], symbols: bool = False) -> type[BaseModel]:
     """The reviewer's answer schema: findings whose rule id can only be one of this reviewer's rules."""
     rule_id = Literal.__getitem__(tuple(rule_ids))  # type: ignore[attr-defined]
+    citation = SymbolCitation if symbols else Citation
     item = create_model(
         "ReviewItem",
         __config__=ConfigDict(extra="forbid"),
         rule_id=(rule_id, ...),
-        evidence=(list[Citation], ...),
+        evidence=(list[citation], ...),
         comment=(str, ...),
         recommended_correction=(str, ...),
     )
@@ -84,6 +99,8 @@ def build_message(ctx: ReviewContext, rules: list[Rule]) -> str:
         page = {"page": p.page_number, **k.model_dump(mode="json", exclude=_KNOWLEDGE_VIEW)}
         # the template's own printed notes are on every sheet; they are not the designer's notes
         page["notes"] = [n for n in page["notes"] if not ctx.template.is_boilerplate(n["text"])]
+        if needs_symbols(rules):  # stage 1's exact symbols; an empty list means none is drawn on the page
+            page["symbols"] = [{"id": s.id, "type": s.type, "text": s.text} for s in p.symbols]
         pages.append(page)
     return (
         PROMPT
@@ -94,17 +111,23 @@ def build_message(ctx: ReviewContext, rules: list[Rule]) -> str:
     )
 
 
-def _evidence(ctx: ReviewContext, c: Citation) -> EvidenceRef:
+def _evidence(ctx: ReviewContext, c: Citation | SymbolCitation) -> EvidenceRef:
     """A citation as evidence, with the bbox and provenance stage 1 knows (the verifier checks the rest)."""
     page = next((p for p in ctx.pages if p.page_number == c.page), None)
     bbox = None
-    provenance: Literal["pdf_text", "vision"] = "pdf_text"
+    provenance: Literal["pdf_text", "vector", "vision"] = "pdf_text"
     if page is not None and c.kind == "dimension":
         dim = next((d for d in page.dimensions if d.id == c.ref), None)
         bbox = list(dim.bbox) if dim else None
         provenance = "vision" if c.ref.startswith("V") else "pdf_text"
     elif page is not None and c.kind == "title_block" and (f := page.title_block_fields.get(c.ref)):
         bbox = list(f.bbox)
+    elif (
+        page is not None
+        and c.kind == "symbol"
+        and (sym := next((s for s in page.symbols if s.id == c.ref), None))
+    ):
+        bbox, provenance = list(sym.bbox), sym.provenance
     return EvidenceRef(kind=c.kind, ref=c.ref, page=c.page, bbox=bbox, quote=c.quote, provenance=provenance)
 
 
@@ -138,7 +161,7 @@ def run_llm_reviewer(
         return ReviewerOutput(reviewer=name, rule_statuses=statuses)
 
     start = time.perf_counter()
-    schema = output_schema([r.id for r in rules])
+    schema = output_schema([r.id for r in rules], symbols=needs_symbols(rules))
     resp = client.complete(
         [TextPart(build_message(ctx, rules))],
         role="review",
