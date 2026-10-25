@@ -299,8 +299,7 @@ Understanding (`qwen3-vl-plus`, off) plus the three LLM reviewers (`qwen3.8-max`
 
 The seeded set's precision is optimistic: the checks and the LLM reviewers were tuned on it. `di eval heldout`
 reviewed 25 client drawings no development step had looked at (24 drawings and one guideline PDF), and every one of
-the 115 findings was labelled. The labels are provisional (made by Claude from the drawings; the PARI proxy is to
-confirm them). Details and labels: `data/eval/heldout/2026-10-25/`.
+the 115 findings was labelled (by Claude from the drawings, confirmed by the PARI proxy on 2026-10-25). Details and labels: `data/eval/heldout/2026-10-25/`.
 
 | | correct | incorrect | unsure | precision |
 |---|---|---|---|---|

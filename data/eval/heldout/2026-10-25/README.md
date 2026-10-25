@@ -20,8 +20,8 @@ cached in `data/cache/`, so a re-run is free.
 
 `findings.csv`: one row per finding, with `label` = correct / incorrect / unsure and a reason.
 
-**The labels are provisional:** made by Claude from the drawing text and the rendered sheets, not by an engineer.
-The PARI proxy should confirm or overrule them (change `label`, and `labelled_by`).
+**The labels** were made by Claude from the drawing text and the rendered sheets, and **confirmed by the PARI proxy
+on 2026-10-25** (no label changed). "Unsure" stays unsure: it marks what only the part's use can settle.
 
 - *correct* for a code finding means the drawing breaks the rule as written. Whether PARI wants that rule (LY-005
   decimals, TB-016 sign-off dates on released drawings) is a separate question, noted in the reason.
