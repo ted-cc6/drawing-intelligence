@@ -73,12 +73,16 @@ def _check(
                 raise _Unresolved("quote_mismatch", f"{e.ref} reads {dims[e.ref].text!r}, not {e.quote!r}")
         elif not (k and any(d.id == e.ref for d in k.dimensions)):
             raise _Unresolved("unknown_ref", f"no dimension {e.ref} on page {e.page}")
-    elif e.kind in ("symbol", "note"):
-        known = (
-            {s.id for s in k.symbols} if k and e.kind == "symbol" else {n.id for n in k.notes} if k else set()
-        )
-        if e.ref not in known:
-            raise _Unresolved("unknown_ref", f"no {e.kind} {e.ref} on page {e.page}")
+    elif e.kind == "symbol":
+        read = {s.id: s for s in page.symbols}  # stage 1's exact symbols (S1...)
+        if e.ref in read:
+            if exact and _norm(e.quote or "") != _norm(read[e.ref].text):
+                raise _Unresolved("quote_mismatch", f"{e.ref} reads {read[e.ref].text!r}, not {e.quote!r}")
+        elif not (k and any(s.id == e.ref for s in k.symbols)):
+            raise _Unresolved("unknown_ref", f"no symbol {e.ref} on page {e.page}")
+    elif e.kind == "note":
+        if not (k and any(n.id == e.ref for n in k.notes)):
+            raise _Unresolved("unknown_ref", f"no note {e.ref} on page {e.page}")
     elif e.kind == "title_block":
         field = page.title_block_fields.get(e.ref or "")
         if field is None and e.ref not in TitleBlock.model_fields:

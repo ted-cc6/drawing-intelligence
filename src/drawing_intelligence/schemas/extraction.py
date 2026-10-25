@@ -10,7 +10,9 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-EXTRACTION_SCHEMA_VERSION = "2.1"  # 2.1: title-block fields, revision rows, chain ids, general tolerances
+EXTRACTION_SCHEMA_VERSION = (
+    "2.2"  # 2.2: symbols. 2.1: title-block fields, revision rows, chain ids, general tolerances
+)
 
 BBox = tuple[float, float, float, float]
 
@@ -78,6 +80,20 @@ class GeneralToleranceRow(BaseModel):
     bbox: BBox = Field(description="the row's size-range text")
 
 
+class SymbolItem(BaseModel):
+    """A symbol read from the PDF itself (Spike D): exact, unlike the vision model's guesses."""
+
+    id: str = Field(description="S1, S2, ... in reading order")
+    type: Literal["gdt", "datum", "surface_finish"]
+    text: str = Field(description="what it says, e.g. 'perpendicularity 0.02 | A', 'datum B', 'Ra 3.2'")
+    characteristic: str | None = Field(default=None, description="GD&T: flatness, position, ...")
+    tolerance: str | None = Field(default=None, description="GD&T: the tolerance as printed, e.g. ⌀0.05")
+    datums: list[str] = Field(default=[], description="GD&T: datum references; datum flag: its letter")
+    ra: str | None = Field(default=None, description="surface finish: the Ra value, when one is printed")
+    bbox: BBox
+    provenance: Literal["pdf_text", "vector"]
+
+
 class Tile(BaseModel):
     file: str = Field(description="path relative to the extraction folder")
     pixel_box: tuple[int, int, int, int]
@@ -105,6 +121,7 @@ class PageExtraction(BaseModel):
         default={}, description="keyed by the `TitleBlock` field names (number, material, drawn_date, ...)"
     )
     revision_rows: list[TextLine] = Field(default=[], description="filled rows of the revision table")
+    symbols: list[SymbolItem] = Field(default=[], description="GD&T frames, datum flags, finish marks")
     general_tolerances: list[GeneralToleranceRow] = Field(
         default=[], description="the general tolerance table's rows, read from the tolerance strip"
     )
@@ -124,7 +141,7 @@ class PageExtraction(BaseModel):
 
 
 class Extraction(BaseModel):
-    schema_version: Literal["2.0", "2.1"] = EXTRACTION_SCHEMA_VERSION
+    schema_version: Literal["2.0", "2.1", "2.2"] = EXTRACTION_SCHEMA_VERSION
     source_file: str
     template: str
     n_pages: int
