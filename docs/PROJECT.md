@@ -299,8 +299,7 @@ Understanding (`qwen3-vl-plus`, off) plus the three LLM reviewers (`qwen3.8-max`
 
 The seeded set's precision is optimistic: the checks and the LLM reviewers were tuned on it. `di eval heldout`
 reviewed 25 client drawings no development step had looked at (24 drawings and one guideline PDF), and every one of
-the 115 findings was labelled. The labels are provisional (made by Claude from the drawings; the PARI proxy is to
-confirm them). Details and labels: `data/eval/heldout/2026-10-25/`.
+the 115 findings was labelled (by Claude from the drawings, confirmed by the PARI proxy on 2026-10-25). Details and labels: `data/eval/heldout/2026-10-25/`.
 
 | | correct | incorrect | unsure | precision |
 |---|---|---|---|---|
@@ -316,6 +315,9 @@ confirm them). Details and labels: `data/eval/heldout/2026-10-25/`.
   drawings: code 58 correct, 0 incorrect, 8 unsure; LLM 17 correct, 13 incorrect, 11 unsure: **57%** (was 36%).
   On the seeded set the re-run `design_intent` reviewer missed P19 (it raised a plating warning on that hole
   instead), so recall is 19/22: the LLM catch of P19 is not stable from run to run (Spike E: ~40% stability).
+- **After narrowing WPS-004** to fits and tight bands: LLM 15 correct, 2 incorrect, 11 unsure on the same drawings
+  (88% of decided; seeded precision 77/81). These 24 drawings have now guided three rounds of fixes, so the figure
+  is optimistic until a fresh unseen set confirms it.
 
 ## 9. Roadmap
 

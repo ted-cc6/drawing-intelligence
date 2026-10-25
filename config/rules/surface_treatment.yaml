@@ -198,6 +198,9 @@ rules:
     requirement: Plating thickness is allowed for on tight fits and threads
     severity: major
     check_type: llm
+    # llm_instruction: on 24 unseen drawings 8 of its 18 findings were untoleranced sizes, clearance holes or
+    #   threads the retapping note already covers; the right ones were all fits or tight bands (2026-10-25)
+    params: {llm_instruction: 'Report only for a size with an ISO fit (such as H7 or g6) or a tolerance band of 0.1 mm or less, on a part that is plated or coated. Do not report untoleranced sizes, clearance holes, or threads the notes already provide for (for example retapping after surface treatment).'}
     source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: 'Process constraints: plating thickness allowance before final sizing'}
     status: draft
 

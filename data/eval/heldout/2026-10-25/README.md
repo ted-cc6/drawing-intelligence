@@ -20,8 +20,8 @@ cached in `data/cache/`, so a re-run is free.
 
 `findings.csv`: one row per finding, with `label` = correct / incorrect / unsure and a reason.
 
-**The labels are provisional:** made by Claude from the drawing text and the rendered sheets, not by an engineer.
-The PARI proxy should confirm or overrule them (change `label`, and `labelled_by`).
+**The labels** were made by Claude from the drawing text and the rendered sheets, and **confirmed by the PARI proxy
+on 2026-10-25** (no label changed). "Unsure" stays unsure: it marks what only the part's use can settle.
 
 - *correct* for a code finding means the drawing breaks the rule as written. Whether PARI wants that rule (LY-005
   decimals, TB-016 sign-off dates on released drawings) is a separate question, noted in the reason.
@@ -85,3 +85,20 @@ labels carried over for unchanged findings, new ones labelled the same way; $0.2
 - The largest remaining LLM noise is WPS-004 (8 of 18 wrong): plating warnings on untoleranced diameters and on
   internal threads already covered by the "retapping after surface treatment" note. An `only_when` (a fit or a
   band under 0.1 mm; not threads covered by retapping) is the next fix to try.
+
+## After narrowing WPS-004 (same 24 drawings)
+
+WPS-004 got an `only_when`: only a size with an ISO fit or a band of 0.1 mm or less, on a plated part; never
+untoleranced sizes, clearance holes or threads the retapping note covers (`findings_wps004.csv`; $0.200).
+
+| | correct | incorrect | unsure | precision |
+|---|---|---|---|---|
+| Code checks and lookups (66) | 58 | 0 | 8 | **100%** |
+| LLM reviewers (28, was 41) | 15 | 2 | 11 | **88%** (54% if every unsure is wrong) |
+| All (94) | 73 | 2 | 19 | 97% |
+
+WPS-004: 6 correct, 0 incorrect, 5 unsure (was 8 incorrect). The two wrong LLM findings left are WF-014 and
+NASA-047 on PARI's standard NDT note.
+
+**Caveat:** these 24 drawings have now guided three rounds of fixes, so they are no longer held out and these
+figures are optimistic. A fresh set of unseen drawings (`di eval heldout --seed <new>`) gives the honest number.
