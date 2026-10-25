@@ -13,7 +13,7 @@ from drawing_intelligence.review import load_rulebook
 from drawing_intelligence.review.context import ReviewContext
 from drawing_intelligence.review.llm_reviewer import SILENT, build_message, output_schema, run_llm_reviewer
 from drawing_intelligence.review.reviewers import reviewer_for
-from drawing_intelligence.schemas import DrawingKnowledge
+from drawing_intelligence.schemas import DrawingKnowledge, SymbolItem
 from drawing_intelligence.schemas.knowledge import Note
 from drawing_intelligence.storage import ResponseCache, Telemetry
 from tests.test_eval_and_cli import _knowledge
@@ -131,17 +131,51 @@ def test_llm_review_can_be_turned_off(make_pdf, settings):
     assert len(fake.calls) == 1  # understanding only
 
 
-def test_rules_needing_symbols_or_geometry_are_not_sent(ctx, settings, tmp_path):
+def _sent(fake: ReviewModel) -> tuple[dict, list]:
+    text = fake.calls[0]["messages"][0]["content"][0]["text"]
+    rules = json.loads(text.split("\n\nRULES:\n", 1)[1].split("\n\nDRAWING:")[0])
+    return {r["id"]: r for r in rules}, json.loads(text.split("DRAWING:\n", 1)[1])
+
+
+def test_symbol_rules_get_the_symbols_and_geometry_rules_stay_held_back(ctx, settings, tmp_path):
+    p = ctx.pages[0].model_copy(update={"symbols": [
+        SymbolItem(id="S1", type="surface_finish", text="Ra 3.2", ra="3.2", bbox=(300, 300, 310, 308),
+                   provenance="pdf_text")]})  # fmt: skip
+    c = ReviewContext(**{**ctx.__dict__, "extraction": ctx.extraction.model_copy(update={"pages": [p]})})
     fake = ReviewModel([])
-    out = run_llm_reviewer(ctx, "design_intent", client(settings, tmp_path, fake))
-    statuses = {s.rule_id: s for s in out.rule_statuses}
-    assert statuses["TL-007"].status == "not_checked" and "symbols" in (statuses["TL-007"].note or "")
-    sent = json.loads(
-        fake.calls[0]["messages"][0]["content"][0]["text"]
-        .split("\n\nRULES:\n", 1)[1]
-        .split("\n\nDRAWING:")[0]
+    run_llm_reviewer(c, "design_intent", client(settings, tmp_path, fake))
+    rules, drawing = _sent(fake)
+    assert "TL-007" in rules and drawing[0]["symbols"] == [
+        {"id": "S1", "type": "surface_finish", "text": "Ra 3.2"}
+    ]
+    schema = json.dumps(fake.calls[0]["response_format"])
+    assert '"symbol"' in schema  # it may cite S1
+
+    fake = ReviewModel([])
+    out = run_llm_reviewer(c, "drawing_practice", client(settings, tmp_path / "dp", fake))
+    rules, _ = _sent(fake)
+    assert "MX-002" not in rules
+    assert "geometry" in ({s.rule_id: s for s in out.rule_statuses}["MX-002"].note or "")
+
+
+def test_a_reviewer_without_symbol_rules_sees_no_symbols(ctx, settings, tmp_path):
+    fake = ReviewModel([])
+    run_llm_reviewer(ctx, "manufacturability", client(settings, tmp_path, fake))
+    _, drawing = _sent(fake)
+    assert "symbols" not in drawing[0] and '"symbol"' not in json.dumps(fake.calls[0]["response_format"])
+
+
+def test_a_symbol_citation_gets_its_bbox_and_provenance(ctx, settings, tmp_path):
+    sym = SymbolItem(
+        id="S1", type="datum", text="datum A", datums=["A"], bbox=(300, 300, 312, 312), provenance="vector"
     )
-    assert "TL-007" not in {r["id"] for r in sent} and "TL-002" in {r["id"] for r in sent}
+    p = ctx.pages[0].model_copy(update={"symbols": [sym]})
+    c = ReviewContext(**{**ctx.__dict__, "extraction": ctx.extraction.model_copy(update={"pages": [p]})})
+    item = {"rule_id": "MD-016", "evidence": [{"kind": "symbol", "ref": "S1", "page": 1, "quote": "datum A"}],
+            "comment": "c", "recommended_correction": "r"}  # fmt: skip
+    out = run_llm_reviewer(c, "drawing_practice", client(settings, tmp_path, ReviewModel([item])))
+    (f,) = out.findings
+    assert f.evidence[0].provenance == "vector" and f.evidence[0].bbox == [300, 300, 312, 312]
 
 
 def test_template_boilerplate_notes_are_not_sent(ctx):
