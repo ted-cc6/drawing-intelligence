@@ -83,7 +83,8 @@ class Telemetry:
         with self._conn() as c:
             c.execute(
                 "INSERT INTO sessions (session_id, started_at, retention, status) "
-                "VALUES (?, ?, ?, 'running')",
+                "VALUES (?, ?, ?, 'running') "  # a kept session reopened (di ask --session) runs again
+                "ON CONFLICT(session_id) DO UPDATE SET status = 'running', ended_at = NULL",
                 (session_id, _now(), retention),
             )
 

@@ -37,6 +37,10 @@ class Settings(BaseSettings):
     config_dir: Path = Path("config")
     retention: Retention = "ephemeral"
     api_timeout_s: float = 600.0
+    # Q&A agent limits per question (ADR 0011); in settings because other models may cost more than Qwen
+    qa_max_tool_calls: int = 10
+    qa_max_regenerations: int = 4
+    qa_max_cost_usd: float = 0.50
 
     openai_api_key: SecretStr | None = Field(default=None, validation_alias="OPENAI_API_KEY")
     qwen_api_key: SecretStr | None = Field(default=None, validation_alias="QWEN_API_KEY")
@@ -71,6 +75,11 @@ class Settings(BaseSettings):
     @property
     def labels_dir(self) -> Path:
         return self.data_path / "labels"
+
+    @property
+    def feedback_log(self) -> Path:
+        """Engineers' verdicts on findings, from the Q&A agent; kept after sessions end (gitignored)."""
+        return self.data_path / "feedback" / "feedback.jsonl"
 
     @property
     def telemetry_db(self) -> Path:

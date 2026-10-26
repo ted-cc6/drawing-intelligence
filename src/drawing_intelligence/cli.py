@@ -278,6 +278,56 @@ def review(
     _footer(res)
 
 
+@app.command()
+def ask(
+    pdf: Annotated[Path | None, typer.Argument(help="the drawing; reviewed first (free if cached)")] = None,
+    question: Annotated[
+        str | None, typer.Option("--question", "-q", help="ask one question and exit")
+    ] = None,
+    session_id: Annotated[str | None, typer.Option("--session", help="reopen a kept conversation")] = None,
+    keep: Annotated[
+        bool, typer.Option("--keep", help="keep the conversation to reopen with --session")
+    ] = False,
+    model: ModelOpt = None,
+    no_understand: NoUnderstandOpt = False,
+    verbose: Annotated[bool, typer.Option("--verbose", "-v", help="show the tool calls")] = False,
+) -> None:
+    """Ask questions about a reviewed drawing; answers cite the drawing's data (ADR 0011)."""
+    from drawing_intelligence.qa.session import AskSession, review_drawing
+
+    s = get_settings()
+    if (pdf is None) == (session_id is None):
+        raise typer.BadParameter("give a drawing PDF or --session ID, not both")
+    with AskSession(s, session_id, keep=keep or session_id is not None) as sess:
+        if pdf is not None:
+            console.print(f"Reviewing {pdf.name} ...")
+            data, billed = review_drawing(pdf, s, understand=not no_understand)
+            console.print(f"Reviewed: {len(data.findings)} findings (review billed {_money(billed)}).")
+        else:
+            data = sess.load()
+        conv = sess.conversation(data, model)
+        questions = [question] if question else None
+        if questions is None:
+            console.print(
+                "Ask about the drawing, its findings, the rules or the standard tables. Empty line ends."
+            )
+        total = 0.0
+        while True:
+            q = questions.pop(0) if questions else (None if question else console.input("[bold]?[/] "))
+            if not q or not q.strip():
+                break
+            ans = conv.ask(q.strip())
+            total += ans.cost_usd
+            if verbose and ans.tool_calls:
+                console.print(f"[dim]tools: {', '.join(ans.tool_calls)}[/]")
+            console.print(ans.display(), markup=False)
+            console.print(f"[dim]{'verified' if ans.verified else 'NOT verified'}; {_money(ans.cost_usd)}[/]")
+        if sess.keep:
+            sess.save(conv)
+            console.print(f"Conversation kept: di ask --session {sess.id}")
+        console.print(f"Q&A billed {_money(total)}.")
+
+
 def _footer(res) -> None:
     s = get_settings()
     if res.exported_to:

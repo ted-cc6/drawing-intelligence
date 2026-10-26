@@ -50,6 +50,14 @@ class Fit:
         return f"{self.letters}{self.grade}"
 
 
+def parse_fit(text: str) -> tuple[float, str] | None:
+    """(size, zone) of a fit callout such as "⌀20 H7" or "12 g6 -0.006"; None when the text has no fit."""
+    m = _FIT.search(text.strip())
+    if not m or m["letters"].upper() == "X":
+        return None
+    return float(m["size"]), f"{m['letters']}{m['grade']}"
+
+
 def _stacked_partner(page: PageExtraction, item: TextItem) -> list[str]:
     """A deviation printed as its own item, stacked against the fit's text (stage 1 reads '-0.018' apart)."""
     x0, y0, x1, y1 = item.bbox

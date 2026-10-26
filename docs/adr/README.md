@@ -16,3 +16,4 @@ it with a new one.
 | [0008](0008-review-contracts-enforce-trust.md) | Review contracts enforce the trust rules; findings are issues only | 2026-10-15 |
 | [0009](0009-understanding-model-default.md) | Default understanding model and thinking setting | 2026-10-17 |
 | [0010](0010-review-stage-design.md) | How the review stage runs the rulebook: check functions, reviewers, graph state (proposed) | 2026-10-23 |
+| [0011](0011-qa-agent.md) | Q&A agent: tools, grounding and limits | 2026-10-25 |

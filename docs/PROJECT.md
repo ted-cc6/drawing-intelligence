@@ -331,7 +331,7 @@ the 115 findings was labelled (by Claude from the drawings, confirmed by the PAR
 | M1 | Notebooks 01/02 ported and upgraded: typed contracts, multi-page, template config, model registry, telemetry, session data, LangGraph intake → understand, CLI, eval | ✅ |
 | M2 | Review contracts and rulebook loader (A2 ✅); default understanding model (A1 ✅, ADR 0009); draft rulebook, 174 rules (R ✅); review-stage design (ADR 0010 ✅, proposed); title-block fields in stage 1 ✅; `checks` reviewer with 44 check functions (A4, in progress: 49 of 135 code/lookup rules built); general tolerance table and stacked limits in stage 1 ✅; verifier (A3 ✅); reference tables and the first lookup checks ✅ (materials, DES-12 plating; IS 919 fits, IS 2102 general tolerances, ISO 261 / IS 4218 threads); next: symbols from text and vectors in stage 1 ✅ (Spike D) with 6 GD&T and datum checks; next: open the `needs: symbols` LLM rules, more lookup tables (DES-11 heat treatment, raw-material sizes) | in progress |
 | M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`) ✅; seeded-error eval set (drawings and keys: A5a ✅; `di eval review`: A5b ✅); graph fan-out (A6 part 1 ✅) and report (Excel + annotated sheet, A6 ✅); next: held-out validation on real client drawings, labelled by an engineer through the report | in progress |
-| M4 | Q&A agent; feedback log | |
+| M4 | Q&A agent; feedback log (ADR 0011: tools over the saved results, cited answers checked by code, `di ask`, `di eval qa`) | in progress |
 | M5 | API + dashboard (model picker, cost and latency) | |
 
 ## 10. Open questions

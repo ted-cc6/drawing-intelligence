@@ -12,7 +12,7 @@ import hashlib
 import json
 import time
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from openai import OpenAI
@@ -49,6 +49,7 @@ class LLMResponse:
     cost_usd: float  # cost of the original call, also when served from the cache
     latency_s: float  # latency of the original call, also when served from the cache
     cached: bool
+    tool_calls: list[dict[str, Any]] = field(default_factory=list)  # [{id, name, arguments}] from `chat`
 
 
 @dataclass
@@ -57,6 +58,7 @@ class RawCompletion:
     input_tokens: int
     output_tokens: int
     reasoning_tokens: int = 0
+    tool_calls: list[dict[str, Any]] = field(default_factory=list)
 
 
 # (request kwargs, api_key, base_url, timeout) -> completion. Swappable so tests never hit an API.
@@ -74,8 +76,15 @@ def openai_completion(
     r = client.chat.completions.create(**kwargs)
     u = r.usage
     details = getattr(u, "completion_tokens_details", None) if u else None
+    msg = r.choices[0].message
+    calls = [
+        {"id": c.id, "name": c.function.name, "arguments": c.function.arguments}
+        for c in (msg.tool_calls or [])
+        if c.type == "function"
+    ]
     return RawCompletion(
-        text=r.choices[0].message.content or "",
+        text=msg.content or "",
+        tool_calls=calls,
         input_tokens=u.prompt_tokens if u else 0,
         output_tokens=u.completion_tokens if u else 0,
         reasoning_tokens=(getattr(details, "reasoning_tokens", 0) or 0) if details else 0,
@@ -145,6 +154,34 @@ class LLMClient:
     def cache_key(req: dict[str, Any]) -> str:
         return hashlib.sha256(json.dumps(req, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
+    def chat(
+        self,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]],
+        *,
+        role: Role,
+        node: str,
+        model: str | None = None,
+        thinking: str | None = None,
+    ) -> LLMResponse:
+        """One turn of a tool-calling conversation (the Q&A agent, ADR 0011): the reply's text or tool calls.
+        Cached and accounted like `complete`."""
+        spec = self.registry.model(model, role)
+        level = spec.thinking_level(thinking)
+        provider = self.registry.provider(spec)
+        req: dict[str, Any] = {
+            "model": spec.name,
+            "messages": messages,
+            provider.max_tokens_param: spec.max_output_tokens,
+        }
+        if tools:
+            req["tools"] = tools
+        if spec.temperature is not None:
+            req["temperature"] = spec.temperature
+        for extra in (provider.request, spec.request, spec.thinking.options[level]):
+            req = _merge(req, extra)
+        return self._send(spec, provider.api_key_env, provider.base_url, req, node, level)
+
     def complete(
         self,
         parts: list[Part],
@@ -159,6 +196,17 @@ class LLMClient:
         level = spec.thinking_level(thinking)
         provider = self.registry.provider(spec)
         req = self.build_request(spec, parts, schema, level)
+        return self._send(spec, provider.api_key_env, provider.base_url, req, node, level)
+
+    def _send(
+        self,
+        spec: ModelSpec,
+        api_key_env: str,
+        base_url: str | None,
+        req: dict[str, Any],
+        node: str,
+        level: str,
+    ) -> LLMResponse:
         key = self.cache_key(req)
 
         hit = self.cache.get(key) if self.cache else None
@@ -167,13 +215,13 @@ class LLMClient:
             self._record(spec, node, resp, billed=0.0, status="ok")
             return resp
 
-        api_key = self.settings.api_key(provider.api_key_env)
+        api_key = self.settings.api_key(api_key_env)
         if not api_key:
-            raise MissingKeyError(f"{provider.api_key_env} is not set in .env (needed for {spec.name})")
+            raise MissingKeyError(f"{api_key_env} is not set in .env (needed for {spec.name})")
 
         t0 = time.perf_counter()
         try:
-            raw = self.completion_fn(req, api_key, provider.base_url, self.settings.api_timeout_s)
+            raw = self.completion_fn(req, api_key, base_url, self.settings.api_timeout_s)
         except Exception as e:
             err = LLMResponse("", spec.name, level, 0, 0, 0, 0.0, round(time.perf_counter() - t0, 2), False)
             self._record(spec, node, err, billed=0.0, status="error", error_type=type(e).__name__)
@@ -188,6 +236,7 @@ class LLMClient:
             cost_usd=round(spec.cost(raw.input_tokens, raw.output_tokens), 6),
             latency_s=round(time.perf_counter() - t0, 2),
             cached=False,
+            tool_calls=raw.tool_calls,
         )
         if self.cache:
             self.cache.put(key, {k: v for k, v in resp.__dict__.items() if k != "cached"})
