@@ -323,6 +323,15 @@ the 115 findings was labelled (by Claude from the drawings, confirmed by the PAR
   which faces mate, seal or rotate, which a list of symbols does not say, so they are held back again
   (`needs: [symbols, functional_faces]`); the reviewer messages are back to the 88% run's, cached ($0 to re-run).
 
+### Q&A agent (2026-10-25)
+
+`di eval qa` asks 41 questions about 3 seeded and 3 held-out drawings (facts, why-flagged, rule and table
+lookups, follow-ups, not-in-the-data, out-of-scope, feedback, a Chinese question, a planted injection note), scored
+by code ([ADR 0011](adr/0011-qa-agent.md)). `qwen3.8-max`: 40/41 pass, 41/41 verified, no unverified numbers, all 8
+guards; $0.35. Reading every answer found three flaws the score missed (malformed citations accepted, an
+injection test that never reached the agent, absence claimed without a search); all fixed. Details:
+`data/eval/qa/results/`.
+
 ## 9. Roadmap
 
 | Milestone | Content | Status |
@@ -330,16 +339,17 @@ the 115 findings was labelled (by Claude from the drawings, confirmed by the PAR
 | M0 | Repo, tooling, CI on Windows/macOS/Linux, docs and ADRs | ✅ |
 | M1 | Notebooks 01/02 ported and upgraded: typed contracts, multi-page, template config, model registry, telemetry, session data, LangGraph intake → understand, CLI, eval | ✅ |
 | M2 | Review contracts and rulebook loader (A2 ✅); default understanding model (A1 ✅, ADR 0009); draft rulebook, 174 rules (R ✅); review-stage design (ADR 0010 ✅, proposed); title-block fields in stage 1 ✅; `checks` reviewer with 44 check functions (A4, in progress: 49 of 135 code/lookup rules built); general tolerance table and stacked limits in stage 1 ✅; verifier (A3 ✅); reference tables and the first lookup checks ✅ (materials, DES-12 plating; IS 919 fits, IS 2102 general tolerances, ISO 261 / IS 4218 threads); next: symbols from text and vectors in stage 1 ✅ (Spike D) with 6 GD&T and datum checks; next: open the `needs: symbols` LLM rules, more lookup tables (DES-11 heat treatment, raw-material sizes) | in progress |
-| M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`) ✅; seeded-error eval set (drawings and keys: A5a ✅; `di eval review`: A5b ✅); graph fan-out (A6 part 1 ✅) and report (Excel + annotated sheet, A6 ✅); next: held-out validation on real client drawings, labelled by an engineer through the report | in progress |
-| M4 | Q&A agent; feedback log (ADR 0011: tools over the saved results, cited answers checked by code, `di ask`, `di eval qa`; qwen3.8-max 40/41, all verified) | in progress |
+| M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`) ✅; seeded-error eval set (drawings and keys: A5a ✅; `di eval review`: A5b ✅); graph fan-out (A6 part 1 ✅) and report (Excel + annotated sheet, A6 ✅); held-out validation on 24 unseen client drawings ✅ (code 63/0, LLM 88% after fixes); next: a fresh unseen set for the LLM reviewers | in progress |
+| M4 | Q&A agent and feedback log ✅ (ADR 0011: tools over the saved results, cited answers checked by code, `di ask`, `di eval qa`; qwen3.8-max 40/41, all verified); next: compare `qwen-plus` | ✅ |
 | M5 | API + dashboard (model picker, cost and latency) | |
 
 ## 10. Open questions
 
 - ~~Who writes the first rulebook entries?~~ The team drafted 174 rules (task R). Open now: who at PARI
   confirms them (`status: client_confirmed`), and the 49 `needs_pari` decisions in `docs/rulebook/`.
-- Which model wins each role? Understanding: decided (`qwen3-vl-plus`, thinking off, ADR 0009). Review and
-  Q&A: still open, decided by `di eval review` (A5b), not by public benchmarks.
+- Which model wins each role? Understanding: decided (`qwen3-vl-plus`, thinking off, ADR 0009). Review:
+  `qwen3.8-max` in use, open to a comparison by `di eval review`. Q&A: `qwen3.8-max` meets the bar (ADR 0011);
+  `qwen-plus` not yet compared.
 - ~~Should an `llm` rule with no finding be `pass` or `not_checked`?~~ `not_checked` (2026-10-25).
 - Feature locations for the LLM reviewers (P05/P06, missing dimensions): view and feature bboxes in the
   understanding output are a prompt and schema change, to measure against ADR 0009 first.
