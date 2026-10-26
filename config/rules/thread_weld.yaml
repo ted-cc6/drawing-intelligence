@@ -137,7 +137,7 @@ rules:
     severity: major
     check_type: lookup
     check: thread_tolerance_class_valid
-    params: {internal_classes: [5H, 6H, 7H], external_classes: [4h, 6g, 8g], table: iso_metric_thread_minor_dia_limits}
+    params: {internal_classes: [5H, 6H, 7H], external_classes: [4h, 6g, 8g], table: iso_metric_threads}
     source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'ISO Metric Screw Threads, IS: 4218 (Part VI)-1967 (pdf 46L, book 86)'}
     status: draft
 

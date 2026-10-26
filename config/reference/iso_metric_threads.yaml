@@ -1,0 +1,77 @@
+# ISO metric screw threads: the standard nominal sizes with their coarse and fine pitches, and the tolerance
+# classes tabulated per size. Used by MC-005 (standard thread size) and WST-216 (thread tolerance class).
+#
+# Sizes and pitches: ISO 261:1998 general plan, 1 to 80 mm (the Westermann tables list only M1.6-M36 coarse and
+# M8x1-M36x3 fine; every one of those agrees with this list: pdf 45R, book 85 and pdf 46L, book 86). `coarse:
+# null` = the size has fine pitches only (M15, M35, M50 ...). Above 80 mm no finding.
+# Tolerance classes: IS 4218 (Part VI)-1967 via the Westermann table "ISO Metric Screw Threads" (pdf 46L, book
+# 86), which tabulates 5H, 6H, 7H (nut) and 4h, 6g, 8g (bolt); a dash there means the class is not given for the
+# size: 6H below M1.6, 7H below M3, 8g below M5.
+source: {document: 'ISO 261:1998 ISO general purpose metric screw threads, general plan; Westermann Tables for the Metal Trade (Jutz-Scharkus)', section: 'ISO 261 Table 1; Westermann ISO Metric Screw Threads, IS: 4218 (Part III, VI)-1967 (pdf 45R-46L, book 85-86)'}
+
+sizes:  # nominal diameter mm: {coarse: pitch, fine: [pitches]}
+  1: {coarse: 0.25, fine: [0.2]}
+  1.1: {coarse: 0.25, fine: [0.2]}
+  1.2: {coarse: 0.25, fine: [0.2]}
+  1.4: {coarse: 0.3, fine: [0.2]}
+  1.6: {coarse: 0.35, fine: [0.2]}
+  1.8: {coarse: 0.35, fine: [0.2]}
+  2: {coarse: 0.4, fine: [0.25]}
+  2.2: {coarse: 0.45, fine: [0.25]}
+  2.5: {coarse: 0.45, fine: [0.35]}
+  3: {coarse: 0.5, fine: [0.35]}
+  3.5: {coarse: 0.6, fine: [0.35]}
+  4: {coarse: 0.7, fine: [0.5]}
+  4.5: {coarse: 0.75, fine: [0.5]}
+  5: {coarse: 0.8, fine: [0.5]}
+  5.5: {coarse: null, fine: [0.5]}
+  6: {coarse: 1, fine: [0.75]}
+  7: {coarse: 1, fine: [0.75]}
+  8: {coarse: 1.25, fine: [1, 0.75]}
+  9: {coarse: 1.25, fine: [1, 0.75]}
+  10: {coarse: 1.5, fine: [1.25, 1, 0.75]}
+  11: {coarse: 1.5, fine: [1, 0.75]}
+  12: {coarse: 1.75, fine: [1.5, 1.25, 1]}
+  14: {coarse: 2, fine: [1.5, 1.25, 1]}
+  15: {coarse: null, fine: [1.5, 1]}
+  16: {coarse: 2, fine: [1.5, 1]}
+  17: {coarse: null, fine: [1.5, 1]}
+  18: {coarse: 2.5, fine: [2, 1.5, 1]}
+  20: {coarse: 2.5, fine: [2, 1.5, 1]}
+  22: {coarse: 2.5, fine: [2, 1.5, 1]}
+  24: {coarse: 3, fine: [2, 1.5, 1]}
+  25: {coarse: null, fine: [2, 1.5, 1]}
+  26: {coarse: null, fine: [1.5]}
+  27: {coarse: 3, fine: [2, 1.5, 1]}
+  28: {coarse: null, fine: [2, 1.5, 1]}
+  30: {coarse: 3.5, fine: [3, 2, 1.5, 1]}
+  32: {coarse: null, fine: [2, 1.5]}
+  33: {coarse: 3.5, fine: [3, 2, 1.5]}
+  35: {coarse: null, fine: [1.5]}
+  36: {coarse: 4, fine: [3, 2, 1.5]}
+  38: {coarse: null, fine: [1.5]}
+  39: {coarse: 4, fine: [3, 2, 1.5]}
+  40: {coarse: null, fine: [3, 2, 1.5]}
+  42: {coarse: 4.5, fine: [4, 3, 2, 1.5]}
+  45: {coarse: 4.5, fine: [4, 3, 2, 1.5]}
+  48: {coarse: 5, fine: [4, 3, 2, 1.5]}
+  50: {coarse: null, fine: [3, 2, 1.5]}
+  52: {coarse: 5, fine: [4, 3, 2, 1.5]}
+  55: {coarse: null, fine: [4, 3, 2, 1.5]}
+  56: {coarse: 5.5, fine: [4, 3, 2, 1.5]}
+  58: {coarse: null, fine: [4, 3, 2, 1.5]}
+  60: {coarse: 5.5, fine: [4, 3, 2, 1.5]}
+  62: {coarse: null, fine: [4, 3, 2, 1.5]}
+  64: {coarse: 6, fine: [4, 3, 2, 1.5]}
+  65: {coarse: null, fine: [4, 3, 2, 1.5]}
+  68: {coarse: 6, fine: [4, 3, 2, 1.5]}
+  70: {coarse: null, fine: [6, 4, 3, 2, 1.5]}
+  72: {coarse: null, fine: [6, 4, 3, 2, 1.5]}
+  75: {coarse: null, fine: [4, 3, 2, 1.5]}
+  76: {coarse: null, fine: [6, 4, 3, 2, 1.5]}
+  78: {coarse: null, fine: [2]}
+  80: {coarse: null, fine: [6, 4, 3, 2, 1.5]}
+
+tolerance_classes:  # tabulated classes, and the smallest size each is given for (pdf 46L)
+  internal: {5H: 1, 6H: 1.6, 7H: 3}
+  external: {4h: 1, 6g: 1, 8g: 5}

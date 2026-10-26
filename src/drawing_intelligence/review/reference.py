@@ -80,7 +80,101 @@ class PlatingProcesses(_Strict):
         return None
 
 
-TABLE_MODELS: dict[str, type[BaseModel]] = {"materials": Materials, "plating_processes": PlatingProcesses}
+def _step(steps: list[list[float]], size: float, *, open_last: bool = False) -> int | None:
+    """Index of the step 'over a, up to and including b' holding `size` (the first step includes a)."""
+    for i, (low, high) in enumerate(steps):
+        if (size >= low if i == 0 else size > low) and (size <= high or (open_last and high is None)):
+            return i
+    return None
+
+
+class FitDeviations(_Strict):
+    """IS 919 / ISO 286 deviations (µm) per tolerance zone and size step (is919_fits.yaml)."""
+
+    source: TableSource
+    steps_mm: list[list[float]]
+    zones: dict[str, list[list[int]]]
+    hole_letters: list[str]
+    grades: list[int]
+
+    @model_validator(mode="after")
+    def _one_pair_per_step(self) -> FitDeviations:
+        bad = sorted(z for z, devs in self.zones.items() if len(devs) != len(self.steps_mm) or any(
+            len(d) != 2 or d[0] <= d[1] for d in devs))  # fmt: skip
+        if bad:
+            raise ValueError(f"zones without one [upper, lower] pair per size step: {bad}")
+        return self
+
+    def valid_code(self, letters: str, grade: int) -> bool:
+        """A code ISO 286 defines: a deviation letter (capital for holes, small for shafts) and a grade."""
+        if letters not in self.hole_letters and letters not in {x.lower() for x in self.hole_letters}:
+            return False
+        return self.grades[0] <= grade <= self.grades[1]
+
+    def deviations(self, zone: str, size: float) -> tuple[int, int] | None:
+        """(upper, lower) in µm, or None when the zone or the size is not in the table."""
+        i = _step(self.steps_mm, size) if zone in self.zones else None
+        return None if i is None else (self.zones[zone][i][0], self.zones[zone][i][1])
+
+
+class ToleranceClasses(_Strict):
+    steps_mm: list[list[float | None]]
+    fine: list[float | None]
+    medium: list[float | None]
+    coarse: list[float | None]
+    extra_coarse: list[float | None]
+
+    def classes(self) -> dict[str, list[float | None]]:
+        return {
+            "fine": self.fine,
+            "medium": self.medium,
+            "coarse": self.coarse,
+            "extra coarse": self.extra_coarse,
+        }
+
+    def step_from(self, over: float) -> int | None:
+        """The step starting at `over`: printed rows ('OVER 2000', '120 UP TO 400') match by their start."""
+        return next(
+            (i for i, (low, _) in enumerate(self.steps_mm) if low == over or (i == 0 and over == 0)), None
+        )
+
+
+class GeneralTolerances(_Strict):
+    """IS 2102-1969 general tolerances by class: linear in ± mm, angular in ± minutes of arc."""
+
+    source: TableSource
+    linear: ToleranceClasses
+    angular: ToleranceClasses
+
+
+class ThreadSize(_Strict):
+    coarse: float | None
+    fine: list[float]
+
+
+class MetricThreads(_Strict):
+    """ISO 261 sizes and pitches, and the IS 4218 tabulated tolerance classes (iso_metric_threads.yaml)."""
+
+    source: TableSource
+    sizes: dict[float, ThreadSize]
+    tolerance_classes: dict[str, dict[str, float]]
+
+    def pitches(self, size: float) -> set[float]:
+        s = self.sizes[size]
+        return set(s.fine) | ({s.coarse} if s.coarse else set())
+
+    @property
+    def largest(self) -> float:
+        return max(self.sizes)
+
+
+TABLE_MODELS: dict[str, type[BaseModel]] = {
+    "materials": Materials,
+    "plating_processes": PlatingProcesses,
+    "is919_fits": FitDeviations,
+    "is2102_general_tolerances": GeneralTolerances,
+    "iso_metric_threads": MetricThreads,
+}
 
 
 class ReferenceTableError(ValueError):

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 from pathlib import Path
 from typing import Literal
 
@@ -94,9 +95,17 @@ def rule(check: str, check_type: str = "code", **params) -> Rule:
     )
 
 
+REFERENCE = load_reference()
+
+
 def ctx(*pages: PageExtraction, rules: list[Rule] | None = None) -> ReviewContext:
     ex = Extraction(source_file="t.pdf", template="wipro_pari", n_pages=len(pages), pages=list(pages))
-    return ReviewContext(extraction=ex, rulebook=Rulebook(version="t", rules=rules or []), template=TEMPLATE)
+    return ReviewContext(
+        extraction=ex,
+        rulebook=Rulebook(version="t", rules=rules or []),
+        template=TEMPLATE,
+        reference=REFERENCE,
+    )
 
 
 def run(check: str, *pages: PageExtraction, **params):
@@ -588,7 +597,9 @@ def test_treatment_material_compat(treatment, material, status):
 
 def test_treatment_check_needs_its_table():
     p = page(title_block_fields=fields(surface_treatment="IZBP"))
-    assert run("treatment_material_compat", p, table="plating_processes")[1].status == "not_checked"
+    no_tables = dataclasses.replace(ctx(p), reference={})
+    r = rule("treatment_material_compat", table="plating_processes")
+    assert run_rule(no_tables, r, registered()["treatment_material_compat"])[1].status == "not_checked"
 
 
 @pytest.mark.parametrize(
@@ -850,3 +861,78 @@ def test_material_written_consistently():
     assert status.status == "fail" and {e.kind for e in findings[0].evidence} == {"title_block", "text"}
     same = body_page("# MATERIAL: M.S", title_block_fields=fields(material="M.S."))
     assert run("material_written_consistently", same)[1].status == "pass"
+
+
+# --- fits, general tolerances, threads (reference tables) -------------------------------------------------
+
+
+def test_fit_codes_valid_but_not_chamfers():
+    p = page(dimensions=[dim(1, "⌀20 H7"), dim(2, "12 g6 -0.006"), dim(3, "10 H71"), dim(4, "2X45°")])
+    findings, status = run("fit_code_valid", p, table="is919_fits")
+    assert status.status == "fail" and [f.evidence[0].ref for f in findings] == ["D3"]
+
+
+def test_fit_deviations_against_is919():
+    ok = page(dimensions=[dim(1, "⌀ 20 H7 +0.021"), dim(2, "6 f6 -0.010", y=300), dim(3, "-0.018", y=300)])
+    assert run("fit_deviations_match_table", ok, table="is919_fits")[1].status == "pass"
+    wrong = page(dimensions=[dim(1, "⌀ 20 H7 +0.025")])
+    findings, _ = run("fit_deviations_match_table", wrong, table="is919_fits")
+    assert "+0.021/0" in findings[0].comment
+    stacked_wrong = page(dimensions=[dim(1, "6 f6 -0.010"), dim(2, "-0.020")])  # the stacked lower is wrong
+    assert run("fit_deviations_match_table", stacked_wrong, table="is919_fits")[1].status == "fail"
+    untabulated = page(dimensions=[dim(1, "18 N9 -0.043")])  # a keyway zone the book does not list
+    assert run("fit_deviations_match_table", untabulated, table="is919_fits")[1].status == "not_applicable"
+
+
+def gt_rows(
+    process: str, kind: str, values: list[tuple[float, float | None, str]]
+) -> list[GeneralToleranceRow]:
+    return [
+        GeneralToleranceRow(
+            process=process, kind=kind, over=o, up_to=u, tolerance=t,  # type: ignore[arg-type]
+            value_mm=float(t.strip("±")) if kind == "linear" else None, bbox=(1100, 100, 1120, 106),
+        )
+        for o, u, t in values
+    ]  # fmt: skip
+
+
+MEDIUM = [(0.5, 3, "±0.1"), (3, 6, "±0.1"), (6, 30, "±0.2"), (30, 120, "±0.3"), (120, 315, "±0.5"),
+          (315, 1000, "±0.8"), (1000, 2000, "±1.2"), (2000, None, "±2")]  # fmt: skip
+
+
+def test_general_tolerance_table_is_one_is2102_class():
+    angular = gt_rows(
+        "machining",
+        "angular",
+        [(0, 10, "±1°"), (10, 50, "±0°30'"), (50, 120, "±0°20'"), (120, 400, "±0°10'")],
+    )
+    good = page(general_tolerances=[*gt_rows("machining", "linear", MEDIUM), *angular])
+    assert run("general_tolerance_table_matches", good, table="is2102_general_tolerances")[1].status == "pass"
+    typo = [*MEDIUM[:2], (6, 30, "±0.3"), *MEDIUM[3:]]
+    typo_page = page(general_tolerances=gt_rows("machining", "linear", typo))
+    findings, _ = run("general_tolerance_table_matches", typo_page, table="is2102_general_tolerances")
+    assert "closest is medium" in findings[0].comment and "6-30" in findings[0].comment
+
+
+def body(*lines: str) -> PageExtraction:
+    return page(
+        body_text=[TextLine(text=t, bbox=(100, 600 + 10 * i, 400, 608 + 10 * i)) for i, t in enumerate(lines)]
+    )
+
+
+def test_standard_thread_sizes_and_pitches():
+    ok = body("4 HOLES M8 x 16 DEEP", "M24 x 1.5 x 38 DEEP", "$THREAD M65X2P FOR DEPTH 17MM", "M35 X 1.5 P")
+    assert run("standard_thread_size", ok, table="iso_metric_threads")[1].status == "pass"
+    findings, _ = run("standard_thread_size", body("M13 x 20 DEEP", "M8 x 1.5"), table="iso_metric_threads")
+    assert ["M13" in findings[0].comment, "no 1.5 pitch" in findings[1].comment] == [True, True]
+
+
+def test_thread_tolerance_classes():
+    params = {
+        "internal_classes": ["5H", "6H", "7H"],
+        "external_classes": ["4h", "6g", "8g"],
+        "table": "iso_metric_threads",
+    }
+    assert run("thread_tolerance_class_valid", body("M10x1.25-6H"), **params)[1].status == "pass"
+    findings, _ = run("thread_tolerance_class_valid", body("M2-7H", "M8-6e"), **params)
+    assert len(findings) == 2 and "from M3" in findings[0].comment

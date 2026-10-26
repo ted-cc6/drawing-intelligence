@@ -1,0 +1,19 @@
+# IS 2102-1969 allowable deviations for dimensions without specified tolerances, transcribed from the scanned
+# Westermann Tables for the Metal Trade (pdf 73L, book 140). PARI's template tables follow this edition (steps at
+# 120-315 and 315-1000 mm; ISO 2768-1 steps at 400 instead): the machining table is the medium class, the
+# fabrication table the coarse class. Used by WST-078. `null`: the book gives no value for that class and step.
+source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised Indian edition', section: 'Allowable deviations for dimensions without specified tolerances, IS: 2102-1969 (pdf 73L, book 140)'}
+
+linear:  # ± mm; steps over/up to and including
+  steps_mm: [[0.5, 3], [3, 6], [6, 30], [30, 120], [120, 315], [315, 1000], [1000, 2000], [2000, 4000], [4000, 8000], [8000, 12000], [12000, 16000], [16000, 20000]]
+  fine: [0.05, 0.05, 0.1, 0.15, 0.2, 0.3, 0.5, 0.8, null, null, null, null]
+  medium: [0.1, 0.1, 0.2, 0.3, 0.5, 0.8, 1.2, 2, 3, 4, 5, 6]
+  coarse: [null, 0.2, 0.5, 0.8, 1.2, 2, 3, 4, 5, 6, 7, 8]
+  extra_coarse: [null, 0.5, 1, 1.5, 2, 3, 4, 6, 8, 10, 12, 12]  # the last two as printed
+
+angular:  # ± minutes of arc, by the length of the angle's shorter side
+  steps_mm: [[0, 10], [10, 50], [50, 120], [120, null]]
+  fine: [60, 30, 20, 10]  # the book gives fine and medium as one row
+  medium: [60, 30, 20, 10]
+  coarse: [90, 50, 25, 15]
+  extra_coarse: [180, 120, 60, 30]

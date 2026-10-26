@@ -100,7 +100,7 @@ rules:
     severity: major
     check_type: lookup
     check: fit_code_valid
-    params: {table: iso286_fits}
+    params: {table: is919_fits}
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: TL-13}
     status: draft
 
@@ -118,7 +118,7 @@ rules:
     severity: major
     check_type: lookup
     check: general_tolerance_table_matches
-    params: {table: is2102_linear_deviations, angular_table: is2102_angular_deviations, edition: IS 2102-1969}
+    params: {table: is2102_general_tolerances}
     source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Allowable deviations for dimensions without specified tolerances, IS 2102-1969 (pdf 73L, book 140)'}
     status: draft
 
@@ -159,6 +159,6 @@ rules:
     severity: major
     check_type: lookup
     check: fit_deviations_match_table
-    params: {table: is919_fit_deviations, H_hole_lower_deviation_mm: 0, h_shaft_upper_deviation_mm: 0}
+    params: {table: is919_fits}
     source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Limits and Fits, IS Symbols, IS: 919-1963 (pdf 42L, book 78)'}
     status: draft
