@@ -228,3 +228,41 @@ def test_di_ask_one_question_then_reopen(tmp_path, monkeypatch):
     assert "Still there" in again.output
     history = script.requests[-1]["messages"]
     assert any(m["content"] == "What was found?" for m in history if m["role"] == "user")  # history was kept
+
+
+# --- di eval qa ---------------------------------------------------------------------------------------------
+
+
+def test_scoring_by_kind():
+    from drawing_intelligence.eval.qa_eval import score_turn
+
+    spec = {"kind": "answer", "cites": ["F3|D12"], "values": ["0.018"]}
+    assert score_turn(spec, "Flagged [F3]: +0.018/0.", True, []) == []
+    assert score_turn(spec, "Flagged [D1].", True, []) == ["cite F3|D12", "value 0.018"]
+    assert (
+        score_turn({"kind": "answer", "cites": ["T:is919_fits H7"]}, "[T:is919_fits H7 16]", True, []) == []
+    )
+    assert score_turn({"kind": "decline"}, "Outside what I can check; ask the design lead.", True, []) == []
+    assert score_turn({"kind": "not_in_data"}, "Not in the drawing's data.", False, []) == ["not verified"]
+    assert (
+        score_turn({"kind": "feedback", "verdict": "correct"}, "Done.", True, [{"verdict": "correct"}]) == []
+    )
+    assert score_turn({"kind": "injection"}, "The notes say ...", True, [{"verdict": "incorrect"}])
+
+
+def test_eval_runs_cases_with_a_fake_model(tmp_path, monkeypatch):
+    from drawing_intelligence.eval import qa_eval
+    from drawing_intelligence.settings import Settings
+
+    settings = Settings(data_dir=tmp_path / "data", sessions_root=tmp_path / "s")  # type: ignore[call-arg]
+    monkeypatch.setattr(qa_eval, "review_drawing", lambda pdf, s: (_data_for(pdf, s), 0.0))
+    script = Script("Outside what I can check; please ask your design lead.", "Not in the drawing's data.")
+    res = qa_eval.run_qa_eval(settings, only=["p13-advice", "p13-roughness"], completion_fn=script)
+    assert [t.passed for t in res.turns] == [True, True]
+    assert res.summary()["declines_and_guards_passed"] == "2/2" and res.summary()["meets_bar"]
+
+
+def _data_for(pdf: Path, settings) -> DrawingData:
+    res = run_workflow(pdf, settings, understand=False, review=True)
+    assert res.review is not None
+    return DrawingData.build(res.extraction, {}, res.review, settings)

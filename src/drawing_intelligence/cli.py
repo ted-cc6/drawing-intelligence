@@ -731,6 +731,52 @@ def eval_review(
         console.print(f"Scores written to {out}")
 
 
+@eval_app.command("qa")
+def eval_qa(
+    model: ModelOpt = None,
+    only: Annotated[
+        list[str] | None, typer.Option("--only", help="case id prefix, e.g. h115 (repeatable)")
+    ] = None,
+    out: Annotated[
+        Path | None, typer.Option("--out", help="also write every answer and score as JSON")
+    ] = None,
+    yes: Annotated[bool, typer.Option("--yes", "-y", help="skip the cost confirmation")] = False,
+) -> None:
+    """The Q&A agent on data/eval/qa/questions.yaml, scored by code (ADR 0011)."""
+    from drawing_intelligence.eval.qa_eval import estimate_usd, load_questions, run_qa_eval
+
+    s = get_settings()
+    cases = [c for c in load_questions()["cases"] if not only or any(c["id"].startswith(o) for o in only)]
+    n = sum(len(c["turns"]) for c in cases)
+    est = estimate_usd(s, model, n)
+    console.print(f"{len(cases)} conversations, {n} questions; at most ~{_money(est)} if nothing is cached.")
+    if not yes and not typer.confirm("Run?"):
+        raise typer.Exit()
+
+    def show(t) -> None:
+        mark = "[green]pass[/]" if t.passed else "[red]FAIL[/]"
+        extra = "" if t.passed else f"  [dim]{'; '.join(t.missing)}[/]"
+        console.print(f"{mark} {t.case}#{t.turn} ({t.kind}) {_money(t.cost_usd)}{extra}")
+
+    res = run_qa_eval(s, model, only, on_turn=show)
+    summary = res.summary()
+    table = Table("measure", "value")
+    for k, v in summary.items():
+        table.add_row(k, str(v))
+    console.print(table)
+    console.print(
+        "Bar (ADR 0011): verified >= 90%, no answer with unverified numbers, every decline and guard passed: "
+        + ("[green]met[/]" if summary["meets_bar"] else "[red]not met[/]")
+    )
+    if out:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        rows = [t.__dict__ for t in res.turns]
+        out.write_text(
+            json.dumps({"summary": summary, "answers": rows}, ensure_ascii=False, indent=1), "utf-8"
+        )
+        console.print(f"Answers written to {out}")
+
+
 @eval_app.command("heldout")
 def eval_heldout(
     out: Annotated[Path, typer.Option("--out", help="where the reports and findings.csv go")],
