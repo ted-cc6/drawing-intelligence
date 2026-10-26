@@ -13,12 +13,15 @@ import re
 from drawing_intelligence.qa.data import DrawingData
 
 _MARKER = re.compile(r"\[([^\[\]\n]{1,80})\]")
+# something meant as a citation but not in a valid form: "[L:C10]", "[L?]", "[D 12]"
+_CITE_ATTEMPT = re.compile(r"^(?:p\d+:)?(?:TB|[DSLNFRT])(?:\s|[:?\d])")
 _CITE_FORM = re.compile(r"^(?:p\d+:)?(?:[DSLN]\d+|TB:\w+)$|^F\d+$|^R:[A-Z]+-\d+$|^T:.+$")
 _UNITS = re.compile(r"(\d)\s*(?:mm|µm|um|°|deg\b)", re.IGNORECASE)
 # a number not glued to an ID: "H7", "M8", "WST-207", "C4", "6H" are not numbers to check
 _NUMBER = re.compile(r"(?<![\w.])(?<!\w-)([+\-−±]?)(\d+(?:\.\d+)?)(?![\w.]*[A-Za-z])(?!\.\d)")
 _ANY_NUMBER = re.compile(r"([+\-−]?)(\d+(?:\.\d+)?)")
 EXEMPT_INTEGERS = range(11)
+NOT_IN_DATA = "not in the drawing's data"  # the fixed phrase of an absence answer (system prompt)
 
 
 def citations(text: str) -> list[str]:
@@ -59,6 +62,8 @@ def check_answer(text: str, data: DrawingData, lookups: set[str], corpus: Corpus
     cites = citations(text)
     for c in cites:
         if not _CITE_FORM.match(c):
+            if _CITE_ATTEMPT.match(c):
+                problems.append(f"[{c}] is not a valid citation: use an ID exactly as a tool printed it")
             continue  # brackets used as ordinary text, e.g. "[optional]"
         if c.startswith("F"):
             ok = int(c[1:]) in data.findings

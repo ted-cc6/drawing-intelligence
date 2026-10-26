@@ -1,0 +1,1 @@
+{"text": "根据标题栏，材料为 [TB:material] P2207012111028。\n\n但请注意，图纸注释中另有标注“M.S.”（见 [F4]），两者不一致。", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2592, "output_tokens": 49, "reasoning_tokens": 0, "cost_usd": 0.005478, "latency_s": 1.95, "tool_calls": []}

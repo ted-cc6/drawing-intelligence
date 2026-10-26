@@ -1,0 +1,1 @@
+{"text": "", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2222, "output_tokens": 40, "reasoning_tokens": 0, "cost_usd": 0.004684, "latency_s": 2.02, "tool_calls": [{"id": "call_683c053bd99e461f91e3b068", "name": "lookup_standard", "arguments": "{\"table\": \"material\", \"designation\": \"M.S.\"}"}]}

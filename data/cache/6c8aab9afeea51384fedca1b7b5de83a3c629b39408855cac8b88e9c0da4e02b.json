@@ -1,0 +1,1 @@
+{"text": "", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2589, "output_tokens": 25, "reasoning_tokens": 0, "cost_usd": 0.005328, "latency_s": 1.57, "tool_calls": [{"id": "call_bec319ce813f445abbd1b6b1", "name": "search_drawing", "arguments": "{\"text\": \"paint\"}"}]}

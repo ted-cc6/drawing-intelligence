@@ -1,0 +1,1 @@
+{"text": "", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2218, "output_tokens": 37, "reasoning_tokens": 0, "cost_usd": 0.004658, "latency_s": 1.99, "tool_calls": [{"id": "call_af4692800e9d44b99511e300", "name": "lookup_standard", "arguments": "{\"table\": \"thread\", \"size\": 8}"}]}

@@ -1,0 +1,1 @@
+{"text": "The parallelism tolerance is 0.02 [S1].", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 3170, "output_tokens": 14, "reasoning_tokens": 0, "cost_usd": 0.006424, "latency_s": 1.27, "tool_calls": []}

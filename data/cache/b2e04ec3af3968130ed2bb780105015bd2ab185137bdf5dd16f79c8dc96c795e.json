@@ -1,0 +1,1 @@
+{"text": "Not in the drawing's data. The title block specifies surface treatment 'IZBP' [TB:surface_treatment], but no paint colour is mentioned.", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2467, "output_tokens": 31, "reasoning_tokens": 0, "cost_usd": 0.00512, "latency_s": 1.71, "tool_calls": []}

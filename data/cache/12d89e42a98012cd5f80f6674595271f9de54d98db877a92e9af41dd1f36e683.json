@@ -1,0 +1,1 @@
+{"text": "", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 3041, "output_tokens": 30, "reasoning_tokens": 0, "cost_usd": 0.006262, "latency_s": 2.75, "tool_calls": [{"id": "call_eee0d2dae96149bbb1dad0a1", "name": "get_rule", "arguments": "{\"rule_id\": \"LY-005\"}"}]}

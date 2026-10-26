@@ -1,0 +1,1 @@
+{"text": "The perpendicularity tolerance is 0.02, measured from datum A [S1].", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 3648, "output_tokens": 19, "reasoning_tokens": 0, "cost_usd": 0.00741, "latency_s": 1.52, "tool_calls": []}

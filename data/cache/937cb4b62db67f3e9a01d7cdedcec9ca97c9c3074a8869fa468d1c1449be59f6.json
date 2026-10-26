@@ -1,0 +1,1 @@
+{"text": "Not in the drawing's data. No surface roughness symbol or note is associated with the bore [D12], and a search for \"roughness\" returned no items on the drawing.", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2899, "output_tokens": 39, "reasoning_tokens": 0, "cost_usd": 0.006032, "latency_s": 2.66, "tool_calls": []}

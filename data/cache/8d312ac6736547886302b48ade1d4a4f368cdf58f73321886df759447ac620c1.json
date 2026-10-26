@@ -1,0 +1,1 @@
+{"text": "Not in the drawing's data. Searches for \"paint\" and \"colour\" returned no items, and the title block specifies only surface treatment 'IZBP' [TB:surface_treatment] with no colour indicated.", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2685, "output_tokens": 44, "reasoning_tokens": 0, "cost_usd": 0.005634, "latency_s": 2.13, "tool_calls": []}

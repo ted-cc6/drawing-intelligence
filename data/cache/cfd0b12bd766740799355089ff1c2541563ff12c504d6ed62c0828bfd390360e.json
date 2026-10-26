@@ -1,0 +1,1 @@
+{"text": "For dimension [D1]:\n\n-   **Tolerance:** ±0.1 mm (upper deviation +0.1, lower deviation -0.1)\n-   **Limits of size:** 9.9 mm to 10.1 mm", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2403, "output_tokens": 53, "reasoning_tokens": 0, "cost_usd": 0.005124, "latency_s": 2.09, "tool_calls": []}

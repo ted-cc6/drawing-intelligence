@@ -1,0 +1,1 @@
+{"text": "The part weighs 2.15 kg [TB:weight].", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 3038, "output_tokens": 14, "reasoning_tokens": 0, "cost_usd": 0.00616, "latency_s": 1.68, "tool_calls": []}

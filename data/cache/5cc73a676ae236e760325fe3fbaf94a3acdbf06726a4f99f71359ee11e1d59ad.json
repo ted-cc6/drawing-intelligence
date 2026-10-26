@@ -1,0 +1,1 @@
+{"text": "For the ⌀8 H7 hole [D21], IS 919 gives an upper deviation of +0.015 mm and a lower deviation of 0.0 mm, with limits of size 8.0 mm to 8.015 mm [T:is919_fits H7 8].", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2677, "output_tokens": 72, "reasoning_tokens": 0, "cost_usd": 0.005786, "latency_s": 2.62, "tool_calls": []}

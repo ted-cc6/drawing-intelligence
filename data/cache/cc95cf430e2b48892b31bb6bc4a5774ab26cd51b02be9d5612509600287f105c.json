@@ -1,0 +1,1 @@
+{"text": "The drawing defines two datums:\n\n*   **Datum A**, identified by symbol [S6] in zone E5.\n*   **Datum B**, identified by symbols [S3] and [S4] in zones F5 and F8 respectively.", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 3456, "output_tokens": 54, "reasoning_tokens": 0, "cost_usd": 0.007236, "latency_s": 2.31, "tool_calls": []}

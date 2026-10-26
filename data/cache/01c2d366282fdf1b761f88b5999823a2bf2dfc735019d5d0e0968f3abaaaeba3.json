@@ -1,0 +1,1 @@
+{"text": "", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2479, "output_tokens": 31, "reasoning_tokens": 0, "cost_usd": 0.005144, "latency_s": 1.5, "tool_calls": [{"id": "call_ace8bf6bdf5c4a829f09ab9d", "name": "get_rule", "arguments": "{\"rule_id\": \"WPS-006\"}"}]}

@@ -1,0 +1,1 @@
+{"text": "There are 7 findings for rule LY-005: [F3], [F4], [F5], [F6], [F7], [F8], and [F9].", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 3043, "output_tokens": 42, "reasoning_tokens": 0, "cost_usd": 0.006338, "latency_s": 2.15, "tool_calls": []}

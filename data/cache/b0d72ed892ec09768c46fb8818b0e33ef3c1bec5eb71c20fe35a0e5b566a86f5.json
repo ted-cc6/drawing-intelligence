@@ -1,0 +1,1 @@
+{"text": "", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2220, "output_tokens": 28, "reasoning_tokens": 0, "cost_usd": 0.004608, "latency_s": 1.66, "tool_calls": [{"id": "call_2bb3c9153999420b9de164a5", "name": "get_items", "arguments": "{\"ids\": \n[\"D1\"]\n\n}"}]}

@@ -1,0 +1,1 @@
+{"text": "The drawing scale is 2 : 1 [TB:scale].", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2734, "output_tokens": 14, "reasoning_tokens": 0, "cost_usd": 0.005552, "latency_s": 1.5, "tool_calls": []}

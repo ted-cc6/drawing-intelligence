@@ -1,0 +1,1 @@
+{"text": "The coarse pitch for an M8 thread is 1.25 mm [T:iso_metric_threads M8].", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2417, "output_tokens": 24, "reasoning_tokens": 0, "cost_usd": 0.004978, "latency_s": 1.77, "tool_calls": []}

@@ -1,0 +1,1 @@
+{"text": "D3 says \"11.5 (-0.2/0)\" [D3]. Its limits of size are 11.3 mm (lower) and 11.5 mm (upper) [D3].", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2949, "output_tokens": 47, "reasoning_tokens": 0, "cost_usd": 0.00618, "latency_s": 1.86, "tool_calls": []}

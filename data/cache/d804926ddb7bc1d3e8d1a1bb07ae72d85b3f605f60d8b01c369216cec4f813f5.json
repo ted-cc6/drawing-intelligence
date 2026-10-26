@@ -1,0 +1,1 @@
+{"text": "Not in the drawing's data. No parallelism symbol or tolerance was found among the 4 symbols [S1–S4] or 14 dimensions [D1–D14] listed in the overview, and no finding references a parallelism requirement.", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2734, "output_tokens": 54, "reasoning_tokens": 0, "cost_usd": 0.005792, "latency_s": 2.16, "tool_calls": []}

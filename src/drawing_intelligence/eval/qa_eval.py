@@ -21,14 +21,14 @@ from drawing_intelligence.llm import LLMClient, load_registry
 from drawing_intelligence.llm.client import CompletionFn, openai_completion
 from drawing_intelligence.qa.agent import Conversation, Limits
 from drawing_intelligence.qa.data import DrawingData
-from drawing_intelligence.qa.grounding import citations
+from drawing_intelligence.qa.grounding import NOT_IN_DATA, citations
 from drawing_intelligence.qa.session import review_drawing
 from drawing_intelligence.qa.tools import SCHEMAS
 from drawing_intelligence.schemas import TextLine
+from drawing_intelligence.schemas.knowledge import Note
 from drawing_intelligence.settings import PROJECT_ROOT, Settings
 from drawing_intelligence.storage import ResponseCache, Telemetry
 
-NOT_IN_DATA = "not in the drawing's data"
 DECLINE = "outside what i can check"
 PASS_VERIFIED = 0.90
 
@@ -180,7 +180,11 @@ def _with_line(data: DrawingData, text: str, settings: Settings) -> DrawingData:
     page = ex.pages[0]
     w, h = page.page_size_pts
     page.body_text.append(TextLine(text=text, bbox=(w * 0.1, h * 0.1, w * 0.4, h * 0.1 + 8)))
-    return DrawingData.build(ex, data.knowledge, data.review, settings)
+    knowledge = {k: v.model_copy(deep=True) if v else None for k, v in data.knowledge.items()}
+    k = knowledge.get(page.page_number)
+    if k is not None:  # the vision pass would have read it as a note too
+        k.notes.append(Note(id=f"N{len(k.notes) + 1}", text=text, category="general"))
+    return DrawingData.build(ex, knowledge, data.review, settings)
 
 
 def estimate_usd(

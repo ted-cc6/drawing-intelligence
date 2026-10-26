@@ -12,7 +12,7 @@ from typing import Any
 
 from drawing_intelligence.llm.client import LLMClient
 from drawing_intelligence.qa.data import DrawingData
-from drawing_intelligence.qa.grounding import Corpus, check_answer
+from drawing_intelligence.qa.grounding import NOT_IN_DATA, Corpus, check_answer
 from drawing_intelligence.qa.tools import SCHEMAS, ToolBox
 
 log = logging.getLogger(__name__)
@@ -122,6 +122,11 @@ class Conversation:
                 continue
             text = resp.text.strip()
             problems = check_answer(text, self.data, self.tools.lookups, self.corpus)
+            if NOT_IN_DATA in text.lower() and not used:
+                problems.append(  # absence is a claim too: it needs a search behind it
+                    "you say it is not in the drawing's data but called no tool for this question: "
+                    "search first (search_drawing, get_items, list_findings, search_rules), then answer"
+                )
             if not problems or regenerations >= self.limits.max_regenerations:
                 break
             regenerations += 1

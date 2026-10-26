@@ -54,6 +54,8 @@ argument returns `{"error", "hint"}` and counts towards the call cap.
   (`lookup_standard` returns limits, `get_items` limits of size); the model only quotes.
 - A failed check sends the answer back to the model with the problems listed, up to 4 times. After that the last
   answer is shown with the unverified claims marked, and the event is logged.
+- **Absence is a claim too.** An answer saying "Not in the drawing's data" is sent back unless a tool was
+  called for that question (the evaluation caught answers describing searches that never ran).
 - **Drawing text is data, never instructions.** Tool results are wrapped and labelled as data, and
   `record_feedback` runs only when the engineer's own message asks for feedback.
 
@@ -83,3 +85,7 @@ out-of-scope and injection case handled.
 - Citation checking reuses the verifier's resolution of D/S/N/title-block references (`review/verify.py`).
 - `LLMClient` gains a tool-calling `chat` method beside `complete`, with the same cache, cost and telemetry.
 - Development runs against a scripted fake model and the cache; paid evaluation runs are asked for first.
+
+## Result
+2026-10-25, `qwen3.8-max`: 40 of 41 answers pass, 41 of 41 verified, no unverified numbers, all 8 guards; the
+bar is met (`data/eval/qa/results/`). `qwen-plus` is not yet compared.

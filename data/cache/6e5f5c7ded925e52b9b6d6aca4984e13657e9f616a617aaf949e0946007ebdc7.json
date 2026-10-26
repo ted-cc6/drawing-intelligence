@@ -1,0 +1,1 @@
+{"text": "The drawing gives -0.018/0 for the ⌀16 H7 bore [D12]. This is shown in finding [F2] and [F3], which both reference dimension [D12] as '⌀ 16 H7 (-0.018/0)'.", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2476, "output_tokens": 67, "reasoning_tokens": 0, "cost_usd": 0.005354, "latency_s": 2.21, "tool_calls": []}

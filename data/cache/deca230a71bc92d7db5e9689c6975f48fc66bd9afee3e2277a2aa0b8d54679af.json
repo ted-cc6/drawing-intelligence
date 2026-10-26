@@ -1,0 +1,1 @@
+{"text": "The T+S note fields that still hold template blanks are:\n\n-   H.T.PROCESS [F1]\n-   HARDNESS & DEPTH [F2]\n-   FINISH & DEPTH [F3]\n-   TEST COUPON SIZE [F4]", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2738, "output_tokens": 59, "reasoning_tokens": 0, "cost_usd": 0.00583, "latency_s": 2.21, "tool_calls": []}

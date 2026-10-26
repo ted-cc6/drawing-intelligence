@@ -1,0 +1,1 @@
+{"text": "The material is M.S. [TB:material] and the surface treatment is I.Z.B.P. (TRIVALENT) [TB:surface_treatment].", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2354, "output_tokens": 34, "reasoning_tokens": 0, "cost_usd": 0.004912, "latency_s": 1.84, "tool_calls": []}

@@ -99,6 +99,8 @@ def test_check_rejects_invented_numbers_signs_and_citations(data):
     assert any("[D999]" in p for p in check_answer("See [D999].", data, set(), c))
     assert any("[T:is919_fits H7 20]" in p for p in check_answer("[T:is919_fits H7 20]", data, set(), c))
     assert any("cites nothing" in p for p in check_answer("It is 0.021.", data, set(), c))
+    assert any("not a valid citation" in p for p in check_answer("See [L:C10] and [L?].", data, set(), c))
+    assert check_answer("Ordinary [optional] brackets.", data, set(), c) == []
 
 
 def test_ids_and_small_counts_are_not_numbers(data):
@@ -162,6 +164,14 @@ def test_a_failed_check_is_sent_back_and_fixed(data, tmp_path):
     ans = conversation(data, tmp_path, script).ask("What is the bore's upper limit?")
     assert ans.verified and ans.regenerations == 1
     assert "failed the check" in script.requests[1]["messages"][-1]["content"]
+
+
+def test_absence_needs_a_search(data, tmp_path):
+    script = Script("Not in the drawing's data.", {"tools": [("search_drawing", {"text": "Ra"})]},
+                    "Not in the drawing's data: no roughness symbol.")  # fmt: skip
+    ans = conversation(data, tmp_path, script).ask("What roughness is on the bore?")
+    assert ans.verified and ans.regenerations == 1 and ans.tool_calls == ["search_drawing(text=Ra)"]
+    assert "called no tool" in script.requests[1]["messages"][-1]["content"]
 
 
 def test_unverified_after_the_regeneration_limit(data, tmp_path):
@@ -256,7 +266,10 @@ def test_eval_runs_cases_with_a_fake_model(tmp_path, monkeypatch):
 
     settings = Settings(data_dir=tmp_path / "data", sessions_root=tmp_path / "s")  # type: ignore[call-arg]
     monkeypatch.setattr(qa_eval, "review_drawing", lambda pdf, s: (_data_for(pdf, s), 0.0))
-    script = Script("Outside what I can check; please ask your design lead.", "Not in the drawing's data.")
+    search = {"tools": [("search_drawing", {"text": "Ra"})]}
+    script = Script(
+        "Outside what I can check; please ask your design lead.", search, "Not in the drawing's data."
+    )
     res = qa_eval.run_qa_eval(settings, only=["p13-advice", "p13-roughness"], completion_fn=script)
     assert [t.passed for t in res.turns] == [True, True]
     assert res.summary()["declines_and_guards_passed"] == "2/2" and res.summary()["meets_bar"]

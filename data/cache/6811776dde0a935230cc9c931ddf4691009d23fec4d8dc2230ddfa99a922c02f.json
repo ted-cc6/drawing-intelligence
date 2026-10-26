@@ -1,0 +1,1 @@
+{"text": "Not in the drawing's data. A search for \"checker\" in the title block returned no items, and the available title block fields do not include a checker name.", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2473, "output_tokens": 34, "reasoning_tokens": 0, "cost_usd": 0.00515, "latency_s": 2.6, "tool_calls": []}

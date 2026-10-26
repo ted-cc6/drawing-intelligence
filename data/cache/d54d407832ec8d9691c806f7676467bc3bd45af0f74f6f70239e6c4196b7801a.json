@@ -1,0 +1,1 @@
+{"text": "Not in the drawing's data. The title block contains a checked date [TB:checked_date] but no checker name field is listed in the available title block data.", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 2288, "output_tokens": 33, "reasoning_tokens": 0, "cost_usd": 0.004774, "latency_s": 1.86, "tool_calls": []}
