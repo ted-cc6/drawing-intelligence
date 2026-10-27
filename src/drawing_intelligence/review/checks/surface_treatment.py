@@ -244,3 +244,33 @@ def izbp_trivalent(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
         for page in pages
         if "TRIVALENT" not in (ev.value(page, "surface_treatment") or "").upper()
     ]
+
+
+_PAINT = re.compile(r"\b(PAINT(?:ING|ED)?|POWDER[\s-]*COAT(?:ING|ED)?|ENAMEL(?:LED)?|LACQUER(?:ED)?)\b", re.I)
+# A colour code: RAL 7035, a Pantone or Munsell number, a British Standard colour. A colour name is not one.
+_COLOUR_CODE = re.compile(r"\bRAL\s*\d{4}\b|\bPANTONE\b|\bMUNSELL\b|\bBS\s*(?:4800|381C?)\b", re.I)
+
+
+@check("paint_colour_code")
+def paint_colour_code(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """A painted or powder-coated part gives its colour by code (RAL 7035), not by a name or not at all."""
+    out, painted = [], False
+    for page in ev.title_block_pages(ctx):
+        finish = ev.value(page, "surface_treatment") or ""
+        if not _PAINT.search(finish):
+            continue
+        painted = True
+        text = " ".join([finish, *(n.text for p in ctx.pages for n in [*p.notes, *p.body_text])])
+        if not _COLOUR_CODE.search(text):
+            out.append(
+                new_finding(
+                    rule,
+                    reviewer=REVIEWER,
+                    evidence=[ev.field(page, "surface_treatment")],
+                    comment=f"The finish is {finish!r} but no colour code (such as RAL 7035) is given.",
+                    recommended_correction="State the colour by its code, e.g. RAL 7035.",
+                )
+            )
+    if not painted:
+        raise NotApplicable("the finish is not paint or powder coating")
+    return out

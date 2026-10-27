@@ -10,7 +10,7 @@ client LatentView Analytics). Pipeline:
   report.
 - One Q&A agent over the saved results.
 
-Built so far: intake, understand, and the review stage up to verify: the code reviewer (`checks`, 44 check
+Built so far: intake, understand, and the review stage up to verify: the code reviewer (`checks`, 71 check
 functions) and three LLM reviewers (`review/llm_reviewer.py`, warnings only), and the report (`report/`:
 Excel checklist in the client's columns plus the annotated sheet), and the Q&A agent (`qa/`, `di ask`, ADR 0011).
 The latest team update is `Oct_25_UpdateAndNextStep.md`; the rules still to build are in

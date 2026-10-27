@@ -936,3 +936,541 @@ def test_thread_tolerance_classes():
     assert run("thread_tolerance_class_valid", body("M10x1.25-6H"), **params)[1].status == "pass"
     findings, _ = run("thread_tolerance_class_valid", body("M2-7H", "M8-6e"), **params)
     assert len(findings) == 2 and "from M3" in findings[0].comment
+
+
+# --- P1: numbered notes -------------------------------------------------------------------------------------
+
+
+def column_page(*columns: tuple[float, list[str]], extra: list[str] | None = None) -> PageExtraction:
+    """Body lines laid out in columns: (left edge, texts top to bottom). `extra` lines go in a far column."""
+    lines = [
+        TextLine(text=t, bbox=(x, 500 + 10 * i, x + 200, 508 + 10 * i))
+        for x, texts in columns
+        for i, t in enumerate(texts)
+    ]
+    lines += [TextLine(text=t, bbox=(20, 100 + 10 * i, 120, 108 + 10 * i)) for i, t in enumerate(extra or [])]
+    return page(body_text=lines)
+
+
+def test_numbered_notes_in_order_pass_and_template_notes_are_skipped():
+    ok = column_page(
+        (600, ["1) TO BE HARDENED UPTO 50 HRC.", "2) RETAPPING AFTER SURFACE TREATMENT"]),
+        extra=["3.IF IN DOUBT ,", "2.DO NOT SCALE", "1.ALL DIMENSIONS ARE", "1.2 H13"],
+    )
+    assert run("general_notes_consecutive", ok)[1].status == "pass"
+    assert run("general_notes_consecutive", body_page("DEBURR ALL EDGES"))[1].status == "not_applicable"
+
+
+def test_numbered_notes_with_a_gap_a_repeat_or_a_wrong_start():
+    gap, _ = run("general_notes_consecutive", column_page((600, ["1) PROFILE CUTTING", "3) CASE DEPTH 0.8"])))
+    assert "goes from 1 to 3" in gap[0].comment and gap[0].evidence[0].quote == "3) CASE DEPTH 0.8"
+    again, _ = run(
+        "general_notes_consecutive", column_page((600, ["1) CASE CARBURISING", "2) INDUCTION", "2) DEPTH"]))
+    )
+    assert "repeats 2" in again[0].comment
+    late, _ = run("general_notes_consecutive", column_page((600, ["2) RETAPPING", "3) DEBURR"])))
+    assert "starts at 2, not 1" in late[0].comment
+
+
+def test_a_second_list_in_another_language_or_column_is_judged_alone():
+    english_and_french = column_page(
+        (600, ["1) ALL H7 HOLES", "2) ALL TAPPED HOLES", "1) TOUT TROU H7", "2) TOUT TROU TARAUDE"]),
+        (900, ["1) TO BE TOUGHENED", "2) RETAPPING"]),
+    )
+    assert run("general_notes_consecutive", english_and_french)[1].status == "pass"
+    one_bad = column_page((600, ["1) CHAMFER", "2) DEBURR"]), (900, ["1) ANODISE", "3) PACK"]))
+    findings, _ = run("general_notes_consecutive", one_bad)
+    assert [f.evidence[0].quote for f in findings] == ["3) PACK"]
+
+
+def test_note_references_must_point_at_a_note_that_exists():
+    notes = (600, ["1) TO BE HARDENED", "2) RETAPPING AFTER TREATMENT"])
+    ok = column_page(notes, extra=["SEE NOTE 2"])
+    assert run("note_references_resolve", ok)[1].status == "pass"
+    findings, status = run("note_references_resolve", column_page(notes, extra=["REFER TO NOTE NO. 5"]))
+    assert status.status == "fail" and "note 5" in findings[0].comment
+    assert run("note_references_resolve", column_page(notes, extra=["H.T.PROCESS : REFER NOTE"]))[
+        1
+    ].status == ("not_applicable")
+    template_note = column_page(extra=["1.ALL DIMENSIONS ARE", "SEE NOTE 1"])
+    assert run("note_references_resolve", template_note)[1].status == "pass"
+
+
+def test_notes_marked_with_hash_or_dollar_or_on_the_heading_line_are_numbered_notes():
+    marked = column_page(
+        (600, ["1) # USE STD. DIA. 30 g6 BRIGHT BAR", "2) STRAIGHTNESS 0.2 MAX", "3) $ HARD CHROME PLATING"])
+    )
+    assert run("general_notes_consecutive", marked)[1].status == "pass"
+    heading = column_page((600, ["NOTE:- 1)TO BE TOUGHENED TO 28-30 HRc.", "2)REMOVE ALL SHARP EDGES"]))
+    assert run("general_notes_consecutive", heading)[1].status == "pass"
+    accented = column_page((600, ["1) TO BE HARDENED", "1) À ENDURCIR", "2) PROFONDEUR"]))
+    assert run("general_notes_consecutive", accented)[1].status == "pass"
+
+
+# --- P1: paint colour -------------------------------------------------------------------------------------
+
+
+def finish_page(finish: str, *notes: str) -> PageExtraction:
+    return page(
+        title_block_fields=fields(surface_treatment=finish),
+        notes=[TextItem(text=t, bbox=(100, 600 + 10 * i, 300, 608 + 10 * i)) for i, t in enumerate(notes)],
+    )
+
+
+def test_paint_needs_a_colour_code_not_a_name():
+    findings, status = run("paint_colour_code", finish_page("PAINTING", "COLOUR - WHITE"))
+    assert status.status == "fail" and findings[0].evidence[0].ref == "surface_treatment"
+    assert run("paint_colour_code", finish_page("POWDER COATING"))[1].status == "fail"
+    assert run("paint_colour_code", finish_page("POWDER COATING", "COLOUR RAL 7035"))[1].status == "pass"
+    assert run("paint_colour_code", finish_page("PAINTING RAL9005"))[1].status == "pass"
+    assert run("paint_colour_code", finish_page("I.Z.B.P. (TRIVALENT)"))[1].status == "not_applicable"
+
+
+def test_insert_note_must_say_which_insert():
+    findings, status = run("insert_spec", body("1)USE HELICOIL INSERT AT ALL TAPPING HOLES"))
+    assert status.status == "fail" and "no insert part number" in findings[0].comment
+    ok = ("USE HELICOIL INSERT AT ALL TAPPING HOLES", "INSERT UP TO TOTAL LENGTH OF TAPPING")
+    assert run("insert_spec", body(*ok))[1].status == "pass"  # one note on the sheet gives the length
+    assert run("insert_spec", body("USE M8 THREADED INSERT AT ALL TAPPING HOLES"))[1].status == "pass"
+    assert run("insert_spec", body("TO BE USED THREAD INSERTS MAKE Kerb Konus"))[1].status == "pass"
+    assert run("insert_spec", body("DEBURR ALL EDGES"))[1].status == "not_applicable"
+    history = page(
+        body_text=[TextLine(text="THREAD INSERTS ADDED", bbox=(100, 600, 300, 608))],
+        revision_rows=[TextLine(text="THREAD INSERTS ADDED", bbox=(100, 600, 300, 608))],
+    )
+    assert run("insert_spec", history)[1].status == "not_applicable"
+
+
+def test_supersede_note_needs_the_old_number_and_revision():
+    ok = body("SUPERSEDES DWG P23N1B075061 REV 02")
+    assert run("supersede_note_complete", ok)[1].status == "pass"
+    assert (
+        run("supersede_note_complete", body("SUPERSEDES DRAWING NO. P23N1B075061 REV. B"))[1].status == "pass"
+    )
+    findings, status = run("supersede_note_complete", body("SUPERSEDES DWG P23N1B075061"))
+    assert status.status == "fail" and "number and its revision" in findings[0].comment
+    assert run("supersede_note_complete", body("SUPERSEDES OLD DRAWING"))[1].status == "fail"
+    assert run("supersede_note_complete", body("DEBURR ALL EDGES"))[1].status == "not_applicable"
+
+
+# --- P1 batch 2: dimension text ----------------------------------------------------------------------------
+
+
+def test_diameter_and_radius_symbols_not_words():
+    bad = page(
+        dimensions=[dim(1, "DIA 30"), dim(2, "30 DIA"), dim(3, "RADIUS 5"), dim(4, "⌀ 30"), dim(5, "R5")]
+    )
+    findings, status = run("diameter_radius_symbol_prefix", bad)
+    assert status.status == "fail" and [f.evidence[0].quote for f in findings] == [
+        "DIA 30",
+        "30 DIA",
+        "RADIUS 5",
+    ]
+    # the word in a note is a warning, not a failure: prose may say DIA, the symbol is the standard
+    findings, status = run("diameter_radius_symbol_prefix", body_page("WIRE DIA- 4mm & MESH SIZE 1X1"))
+    assert (
+        status.status == "warning" and findings[0].result == "warning" and "The note" in findings[0].comment
+    )
+    # a dimension value and the same text as a body line are one finding, not two
+    twice = page(
+        dimensions=[dim(1, "DIA 30")], body_text=[TextLine(text="DIA 30", bbox=(100, 100, 150, 108))]
+    )
+    assert len(run("diameter_radius_symbol_prefix", twice)[0]) == 1
+    # history and feature names are not callouts: a change note, a file path, a thread's major diameter
+    for text in (
+        "2-DIA20MM HOLE CHANGED TO DIA 30",
+        "\\\\srv\\ExDM\\Front Shaft Dia.20.dft",
+        "MAJOR DIA -0.05",
+    ):
+        assert run("diameter_radius_symbol_prefix", body_page(text))[1].status == "pass", text
+
+
+def test_torque_and_pressure_carry_their_unit():
+    findings, status = run(
+        "non_length_value_has_unit", body_page("TORQUE 25", "PRESSURE : 6 bar", "TORQUE TO 40 N.m")
+    )
+    assert status.status == "fail" and [f.evidence[0].quote for f in findings] == ["TORQUE 25"]
+    assert (
+        run("non_length_value_has_unit", body_page("STANDARD FASTENER TORQUE AS PER STD-DES-01-00"))[1].status
+        == "pass"
+    )
+
+
+def test_angles_use_one_format_and_never_radians():
+    mixed = page(dimensions=[dim(1, "30°"), dim(2, "45°30'")])
+    findings, status = run("angle_format_consistent", mixed, preferred="decimal_degrees", allowed=[])
+    assert status.status == "fail" and "45°30'" in findings[0].comment
+    ok = page(dimensions=[dim(1, "30°"), dim(2, "1 x 45°"), dim(3, "THRU'")])
+    assert run("angle_format_consistent", ok, preferred="decimal_degrees", allowed=[])[1].status == "pass"
+    rad = page(dimensions=[dim(1, "0.5 RAD")])
+    assert run("angle_format_consistent", rad, preferred="decimal_degrees", allowed=[])[1].status == "fail"
+    assert run("angle_format_consistent", page(dimensions=[dim(1, "30")]), preferred="x", allowed=[])[
+        1
+    ].status == ("not_applicable")
+
+
+def test_pitch_notation_product_equals_total():
+    params = {"forms": ["n×p=L"]}
+    assert (
+        run("pitch_notation_arithmetic", page(dimensions=[dim(1, "4 x 60 = 240")]), **params)[1].status
+        == "pass"
+    )
+    assert (
+        run("pitch_notation_arithmetic", page(dimensions=[dim(1, "7@75=525")]), **params)[1].status == "pass"
+    )
+    findings, status = run("pitch_notation_arithmetic", page(dimensions=[dim(1, "4X60=250")]), **params)
+    assert status.status == "fail" and "is 240, not 250" in findings[0].comment
+
+
+def test_counterbore_callout_needs_a_depth_even_on_a_second_line():
+    params = {"required": ["depth"], "example": {"depth": 6}}
+    ok = body_page("C'BORE Ø 18.00 mm - 10.80 mm DEEP")
+    assert run("counterbore_callout_complete", ok, **params)[1].status == "pass"
+    split = page(
+        body_text=[
+            TextLine(text="C'BORE Ø 18.00 mm", bbox=(1255, 462, 1453, 479)),
+            TextLine(text="- 10.80 mm DEEP", bbox=(1255, 486, 1436, 502)),
+        ]
+    )
+    assert run("counterbore_callout_complete", split, **params)[1].status == "pass"
+    findings, status = run("counterbore_callout_complete", body_page("C'BORE Ø 18.00 mm"), **params)
+    assert status.status == "fail" and "no depth" in findings[0].comment
+    # a general note, or a hole callout whose counterbore is drawn elsewhere, is not judged
+    for text in ("ALL HOLES,TAP & COUNTER BORE C.D,", "Ø9 THRU & C'BORE"):
+        assert run("counterbore_callout_complete", body_page(text), **params)[1].status == "not_applicable"
+
+
+def test_softening_only_treatment_with_a_hardened_hardness():
+    params = {
+        "softening_terms": ["annealing", "stress relieving"],
+        "annealed_max_hb": {"IS 3749": [200, 260]},
+        "hardening_terms": ["hardening", "toughening"],
+    }
+    findings, status = run("softening_treatment_vs_hardness", body_page("ANNEALED", "58-62 HRC"), **params)
+    assert status.status == "fail" and "softens it" in findings[0].comment
+    assert (
+        run("softening_treatment_vs_hardness", body_page("ANNEALED", "200 HB"), **params)[1].status == "pass"
+    )
+    after_hardening = body_page("TO BE HARDENED", "STRESS RELIEVING TO BE DONE", "58-62 HRC")
+    assert run("softening_treatment_vs_hardness", after_hardening, **params)[1].status == "pass"
+    assert (
+        run("softening_treatment_vs_hardness", body_page("58-62 HRC"), **params)[1].status == "not_applicable"
+    )
+
+
+# --- P1 batch 3: revision table, scales, soft metric ----------------------------------------------------
+
+
+def rev_row(y: float, *texts: str, x: float = 1150.0) -> list[TextLine]:
+    """One revision-table row: number, description, date, drawer, left to right at the template's columns."""
+    xs = [x, x + 30, x + 340, x + 385]
+    return [TextLine(text=t, bbox=(xs[i], y, xs[i] + 60, y + 8)) for i, t in enumerate(texts)]
+
+
+def test_revision_rows_need_description_date_and_drawer():
+    full = page(revision_rows=rev_row(990, "1", "DIMENSION ADDED", "08/05/2024", "9265"))
+    assert run("revision_table_complete", full)[1].status == "pass"
+    joined = page(revision_rows=rev_row(990, "1", "TOLERANCES CHANGED", "14.07.2025 7273"))
+    assert run("revision_table_complete", joined)[1].status == "pass"  # date and drawer in one item
+    no_drawer = page(revision_rows=rev_row(990, "1", "DIMENSION ADDED", "08/05/2024"))
+    findings, status = run("revision_table_complete", no_drawer)
+    assert status.status == "fail" and "missing the drawer" in findings[0].comment
+    no_date = page(revision_rows=rev_row(990, "1", "DIMENSION ADDED"))
+    assert "a date" in run("revision_table_complete", no_date)[0][0].comment
+    number_only = page(revision_rows=rev_row(990, "1"))
+    assert "a description and a date" in run("revision_table_complete", number_only)[0][0].comment
+    two_rows = page(
+        revision_rows=[
+            *rev_row(990, "1", "DIMENSION ADDED", "08/05/2024", "9265"),
+            *rev_row(976, "2", "HOLE ADDED", "09/01/25"),
+        ]
+    )
+    findings, _ = run("revision_table_complete", two_rows)
+    assert len(findings) == 1 and "HOLE ADDED" in findings[0].comment
+    assert run("revision_table_complete", page())[1].status == "not_applicable"
+
+
+def test_a_wrapped_description_stays_with_its_row():
+    wrapped = page(
+        revision_rows=[
+            *rev_row(990, "1", "TOTAL LENGTH CHANGED AND", "15/05/24", "9265"),
+            TextLine(text="HOLE SHIFTED.", bbox=(1180, 999, 1240, 1007)),
+        ]
+    )
+    assert run("revision_table_complete", wrapped)[1].status == "pass"
+
+
+SCALES = {
+    "full_size": "1:1",
+    "reduced": ["1:2", "1:5", "1:10", "1:20", "1:50"],
+    "enlarged": ["2:1", "5:1", "10:1", "20:1", "50:1"],
+}
+
+
+def test_scales_must_be_preferred():
+    ok = page(
+        title_block_fields=fields(scale="1 : 2"),
+        body_text=[TextLine(text="SCALE/ÉCHELLE 2:1", bbox=(100, 600, 200, 608))],
+    )
+    assert run("scale_is_preferred", ok, **SCALES)[1].status == "pass"
+    bad = page(
+        title_block_fields=fields(scale="4 : 1"),
+        body_text=[TextLine(text="SCALE 1:2.5", bbox=(100, 600, 200, 608))],
+    )
+    findings, status = run("scale_is_preferred", bad, **SCALES)
+    assert status.status == "fail" and [f.comment.split()[2] for f in findings] == ["4:1", "1:2.5"]
+    assert run("scale_is_preferred", page(title_block_fields=fields(scale="1 :")), **SCALES)[1].status == (
+        "not_applicable"
+    )
+
+
+def test_detail_view_needs_a_scale_beside_its_name():
+    def labels(*items: tuple[str, float, float]) -> list[TextItem]:
+        return [TextItem(text=t, bbox=(x, y, x + 60, y + 11)) for t, x, y in items]
+
+    ok = page(
+        view_labels=labels(("DETAIL B", 1395, 378)),
+        body_text=[TextLine(text="SCALE/ÉCHELLE 2:1", bbox=(1342, 393, 1532, 409))],
+    )
+    assert run("detail_view_scale", ok)[1].status == "pass"
+    in_name = page(view_labels=labels(("DETAIL C (2:1)", 100, 100)))
+    assert run("detail_view_scale", in_name)[1].status == "pass"
+    findings, status = run(
+        "detail_view_scale", page(view_labels=labels(("DETAIL A", 280, 118), ("SECTION A-A", 5, 5)))
+    )
+    assert status.status == "fail" and [f.evidence[0].quote for f in findings] == ["DETAIL A"]
+    assert (
+        run("detail_view_scale", page(view_labels=labels(("SECTION A-A", 5, 5))))[1].status
+        == "not_applicable"
+    )
+
+
+def test_inch_fractions_in_mm_are_a_warning_not_a_failure():
+    soft = page(
+        dimensions=[dim(1, "19.05±0.1"), dim(2, "98.43"), dim(3, "25.40"), dim(4, "12.7"), dim(5, "20.00")]
+    )
+    findings, status = run("soft_metric_conversion_suspect", soft)
+    assert status.status == "warning" and [f.result for f in findings] == ["warning", "warning"]
+    assert "3/4 in" in findings[0].comment and "3 7/8 in" in findings[1].comment
+    assert run("soft_metric_conversion_suspect", page(dimensions=[dim(1, "20.5")]))[1].status == "pass"
+
+
+# --- P1 batch 4: what stage 1 supports ----------------------------------------------------------------------
+
+
+def test_trapezoidal_lead_is_a_multiple_of_the_pitch():
+    ok = body_page("Tr 40x14 (P7)", "Tr 12 x 3P", "Tr 20 x 4 (P4)")
+    assert run("thread_lead_multiple_of_pitch", ok)[1].status == "pass"
+    findings, status = run("thread_lead_multiple_of_pitch", body_page("Tr 40x15 (P7)"))
+    assert status.status == "fail" and "lead 15 is not a whole multiple of pitch 7" in findings[0].comment
+    assert run("thread_lead_multiple_of_pitch", body_page("M8 THRU"))[1].status == "not_applicable"
+
+
+def numbered(sheet: int, count: int = 2, **kw) -> PageExtraction:
+    return page(title_block_fields=fields(sheet=f"{sheet} OF {count}", **kw))
+
+
+def test_continuation_sheets_repeat_the_identification():
+    params = {
+        "required_fields": ["drawing_number", "sheet", "title", "scale"],
+        "min_sheets": 2,
+        "must_match_sheet1": ["drawing_number", "title"],
+    }
+    assert run("continuation_sheet_title_fields", numbered(1), numbered(2), **params)[1].status == "pass"
+    findings, status = run("continuation_sheet_title_fields", numbered(1), numbered(2, scale="#"), **params)
+    assert status.status == "fail" and "does not repeat the scale" in findings[0].comment
+    findings, _ = run(
+        "continuation_sheet_title_fields", numbered(1), numbered(2, number="P24OTHER00001"), **params
+    )
+    assert "has the drawing number 'P24OTHER00001'" in findings[0].comment
+    assert run("continuation_sheet_title_fields", numbered(1), **params)[1].status == "not_applicable"
+
+
+def test_sheet_one_carries_the_notes_and_revision_history_that_later_sheets_carry():
+    notes = [TextLine(text="1.ALL DIMENSIONS ARE", bbox=(100, 600, 200, 608))]
+    rows = rev_row(990, "1", "DIMENSION ADDED", "08/05/2024", "9265")
+    both = {"min_sheets": 2}
+    ok = run(
+        "sheet1_has_title_revision_notes",
+        page(body_text=notes, revision_rows=rows),
+        page(body_text=notes),
+        **both,
+    )
+    assert ok[1].status == "pass"
+    no_notes = run("sheet1_has_title_revision_notes", page(), page(body_text=notes), **both)
+    assert no_notes[1].status == "fail" and "general notes but sheet 1" in no_notes[0][0].comment
+    no_history = run(
+        "sheet1_has_title_revision_notes", page(body_text=notes), page(revision_rows=rows), **both
+    )
+    assert "revision rows but sheet 1 has none" in no_history[0][0].comment
+    # a designer's numbered note about a hole table on sheet 2 is PARI's practice, not a finding
+    table_note = [TextLine(text="1) ALL H7 HOLES C.D CONTROLLED", bbox=(600, 500, 800, 508))]
+    assert (
+        run("sheet1_has_title_revision_notes", page(body_text=notes), page(body_text=table_note), **both)[
+            1
+        ].status
+        == "pass"
+    )
+    assert run("sheet1_has_title_revision_notes", page(), **both)[1].status == "not_applicable"
+
+
+def test_limits_of_size_match_the_deviations():
+    ok = page(dimensions=[dim(1, "⌀ 6 H7 (+0.012/0) 6.012/6.000"), dim(2, "15 (+0.1/-0.2) (15.100/14.800)")])
+    assert run("limits_match_deviations", ok)[1].status == "pass"
+    findings, status = run(
+        "limits_match_deviations", page(dimensions=[dim(1, "⌀ 6 H7 (+0.012/0) 6.015/6.000")])
+    )
+    assert status.status == "fail" and "6.012 / 6.000" in findings[0].comment
+    # PARI prints deviations only: nothing to compare
+    deviations_only = page(dimensions=[dim(1, "⌀ 6 H7 (+0.012/0)"), dim(2, "351.43 (-2.12/0.00)")])
+    assert run("limits_match_deviations", deviations_only)[1].status == "not_applicable"
+
+
+# --- P1 batch 5: the last eight -----------------------------------------------------------------------------
+
+
+def test_checker_must_not_be_the_drawer():
+    ok = page(title_block_fields=fields(drawn_by="03006751", checked_by="03004785"))
+    assert run("checker_independent", ok)[1].status == "pass"
+    same = page(title_block_fields=fields(drawn_by="6330(MD)", checked_by="6330"))
+    findings, status = run("checker_independent", same)
+    assert status.status == "fail" and "same person" in findings[0].comment
+    initials = page(title_block_fields=fields(drawn_by="M.S.K.", checked_by="MSK"))
+    assert run("checker_independent", initials)[1].status == "fail"
+    # a blank checker is TB-016's business, not a finding here
+    blank = page(title_block_fields=fields(drawn_by="03006751", checked_by=None))
+    assert run("checker_independent", blank)[1].status == "not_applicable"
+
+
+def car_page(*rows: tuple[float, str, str | None]) -> PageExtraction:
+    """The older revision table: header at y 636, rows above it as (y, date, change number or None)."""
+    lines = [
+        TextLine(text="CAR. NO.", bbox=(352, 636, 386, 652)),
+        TextLine(text="DATE", bbox=(401, 636, 430, 652)),
+    ]
+    for y, date, car in rows:
+        lines.append(TextLine(text=date, bbox=(394, y, 434, y + 11)))
+        if car:
+            lines.append(TextLine(text=car, bbox=(354, y, 383, y + 11)))
+    return page(body_text=lines)
+
+
+def test_every_revision_in_a_car_table_has_its_change_number():
+    ok = car_page((624, "21.03.2009", "3015/09"), (610, "18.05.2011", "4362/11"))
+    assert run("revision_change_ref", ok)[1].status == "pass"
+    findings, status = run(
+        "revision_change_ref", car_page((624, "21.03.2009", None), (610, "18.05.2011", "4362/11"))
+    )
+    assert status.status == "fail" and len(findings) == 1 and "21.03.2009" in findings[0].comment
+    assert run("revision_change_ref", page(revision_rows=rev_row(990, "1", "DIMENSION ADDED", "08/05/2024")))[
+        1
+    ].status == ("not_applicable")
+
+
+def option_page(*lines: tuple[str, float, float]) -> PageExtraction:
+    return page(body_text=[TextLine(text=t, bbox=(x, y, x + 50, y + 9)) for t, x, y in lines])
+
+
+def test_a_welding_note_keeps_one_option():
+    both = option_page(
+        ("1) DYE PENETRATION TEST FOR WELDING  -", 636, 224),
+        ("APPLICABLE", 786, 221),
+        ("NOT APPLICABLE", 786, 230),
+        ("3) LEAK PROOF WELD JOINT  -", 636, 238),
+        ("NOT REQUIRED", 786, 238),
+    )
+    findings, status = run("weld_note_options_resolved", both)
+    assert status.status == "fail" and len(findings) == 1
+    assert "DYE PENETRATION" in findings[0].comment and "no option was chosen" in findings[0].comment
+    two_notes = option_page(
+        ("8) STRESS RELIEVING -", 636, 205),
+        ("APPLICABLE", 724, 200),
+        ("NOT APPLICABLE", 724, 209),
+        ("1) DYE PENETRATION TEST  -", 636, 224),
+        ("APPLICABLE", 786, 221),
+        ("NOT APPLICABLE", 786, 230),
+    )
+    assert len(run("weld_note_options_resolved", two_notes)[0]) == 2  # same words, told apart by their notes
+    assert run("weld_note_options_resolved", option_page(("NOT REQUIRED", 786, 238)))[1].status == "pass"
+    # one option left, whichever it is, is a resolved note (a lone option must not pair with itself)
+    assert run("weld_note_options_resolved", option_page(("APPLICABLE", 786, 221)))[1].status == "pass"
+    assert run("weld_note_options_resolved", option_page(("REQUIRED", 786, 221), ("APPLICABLE", 786, 230)))[
+        1
+    ].status == ("pass")
+    assert run("weld_note_options_resolved", option_page(("WELD: APPLICABLE / NOT APPLICABLE", 100, 100)))[
+        1
+    ].status == ("fail")
+    assert run("weld_note_options_resolved", body_page("DEBURR"))[1].status == "not_applicable"
+
+
+def test_a_tapped_hole_callout_gives_its_depth():
+    params = {"require_class": False}
+    ok = body_page("M6 x 12 DEEP TAPPED HOLE", "4 HOLES M8 THRU")
+    assert run("thread_callout_complete", ok, **params)[1].status == "pass"
+    findings, status = run("thread_callout_complete", body_page("4 HOLES M8"), **params)
+    assert status.status == "fail" and "depth" in findings[0].comment
+    # a bare size, a change note and a drawing without tapped holes are not judged
+    for text in ("M8", "NEW M6 TAP HOLE ADDED (04 NOS)", "DEBURR ALL EDGES"):
+        assert run("thread_callout_complete", body_page(text), **params)[1].status == "not_applicable"
+    assert (
+        run("thread_callout_complete", body_page("4 HOLES M8 THRU"), require_class=True)[1].status == "fail"
+    )
+
+
+def test_a_chamfer_gives_length_and_angle():
+    params = {"formats": ["length x angle"]}
+    length_only = option_page(("CH1.5", 100, 100))
+    findings, status = run("chamfer_callout_complete", length_only, **params)
+    assert status.status == "fail" and "no angle" in findings[0].comment
+    angle_only = option_page(("CH 45°", 100, 100))
+    assert "no length" in run("chamfer_callout_complete", angle_only, **params)[0][0].comment
+    split = page(
+        body_text=[
+            TextLine(text="CH0.5", bbox=(523, 132, 551, 142)),
+            TextLine(text="x45°", bbox=(552, 131, 570, 142)),
+        ]
+    )
+    assert run("chamfer_callout_complete", split, **params)[1].status == "pass"
+    assert (
+        run("chamfer_callout_complete", body_page("1 x 45°", "CH.1 x 45°"), **params)[1].status
+        == "not_applicable"
+    )
+
+
+def test_a_countersink_gives_its_angle():
+    params = {"required": ["angle"], "example": {"angle_deg": 90}, "screw_seat_angle_deg": 90}
+    assert (
+        run("countersink_callout_complete", body_page("C'SINK Ø 12.00 mm x 90°"), **params)[1].status
+        == "pass"
+    )
+    split = page(
+        body_text=[
+            TextLine(text="CSK Ø 12 mm", bbox=(100, 100, 200, 110)),
+            TextLine(text="x 90°", bbox=(100, 112, 150, 122)),
+        ]
+    )
+    assert run("countersink_callout_complete", split, **params)[1].status == "pass"
+    findings, status = run("countersink_callout_complete", body_page("C'SINK Ø 12.00 mm"), **params)
+    assert status.status == "fail" and "no included angle" in findings[0].comment
+    assert run("countersink_callout_complete", body_page("COUNTERSINK AS REQUIRED"), **params)[1].status == (
+        "not_applicable"
+    )
+
+
+def test_a_taper_ratio_and_cone_angle_agree():
+    assert run("taper_values_consistent", body_page("TAPER 1:10 (5°43'29\")"))[1].status == "pass"
+    assert run("taper_values_consistent", body_page("TAPER 1:10 5.7°"))[1].status == "pass"
+    findings, status = run("taper_values_consistent", body_page("TAPER 1:10 (7°)"))
+    assert status.status == "fail" and "5.7248" in findings[0].comment
+    assert run("taper_values_consistent", body_page("SCALE 1:2 30°"))[1].status == "not_applicable"
+
+
+def test_dual_dimensions_convert_correctly_and_a_roughness_is_not_one():
+    ok = page(dimensions=[dim(1, "25.4 (1.00)"), dim(2, "1.00 [25.4]"), dim(3, "50.8 (2.00)")])
+    assert run("dual_dimensioning", ok, mm_per_inch=25.4)[1].status == "pass"
+    findings, status = run("dual_dimensioning", page(dimensions=[dim(1, "25.4 (1.10)")]), mm_per_inch=25.4)
+    assert status.status == "fail" and "is 1.00 in, not 1.10" in findings[0].comment
+    # PARI's '3.2 (0.8)' is a roughness, not a conversion
+    assert run("dual_dimensioning", page(dimensions=[dim(1, "3.2 (0.8)")]), mm_per_inch=25.4)[1].status == (
+        "not_applicable"
+    )

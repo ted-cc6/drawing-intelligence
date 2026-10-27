@@ -134,3 +134,75 @@ def thread_tolerance_class_valid(ctx: ReviewContext, rule: Rule, params: ClassPa
                         recommended_correction="Use a tabulated class (6H for a tapped hole, 6g for a bolt).")
         )  # fmt: skip
     return out
+
+
+_INSERT = re.compile(r"\bINSERTS?\b|HELI-?COILS?|KEENSERTS?", re.I)
+# What specifies an insert: a length ("TOTAL LENGTH", 1.5D), the tapped-hole size (M8), an item or part number
+# (four digits or more) or a make (Kerb Konus, Bollhoff, Recoil). The type alone ("HELICOIL") is not one.
+_INSERT_SPEC = re.compile(
+    r"LENGTH|\bM\s?\d|\d(?:\.\d+)?\s*(?:MM\b|X?D\b)|\d{4,}|KERB|KONUS|B[OÖ]LLHOFF|RECOIL|TAPPEX", re.I
+)
+
+
+@check("insert_spec")
+def insert_spec(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """A threaded insert or Helicoil note says which insert: its length, hole size, part number or make.
+
+    A revision row that mentions an insert ('THREAD INSERTS ... ADDED') is history, not a note.
+    """
+    out, found = [], False
+    for page in ctx.pages:
+        history = {r.text for r in page.revision_rows}
+        notes = [ln for ln in page.body_text if _INSERT.search(ln.text) and ln.text not in history]
+        if not notes:
+            continue
+        found = True
+        if not any(_INSERT_SPEC.search(ln.text) for ln in notes):
+            out.append(
+                new_finding(
+                    rule,
+                    reviewer=REVIEWER,
+                    evidence=[ev.text(page, notes[0])],
+                    comment=f"'{notes[0].text}' names no insert part number, length or hole size.",
+                    recommended_correction="Give the insert's part number or size and length, or its make.",
+                )
+            )
+    if not found:
+        raise NotApplicable("no threaded insert on the drawing")
+    return out
+
+
+# "Tr 40x14 (P7)": nominal diameter, lead, pitch. "Tr 12 x 3P" gives a pitch only (a single start).
+_TRAPEZOIDAL = re.compile(
+    r"\bTr\s*(?P<d>\d+(?:\.\d+)?)\s*[xX×]\s*(?P<lead>\d+(?:\.\d+)?)\s*\(\s*P\s*(?P<pitch>\d+(?:\.\d+)?)\s*\)"
+)
+
+
+@check("thread_lead_multiple_of_pitch")
+def thread_lead_multiple_of_pitch(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """A multi-start trapezoidal thread's lead is a whole multiple of its pitch (Tr 40x14 (P7) has two)."""
+    found = [
+        (page, item, m)
+        for page in ctx.pages
+        for item in [*page.dimensions, *page.other_numeric, *page.body_text]
+        for m in _TRAPEZOIDAL.finditer(item.text)
+    ]
+    if not found:
+        raise NotApplicable("no trapezoidal thread with lead and pitch")
+    out = []
+    for page, item, m in found:
+        lead, pitch = float(m["lead"]), float(m["pitch"])
+        starts = lead / pitch
+        if pitch > 0 and abs(starts - round(starts)) < 1e-6:
+            continue
+        evidence = ev.dimension(page, item) if isinstance(item, TextItem) and item.id else ev.text(page, item)
+        out.append(
+            new_finding(
+                rule,
+                reviewer=REVIEWER,
+                evidence=[evidence],
+                comment=f"'{m.group(0)}': lead {m['lead']} is not a whole multiple of pitch {m['pitch']}.",
+                recommended_correction="Correct the lead or the pitch (lead = pitch x number of starts).",
+            )
+        )
+    return out

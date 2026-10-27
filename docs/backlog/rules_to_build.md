@@ -10,6 +10,18 @@ confirm `di eval review --no-understand` still has 0 code false alarms. Until a 
 
 ## P1 Text and title-block checks (27)
 
+**Status (2026-10-27, branch `feat/p1-text-checks`, Mushahid): all 27 have a check.** Six are narrower than the
+rule text, because of what PARI's drawings and stage 1 give: NASA-030 (resolves a numbered reference, not the flag
+half), WST-070 and WST-069 (the callout's own depth or angle, not the hole diameter, which text cannot tie to it),
+MX-004 (only text that names a hole or tapping; a bare `M8` label cannot be told from an external thread, so it is
+not judged), WST-203 (fires only when limits of size are printed beside the deviations, which PARI never does) and
+RV-003 (only the older title block's CAR. NO. column; the current one has none). DTT-007 fails a dimension value
+written with the word DIA and warns on the word in a note (change notes, file paths and MAJOR/MINOR/PITCH DIA are
+left alone). NASA-012 and WPW-001 needed stage 1 or a guideline: the template now reads the DRN.BY / CHKD.BY /
+APPD.BY cells, and WPW-001 follows PARI's welding guideline ("choose only one"). Checks that no development
+drawing exercises (NASA-030, HNF-057, ISO-011, NASA-111, WST-064, WST-220, WST-203, WST-238, HNF-066, WST-056,
+WST-069, MX-004) are covered by unit tests only.
+
 Stage-1 text only (body notes, dimension text, title block, revision rows). No new inputs; same pattern as `checks/notes.py` and `checks/title_block.py`. Easiest; good first task.
 
 | Rule | Category | Check | Requirement | Needs | Owner |
