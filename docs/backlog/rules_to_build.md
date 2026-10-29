@@ -22,6 +22,12 @@ APPD.BY cells, and WPW-001 follows PARI's welding guideline ("choose only one").
 drawing exercises (NASA-030, HNF-057, ISO-011, NASA-111, WST-064, WST-220, WST-203, WST-238, HNF-066, WST-056,
 WST-069, MX-004) are covered by unit tests only.
 
+**Review fixes (2026-10-29, Binjie's review of PR #6):** seven edge cases fixed with regression tests (WST-238
+taper minutes, WST-064 count in a decimal, WST-220 capitals and zero pitch, HNF-057 and DSM-012 / VW-008 label
+forms, NASA-029 repeated 1, NASA-012 unread cells). Four rules that follow a PARI convention PARI has not
+confirmed now only warn, through the rule-level `result: warning` field (MX-029 insert spec, DSM-012 scales,
+MF-013 colour code, RV-003 change reference); remove the field when PARI answers.
+
 Stage-1 text only (body notes, dimension text, title block, revision rows). No new inputs; same pattern as `checks/notes.py` and `checks/title_block.py`. Easiest; good first task.
 
 | Rule | Category | Check | Requirement | Needs | Owner |
