@@ -221,6 +221,7 @@ _NUMBERED = re.compile(r"^\s*(?:NOTES?\s*[:.\-]*\s*)?(\d{1,2})\s*[.)]\s*(?=[#$]?
 # The template's three numbered notes; "IF IN DOUBT ," is printed on its own line, apart from "ASK TEAM
 # MEMBER", which the template's boilerplate patterns (they match the whole sentence) do not recognise.
 _TEMPLATE_NUMBERED = re.compile(r"\s*(ALL\s+DIMENSIONS|DO\s+NOT\s+SCALE|IF\s+IN\s+DOUBT)", re.IGNORECASE)
+_ACCENTED = re.compile(r"^\s*(?:NOTES?\s*[:.\-]*\s*)?\d{1,2}\s*[.)]\s*[#$]?\s*[À-ÖØ-Þ]")
 _COLUMN_TOLERANCE = 4.0  # pts: lines of one list start at the same x
 
 
@@ -246,7 +247,9 @@ def _numbered_lists(ctx: ReviewContext, page: PageExtraction) -> list[list[tuple
     for column in columns:
         current: list[tuple[int, TextLine]] | None = None
         for n, ln in sorted(column, key=lambda t: t[1].bbox[1]):
-            if current is None or n == 1:
+            # a 1 starts a copy (the French list) only after a full list or on an accented line; a lone
+            # "1)" after a single note is a repeat
+            if current is None or (n == 1 and (len(current) >= 2 or _ACCENTED.match(ln.text))):
                 current = []
                 lists.append(current)
             current.append((n, ln))
@@ -476,7 +479,7 @@ class PitchNotationParams(BaseModel):
 
 # "4 x 60 = 240", "7@75=525": count, pitch, total.
 _PITCH = re.compile(
-    r"(?P<n>\d+)\s*(?:[xX×]|@)\s*(?P<pitch>\d+(?:\.\d+)?)\s*=\s*(?P<total>\d+(?:\.\d+)?)(?![\d.])"
+    r"(?<![\d.])(?P<n>\d+)\s*(?:[xX×]|@)\s*(?P<pitch>\d+(?:\.\d+)?)\s*=\s*(?P<total>\d+(?:\.\d+)?)(?![\d.])"
 )
 
 
@@ -877,7 +880,12 @@ def taper_values_consistent(ctx: ReviewContext, rule: Rule, _: TaperParams) -> l
         stated = float(angle["deg"]) + float(angle["min"] or 0) / 60 + float(angle["sec"] or 0) / 3600
         expected = math.degrees(2 * math.atan(1 / (2 * float(ratio["x"]))))
         places = len(angle["deg"].split(".")[1]) if "." in angle["deg"] and not angle["min"] else 0
-        tolerance = 0.5 * 10**-places if places else (1 / 3600 if angle["min"] else 0.5)
+        # the last printed unit is rounded: half a second, half a minute (no seconds) or half a degree
+        tolerance = (
+            0.5 * 10**-places
+            if places
+            else (0.5 / 3600 if angle["sec"] else 0.5 / 60 if angle["min"] else 0.5)
+        )
         if abs(stated - expected) > tolerance:
             out.append(
                 _flag(

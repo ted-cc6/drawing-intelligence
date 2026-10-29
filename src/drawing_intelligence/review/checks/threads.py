@@ -174,7 +174,8 @@ def insert_spec(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
 
 # "Tr 40x14 (P7)": nominal diameter, lead, pitch. "Tr 12 x 3P" gives a pitch only (a single start).
 _TRAPEZOIDAL = re.compile(
-    r"\bTr\s*(?P<d>\d+(?:\.\d+)?)\s*[xX×]\s*(?P<lead>\d+(?:\.\d+)?)\s*\(\s*P\s*(?P<pitch>\d+(?:\.\d+)?)\s*\)"
+    r"\bTr\s*(?P<d>\d+(?:\.\d+)?)\s*[xX×]\s*(?P<lead>\d+(?:\.\d+)?)\s*\(\s*P\s*(?P<pitch>\d+(?:\.\d+)?)\s*\)",
+    re.IGNORECASE,
 )
 
 
@@ -192,8 +193,7 @@ def thread_lead_multiple_of_pitch(ctx: ReviewContext, rule: Rule, _: object) -> 
     out = []
     for page, item, m in found:
         lead, pitch = float(m["lead"]), float(m["pitch"])
-        starts = lead / pitch
-        if pitch > 0 and abs(starts - round(starts)) < 1e-6:
+        if pitch <= 0 or abs(lead / pitch - round(lead / pitch)) < 1e-6:
             continue
         evidence = ev.dimension(page, item) if isinstance(item, TextItem) and item.id else ev.text(page, item)
         out.append(

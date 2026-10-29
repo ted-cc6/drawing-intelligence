@@ -1007,6 +1007,17 @@ def test_notes_marked_with_hash_or_dollar_or_on_the_heading_line_are_numbered_no
     assert run("general_notes_consecutive", accented)[1].status == "pass"
 
 
+def test_a_repeated_one_after_a_single_note_is_a_repeat_not_a_copy():
+    # 1) / 1) / 2): the second 1 does not start a new list unless a full list or a French line precedes it
+    findings, status = run(
+        "general_notes_consecutive", column_page((600, ["1) CHAMFER", "1) DEBURR", "2) ANODISE"]))
+    )
+    assert status.status == "fail" and "repeats 1" in findings[0].comment
+    # a full English list followed by its copy is still two lists
+    copy = column_page((600, ["1) CHAMFER", "2) DEBURR", "1) CHANFREIN", "2) EBAVURER"]))
+    assert run("general_notes_consecutive", copy)[1].status == "pass"
+
+
 # --- P1: paint colour -------------------------------------------------------------------------------------
 
 
@@ -1050,6 +1061,9 @@ def test_supersede_note_needs_the_old_number_and_revision():
     findings, status = run("supersede_note_complete", body("SUPERSEDES DWG P23N1B075061"))
     assert status.status == "fail" and "number and its revision" in findings[0].comment
     assert run("supersede_note_complete", body("SUPERSEDES OLD DRAWING"))[1].status == "fail"
+    # a keyword is not a drawing number: the number must hold a digit
+    for text in ("SUPERSEDES DRAWING REV 02", "SUPERSEDES DWG REV 02", "SUPERSEDES DRAWING NO. REV 02"):
+        assert run("supersede_note_complete", body(text))[1].status == "fail", text
     assert run("supersede_note_complete", body("DEBURR ALL EDGES"))[1].status == "not_applicable"
 
 
@@ -1120,6 +1134,16 @@ def test_pitch_notation_product_equals_total():
     )
     findings, status = run("pitch_notation_arithmetic", page(dimensions=[dim(1, "4X60=250")]), **params)
     assert status.status == "fail" and "is 240, not 250" in findings[0].comment
+
+
+def test_pitch_notation_ignores_a_count_inside_a_decimal():
+    params = {"forms": ["n×p=L"]}
+    # "1.5 x 4 = 6" is a decimal times 4, not a count of 5: it must not fail
+    assert run("pitch_notation_arithmetic", page(dimensions=[dim(1, "1.5 x 4 = 6")]), **params)[1].status != (
+        "fail"
+    )
+    mixed = page(dimensions=[dim(1, "1.5 x 4 = 6"), dim(2, "4 x 60 = 240")])
+    assert run("pitch_notation_arithmetic", mixed, **params)[1].status == "pass"
 
 
 def test_counterbore_callout_needs_a_depth_even_on_a_second_line():
@@ -1222,6 +1246,14 @@ def test_scales_must_be_preferred():
     assert run("scale_is_preferred", page(title_block_fields=fields(scale="1 :")), **SCALES)[1].status == (
         "not_applicable"
     )
+    # a colon after the label ("SCALE: 1:3") is still a scale label
+    for label in ("SCALE: 1:3", "SCALE : 1:3", "SCALE/ÉCHELLE: 1:3"):
+        colon = page(
+            title_block_fields=fields(scale="1 : 1"),
+            body_text=[TextLine(text=label, bbox=(100, 600, 200, 608))],
+        )
+        findings, status = run("scale_is_preferred", colon, **SCALES)
+        assert status.status == "fail" and findings[0].comment.split()[2] == "1:3", label
 
 
 def test_detail_view_needs_a_scale_beside_its_name():
@@ -1264,6 +1296,11 @@ def test_trapezoidal_lead_is_a_multiple_of_the_pitch():
     findings, status = run("thread_lead_multiple_of_pitch", body_page("Tr 40x15 (P7)"))
     assert status.status == "fail" and "lead 15 is not a whole multiple of pitch 7" in findings[0].comment
     assert run("thread_lead_multiple_of_pitch", body_page("M8 THRU"))[1].status == "not_applicable"
+    # drawings are in capitals
+    assert run("thread_lead_multiple_of_pitch", body_page("TR40X14(P7)"))[1].status == "pass"
+    assert run("thread_lead_multiple_of_pitch", body_page("TR40X15(P7)"))[1].status == "fail"
+    # a zero pitch must not divide by zero (that made the rule not_checked); it is left alone
+    assert run("thread_lead_multiple_of_pitch", body_page("Tr40x14(P0)"))[1].status == "pass"
 
 
 def numbered(sheet: int, count: int = 2, **kw) -> PageExtraction:
@@ -1340,6 +1377,9 @@ def test_checker_must_not_be_the_drawer():
     # a blank checker is TB-016's business, not a finding here
     blank = page(title_block_fields=fields(drawn_by="03006751", checked_by=None))
     assert run("checker_independent", blank)[1].status == "not_applicable"
+    # cells that were never read (an extraction made before the template had them) cannot be checked
+    unread = page(title_block_fields=fields())
+    assert run("checker_independent", unread)[1].status == "not_checked"
 
 
 def car_page(*rows: tuple[float, str, str | None]) -> PageExtraction:
@@ -1463,6 +1503,9 @@ def test_a_taper_ratio_and_cone_angle_agree():
     findings, status = run("taper_values_consistent", body_page("TAPER 1:10 (7°)"))
     assert status.status == "fail" and "5.7248" in findings[0].comment
     assert run("taper_values_consistent", body_page("SCALE 1:2 30°"))[1].status == "not_applicable"
+    # minutes without seconds are rounded to half a minute: 5°43' is 1:10 rounded, 5°45' is not
+    assert run("taper_values_consistent", body_page("TAPER 1:10 5°43'"))[1].status == "pass"
+    assert run("taper_values_consistent", body_page("TAPER 1:10 5°44'"))[1].status == "fail"
 
 
 def test_dual_dimensions_convert_correctly_and_a_roughness_is_not_one():

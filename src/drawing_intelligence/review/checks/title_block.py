@@ -17,7 +17,7 @@ from drawing_intelligence.schemas import EvidenceRef, Finding, PageExtraction, T
 
 REVIEWER = "checks"
 _RATIO = re.compile(r"^\s*(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)\s*$")
-_SCALE_LABEL = re.compile(r"SCALE\s*(\d+(?:\.\d+)?\s*:\s*\d+(?:\.\d+)?)", re.IGNORECASE)
+_SCALE_LABEL = re.compile(r"SCALE\s*:?\s*(\d+(?:\.\d+)?\s*:\s*\d+(?:\.\d+)?)", re.IGNORECASE)
 
 
 class FieldParams(BaseModel):
@@ -466,7 +466,7 @@ def sheets_same_size(ctx: ReviewContext, rule: Rule, params: SheetsParams) -> li
 # "SUPERSEDES DWG P23N1B075061 REV 02": the number, then the revision.
 _SUPERSEDES = re.compile(r"\bSUPERS[EC]DES\b", re.I)
 _SUPERSEDES_FULL = re.compile(
-    r"\bSUPERS[EC]DES\s+(?:DWG\.?|DRAWING)?\s*(?:NO\.?)?\s*[A-Z0-9][\w./-]{3,}\s+REV(?:ISION)?\.?\s*[A-Z0-9]{1,3}\b",
+    r"\bSUPERS[EC]DES\s+(?:DWG\.?|DRAWING)?\s*(?:NO\.?)?\s*(?=[\w./-]*\d)[A-Z0-9][\w./-]{3,}\s+REV(?:ISION)?\.?\s*[A-Z0-9]{1,3}\b",
     re.I,
 )
 
@@ -574,7 +574,9 @@ class ScaleListParams(BaseModel):
 
 
 # "SCALE 1:2", "SCALE/ÉCHELLE 2:1" under a view; the title block holds the sheet's own scale ("1 : 1").
-_VIEW_SCALE = re.compile(r"SCALE(?:\s*/\s*\S+)?\s*(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)", re.IGNORECASE)
+_VIEW_SCALE = re.compile(
+    r"SCALE(?:\s*/\s*[^\s:]+)?\s*:?\s*(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)", re.IGNORECASE
+)
 
 
 def _ratio_key(a: str, b: str) -> str:
@@ -755,11 +757,12 @@ def checker_independent(ctx: ReviewContext, rule: Rule, _: object) -> list[Findi
 
     PARI leaves CHKD.BY blank when a drawing is submitted, so a blank checker is not judged here (TB-016).
     """
-    pages = [
-        p
-        for p in ev.title_block_pages(ctx)
-        if _person(ev.value(p, "drawn_by")) and _person(ev.value(p, "checked_by"))
-    ]
+    read = [p for p in ev.title_block_pages(ctx) if {"drawn_by", "checked_by"} <= p.title_block_fields.keys()]
+    if not read:
+        raise NotCheckable(
+            "the DRN.BY and CHKD.BY cells were not read (extraction predates the template cells)"
+        )
+    pages = [p for p in read if _person(ev.value(p, "drawn_by")) and _person(ev.value(p, "checked_by"))]
     if not pages:
         raise NotApplicable("the drawer and the checker are not both named")
     return [
