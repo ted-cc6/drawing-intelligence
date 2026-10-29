@@ -107,6 +107,16 @@ def test_llm_finding_cannot_fail():
     assert new_finding(llm_rule, reviewer="m", evidence=[dim()], comment="c").result == "warning"
 
 
+def test_a_rule_marked_result_warning_only_warns():
+    soft = rule(result="warning")
+    assert not soft.can_fail
+    assert new_finding(soft, reviewer="r", evidence=[dim()], comment="c").result == "warning"
+    # even a check that asks for a fail gets a warning, and severity still comes from the rule
+    forced = new_finding(soft, reviewer="r", evidence=[dim()], comment="c", result="fail")
+    assert forced.result == "warning" and forced.severity == soft.severity
+    assert new_finding(rule(), reviewer="r", evidence=[dim()], comment="c").result == "fail"
+
+
 def test_fail_cannot_rest_on_vision_alone_but_a_warning_can():
     with pytest.raises(ValidationError, match="vision-only"):
         new_finding(rule(), reviewer="r", evidence=[dim("V1", "vision")], comment="c")

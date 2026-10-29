@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict
 
 from drawing_intelligence.review.checks import _evidence as ev
 from drawing_intelligence.review.checks._registry import NotApplicable, NotCheckable, check
+from drawing_intelligence.review.checks._text import term
 from drawing_intelligence.review.context import ReviewContext
 from drawing_intelligence.review.reference import Materials, PlatingProcesses
 from drawing_intelligence.review.rulebook import Rule, new_finding
@@ -36,13 +37,6 @@ HEAT_TREATMENT_TERMS = (
 )
 
 
-def _term(term: str) -> re.Pattern[str]:
-    """A rulebook term as a word-start pattern: 'tempering' matches TEMPERED, 'carburizing' CARBURISED."""
-    stem = re.sub(r"(ing|ed|e)$", "", term.strip().lower())
-    stem = re.escape(stem).replace("z", "[sz]").replace(r"\-", r"[\s-]?").replace(r"\ ", r"\s+")
-    return re.compile(r"(?<![a-z])" + stem, re.IGNORECASE)
-
-
 def _notes(page: PageExtraction) -> list[TextItem]:
     return page.notes
 
@@ -58,7 +52,7 @@ def referenced_note_exists(ctx: ReviewContext, rule: Rule, params: NoteParams) -
     pages = [p for p in ev.title_block_pages(ctx) if _REFERS_TO_NOTE.search(ev.value(p, params.field) or "")]
     if not pages:
         raise NotApplicable(f"the {params.field.replace('_', ' ')} field does not refer to a note")
-    terms = [_term(t) for t in HEAT_TREATMENT_TERMS]
+    terms = [term(t) for t in HEAT_TREATMENT_TERMS]
     if any(any(t.search(n.text) for t in terms) for p in ctx.pages for n in _notes(p)):
         return []
     page = pages[0]
@@ -85,8 +79,8 @@ def hardened_only_treatments_have_hardening(
     ctx: ReviewContext, rule: Rule, params: HardeningParams
 ) -> list[Finding]:
     """Tempering or sub-zero treatment is only defined for hardened steel: the part must also be hardened."""
-    needs = [_term(t) for t in params.needs_prior_hardening]
-    hardening = [_term(t) for t in params.hardening_terms]
+    needs = [term(t) for t in params.needs_prior_hardening]
+    hardening = [term(t) for t in params.hardening_terms]
     texts: list[tuple[PageExtraction, TextItem | None, str]] = []
     for p in ctx.pages:
         texts += [(p, n, n.text) for n in _notes(p)]
@@ -186,7 +180,7 @@ def _heat_treatment(page: PageExtraction) -> list[EvidenceRef]:
         return []
     if not _REFERS_TO_NOTE.search(value):
         return [ev.field(page, "heat_treatment")]
-    terms = [_term(t) for t in HEAT_TREATMENT_TERMS]
+    terms = [term(t) for t in HEAT_TREATMENT_TERMS]
     return [ev.text(page, n) for n in _notes(page) if any(t.search(n.text) for t in terms)]
 
 

@@ -45,6 +45,8 @@ rules:
     severity: minor
     check_type: code
     check: paint_colour_code
+    # PARI's own practice may differ from the rule, so a finding is a warning until PARI answers
+    result: warning
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MF-13}
     status: draft
 

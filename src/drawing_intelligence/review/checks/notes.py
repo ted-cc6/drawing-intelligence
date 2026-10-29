@@ -11,8 +11,9 @@ from pydantic import BaseModel, ConfigDict
 
 from drawing_intelligence.review.checks import _evidence as ev
 from drawing_intelligence.review.checks._registry import NotApplicable, check
+from drawing_intelligence.review.checks._text import COLUMN_TOLERANCE, numbered_lists
+from drawing_intelligence.review.checks._text import term as _term_pattern
 from drawing_intelligence.review.checks._tolerance import decimals, tolerances
-from drawing_intelligence.review.checks.surface_treatment import _term
 from drawing_intelligence.review.context import ReviewContext
 from drawing_intelligence.review.rulebook import Rule, new_finding
 from drawing_intelligence.schemas import Finding, PageExtraction, TextItem, TextLine
@@ -213,62 +214,10 @@ def hardness_spec_complete(ctx: ReviewContext, rule: Rule, _: object) -> list[Fi
     return out
 
 
-# A numbered note: "1) TO BE HARDENED". Also "1) # USE STD. BAR" (PARI's # and $ mark material or finish
-# notes), a first note on the heading line ("NOTE:- 1) TO BE TOUGHENED") and the French copy ("1) À").
-# PARI's template notes are numbered "1.ALL DIMENSIONS ARE ..." and are skipped (they are on every sheet), as
-# is a decimal like "1.2 H13" (a digit, not a letter, follows the point).
-_NUMBERED = re.compile(r"^\s*(?:NOTES?\s*[:.\-]*\s*)?(\d{1,2})\s*[.)]\s*(?=[#$]?\s*[^\W\d_]|\()")
-# The template's three numbered notes; "IF IN DOUBT ," is printed on its own line, apart from "ASK TEAM
-# MEMBER", which the template's boilerplate patterns (they match the whole sentence) do not recognise.
-_TEMPLATE_NUMBERED = re.compile(r"\s*(ALL\s+DIMENSIONS|DO\s+NOT\s+SCALE|IF\s+IN\s+DOUBT)", re.IGNORECASE)
-_ACCENTED = re.compile(r"^\s*(?:NOTES?\s*[:.\-]*\s*)?\d{1,2}\s*[.)]\s*[#$]?\s*[À-ÖØ-Þ]")
-_COLUMN_TOLERANCE = 4.0  # pts: lines of one list start at the same x
-
-
-def _numbered_lists(ctx: ReviewContext, page: PageExtraction) -> list[list[tuple[int, TextLine]]]:
-    """The page's numbered note lists, each in printed order.
-
-    A list is a run of numbered lines in one column (same left edge), top to bottom; a number 1 starts a new
-    list, so an English list with its French copy below it makes two.
-    """
-    lines = []
-    for ln in page.body_text:
-        m = _NUMBERED.match(ln.text)
-        rest = ln.text[m.end() :] if m else ""
-        if m and not _TEMPLATE_NUMBERED.match(rest) and not ctx.template.is_boilerplate(rest):
-            lines.append((int(m.group(1)), ln))
-    columns: list[list[tuple[int, TextLine]]] = []
-    for n, ln in sorted(lines, key=lambda t: t[1].bbox[0]):
-        if columns and ln.bbox[0] - columns[-1][-1][1].bbox[0] <= _COLUMN_TOLERANCE:
-            columns[-1].append((n, ln))
-        else:
-            columns.append([(n, ln)])
-    lists: list[list[tuple[int, TextLine]]] = []
-    for column in columns:
-        current: list[tuple[int, TextLine]] | None = None
-        for n, ln in sorted(column, key=lambda t: t[1].bbox[1]):
-            # a 1 starts a copy (the French list) only after a full list or on an accented line; a lone
-            # "1)" after a single note is a repeat
-            if current is None or (n == 1 and (len(current) >= 2 or _ACCENTED.match(ln.text))):
-                current = []
-                lists.append(current)
-            current.append((n, ln))
-    return lists
-
-
-def template_note(page: PageExtraction) -> TextLine | None:
-    """The page's first line of the template's general notes ("1.ALL DIMENSIONS ARE", "2.DO NOT SCALE")."""
-    for ln in page.body_text:
-        m = _NUMBERED.match(ln.text)
-        if _TEMPLATE_NUMBERED.match(ln.text[m.end() :] if m else ln.text):
-            return ln
-    return None
-
-
 @check("general_notes_consecutive")
 def general_notes_consecutive(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
     """Numbered notes run 1, 2, 3 ... with no gap, repeat or wrong start (a gap may be a deleted note)."""
-    found = [(p, lst) for p in ctx.pages for lst in _numbered_lists(ctx, p)]
+    found = [(p, lst) for p in ctx.pages for lst in numbered_lists(ctx, p)]
     if not found:
         raise NotApplicable("no numbered notes")
     out = []
@@ -315,7 +264,7 @@ def note_references_resolve(ctx: ReviewContext, rule: Rule, _: object) -> list[F
     refs = [(p, ln, m) for p, ln in _body(ctx) for m in _NOTE_REF.finditer(ln.text)]
     if not refs:
         raise NotApplicable("no numbered note reference")
-    have = {n for p in ctx.pages for lst in _numbered_lists(ctx, p) for n, _ in lst}
+    have = {n for p in ctx.pages for lst in numbered_lists(ctx, p) for n, _ in lst}
     have |= {  # the template's own notes ("1.ALL DIMENSIONS ARE ...", "1." with a point) are notes too
         int(m.group(1))
         for p in ctx.pages
@@ -524,7 +473,7 @@ def _callout(page: PageExtraction, first: TextLine) -> str:
     for ln in sorted(page.body_text, key=lambda t: t.bbox[1]):
         if (
             ln is not first
-            and abs(ln.bbox[0] - last.bbox[0]) <= _COLUMN_TOLERANCE
+            and abs(ln.bbox[0] - last.bbox[0]) <= COLUMN_TOLERANCE
             and 0 <= ln.bbox[1] - last.bbox[3] <= _LINE_GAP
         ):
             parts.append(ln.text)
@@ -570,8 +519,8 @@ def softening_treatment_vs_hardness(ctx: ReviewContext, rule: Rule, params: Soft
 
     Stress relieving after hardening is normal, so the check stays silent when any hardening is named.
     """
-    soften = [_term(t) for t in params.softening_terms]
-    harden = [_term(t) for t in params.hardening_terms]
+    soften = [_term_pattern(t) for t in params.softening_terms]
+    harden = [_term_pattern(t) for t in params.hardening_terms]
     max_hb = max(v for limits in params.annealed_max_hb.values() for v in limits)
     lines = _current(ctx)
     softening = [(p, ln) for p, ln in lines if any(t.search(ln.text) for t in soften)]

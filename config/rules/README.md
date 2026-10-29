@@ -15,6 +15,7 @@ rules:
     check_type: lookup              # code | lookup | llm
     check: title_block_field        # registered check function; required for code and lookup
     params: {field: material, placeholder_ok: ["#"]}
+    result: warning                 # optional: findings are warnings, never fails (rule awaiting PARI's answer)
     applies_to: {part_family: [prismatic, round], drawing_type: [machining, fabrication]}  # default: all
     source: {document: Check List.docx, section: Title block requirements}
     status: draft                   # draft | client_confirmed
@@ -46,7 +47,8 @@ every LatentView and book rule went: encoded here, merged into another rule, or 
 | `lookup` | a table lookup (IS 2102 tolerances, material names, thread series) | yes, with exact evidence |
 | `llm` | a reasoning model | **no**: warnings to confirm only (Spike E) |
 
-The severity of a finding is always the rule's severity, never the model's. A *fail* must cite evidence read
+A code or lookup rule marked `result: warning` only warns, whatever its check returns; use it for a rule that
+follows a convention PARI has not confirmed. The severity of a finding is always the rule's severity, never the model's. A *fail* must cite evidence read
 from the PDF text layer or vector geometry. Anything resting only on vision is a warning (Spike D).
 
 ## Tips for drafting

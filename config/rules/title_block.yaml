@@ -17,6 +17,8 @@ rules:
     check_type: code
     check: scale_is_preferred
     params: {full_size: '1:1', reduced: ['1:2', '1:5', '1:10', '1:20', '1:50'], enlarged: ['2:1', '5:1', '10:1', '20:1', '50:1']}
+    # PARI's own practice may differ from the rule, so a finding is a warning until PARI answers
+    result: warning
     source: {document: 'NAAMS Global Standard Components, Section A: Design Drawing Standards and Tolerances (Auto/Steel Partnership, 2015)', section: Sec. 9.1-9.3 (p3)}
     status: draft
 
@@ -155,6 +157,8 @@ rules:
     severity: major
     check_type: code
     check: revision_change_ref
+    # PARI's own practice may differ from the rule, so a finding is a warning until PARI answers
+    result: warning
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: RV-03}
     status: draft
 

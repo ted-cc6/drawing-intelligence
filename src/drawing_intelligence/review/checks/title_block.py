@@ -10,7 +10,7 @@ from drawing_intelligence.extraction.template import resolve_rect
 from drawing_intelligence.review.checks import _evidence as ev
 from drawing_intelligence.review.checks._geometry import drawn_dimensions, supported_scales
 from drawing_intelligence.review.checks._registry import NotApplicable, NotCheckable, check
-from drawing_intelligence.review.checks.notes import template_note
+from drawing_intelligence.review.checks._text import template_note
 from drawing_intelligence.review.context import ReviewContext
 from drawing_intelligence.review.rulebook import Rule, new_finding
 from drawing_intelligence.schemas import EvidenceRef, Finding, PageExtraction, TextLine
