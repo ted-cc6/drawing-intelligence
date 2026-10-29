@@ -761,6 +761,8 @@ def test_placeholders_count_only_in_a_field_not_as_an_area_marker():
 def test_leading_zero_but_not_hole_tags():
     findings, _ = run("leading_zero_decimal", page(dimensions=[dim(1, ".5"), dim(2, "0.5"), dim(3, "A.1")]))
     assert [f.evidence[0].quote for f in findings] == [".5"]
+    diameter = page(dimensions=[dim(1, "Ø.5"), dim(2, "⌀.25"), dim(3, "Ø0.5")])
+    assert [f.evidence[0].quote for f in run("leading_zero_decimal", diameter)[0]] == ["Ø.5", "⌀.25"]
 
 
 def test_comma_thousands():
@@ -777,6 +779,15 @@ def test_hardness_in_scale_range():
     )
     assert status.status == "fail" and "15" in findings[0].comment
     assert run("hardness_value_in_scale_range", body_page("DEBURR"), **HARD)[1].status == "not_applicable"
+    # a decimal comma is a decimal point: 58,5 HRC is in range, 5,8 HRC is not
+    assert run("hardness_value_in_scale_range", body_page("HARDEN TO 58,5 HRC"), **HARD)[1].status == "pass"
+    comma = run("hardness_value_in_scale_range", body_page("HARDEN TO 5,8 HRC"), **HARD)
+    assert comma[1].status == "fail" and "5,8" in comma[0][0].comment
+    # the scale name may come first: HRC 58-62
+    assert run("hardness_value_in_scale_range", body_page("HARDNESS HRC 58-62"), **HARD)[1].status == "pass"
+    after = run("hardness_value_in_scale_range", body_page("HARDNESS HRC 15-62"), **HARD)
+    assert after[1].status == "fail" and "15 HRC" in after[0][0].comment
+    assert run("hardness_value_in_scale_range", body_page("58-62 HRC"), **HARD)[1].status == "pass"
 
 
 def test_hardness_spec_complete():

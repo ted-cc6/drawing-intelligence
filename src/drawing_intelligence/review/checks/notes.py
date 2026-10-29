@@ -100,7 +100,8 @@ def no_placeholder_text(ctx: ReviewContext, rule: Rule, params: PlaceholderParam
 @check("leading_zero_decimal")
 def leading_zero_decimal(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
     """Decimals below 1 have a leading zero (0.5, not .5): a lost point turns .5 into 5."""
-    pattern = re.compile(r"(?<![\w.])\.\d")  # not after a letter: hole tags like "A.1" are labels
+    # not after a letter: hole tags like "A.1" are labels; a diameter sign is not a letter here (Ø.5)
+    pattern = re.compile(r"(?:(?<![\w.])|(?<=[Øø⌀]))\.\d")
     return [
         _flag(
             rule,
@@ -145,22 +146,33 @@ class HardnessParams(BaseModel):
     HB_max_carbide_ball: float
 
 
-_HARDNESS = re.compile(
-    r"(\d+(?:\.\d+)?)\s*(?:(?:-|~|–|TO)\s*(\d+(?:\.\d+)?))?\s*(HRC|HRB|HB|BHN)\b", re.IGNORECASE
-)
+_NUMBER = r"\d+(?:[.,]\d+)?"  # PARI also prints a decimal comma: 58,5 HRC
+_RANGE = rf"(?:-|~|–|TO)\s*({_NUMBER})"
+_HARDNESS = re.compile(rf"({_NUMBER})\s*(?:{_RANGE})?\s*(HRC|HRB|HB|BHN)\b", re.IGNORECASE)
+_HARDNESS_AFTER = re.compile(rf"\b(HRC|HRB|HB|BHN)\s*[:=]?\s*({_NUMBER})\s*(?:{_RANGE})?", re.IGNORECASE)
+
+
+def _hardness_readings(text: str) -> list[tuple[str, list[str]]]:
+    """(scale, values) for '58-62 HRC', '58,5 HRC' and 'HRC 58-62'."""
+    before = list(_HARDNESS.finditer(text))
+    out = [(m[3], [v for v in (m[1], m[2]) if v]) for m in before]
+    for m in _HARDNESS_AFTER.finditer(text):
+        if not any(b.start(3) == m.start(1) for b in before):  # not the scale name of a value before it
+            out.append((m[1], [v for v in (m[2], m[3]) if v]))
+    return out
 
 
 @check("hardness_value_in_scale_range", HardnessParams)
 def hardness_value_in_scale_range(ctx: ReviewContext, rule: Rule, params: HardnessParams) -> list[Finding]:
     """A hardness lies in its scale's working range ('15 HRC' or '450 HB' means the wrong scale or a typo)."""
-    found = [(p, ln, m) for p, ln in _body(ctx) for m in _HARDNESS.finditer(ln.text)]
+    found = [(p, ln, r) for p, ln in _body(ctx) for r in _hardness_readings(ln.text)]
     if not found:
         raise NotApplicable("no hardness value")
     out = []
-    for page, ln, m in found:
-        scale = m.group(3).upper().replace("BHN", "HB")
+    for page, ln, (name, values) in found:
+        scale = name.upper().replace("BHN", "HB")
         low, high = {"HRC": params.HRC, "HRB": params.HRB}.get(scale, [0, params.HB_max_carbide_ball])
-        bad = [v for v in (m.group(1), m.group(2)) if v is not None and not low <= float(v) <= high]
+        bad = [v for v in values if not low <= float(v.replace(",", ".")) <= high]
         if bad:
             out.append(
                 _flag(
