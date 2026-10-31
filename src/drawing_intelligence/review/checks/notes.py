@@ -602,16 +602,23 @@ _OPTION_X, _OPTION_Y = 8.0, 14.0  # pts: the two options of one note are stacked
 
 
 def _note_label(page: PageExtraction, option: TextLine) -> TextLine | None:
-    """The note's own words, left of its options on the same row ("1) DYE PENETRATION TEST FOR WELDING -")."""
-    row = [
+    """The note's own words, left of its options on the same row ("1) DYE PENETRATION TEST FOR WELDING -").
+
+    Notes are about 7 pts apart, so of the lines within reach the nearest row wins, then its rightmost text.
+    """
+
+    def dy(o: TextLine) -> float:
+        return abs((o.bbox[1] + o.bbox[3]) / 2 - (option.bbox[1] + option.bbox[3]) / 2)
+
+    near = [
         o
         for o in page.body_text
-        if o is not option
-        and o.bbox[2] <= option.bbox[0] + 5
-        and abs((o.bbox[1] + o.bbox[3]) / 2 - (option.bbox[1] + option.bbox[3]) / 2) <= 12
-        and not _OPTION.match(o.text)
+        if o is not option and o.bbox[2] <= option.bbox[0] + 5 and dy(o) <= 12 and not _OPTION.match(o.text)
     ]
-    return max(row, key=lambda o: o.bbox[2], default=None)
+    if not near:
+        return None
+    nearest = min(dy(o) for o in near)
+    return max((o for o in near if dy(o) <= nearest + 3), key=lambda o: o.bbox[2])
 
 
 @check("weld_note_options_resolved")
@@ -626,13 +633,15 @@ def weld_note_options_resolved(ctx: ReviewContext, rule: Rule, _: object) -> lis
                 options.append((page, ln, bool(m.group(1)), m.group(2).upper()))
             elif _BOTH_ON_ONE_LINE.search(ln.text):
                 options.append((page, ln, True, "BOTH"))
+                # the note's label tells two such notes apart (a finding's id comes from its quoted evidence)
+                label = _note_label(page, ln)
                 out.append(
-                    _flag(
+                    new_finding(
                         rule,
-                        page,
-                        ln,
-                        f"'{ln.text}' offers both options.",
-                        "Keep only the option that applies.",
+                        reviewer=REVIEWER,
+                        evidence=[ev.text(page, t) for t in (label, ln) if t is not None],
+                        comment=f"{f'{label.text!r}: ' if label else ''}'{ln.text}' offers both options.",
+                        recommended_correction="Keep only the option that applies.",
                     )
                 )
     if not options:

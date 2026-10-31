@@ -1310,8 +1310,9 @@ def test_trapezoidal_lead_is_a_multiple_of_the_pitch():
     # drawings are in capitals
     assert run("thread_lead_multiple_of_pitch", body_page("TR40X14(P7)"))[1].status == "pass"
     assert run("thread_lead_multiple_of_pitch", body_page("TR40X15(P7)"))[1].status == "fail"
-    # a zero pitch must not divide by zero (that made the rule not_checked); it is left alone
-    assert run("thread_lead_multiple_of_pitch", body_page("Tr40x14(P0)"))[1].status == "pass"
+    # a zero pitch must not divide by zero (that made the rule not_checked): it is a misprint, so it fails
+    findings, status = run("thread_lead_multiple_of_pitch", body_page("Tr40x14(P0)"))
+    assert status.status == "fail" and "a pitch of 0 is not a pitch" in findings[0].comment
 
 
 def numbered(sheet: int, count: int = 2, **kw) -> PageExtraction:
@@ -1418,6 +1419,25 @@ def test_every_revision_in_a_car_table_has_its_change_number():
     ].status == ("not_applicable")
 
 
+def test_two_revisions_with_the_same_date_are_two_findings():
+    # a finding's id comes from its quoted evidence: the row's mark and description keep the two apart
+    table = car_page((624, "12.05.2024", None), (610, "12.05.2024", None))
+    table.body_text += [
+        TextLine(text="REVISION", bbox=(42, 637, 80, 651)),
+        TextLine(text="01", bbox=(52, 621, 60, 632)),
+        TextLine(text="HOLE ADDED", bbox=(85, 626, 200, 637)),
+        TextLine(text="2", bbox=(56, 610, 60, 621)),
+        TextLine(text="CHAMFER REVISED", bbox=(83, 610, 220, 621)),
+    ]
+    findings, status = run("revision_change_ref", table)
+    assert status.status == "fail" and len(findings) == 2
+    assert {f.comment for f in findings} == {
+        "Revision 01 (dated 12.05.2024) has no change number (CAR. NO.).",
+        "Revision 2 (dated 12.05.2024) has no change number (CAR. NO.).",
+    }
+    assert [e.quote for e in findings[0].evidence][1:] in (["01", "HOLE ADDED"], ["2", "CHAMFER REVISED"])
+
+
 def option_page(*lines: tuple[str, float, float]) -> PageExtraction:
     return page(body_text=[TextLine(text=t, bbox=(x, y, x + 50, y + 9)) for t, x, y in lines])
 
@@ -1452,6 +1472,19 @@ def test_a_welding_note_keeps_one_option():
         1
     ].status == ("fail")
     assert run("weld_note_options_resolved", body_page("DEBURR"))[1].status == "not_applicable"
+    # two notes each printed as "APPLICABLE / NOT APPLICABLE" are two findings, told apart by their labels
+    one_line = option_page(
+        ("9) STRESS RELIEVING -", 636, 200),
+        ("APPLICABLE / NOT APPLICABLE", 724, 200),
+        ("10) SHOT BLASTING -", 636, 207),
+        ("APPLICABLE / NOT APPLICABLE", 724, 207),
+    )
+    findings, status = run("weld_note_options_resolved", one_line)
+    assert status.status == "fail" and len(findings) == 2
+    assert sorted(f.comment.split(":")[0] for f in findings) == [
+        "'10) SHOT BLASTING -'",
+        "'9) STRESS RELIEVING -'",
+    ]
 
 
 def test_a_tapped_hole_callout_gives_its_depth():

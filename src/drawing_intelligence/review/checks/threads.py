@@ -193,7 +193,7 @@ def thread_lead_multiple_of_pitch(ctx: ReviewContext, rule: Rule, _: object) -> 
     out = []
     for page, item, m in found:
         lead, pitch = float(m["lead"]), float(m["pitch"])
-        if pitch <= 0 or abs(lead / pitch - round(lead / pitch)) < 1e-6:
+        if pitch > 0 and abs(lead / pitch - round(lead / pitch)) < 1e-6:
             continue
         evidence = ev.dimension(page, item) if isinstance(item, TextItem) and item.id else ev.text(page, item)
         out.append(
@@ -201,7 +201,9 @@ def thread_lead_multiple_of_pitch(ctx: ReviewContext, rule: Rule, _: object) -> 
                 rule,
                 reviewer=REVIEWER,
                 evidence=[evidence],
-                comment=f"'{m.group(0)}': lead {m['lead']} is not a whole multiple of pitch {m['pitch']}.",
+                comment=f"'{m.group(0)}': a pitch of {m['pitch']} is not a pitch."
+                if pitch <= 0
+                else f"'{m.group(0)}': lead {m['lead']} is not a whole multiple of pitch {m['pitch']}.",
                 recommended_correction="Correct the lead or the pitch (lead = pitch x number of starts).",
             )
         )

@@ -805,6 +805,15 @@ def revision_change_ref(ctx: ReviewContext, rule: Rule, _: object) -> list[Findi
         )
         if header is None or date_header is None:
             continue
+        rev_header = next(
+            (
+                ln
+                for ln in page.body_text
+                if ln.text.strip().upper() in ("REV", "REV.", "REVISION")
+                and abs(ln.bbox[1] - header.bbox[1]) <= _SAME_ROW
+            ),
+            None,
+        )
         found = True
         for date in page.body_text:
             if (
@@ -822,12 +831,30 @@ def revision_change_ref(ctx: ReviewContext, rule: Rule, _: object) -> list[Findi
                 if ln is not header
             )
             if not has_number:
+                # the row's own cells (revision mark, description) say which revision it is, and keep two rows
+                # with the same date apart (a finding's id comes from its quoted evidence, not its position)
+                row = sorted(
+                    (
+                        ln
+                        for ln in page.body_text
+                        if ln.bbox[2] <= header.bbox[0]
+                        and (rev_header is None or ln.bbox[0] >= rev_header.bbox[0] - _CAR_COLUMN_X)
+                        and abs((ln.bbox[1] + ln.bbox[3]) / 2 - centre) <= _SAME_ROW
+                    ),
+                    key=lambda ln: ln.bbox[0],
+                )
+                mark = row[0].text.strip() if row and len(row[0].text.strip()) <= 3 else None
+                which = (
+                    f"Revision {mark} (dated {date.text.strip()})"
+                    if mark
+                    else f"The revision dated {date.text.strip()}"
+                )
                 out.append(
                     new_finding(
                         rule,
                         reviewer=REVIEWER,
-                        evidence=[ev.text(page, date)],
-                        comment=f"The revision dated {date.text.strip()} has no change number (CAR. NO.).",
+                        evidence=[ev.text(page, date), *(ev.text(page, ln) for ln in row)],
+                        comment=f"{which} has no change number (CAR. NO.).",
                         recommended_correction="Quote the change (CAR) number for every revision.",
                     )
                 )
