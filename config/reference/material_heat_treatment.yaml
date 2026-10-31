@@ -1,0 +1,1086 @@
+source:
+  document: PARI Standard High Carbon  Alloy Steel Material Selection PRD-GD-DES-11.pdf
+  document_id: PRD/GD/DES/11
+  version: 1
+  revision: 1
+  effective_date: '2016-03-09'
+  section: Material, Heat Treatment Type and Hardness range
+  pdf_pages:
+  - 1
+  repository_path: data/client_set/WP Specific Guidelines/PARI Standard High Carbon  Alloy
+    Steel Material Selection PRD-GD-DES-11.pdf
+  sha256: 282c05fcfdf5a4481e2778a13458029a6f3e3c2d4da53532fd195e80a4f54157
+scope: Complete page-1 transcription, all 13 rows and all six process columns. Printed
+  NIL is retained. Unknown materials/processes are not automatically prohibited; note
+  iii permits justified exceptions.
+general_notes:
+  i: Raw material given in the below table to be selected & specified on drawing by
+    Designer based on it's Heat Treatment Properties and application requirement.
+  ii: Requirements of Forging / Magnetic Particle testing / Ultrasonic testing / Dye
+    Penetrant testing / Stress Relieving to be specified by Designer on drawing as
+    per application requirement.
+  iii: Any raw material apart from below table can be selected by Designer for the
+    specific reason of special requirements and specify such raw material with Heat
+    treatment requirements & NDT requirements as applicable on drawing.
+column_notes:
+  flame: Area to be hardened to be shown by XXXXX on drawing.
+  induction: Area to be hardened to be shown by XXXXX on drawing.
+  case: Area to be hardened to be shown by XXXXX on drawing.
+  case_depth_header: The case-hardening column header repeats HRC for depth, but its
+    cells explicitly give depth in mm. Cell units are retained; the header typo is
+    not used as a depth unit.
+  mechanical_property_units: UTS and allowable stress are labelled Kg/mm² in the source.
+    No automatic conversion to MPa or reinterpretation as kgf/mm² is made.
+  merged_raw_material_note: The raw-material note Consult Purchase for complex or
+    large shapes & sizes is a merged cell spanning rows 8–13.
+materials:
+- row: 1
+  key: EN9
+  material_as_printed: C45 / C55 (En8D/En9)
+  pari_std_as_printed: EN9
+  equivalents_as_printed:
+  - C45
+  - C55
+  - En8D
+  - En9
+  raw_material_note: Round bar stock of <= 32 dia. (Refer Sheet 2)
+  raw_note_shared_rows: []
+  selection:
+    preferred_form: round
+    diameter_operator: <=
+    diameter_mm: 32
+  treatments:
+    toughening:
+      status: tabulated
+      printed: 24-32 HRC
+      hardness:
+        low: 24
+        high: 32
+        unit: HRC
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    flame:
+      status: tabulated
+      printed: 45 - 55 HRC, 0.6 to 2 mm depth
+      hardness:
+        low: 45
+        high: 55
+        unit: HRC
+      depth_as_printed:
+        low: 0.6
+        high: 2
+        unit: mm
+      depth_mm:
+        low: 0.6
+        high: 2
+        unit: mm
+      area_marking_required: true
+    induction:
+      status: tabulated
+      printed: 45 - 55 HRC, 0.6 to 2 mm depth
+      hardness:
+        low: 45
+        high: 55
+        unit: HRC
+      depth_as_printed:
+        low: 0.6
+        high: 2
+        unit: mm
+      depth_mm:
+        low: 0.6
+        high: 2
+        unit: mm
+      area_marking_required: true
+    case:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    nitriding:
+      status: tabulated
+      printed: Nitriding 45 - 55 HRC, 20 to 25 microns depth
+      hardness:
+        low: 45
+        high: 55
+        unit: HRC
+      depth_as_printed:
+        low: 20
+        high: 25
+        unit: microns
+      depth_mm:
+        low: 0.02
+        high: 0.025
+        unit: mm
+      area_marking_required: false
+    through:
+      status: tabulated
+      printed: 40-45 HRC
+      hardness:
+        low: 40
+        high: 45
+        unit: HRC
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+  uts_as_printed: 60-75
+  uts:
+    low: 60
+    high: 75
+    unit: Kg/mm² as printed
+  allowable_stress_as_printed: 30-37.5
+  allowable_stress:
+    low: 30
+    high: 37.5
+    unit: Kg/mm² as printed
+  typical_application: Applicable for parts in Round form like Shafts, keys, fasteners,
+    Wear resistance parts -Pins, shafts
+  additional_information: Nitriding to be done after finish machining/ Preferred to
+    be toughened/ machined and then nitrided. (Chrome plating to be avoided because
+    of peeling possibility).
+  source_location: PDF page 1, table row 1
+- row: 2
+  key: C45
+  material_as_printed: C45 / C55
+  pari_std_as_printed: C45
+  equivalents_as_printed:
+  - C45
+  - C55
+  raw_material_note: Plate & block stock (Refer Sheet 2)
+  raw_note_shared_rows: []
+  selection:
+    preferred_form: plate_block
+  treatments:
+    toughening:
+      status: tabulated
+      printed: 24-32 HRC
+      hardness:
+        low: 24
+        high: 32
+        unit: HRC
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    flame:
+      status: tabulated
+      printed: 45 - 55 HRC, 0.6 to 2 mm depth
+      hardness:
+        low: 45
+        high: 55
+        unit: HRC
+      depth_as_printed:
+        low: 0.6
+        high: 2
+        unit: mm
+      depth_mm:
+        low: 0.6
+        high: 2
+        unit: mm
+      area_marking_required: true
+    induction:
+      status: tabulated
+      printed: 45 - 55 HRC, 0.6 to 2 mm depth
+      hardness:
+        low: 45
+        high: 55
+        unit: HRC
+      depth_as_printed:
+        low: 0.6
+        high: 2
+        unit: mm
+      depth_mm:
+        low: 0.6
+        high: 2
+        unit: mm
+      area_marking_required: true
+    case:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    nitriding:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    through:
+      status: tabulated
+      printed: 40-45 HRC
+      hardness:
+        low: 40
+        high: 45
+        unit: HRC
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+  uts_as_printed: 60-75
+  uts:
+    low: 60
+    high: 75
+    unit: Kg/mm² as printed
+  allowable_stress_as_printed: 30-37.5
+  allowable_stress:
+    low: 30
+    high: 37.5
+    unit: Kg/mm² as printed
+  typical_application: Applicable for only parts in Plate form like Wear Plates, Resting
+    pad
+  additional_information: Low hardenability (Toughened part at core shows low hardness
+    (10 to 14 HRC).
+  source_location: PDF page 1, table row 2
+- row: 3
+  key: EN24
+  material_as_printed: 40Ni6Cr4Mo3 (EN24/5517)
+  pari_std_as_printed: EN24
+  equivalents_as_printed:
+  - 40Ni6Cr4Mo3
+  - EN24
+  - '5517'
+  raw_material_note: = > 32 dia. (Refer Sheet 2)
+  raw_note_shared_rows: []
+  selection:
+    preferred_form: round
+    diameter_operator: '>'
+    diameter_mm: 32
+    interpretation_note: Printed '= > 32 dia.' is interpreted as >32 mm, following
+      WPM-005; printed wording is retained.
+  treatments:
+    toughening:
+      status: tabulated
+      printed: 24-32 HRC
+      hardness:
+        low: 24
+        high: 32
+        unit: HRC
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    flame:
+      status: tabulated
+      printed: 45 - 55 HRC, 0.6 to 2 mm depth
+      hardness:
+        low: 45
+        high: 55
+        unit: HRC
+      depth_as_printed:
+        low: 0.6
+        high: 2
+        unit: mm
+      depth_mm:
+        low: 0.6
+        high: 2
+        unit: mm
+      area_marking_required: true
+    induction:
+      status: tabulated
+      printed: 45 - 55 HRC, 0.6 to 2 mm depth
+      hardness:
+        low: 45
+        high: 55
+        unit: HRC
+      depth_as_printed:
+        low: 0.6
+        high: 2
+        unit: mm
+      depth_mm:
+        low: 0.6
+        high: 2
+        unit: mm
+      area_marking_required: true
+    case:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    nitriding:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    through:
+      status: tabulated
+      printed: 50 - 55 HRC
+      hardness:
+        low: 50
+        high: 55
+        unit: HRC
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+  uts_as_printed: 75-130
+  uts:
+    low: 75
+    high: 130
+    unit: Kg/mm² as printed
+  allowable_stress_as_printed: 37.5-65
+  allowable_stress:
+    low: 37.5
+    high: 65
+    unit: Kg/mm² as printed
+  typical_application: Bolts, Gears, Shafts, Good for impact loads. Higher strength
+    than 40Cr4 / EN19
+  additional_information: --
+  source_location: PDF page 1, table row 3
+- row: 4
+  key: SAE8620
+  material_as_printed: 20MnCr5 (SAE8620)
+  pari_std_as_printed: SAE8620
+  equivalents_as_printed:
+  - 20MnCr5
+  - SAE8620
+  raw_material_note: (Refer Sheet 2)
+  raw_note_shared_rows: []
+  selection:
+    preferred_form: unspecified
+  treatments:
+    toughening:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    flame:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    induction:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    case:
+      status: tabulated
+      printed: 58 ± 2 HRC, 0.6 to 2 mm depth
+      hardness:
+        low: 56
+        high: 60
+        unit: HRC
+      depth_as_printed:
+        low: 0.6
+        high: 2
+        unit: mm
+      depth_mm:
+        low: 0.6
+        high: 2
+        unit: mm
+      area_marking_required: true
+    nitriding:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    through:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+  uts_as_printed: null
+  uts: null
+  allowable_stress_as_printed: null
+  allowable_stress: null
+  typical_application: For applications other than shafts/Gears (like Rollers)
+  additional_information: --
+  source_location: PDF page 1, table row 4
+- row: 5
+  key: 20MnCr5
+  material_as_printed: 20MnCr5 (4432, EN353)
+  pari_std_as_printed: 20MnCr5
+  equivalents_as_printed:
+  - 20MnCr5
+  - '4432'
+  - EN353
+  raw_material_note: (Refer Sheet 2)
+  raw_note_shared_rows: []
+  selection:
+    preferred_form: unspecified
+  treatments:
+    toughening:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    flame:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    induction:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    case:
+      status: tabulated
+      printed: 58 ± 2 HRC, 0.6 to 2 mm depth
+      hardness:
+        low: 56
+        high: 60
+        unit: HRC
+      depth_as_printed:
+        low: 0.6
+        high: 2
+        unit: mm
+      depth_mm:
+        low: 0.6
+        high: 2
+        unit: mm
+      area_marking_required: true
+    nitriding:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    through:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+  uts_as_printed: 62-74
+  uts:
+    low: 62
+    high: 74
+    unit: Kg/mm² as printed
+  allowable_stress_as_printed: 31-37
+  allowable_stress:
+    low: 31
+    high: 37
+    unit: Kg/mm² as printed
+  typical_application: For Shafts/Gears, locating pins etc.
+  additional_information: --
+  source_location: PDF page 1, table row 5
+- row: 6
+  key: EN19
+  material_as_printed: EN19
+  pari_std_as_printed: EN19
+  equivalents_as_printed:
+  - EN19
+  raw_material_note: (Refer Sheet 2)
+  raw_note_shared_rows: []
+  selection:
+    preferred_form: unspecified
+  treatments:
+    toughening:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    flame:
+      status: tabulated
+      printed: 50-55 HRC, 0.6 to 2 mm depth
+      hardness:
+        low: 50
+        high: 55
+        unit: HRC
+      depth_as_printed:
+        low: 0.6
+        high: 2
+        unit: mm
+      depth_mm:
+        low: 0.6
+        high: 2
+        unit: mm
+      area_marking_required: true
+    induction:
+      status: tabulated
+      printed: 50-55 HRC, 0.6 to 2 mm depth
+      hardness:
+        low: 50
+        high: 55
+        unit: HRC
+      depth_as_printed:
+        low: 0.6
+        high: 2
+        unit: mm
+      depth_mm:
+        low: 0.6
+        high: 2
+        unit: mm
+      area_marking_required: true
+    case:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    nitriding:
+      status: tabulated
+      printed: Gas Nitriding 50-55 HRC, 20 to 25 micron case depth
+      hardness:
+        low: 50
+        high: 55
+        unit: HRC
+      depth_as_printed:
+        low: 20
+        high: 25
+        unit: microns
+      depth_mm:
+        low: 0.02
+        high: 0.025
+        unit: mm
+      area_marking_required: false
+    through:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+  uts_as_printed: 70-110
+  uts:
+    low: 70
+    high: 110
+    unit: Kg/mm² as printed
+  allowable_stress_as_printed: 35-55
+  allowable_stress:
+    low: 35
+    high: 55
+    unit: Kg/mm² as printed
+  typical_application: For Rest pad
+  additional_information: Nitriding to be done after finish machining/ Preferred to
+    be toughened/ machined and then nitrided. (Chrome plating to be avoided because
+    of peeling possibility).
+  source_location: PDF page 1, table row 6
+- row: 7
+  key: EN41B
+  material_as_printed: EN41B
+  pari_std_as_printed: EN41B
+  equivalents_as_printed:
+  - EN41B
+  raw_material_note: --
+  raw_note_shared_rows: []
+  selection:
+    preferred_form: unspecified
+  treatments:
+    toughening:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    flame:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    induction:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    case:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    nitriding:
+      status: tabulated
+      printed: Gas Nitriding 50-55 HRC, 20 to 25 microns case depth
+      hardness:
+        low: 50
+        high: 55
+        unit: HRC
+      depth_as_printed:
+        low: 20
+        high: 25
+        unit: microns
+      depth_mm:
+        low: 0.02
+        high: 0.025
+        unit: mm
+      area_marking_required: false
+    through:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+  uts_as_printed: 80-100
+  uts:
+    low: 80
+    high: 100
+    unit: Kg/mm² as printed
+  allowable_stress_as_printed: 40-50
+  allowable_stress:
+    low: 40
+    high: 50
+    unit: Kg/mm² as printed
+  typical_application: For Tool holders
+  additional_information: Nitriding to be done after finish machining/ Preferred to
+    be toughened/ machined and then nitrided. (Chrome plating to be avoided because
+    of peeling possibility).
+  source_location: PDF page 1, table row 7
+- row: 8
+  key: D2
+  material_as_printed: XT160Cr12 (4430, HCHCr/ D2)
+  pari_std_as_printed: D2
+  equivalents_as_printed:
+  - XT160Cr12
+  - '4430'
+  - HCHCr
+  - D2
+  raw_material_note: Consult Purchase for complex or large shapes & sizes
+  raw_note_shared_rows:
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  selection:
+    preferred_form: unspecified
+  treatments:
+    toughening:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    flame:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    induction:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    case:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    nitriding:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    through:
+      status: tabulated
+      printed: 60 ±2 HRC
+      hardness:
+        low: 58
+        high: 62
+        unit: HRC
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+  uts_as_printed: null
+  uts: null
+  allowable_stress_as_printed: null
+  allowable_stress: null
+  typical_application: Gauges, Punches, Cam plates
+  additional_information: --
+  source_location: PDF page 1, table row 8
+- row: 9
+  key: SS304
+  material_as_printed: X04Cr18Ni11 (EN58E/SS304)
+  pari_std_as_printed: SS304
+  equivalents_as_printed:
+  - X04Cr18Ni11
+  - EN58E
+  - SS304
+  raw_material_note: Consult Purchase for complex or large shapes & sizes
+  raw_note_shared_rows:
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  selection:
+    preferred_form: unspecified
+  treatments:
+    toughening:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    flame:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    induction:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    case:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    nitriding:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    through:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+  uts_as_printed: null
+  uts: null
+  allowable_stress_as_printed: null
+  allowable_stress: null
+  typical_application: For Food grade and Antirust applications (like Washing m/c
+    tanks/doors)
+  additional_information: --
+  source_location: PDF page 1, table row 9
+- row: 10
+  key: EN42
+  material_as_printed: 80C6 (1074)
+  pari_std_as_printed: EN42
+  equivalents_as_printed:
+  - 80C6
+  - '1074'
+  - EN42
+  raw_material_note: Consult Purchase for complex or large shapes & sizes
+  raw_note_shared_rows:
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  selection:
+    preferred_form: unspecified
+  treatments:
+    toughening:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    flame:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    induction:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    case:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    nitriding:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    through:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+  uts_as_printed: null
+  uts: null
+  allowable_stress_as_printed: null
+  allowable_stress: null
+  typical_application: Tension/Compression Springs
+  additional_information: --
+  source_location: PDF page 1, table row 10
+- row: 11
+  key: FG260
+  material_as_printed: FG260
+  pari_std_as_printed: --
+  equivalents_as_printed:
+  - FG260
+  raw_material_note: Consult Purchase for complex or large shapes & sizes
+  raw_note_shared_rows:
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  selection:
+    preferred_form: unspecified
+  treatments:
+    toughening:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    flame:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    induction:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    case:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    nitriding:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    through:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+  uts_as_printed: null
+  uts: null
+  allowable_stress_as_printed: null
+  allowable_stress: null
+  typical_application: Simple applications like belt pulleys
+  additional_information: --
+  source_location: PDF page 1, table row 11
+- row: 12
+  key: FG300
+  material_as_printed: FG300
+  pari_std_as_printed: --
+  equivalents_as_printed:
+  - FG300
+  raw_material_note: Consult Purchase for complex or large shapes & sizes
+  raw_note_shared_rows:
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  selection:
+    preferred_form: unspecified
+  treatments:
+    toughening:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    flame:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    induction:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    case:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    nitriding:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    through:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+  uts_as_printed: null
+  uts: null
+  allowable_stress_as_printed: null
+  allowable_stress: null
+  typical_application: Rope Sheaves/Pulleys
+  additional_information: --
+  source_location: PDF page 1, table row 12
+- row: 13
+  key: OHNS
+  material_as_printed: OHNS (O1,O2)
+  pari_std_as_printed: OHNS (O1,O2)
+  equivalents_as_printed:
+  - OHNS
+  - O1
+  - O2
+  raw_material_note: Consult Purchase for complex or large shapes & sizes
+  raw_note_shared_rows:
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  selection:
+    preferred_form: unspecified
+  treatments:
+    toughening:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    flame:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    induction:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    case:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    nitriding:
+      status: nil
+      printed: NIL
+      hardness: null
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+    through:
+      status: tabulated
+      printed: 58 - 62 HRC
+      hardness:
+        low: 58
+        high: 62
+        unit: HRC
+      depth_as_printed: null
+      depth_mm: null
+      area_marking_required: false
+  uts_as_printed: null
+  uts: null
+  allowable_stress_as_printed: null
+  allowable_stress: null
+  typical_application: For Gauges Probes
+  additional_information: --
+  source_location: PDF page 1, table row 13
+policies:
+- material_keys:
+  - EN9
+  - EN19
+  - EN41B
+  requirement: nitriding_after_finish_machining
+  strength: instruction
+  source_location: PDF page 1, Additional Information, rows 1, 6, 7
+- material_keys:
+  - EN9
+  - EN19
+  - EN41B
+  requirement: prefer_toughening_before_nitriding
+  strength: preference
+  source_location: PDF page 1, Additional Information, rows 1, 6, 7
+- material_keys:
+  - EN9
+  - EN19
+  - EN41B
+  requirement: avoid_chrome_after_nitriding
+  strength: avoid_recommendation
+  source_location: PDF page 1, Additional Information, rows 1, 6, 7

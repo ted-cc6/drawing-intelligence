@@ -1,0 +1,63 @@
+source:
+  document: US-India equivalent Materials Info.xlsx
+  section: Sheet1!G5:H18; ambiguous prose alternatives retained, not automatically
+    applied
+  sha256: 809f81414d8da6baf9bb37100e8fcb0667d04575d1ba0b855ce1f254954ec48a
+scope: Literal pair checking only; Sheet2 not treated as a PARI approval list.
+rows:
+- us: Thin sheets (Steel)
+  india: Mild Steel 1018
+  cell: Sheet1!G5:H5
+  automatic: false
+- us: Thin sheets (if Stainless Steel)
+  india: SS304
+  cell: Sheet1!G6:H6
+  automatic: false
+- us: Aluminum
+  india: HE30
+  cell: Sheet1!G7:H7
+  automatic: false
+- us: X46Cr13
+  india: SS420
+  cell: Sheet1!G8:H8
+  automatic: true
+- us: 9SMn28k
+  india: Spring Steel
+  cell: Sheet1!G9:H9
+  automatic: true
+- us: LAMICOID
+  india: HE30 Al (1.6mm thick )
+  cell: Sheet1!G10:H10
+  automatic: false
+- us: AlZnMgCu1.5 F-53
+  india: AL 7075
+  cell: Sheet1!G11:H11
+  automatic: true
+- us: A36
+  india: 1030 Mild Steel, if not found EN8/C45
+  cell: Sheet1!G12:H12
+  automatic: false
+- us: X5CrNi18-10
+  india: SS 304
+  cell: Sheet1!G13:H13
+  automatic: true
+- us: 7075-T6 ALUMINUM
+  india: Same Grade available in India
+  cell: Sheet1!G14:H14
+  automatic: false
+- us: SAE1018 CRS
+  india: Mild Steel 1018
+  cell: Sheet1!G15:H15
+  automatic: true
+- us: ASTM_A500 &1020_HRS
+  india: ST 30, or EN8
+  cell: Sheet1!G16:H16
+  automatic: false
+- us: ST-52
+  india: Same Grade available in India
+  cell: Sheet1!G17:H17
+  automatic: false
+- us: Steel angle
+  india: Mild Steel 1018
+  cell: Sheet1!G18:H18
+  automatic: false

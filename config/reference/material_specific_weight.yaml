@@ -1,0 +1,46 @@
+source:
+  document: WESTERMANN_TABLES.pdf
+  section: PDF 04L, book 2, all solid-material specific weights; copper/aluminium
+    additionally PDF 03R, book 1
+  sha256: 6bee8669240e88b99383c7c58a6961111e90be0ed86135232d83b7ebd79bb7d8
+scope: Specific weight as printed, gf/cm³. One value denotes the printed nominal value;
+  two values denote the printed range endpoints (babbitt). Do not use a range lower
+  endpoint as an upper mass bound. No present-day alloy-specific density guarantee.
+values:
+  steel:
+  - 7.85
+  cast steel:
+  - 7.85
+  grey cast iron:
+  - 7.2
+  high-speed steel:
+  - 9.0
+  tungsten carbide:
+  - 14.75
+  constantan:
+  - 8.89
+  invar (36% Ni):
+  - 8.7
+  brass:
+  - 8.5
+  al bronze:
+  - 8.4
+  al cast bronze:
+  - 7.6
+  tin bronze:
+  - 8.6
+  lead bronze:
+  - 9.5
+  al alloy:
+  - 2.8
+  mg alloy:
+  - 1.8
+  babbitt metal:
+  - 7.5
+  - 10.1
+  plexiglass:
+  - 1.2
+  copper:
+  - 8.9
+  aluminium:
+  - 2.7

@@ -1,0 +1,1634 @@
+source:
+  document: India Raw material sizes 08-Feb-24.xlsx
+  section: All nonempty worksheet cells and merged-range metadata in all 16 worksheets;
+    original cell addresses retained
+  sha256: f091f61ce57ab7430b561e735c3402603d58cebb67d03d4c389c4cfc99801aba
+scope: Complete cell-value transcription of the 2024 stock catalogue, including plate,
+  round, tubes, pipes, profiles and aluminium sheets. Original text/units/alternatives
+  are retained. Graphical shapes and dimension diagrams are not transcribed. The separately
+  typed raw_material_sizes table is a numeric subset for direct lookup, not a claim
+  that other forms are unavailable.
+graphical_shapes_transcribed: false
+sheets:
+- name: Plate_
+  cells:
+  - address: A3
+    value: Sr.No
+  - address: B3
+    value: Sheet  Length & Width(mm)
+  - address: A4
+    value: 1
+  - address: B4
+    value: 1250  X 2500
+  - address: A5
+    value: 2
+  - address: B5
+    value: 1250  X 3000
+  - address: A6
+    value: 3
+  - address: B6
+    value: 1250  X 6000
+  - address: A7
+    value: 4
+  - address: B7
+    value: 1250  X 9000
+  - address: A8
+    value: 5
+  - address: B8
+    value: 1250  X 12000
+  - address: A9
+    value: 6
+  - address: B9
+    value: 1500  X 2500
+  - address: A10
+    value: 7
+  - address: B10
+    value: 1500  X 3000
+  - address: A11
+    value: 8
+  - address: B11
+    value: 1500  X 6000
+  - address: A12
+    value: 9
+  - address: B12
+    value: 1500  X 9000
+  - address: A13
+    value: 10
+  - address: B13
+    value: 1500  X 12000
+  - address: A16
+    value: Sr.No
+  - address: B16
+    value: Material category
+  - address: C16
+    value: Thick(MM)
+  - address: A17
+    value: 1
+  - address: B17
+    value: MS CRCA sheet
+  - address: C17
+    value: 0.8,1,1.2,1.6,2,3 MM
+  - address: A18
+    value: 2
+  - address: B18
+    value: MS HR sheet
+  - address: C18
+    value: 3,3.2,3.6,4,5,6,8,10 MM
+  - address: A19
+    value: 3
+  - address: B19
+    value: MS Black plate
+  - address: C19
+    value: 12,14,16,18,20,22,25,30,32,36,40,45,50,56,60,65,70,75,80,90,100,105,110,120,125,130,140,150,160,170,180,190,200
+      MM
+  - address: A20
+    value: 4
+  - address: B20
+    value: C45 Plate
+  - address: C20
+    value: 6,8,10,12,14,16,18,20,22,25,30,32,36,40,45,50,56,60,65,70,75,80,90,100,105,110,120,125,130,140,150,160,170,180,190,200
+      MM
+  - address: A21
+    value: 6
+  - address: B21
+    value: MS Bright flat
+  - address: C21
+    value: 25X 6/8/10/12, 32X 6/8/10/12/16,40X 6/8/10/12/16/20/25 | 50X6/8/10/12/16/20,63X
+      6/8/10/12/16/20, 75X 6/8/10/12/16/20
+  - address: C22
+    value: '  100X 6/8/10/12/16/20, 125X 6/8/10/12/16/20 mm'
+  - address: A23
+    value: 7
+  - address: B23
+    value: MS Black flat
+  - address: C23
+    value: 25X 5/6/8/10/12,32X 6/8/10/12/16 ,40X 5/6/8/10/12/16/20/25 ,50X 5/6/8/10/12/16/20/25,
+      65X 6/8/10/12/16/20/25/32,  75X6/8/10/12/16/20/25/32
+  - address: C24
+    value: 100 X 6/8/10/12/16/20/25/32, 125X6/8/10/12/16/20/25/32, 150X 6/8/10/12/16/
+      20/25/32,200X6/8/10/12/16/20/25, 250X 6/8/10/12/16, 300X 6/8/10/12/16 mm
+  - address: A25
+    value: 8
+  - address: B25
+    value: 20MNCR5 FLAT
+  - address: C25
+    value: 25X12/16/20/25, 32X12/16/20/25/32, 40X12/16/20/25/32/40, 50X12/16/20/25/32/50,
+      65X12/16/20/25/32/40/50,75X16/20/25/32/40/50/65/75
+  - address: C26
+    value: 80X12/16/20/25/32/40/50, 100X12/16/20/25/32/40/50,100X16/20/25/32/40/50/65/75/100,
+      125X12/16/20/25/32/40/50/65/75/100/125
+  - address: A27
+    value: 9
+  - address: B27
+    value: EN24 FLAT
+  - address: C27
+    value: 25X12/16/20/25, 32X12/16/20/25/32, 40X12/16/20/25/32/40, 50X12/16/20/25/32/50,
+      65X12/16/20/25/32/40/50,75X16/20/25/32/40/50/65/75
+  - address: C28
+    value: 80X12/16/20/25/32/40/50, 100X12/16/20/25/32/40/50,100X16/20/25/32/40/50/65/75/100,
+      125X12/16/20/25/32/40/50/65/75/100/125
+  - address: A29
+    value: 10
+  - address: B29
+    value: C45 FLAT
+  - address: C29
+    value: 25X12/16/20/25, 32X12/16/20/25/32, 40X12/16/20/25/32/40, 50X12/16/20/25/32/50,
+      65X12/16/20/25/32/40/50,75X16/20/25/32/40/50/65/75
+  - address: C30
+    value: 80X12/16/20/25/32/40/50, 100X12/16/20/25/32/40/50,100X16/20/25/32/40/50/65/75/100,
+      125X12/16/20/25/32/40/50/65/75/100/125
+  - address: A31
+    value: 11
+  - address: B31
+    value: MS chequred plate
+  - address: C31
+    value: 3,4,5,6,8 mm
+  - address: A32
+    value: 12
+  - address: B32
+    value: Aluminium   chequred plate
+  - address: C32
+    value: 3,5mm
+  merged_ranges:
+  - B23:B24
+  - B27:B28
+  - A27:A28
+  - A25:A26
+  - A21:A22
+  - A29:A30
+  - A23:A24
+  - B25:B26
+  - B21:B22
+  - B29:B30
+- name: Round
+  cells:
+  - address: A4
+    value: Sr.No
+  - address: B4
+    value: Material category
+  - address: C4
+    value: Round(MM)
+  - address: A5
+    value: 1
+  - address: B5
+    value: MS BRIGHT Round
+  - address: C5
+    value: 3,5,6,8,10,12,14,16,18,20,22,25,30,32,36,40,45,50,56,60,65,70,75 mm
+  - address: A6
+    value: 2
+  - address: B6
+    value: MS Black Round
+  - address: C6
+    value: 16,20,22,25,30,32,36,40,45,50,55,60,65,70,75,80,90,100,105,110,120,125,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300MM
+  - address: A7
+    value: 3
+  - address: B7
+    value: C45 Round
+  - address: C7
+    value: 5,6,8,10,12,14,16,18,20,22,25,30,32,36,40,45,50,56,60,65,70,75,80,90,100,105,110,120,125,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300MM
+  - address: A8
+    value: 4
+  - address: B8
+    value: EN9 Round
+  - address: C8
+    value: 12,16,18,20,25,28,32,36,40,45,50,55,60,65,70,75,80,90,100,110,120,130,140,
+      150,160,170,180,190,200,210,220,230,240,250,280,300mm
+  - address: A9
+    value: 5
+  - address: B9
+    value: EN8 Round
+  - address: C9
+    value: 10,12,16,18,20,25,28,32,36,40,45,50,55,60,65,70,75,80,90,100,110,120,130,140,
+      150,160,170,180,190,200,210,220,230,240,250,280,300mm
+  - address: A10
+    value: 6
+  - address: B10
+    value: 16MNCR5 Round
+  - address: C10
+    value: 10,12,16,18,20,22,25,30,32,36,40,45,50,55,60,65,70,75,80,90,100,105,110,120,125,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300MM
+  - address: A11
+    value: 7
+  - address: B11
+    value: 20MNCR5 Round
+  - address: C11
+    value: 10,12,16,18,20,22,25,30,32,36,40,45,50,55,60,65,70,75,80,90,100,105,110,120,125,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300MM
+  - address: A12
+    value: 8
+  - address: B12
+    value: EN24 Round
+  - address: C12
+    value: 10,12,16,18,20,22,25,30,32,36,40,45,50,55,60,65,70,75,80,90,100,105,110,120,125,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300MM
+  - address: A13
+    value: 9
+  - address: B13
+    value: EN19 Round
+  - address: C13
+    value: 10,12,14,16,18,20,22,25,30,32,36,40,45,50,55,60,65,70,75,80,90,100,105,110,120,125,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300MM
+  merged_ranges: []
+- name: SQ_Tube
+  cells:
+  - address: C2
+    value: Material-MS
+  - address: B4
+    value: Sr.No
+  - address: C4
+    value: Section Length and Width (mm)
+  - address: D4
+    value: wall thickness(mm)
+  - address: B5
+    value: 1
+  - address: C5
+    value: '25x25  '
+  - address: D5
+    value: 2,2.6,3.2
+  - address: B6
+    value: 2
+  - address: C6
+    value: '32x32  '
+  - address: D6
+    value: 2,2.6,3.2
+  - address: B7
+    value: 3
+  - address: C7
+    value: '38x38  '
+  - address: D7
+    value: 2.6,3.2,4
+  - address: B8
+    value: 4
+  - address: C8
+    value: '40x40  '
+  - address: D8
+    value: 2.6,3.2,4
+  - address: B9
+    value: 5
+  - address: C9
+    value: '50x50  '
+  - address: D9
+    value: 2.6,2.9,3.6,4.5
+  - address: B10
+    value: 6
+  - address: C10
+    value: 60x60
+  - address: D10
+    value: 2.6,3.2,4,4.8
+  - address: B11
+    value: 7
+  - address: C11
+    value: 72x72
+  - address: D11
+    value: 3.2,4,4.8
+  - address: B12
+    value: 8
+  - address: C12
+    value: 80x80
+  - address: D12
+    value: 3.2,4,4.8
+  - address: B13
+    value: 9
+  - address: C13
+    value: 91.5x91.5
+  - address: D13
+    value: 3.6,4.5,5.4
+  - address: B14
+    value: 10
+  - address: C14
+    value: 100x100
+  - address: D14
+    value: 4,5,6
+  - address: B15
+    value: 11
+  - address: C15
+    value: 113.5x113.5
+  - address: D15
+    value: 4.8,5.4
+  - address: B16
+    value: 12
+  - address: C16
+    value: 132x132
+  - address: D16
+    value: 4.8,5.4
+  - address: B17
+    value: 13
+  - address: C17
+    value: 150x150
+  - address: D17
+    value: 4,5,6,8
+  - address: B18
+    value: 14
+  - address: C18
+    value: 180x180
+  - address: D18
+    value: 4,5,6,8
+  - address: B19
+    value: 15
+  - address: C19
+    value: 220x220
+  - address: D19
+    value: 5,6,8,10
+  - address: B20
+    value: 16
+  - address: C20
+    value: 250x250
+  - address: D20
+    value: 6,8,10
+  merged_ranges: []
+- name: Rectangular_Tube
+  cells:
+  - address: C3
+    value: Material-MS
+  - address: B5
+    value: Sr.No
+  - address: C5
+    value: Section Length and Width (mm)
+  - address: D5
+    value: Wall thickness(mm)
+  - address: B6
+    value: 1
+  - address: C6
+    value: 50x25
+  - address: D6
+    value: 2,2.6,3.2,4
+  - address: B7
+    value: 2
+  - address: C7
+    value: 60x40
+  - address: D7
+    value: 2.6,2.9,3.6,4.5
+  - address: B8
+    value: 3
+  - address: C8
+    value: 66x33
+  - address: D8
+    value: 2.6,2.9,3.6,4.5
+  - address: B9
+    value: 4
+  - address: C9
+    value: 80x40
+  - address: D9
+    value: 2.6,3.2,4,4.8
+  - address: B10
+    value: 5
+  - address: C10
+    value: 96x48
+  - address: D10
+    value: 3.2,4,4.8
+  - address: B11
+    value: 6
+  - address: C11
+    value: 122x61
+  - address: D11
+    value: 3.6,4.5,5.4
+  - address: B12
+    value: 7
+  - address: C12
+    value: 145x82
+  - address: D12
+    value: 4.8,5.4
+  - address: B13
+    value: 8
+  - address: C13
+    value: 172x92
+  - address: D13
+    value: 4.8,5.4
+  - address: B14
+    value: 9
+  - address: C14
+    value: 200x100
+  - address: D14
+    value: 4,5,6,8
+  - address: B15
+    value: 10
+  - address: C15
+    value: 240x120
+  - address: D15
+    value: 4,5,6,8
+  - address: B16
+    value: 11
+  - address: C16
+    value: 300x150
+  - address: D16
+    value: 6,8,10
+  - address: B17
+    value: 12
+  - address: C17
+    value: 300x200
+  - address: D17
+    value: 6,8,10
+  merged_ranges: []
+- name: ERW_Pipe
+  cells:
+  - address: B3
+    value: Material-MS
+  - address: A5
+    value: Sr.No
+  - address: B5
+    value: Pipe Diameter (mm)
+  - address: C5
+    value: Wall thickness(mm)
+  - address: A6
+    value: 1
+  - address: B6
+    value: 21.3
+  - address: C6
+    value: 2,2.6,3.2
+  - address: A7
+    value: 2
+  - address: B7
+    value: 26.9
+  - address: C7
+    value: 2.3,2.6,3.2
+  - address: A8
+    value: 3
+  - address: B8
+    value: 33.7
+  - address: C8
+    value: 2.6,3.2,4
+  - address: A9
+    value: 4
+  - address: B9
+    value: 42.2
+  - address: C9
+    value: 2.6,3.2,4
+  - address: A10
+    value: 5
+  - address: B10
+    value: 48.3
+  - address: C10
+    value: 2.9,3.2,4
+  - address: A11
+    value: 6
+  - address: B11
+    value: 60.3
+  - address: C11
+    value: 2.9,3.2,4
+  - address: A12
+    value: 7
+  - address: B12
+    value: 76.1
+  - address: C12
+    value: 3.2,3.6,4.5
+  - address: A13
+    value: 8
+  - address: B13
+    value: 88.9
+  - address: C13
+    value: 3.2,4,4.8
+  - address: A14
+    value: 9
+  - address: B14
+    value: 114.3
+  - address: C14
+    value: 3.6,4.5,5.4
+  - address: A15
+    value: 10
+  - address: B15
+    value: 139.7
+  - address: C15
+    value: 4.5,4.8,5.4
+  - address: A16
+    value: 11
+  - address: B16
+    value: 165.1
+  - address: C16
+    value: 4.5,4.8,5.4
+  - address: A17
+    value: 12
+  - address: B17
+    value: 168.3
+  - address: C17
+    value: 4.5,4.8
+  - address: A18
+    value: 13
+  - address: B18
+    value: 193.7
+  - address: C18
+    value: 4.8,5.4,5.9
+  - address: A19
+    value: 14
+  - address: B19
+    value: 219.1
+  - address: C19
+    value: 4.8,5.6,5.9
+  merged_ranges: []
+- name: Seamless_pipe
+  cells:
+  - address: B2
+    value: Material-MS
+  - address: A4
+    value: Sr.No
+  - address: B4
+    value: Pipe Diameter (mm)
+  - address: C4
+    value: Wall thickness(mm)
+  - address: A5
+    value: 1
+  - address: B5
+    value: 10.3
+  - address: C5
+    value: 1.24,1.73,2.41
+  - address: A6
+    value: 2
+  - address: B6
+    value: 13.7
+  - address: C6
+    value: 1.65,2.24,3.02
+  - address: A7
+    value: 3
+  - address: B7
+    value: 17.1
+  - address: C7
+    value: 1.65,2.31,3.2
+  - address: A8
+    value: 4
+  - address: B8
+    value: 21.3
+  - address: C8
+    value: 2.11,2.77,3.73,4.78,7.47
+  - address: A9
+    value: 5
+  - address: B9
+    value: 26.7
+  - address: C9
+    value: 1.65,2.11,2.87,3.91,5.56,7.82
+  - address: A10
+    value: 6
+  - address: B10
+    value: 33.4
+  - address: C10
+    value: 1.65,2.77,3.38,4.55,6.35,9.09
+  - address: A11
+    value: 7
+  - address: B11
+    value: 42.2
+  - address: C11
+    value: 1.65,2.77,3.56,4.85,6.35,9.7
+  - address: A12
+    value: 8
+  - address: B12
+    value: 48.3
+  - address: C12
+    value: 1.65,2.77,3.68,5.08,7.14,10.15
+  - address: A13
+    value: 9
+  - address: B13
+    value: 60.3
+  - address: C13
+    value: 1.65,2.77,3.91,5.54,8.74,11.07
+  - address: A14
+    value: 10
+  - address: B14
+    value: 73
+  - address: C14
+    value: 2.11,3.05,5.16,7.01,9.53,14.02
+  - address: A15
+    value: 11
+  - address: B15
+    value: 88.9
+  - address: C15
+    value: 2.11,3.05,5.49,7.62,11.13,15.24
+  - address: A16
+    value: 12
+  - address: B16
+    value: 101.6
+  - address: C16
+    value: 2.11,3.05,5.74,8.08,
+  - address: A17
+    value: 13
+  - address: B17
+    value: 114.3
+  - address: C17
+    value: 2.11,3.05,6.02,8.56,11.13,13.49,17.12
+  - address: A18
+    value: 14
+  - address: B18
+    value: 141.3
+  - address: C18
+    value: 2.77,3.4,6.55,9.53,12.7,15.88,19.05
+  - address: A19
+    value: 15
+  - address: B19
+    value: 168.3
+  - address: C19
+    value: 2.77,3.4,7.11,10.97,14.27,18.26,21.95
+  - address: A20
+    value: 16
+  - address: B20
+    value: 219.1
+  - address: C20
+    value: 6.35,7.04,8.18,12.7,10.31,15.09,18.26,20.62,23.01,22.23
+  - address: A21
+    value: 17
+  - address: B21
+    value: 273
+  - address: C21
+    value: 3.4,4.19,6.35,7.8,9.27,12.7,15.09,18.26,21.44,25.4,28.58,
+  - address: A22
+    value: 18
+  - address: B22
+    value: 323.8
+  - address: C22
+    value: 8.38,9.53,10.31,12.7,14.27,17.48,21.44,25.4,28.58,33.32,
+  - address: A23
+    value: 19
+  - address: B23
+    value: 355.6
+  - address: C23
+    value: 9.53,11.13,12.7,15.09,19.05,23.83,27.79,31.75,35.71
+  - address: A24
+    value: 20
+  - address: B24
+    value: 406.4
+  - address: C24
+    value: 9.53,12.7,16.66,21.44
+  - address: A25
+    value: 21
+  - address: B25
+    value: 457
+  - address: C25
+    value: 9.53,11.13,14.27,12.7,19.05,23.83
+  - address: A26
+    value: 22
+  - address: B26
+    value: 508
+  - address: C26
+    value: 9.53,12.7,15.09,20.62,26.19
+  merged_ranges: []
+- name: material_grade
+  cells: []
+  merged_ranges: []
+- name: C-Channel
+  cells:
+  - address: C3
+    value: Material-MS
+  - address: B5
+    value: Sr.No
+  - address: C5
+    value: Description
+  - address: D5
+    value: A
+  - address: E5
+    value: B
+  - address: F5
+    value: Thick. A side
+  - address: G5
+    value: Thick. B side
+  - address: B6
+    value: 1
+  - address: C6
+    value: ISMC
+  - address: D6
+    value: 75
+  - address: E6
+    value: 40
+  - address: F6
+    value: 4.4
+  - address: G6
+    value: 7.3
+  - address: B7
+    value: 2
+  - address: C7
+    value: ISMC
+  - address: D7
+    value: 100
+  - address: E7
+    value: 50
+  - address: F7
+    value: 4.7
+  - address: G7
+    value: 7.5
+  - address: B8
+    value: 3
+  - address: C8
+    value: ISMC
+  - address: D8
+    value: 125
+  - address: E8
+    value: 65
+  - address: F8
+    value: 5
+  - address: G8
+    value: 8.1
+  - address: B9
+    value: 4
+  - address: C9
+    value: ISMC
+  - address: D9
+    value: 150
+  - address: E9
+    value: 75
+  - address: F9
+    value: 5.4
+  - address: G9
+    value: 9
+  - address: B10
+    value: 5
+  - address: C10
+    value: ISMC
+  - address: D10
+    value: 175
+  - address: E10
+    value: 75
+  - address: F10
+    value: 5.7
+  - address: G10
+    value: 10.2
+  - address: B11
+    value: 6
+  - address: C11
+    value: ISMC
+  - address: D11
+    value: 200
+  - address: E11
+    value: 75
+  - address: F11
+    value: 6.1
+  - address: G11
+    value: 11.4
+  - address: B12
+    value: 7
+  - address: C12
+    value: ISMC
+  - address: D12
+    value: 225
+  - address: E12
+    value: 80
+  - address: F12
+    value: 6.4
+  - address: G12
+    value: 12.4
+  - address: B13
+    value: 8
+  - address: C13
+    value: ISMC
+  - address: D13
+    value: 250
+  - address: E13
+    value: 80
+  - address: F13
+    value: 7.1
+  - address: G13
+    value: 14.1
+  - address: B14
+    value: 9
+  - address: C14
+    value: ISMC
+  - address: D14
+    value: 300
+  - address: E14
+    value: 90
+  - address: F14
+    value: 7.6
+  - address: G14
+    value: 13.6
+  - address: B15
+    value: 10
+  - address: C15
+    value: ISMC
+  - address: D15
+    value: 350
+  - address: E15
+    value: 100
+  - address: F15
+    value: 8.1
+  - address: G15
+    value: 13.5
+  - address: B16
+    value: 11
+  - address: C16
+    value: ISMC
+  - address: D16
+    value: 400
+  - address: E16
+    value: 100
+  - address: F16
+    value: 8.6
+  - address: G16
+    value: 15.3
+  - address: B17
+    value: 12
+  merged_ranges: []
+- name: ISMB-Beam
+  cells:
+  - address: D5
+    value: Material-MS
+  - address: C7
+    value: Sr.No
+  - address: D7
+    value: Description
+  - address: E7
+    value: A
+  - address: F7
+    value: B
+  - address: G7
+    value: Thick. A side
+  - address: H7
+    value: Thick. B side
+  - address: C8
+    value: 1
+  - address: D8
+    value: ISMB
+  - address: E8
+    value: 100
+  - address: F8
+    value: 75
+  - address: G8
+    value: 4
+  - address: H8
+    value: 7.2
+  - address: C9
+    value: 2
+  - address: D9
+    value: ISMB
+  - address: E9
+    value: 125
+  - address: F9
+    value: 75
+  - address: G9
+    value: 4.4
+  - address: H9
+    value: 7.6
+  - address: C10
+    value: 3
+  - address: D10
+    value: ISMB
+  - address: E10
+    value: 150
+  - address: F10
+    value: 80
+  - address: G10
+    value: 4.8
+  - address: H10
+    value: 7.6
+  - address: C11
+    value: 4
+  - address: D11
+    value: ISMB
+  - address: E11
+    value: 175
+  - address: F11
+    value: 90
+  - address: G11
+    value: 5.5
+  - address: H11
+    value: 8.6
+  - address: C12
+    value: 5
+  - address: D12
+    value: ISMB
+  - address: E12
+    value: 200
+  - address: F12
+    value: 100
+  - address: G12
+    value: 5.7
+  - address: H12
+    value: 10.8
+  - address: C13
+    value: 6
+  - address: D13
+    value: ISMB
+  - address: E13
+    value: 225
+  - address: F13
+    value: 110
+  - address: G13
+    value: 6.5
+  - address: H13
+    value: 11.8
+  - address: C14
+    value: 7
+  - address: D14
+    value: ISMB
+  - address: E14
+    value: 250
+  - address: F14
+    value: 125
+  - address: G14
+    value: 6.9
+  - address: H14
+    value: 12.5
+  - address: C15
+    value: 8
+  - address: D15
+    value: ISMB
+  - address: E15
+    value: 300
+  - address: F15
+    value: 140
+  - address: G15
+    value: 7.5
+  - address: H15
+    value: 12.4
+  - address: C16
+    value: 9
+  - address: D16
+    value: ISMB
+  - address: E16
+    value: 350
+  - address: F16
+    value: 140
+  - address: G16
+    value: 8.1
+  - address: H16
+    value: 14.2
+  - address: C17
+    value: 10
+  - address: D17
+    value: ISMB
+  - address: E17
+    value: 400
+  - address: F17
+    value: 140
+  - address: G17
+    value: 8.9
+  - address: H17
+    value: 16
+  - address: C18
+    value: 11
+  - address: D18
+    value: ISMB
+  - address: E18
+    value: 450
+  - address: F18
+    value: 150
+  - address: G18
+    value: 9.4
+  - address: H18
+    value: 17.4
+  - address: C19
+    value: 12
+  - address: D19
+    value: ISMB
+  - address: E19
+    value: 500
+  - address: F19
+    value: 180
+  - address: G19
+    value: 10.2
+  - address: H19
+    value: 17.2
+  - address: C20
+    value: 13
+  - address: D20
+    value: ISMB
+  - address: E20
+    value: 550
+  - address: F20
+    value: 190
+  - address: G20
+    value: 11.2
+  - address: H20
+    value: 19.3
+  - address: C21
+    value: 14
+  - address: D21
+    value: ISMB
+  - address: E21
+    value: 600
+  - address: F21
+    value: 210
+  - address: G21
+    value: 12
+  - address: H21
+    value: 20.8
+  merged_ranges: []
+- name: ISA-Angle
+  cells:
+  - address: B3
+    value: Material-MS
+  - address: B4
+    value: For Equal ISA Angles
+  - address: B5
+    value: Sr.No
+  - address: C5
+    value: Description
+  - address: D5
+    value: A
+  - address: E5
+    value: B
+  - address: F5
+    value: Wall thickness(mm)
+  - address: B6
+    value: 1
+  - address: C6
+    value: ISA ANGLE
+  - address: D6
+    value: 20
+  - address: E6
+    value: 20
+  - address: F6
+    value: 3,4
+  - address: B7
+    value: 2
+  - address: C7
+    value: ISA ANGLE
+  - address: D7
+    value: 25
+  - address: E7
+    value: 25
+  - address: F7
+    value: 3,4,5
+  - address: B8
+    value: 3
+  - address: C8
+    value: ISA ANGLE
+  - address: D8
+    value: 30
+  - address: E8
+    value: 30
+  - address: F8
+    value: 3,4,5
+  - address: B9
+    value: 4
+  - address: C9
+    value: ISA ANGLE
+  - address: D9
+    value: 35
+  - address: E9
+    value: 35
+  - address: F9
+    value: 3,4,5,6
+  - address: B10
+    value: 5
+  - address: C10
+    value: ISA ANGLE
+  - address: D10
+    value: 40
+  - address: E10
+    value: 40
+  - address: F10
+    value: 3,4,5,6
+  - address: B11
+    value: 6
+  - address: C11
+    value: ISA ANGLE
+  - address: D11
+    value: 45
+  - address: E11
+    value: 45
+  - address: F11
+    value: 3,4,5,6
+  - address: B12
+    value: 7
+  - address: C12
+    value: ISA ANGLE
+  - address: D12
+    value: 50
+  - address: E12
+    value: 50
+  - address: F12
+    value: 3,4,5,6
+  - address: B13
+    value: 8
+  - address: C13
+    value: ISA ANGLE
+  - address: D13
+    value: 55
+  - address: E13
+    value: 55
+  - address: F13
+    value: 5,6,8,10
+  - address: B14
+    value: 9
+  - address: C14
+    value: ISA ANGLE
+  - address: D14
+    value: 60
+  - address: E14
+    value: 60
+  - address: F14
+    value: 5,6,8,10
+  - address: B15
+    value: 10
+  - address: C15
+    value: ISA ANGLE
+  - address: D15
+    value: 65
+  - address: E15
+    value: 65
+  - address: F15
+    value: 5,6,8,10
+  - address: B16
+    value: 11
+  - address: C16
+    value: ISA ANGLE
+  - address: D16
+    value: 70
+  - address: E16
+    value: 70
+  - address: F16
+    value: 5,6,8,10
+  - address: B17
+    value: 12
+  - address: C17
+    value: ISA ANGLE
+  - address: D17
+    value: 75
+  - address: E17
+    value: 75
+  - address: F17
+    value: 5,6,8,10
+  - address: B18
+    value: 13
+  - address: C18
+    value: ISA ANGLE
+  - address: D18
+    value: 80
+  - address: E18
+    value: 80
+  - address: F18
+    value: 6,8,10,12
+  - address: B19
+    value: 14
+  - address: C19
+    value: ISA ANGLE
+  - address: D19
+    value: 90
+  - address: E19
+    value: 90
+  - address: F19
+    value: 6,8,10,12
+  - address: B20
+    value: 15
+  - address: C20
+    value: ISA ANGLE
+  - address: D20
+    value: 100
+  - address: E20
+    value: 100
+  - address: F20
+    value: 6,8,10,12
+  - address: B21
+    value: 16
+  - address: C21
+    value: ISA ANGLE
+  - address: D21
+    value: 110
+  - address: E21
+    value: 110
+  - address: F21
+    value: 8,10,12, 15
+  - address: B22
+    value: 17
+  - address: C22
+    value: ISA ANGLE
+  - address: D22
+    value: 130
+  - address: E22
+    value: 130
+  - address: F22
+    value: 8,10,12, 15
+  - address: B23
+    value: 18
+  - address: C23
+    value: ISA ANGLE
+  - address: D23
+    value: 150
+  - address: E23
+    value: 150
+  - address: F23
+    value: 10,12,15, 18
+  - address: B24
+    value: 19
+  - address: C24
+    value: ISA ANGLE
+  - address: D24
+    value: 200
+  - address: E24
+    value: 200
+  - address: F24
+    value: 12,15,18, 25
+  merged_ranges:
+  - B4:F4
+- name: ISA_Angle-Unequal
+  cells:
+  - address: C5
+    value: Material-MS
+  - address: C6
+    value: For Un-equal ISA Angles
+  - address: C7
+    value: Sr.No
+  - address: D7
+    value: Description
+  - address: E7
+    value: A
+  - address: F7
+    value: B
+  - address: G7
+    value: Wall thickness(mm)
+  - address: C8
+    value: 1
+  - address: D8
+    value: ISA ANGLE
+  - address: E8
+    value: 30
+  - address: F8
+    value: 20
+  - address: G8
+    value: 3,4,5
+  - address: C9
+    value: 2
+  - address: D9
+    value: ISA ANGLE
+  - address: E9
+    value: 40
+  - address: F9
+    value: 25
+  - address: G9
+    value: 3,4,5,6
+  - address: C10
+    value: 3
+  - address: D10
+    value: ISA ANGLE
+  - address: E10
+    value: 45
+  - address: F10
+    value: 30
+  - address: G10
+    value: 3,4,5,6
+  - address: C11
+    value: 4
+  - address: D11
+    value: ISA ANGLE
+  - address: E11
+    value: 50
+  - address: F11
+    value: 30
+  - address: G11
+    value: 3,4,5,6
+  - address: C12
+    value: 5
+  - address: D12
+    value: ISA ANGLE
+  - address: E12
+    value: 60
+  - address: F12
+    value: 40
+  - address: G12
+    value: 5,6,8
+  - address: C13
+    value: 6
+  - address: D13
+    value: ISA ANGLE
+  - address: E13
+    value: 65
+  - address: F13
+    value: 45
+  - address: G13
+    value: 5,6,8
+  - address: C14
+    value: 7
+  - address: D14
+    value: ISA ANGLE
+  - address: E14
+    value: 70
+  - address: F14
+    value: 45
+  - address: G14
+    value: 5,6,8,10
+  - address: C15
+    value: 8
+  - address: D15
+    value: ISA ANGLE
+  - address: E15
+    value: 75
+  - address: F15
+    value: 50
+  - address: G15
+    value: 5,6,8,10
+  - address: C16
+    value: 9
+  - address: D16
+    value: ISA ANGLE
+  - address: E16
+    value: 80
+  - address: F16
+    value: 50
+  - address: G16
+    value: 5,6,8,10
+  - address: C17
+    value: 10
+  - address: D17
+    value: ISA ANGLE
+  - address: E17
+    value: 90
+  - address: F17
+    value: 60
+  - address: G17
+    value: 6,8,10,12
+  - address: C18
+    value: 11
+  - address: D18
+    value: ISA ANGLE
+  - address: E18
+    value: 100
+  - address: F18
+    value: 65
+  - address: G18
+    value: 6,8,10
+  - address: C19
+    value: 12
+  - address: D19
+    value: ISA ANGLE
+  - address: E19
+    value: 100
+  - address: F19
+    value: 75
+  - address: G19
+    value: 6,8,10,12
+  - address: C20
+    value: 13
+  - address: D20
+    value: ISA ANGLE
+  - address: E20
+    value: 125
+  - address: F20
+    value: 75
+  - address: G20
+    value: 6,8,10
+  - address: C21
+    value: 14
+  - address: D21
+    value: ISA ANGLE
+  - address: E21
+    value: 125
+  - address: F21
+    value: 95
+  - address: G21
+    value: 6,8,10,12
+  - address: C22
+    value: 15
+  - address: D22
+    value: ISA ANGLE
+  - address: E22
+    value: 150
+  - address: F22
+    value: 75
+  - address: G22
+    value: 8,10, 12
+  - address: C23
+    value: 16
+  - address: D23
+    value: ISA ANGLE
+  - address: E23
+    value: 150
+  - address: F23
+    value: 115
+  - address: G23
+    value: 8,10,12, 15
+  - address: C24
+    value: 17
+  - address: D24
+    value: ISA ANGLE
+  - address: E24
+    value: 200
+  - address: F24
+    value: 100
+  - address: G24
+    value: 10,12, 15
+  - address: C25
+    value: 18
+  - address: D25
+    value: ISA ANGLE
+  - address: E25
+    value: 200
+  - address: F25
+    value: 150
+  - address: G25
+    value: 10,12,15, 18
+  merged_ranges:
+  - C6:G6
+- name: Aluminium_Round
+  cells:
+  - address: A6
+    value: Sr.No
+  - address: B6
+    value: Material category
+  - address: C6
+    value: Round(MM)
+  - address: A7
+    value: 1
+  - address: B7
+    value: AL HE30
+  - address: C7
+    value: 12/16/18/20/22/25/28/30/32/36/40/45/50/55/60/65/70/75/80/85/90/100/105/110/120/130/140/150/160/170/180/190/200
+  - address: A8
+    value: 2
+  - address: B8
+    value: AL 6061 T6
+  - address: C8
+    value: 12/16/18/20/22/25/28/30/32/36/40/45/50/55/60/65/70/75/80/85/90/100/105/110/120/130/140/150/160/170/180/190/200
+  - address: A9
+    value: 4
+  - address: B9
+    value: AL 7075 T6
+  - address: C9
+    value: 12/16/18/20/22/25/28/30/32/36/40/45/50/55/60/65/70/75/80/85/90/100/105/110/120/130/140/150/160/170/180/190/200
+  merged_ranges: []
+- name: Aluminium_Plates
+  cells:
+  - address: A4
+    value: Sr.No
+  - address: B4
+    value: Material category
+  - address: C4
+    value: Thick(MM)
+  - address: A5
+    value: 1
+  - address: B5
+    value: AL HE30
+  - address: C5
+    value: 10/12/16/20/22/25/28/30/32/36/40/45/50/55/60/65/75/80/100
+  - address: A6
+    value: 2
+  - address: B6
+    value: AL 6061 T6
+  - address: C6
+    value: 10/12/16/20/22/25/28/30/32/36/40/45/50/55/60/65/75/80/100
+  - address: A7
+    value: 3
+  - address: B7
+    value: AL 1060
+  - address: C7
+    value: 3/5/6/8/10/12/16/20/22/25/28/30/32/36/40/45/50/55/60/65/75/80/100
+  - address: A8
+    value: 4
+  - address: B8
+    value: AL 7075 T6
+  - address: C8
+    value: 10/12/16/20/22/25/28/30/32/36/40/45/50/55/60/65/75/80/100
+  - address: A9
+    value: 5
+  - address: B9
+    value: AL 6082
+  - address: C9
+    value: ' (+-0.25 Flatness and thickness tolerance) Plates available in market  for
+      sizes & for cost  require to do enquiry to purchase Team.'
+  merged_ranges: []
+- name: Aluminium_flat
+  cells:
+  - address: C6
+    value: Sr.No
+  - address: D6
+    value: Material category
+  - address: E6
+    value: Thick(MM)
+  - address: C7
+    value: 1
+  - address: D7
+    value: AL HE30
+  - address: E7
+    value: ' 25X10/12/16/20/25, 32X 10/12/16/20/25/32 , 40X 10/12/16/20/25/32/40 ,50X
+      10/12/16/20/25/32/40/50, 65X 10/12/16/20/25/32/40/50/65,  75X10/12/16/20/25/32/40/50/65/75'
+  - address: E8
+    value: ' 100X 10/12/16/20/25/32/40/50/65/75/100, 125X10/12/16/20/25/32/40/50/65/75/100/125
+      mm'
+  - address: C9
+    value: 2
+  - address: D9
+    value: AL 6061 T6
+  - address: E9
+    value: ' 25X10/12/16/20/25, 32X 10/12/16/20/25/32 , 40X 10/12/16/20/25/32/40 ,50X
+      10/12/16/20/25/32/40/50, 65X 10/12/16/20/25/32/40/50/65,  75X10/12/16/20/25/32/40/50/65/75'
+  - address: E10
+    value: ' 100X 10/12/16/20/25/32/40/50/65/75/100, 125X10/12/16/20/25/32/40/50/65/75/100/125
+      mm'
+  - address: C11
+    value: 4
+  - address: D11
+    value: AL 7075 T6
+  - address: E11
+    value: ' 25X10/12/16/20/25, 32X 10/12/16/20/25/32 , 40X 10/12/16/20/25/32/40 ,50X
+      10/12/16/20/25/32/40/50, 65X 10/12/16/20/25/32/40/50/65,  75X10/12/16/20/25/32/40/50/65/75'
+  - address: E12
+    value: ' 100X 10/12/16/20/25/32/40/50/65/75/100, 125X10/12/16/20/25/32/40/50/65/75/100/125
+      mm'
+  merged_ranges:
+  - C9:C10
+  - D9:D10
+  - D7:D8
+  - C7:C8
+  - C11:C12
+  - D11:D12
+- name: Aluminium_Sq_Tube
+  cells:
+  - address: D4
+    value: Material-Aluminium 6063 T6 grade
+  - address: E4
+    value: Minimum MOQ require weight 300 Kg
+  - address: C6
+    value: Sr.No
+  - address: D6
+    value: Section Length and Width (mm)
+  - address: E6
+    value: wall thickness(mm)
+  - address: C7
+    value: 1
+  - address: D7
+    value: '25x25  '
+  - address: E7
+    value: 1.8,2.8,3
+  - address: C8
+    value: 2
+  - address: D8
+    value: '32x32  '
+  - address: E8
+    value: 1.7,2.6,3
+  - address: C9
+    value: 3
+  - address: D9
+    value: '40x40  '
+  - address: E9
+    value: 1.8,2,2.85,3,4,
+  - address: C10
+    value: 4
+  - address: D10
+    value: '50x50  '
+  - address: E10
+    value: 2,2.3,2.7,3,4,4.5
+  - address: C11
+    value: 5
+  - address: D11
+    value: 60x60
+  - address: E11
+    value: 2,4
+  - address: C12
+    value: 6
+  - address: D12
+    value: 80x80
+  - address: E12
+    value: 4
+  - address: C13
+    value: 7
+  - address: D13
+    value: 100x100
+  - address: E13
+    value: 2.5,3,5,6,8
+  - address: C14
+    value: 8
+  - address: D14
+    value: 150x150
+  - address: E14
+    value: 3,5
+  merged_ranges: []
+- name: Aluminium_Rectangular_Tube
+  cells:
+  - address: F5
+    value: Material-Aluminium 6063 T6 grade
+  - address: G5
+    value: Minimum MOQ require weight 300 Kg
+  - address: E7
+    value: Sr.No
+  - address: F7
+    value: Section Length and Width (mm)
+  - address: G7
+    value: Wall thickness(mm)
+  - address: E8
+    value: 1
+  - address: F8
+    value: 50x25
+  - address: G8
+    value: 2,3
+  - address: E9
+    value: 2
+  - address: F9
+    value: 60x40
+  - address: G9
+    value: 4
+  - address: E10
+    value: 3
+  - address: F10
+    value: 80x50
+  - address: G10
+    value: 2
+  - address: E11
+    value: 4
+  - address: F11
+    value: 100x50
+  - address: G11
+    value: 1.4,1.5,1.7,2,2.8,3,3.25,4,6
+  - address: E12
+    value: 5
+  - address: F12
+    value: 150x50
+  - address: G12
+    value: 2,2.5
+  - address: E13
+    value: 6
+  - address: F13
+    value: 150x75
+  - address: G13
+    value: 2,3,3.5
+  - address: E14
+    value: 7
+  - address: F14
+    value: 172x92
+  - address: G14
+    value: 4.8,5.4
+  - address: E15
+    value: 8
+  - address: F15
+    value: 200x100
+  - address: G15
+    value: 5,8,10
+  merged_ranges: []

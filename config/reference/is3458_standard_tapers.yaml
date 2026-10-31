@@ -1,0 +1,19 @@
+source:
+  document: WESTERMANN_TABLES.pdf
+  section: PDF 52L, book 98
+  sha256: 6bee8669240e88b99383c7c58a6961111e90be0ed86135232d83b7ebd79bb7d8
+scope: IS 3458-1966 nominal ratios; special tapers permitted.
+values:
+  denominators:
+  - 0.289
+  - 0.5
+  - 0.866
+  - 1.5
+  - 3.429
+  - 5
+  - 6
+  - 10
+  - 15
+  - 20
+  - 30
+  - 50
