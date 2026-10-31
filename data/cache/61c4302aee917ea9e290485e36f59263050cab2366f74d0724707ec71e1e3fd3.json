@@ -1,0 +1,1 @@
+{"text": "", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 3505, "output_tokens": 25, "reasoning_tokens": 0, "cost_usd": 0.00716, "latency_s": 1.54, "tool_calls": [{"id": "call_f3d2e8dd77a847c1b19b1732", "name": "search_drawing", "arguments": "{\"text\": \"weather\"}"}]}

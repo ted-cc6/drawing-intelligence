@@ -1,0 +1,1 @@
+{"text": "{\"findings\": []}", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 4601, "output_tokens": 6, "reasoning_tokens": 0, "cost_usd": 0.009238, "latency_s": 2.2, "tool_calls": []}

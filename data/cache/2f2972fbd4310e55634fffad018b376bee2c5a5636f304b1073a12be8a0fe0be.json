@@ -1,0 +1,1 @@
+{"text": "The value +0.025 printed on [D14] is correct for a ⌀50 H7 fit, as the standard table confirms an upper deviation of 0.025 mm [T:is919_fits H7 50].", "model": "qwen3.8-max", "thinking": "off", "input_tokens": 3584, "output_tokens": 58, "reasoning_tokens": 0, "cost_usd": 0.007516, "latency_s": 2.32, "tool_calls": []}
