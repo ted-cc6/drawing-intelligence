@@ -1,0 +1,9 @@
+{
+ "schema_version": "1.1",
+ "reviewer": "drawing_practice",
+ "findings": [],
+ "rule_statuses": [],
+ "cost_usd": 0.0,
+ "latency_s": 0.0,
+ "error": "AttributeError: 'list' object has no attribute 'get'"
+}

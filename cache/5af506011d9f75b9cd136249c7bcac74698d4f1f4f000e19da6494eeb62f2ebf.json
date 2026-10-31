@@ -1,0 +1,1 @@
+{"text": "[]", "model": "qwen3.8-flash", "thinking": "off", "input_tokens": 3328, "output_tokens": 2, "reasoning_tokens": 0, "cost_usd": 0.0005, "latency_s": 1.91, "tool_calls": []}

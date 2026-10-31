@@ -1,0 +1,12 @@
+[
+  {
+    "at": "2026-10-31T07:47:30.588667+00:00",
+    "note": "User requested correction of the Flash array decoder; same sample and $2.50 cap.",
+    "soft_budget_usd": 2.5
+  },
+  {
+    "at": "2026-10-31T07:47:34.766144+00:00",
+    "note": "User requested correction of the Flash array decoder; same sample and $2.50 cap.",
+    "soft_budget_usd": 2.5
+  }
+]
