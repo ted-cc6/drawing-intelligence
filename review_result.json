@@ -1,0 +1,1113 @@
+{
+ "schema_version": "1.1",
+ "source_file": "40K_DUNNAGE_AL_DOOR _RH LM BLK PLT.pdf",
+ "rulebook_version": "969423a44d6d",
+ "reviewers_run": [
+  "checks"
+ ],
+ "reviewers_skipped": [
+  "design_intent",
+  "drawing_practice",
+  "manufacturability"
+ ],
+ "findings": [
+  {
+   "id": "F-cbc136c057",
+   "rule_id": "TB-016",
+   "category": "title_block",
+   "requirement": "Checked and Approved fields are blank at submission",
+   "result": "fail",
+   "severity": "major",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "checked_date",
+     "page": 1,
+     "bbox": [
+      781.2,
+      802.7,
+      819.1,
+      810.2
+     ],
+     "quote": "26/09/2025",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "approved_date",
+     "page": 1,
+     "bbox": [
+      823.8,
+      803.1,
+      861.7,
+      810.6
+     ],
+     "quote": "26/09/2025",
+     "provenance": "pdf_text"
+    }
+   ],
+   "comment": "Already filled at submission: checked date, approved date.",
+   "recommended_correction": "Leave sign-off fields blank until the drawing has been checked.",
+   "reviewer": "checks",
+   "source": "code"
+  }
+ ],
+ "rule_statuses": [
+  {
+   "rule_id": "CN-001",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "no chain of dimensions with an overall dimension found"
+  },
+  {
+   "rule_id": "CN-002",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "CN-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'unattached_dimension' not built"
+  },
+  {
+   "rule_id": "CN-004",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "no chain of dimensions with an overall dimension found"
+  },
+  {
+   "rule_id": "DM-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'duplicate_dimension' not built"
+  },
+  {
+   "rule_id": "DM-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'closed_chain' not built"
+  },
+  {
+   "rule_id": "DSM-011",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "DSM-023",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'dimension_matches_scale_or_underlined' not built"
+  },
+  {
+   "rule_id": "DTT-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'diameter_radius_symbol_prefix' not built"
+  },
+  {
+   "rule_id": "DTT-023",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "HNF-005",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "HNF-063",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "HNF-066",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'dual_dimensioning' not built"
+  },
+  {
+   "rule_id": "ISO-011",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'non_length_value_has_unit' not built"
+  },
+  {
+   "rule_id": "ISO-023",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'dimension_line_terminations' not built"
+  },
+  {
+   "rule_id": "ISO-025",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'single_arrowhead_style' not built"
+  },
+  {
+   "rule_id": "ISO-027",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'radius_single_arrowhead' not built"
+  },
+  {
+   "rule_id": "ISO-029",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'dimension_text_not_crossed' not built"
+  },
+  {
+   "rule_id": "ISO-030",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'dimension_value_method_consistent' not built"
+  },
+  {
+   "rule_id": "ISO-031",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'dimension_text_readable_direction' not built"
+  },
+  {
+   "rule_id": "MX-001",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MX-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MX-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'hole_depth_stated' not built"
+  },
+  {
+   "rule_id": "MX-005",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MX-006",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'pattern_callout_complete' not built"
+  },
+  {
+   "rule_id": "MX-009",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'angle_stated' not built"
+  },
+  {
+   "rule_id": "MX-014",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MX-015",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MX-017",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MX-018",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MX-019",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MX-020",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MX-021",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MX-030",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "NASA-006",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'where_indicated_has_marker' not built"
+  },
+  {
+   "rule_id": "NASA-029",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'general_notes_consecutive' not built"
+  },
+  {
+   "rule_id": "NASA-030",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'note_references_resolve' not built"
+  },
+  {
+   "rule_id": "NASA-032",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "NASA-061",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'content_inside_border' not built"
+  },
+  {
+   "rule_id": "NASA-078",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'rotated_view_labelled' not built"
+  },
+  {
+   "rule_id": "NASA-111",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'angle_format_consistent' not built"
+  },
+  {
+   "rule_id": "NM-001",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'template_notes_present' not built"
+  },
+  {
+   "rule_id": "NM-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "VW-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'section_labels_match' not built"
+  },
+  {
+   "rule_id": "VW-008",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'detail_view_scale' not built"
+  },
+  {
+   "rule_id": "WST-050",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'full_circle_by_diameter' not built"
+  },
+  {
+   "rule_id": "WST-052",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "WST-056",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'chamfer_callout_complete' not built"
+  },
+  {
+   "rule_id": "WST-064",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'pitch_notation_arithmetic' not built"
+  },
+  {
+   "rule_id": "WST-067",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "WST-069",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'countersink_callout_complete' not built"
+  },
+  {
+   "rule_id": "WST-070",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'counterbore_callout_complete' not built"
+  },
+  {
+   "rule_id": "WST-127",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'softening_treatment_vs_hardness' not built"
+  },
+  {
+   "rule_id": "WST-130",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'hardness_scales_agree' not built"
+  },
+  {
+   "rule_id": "WST-132",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'mass_within_envelope' not built"
+  },
+  {
+   "rule_id": "WST-238",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'taper_values_consistent' not built"
+  },
+  {
+   "rule_id": "WST-240",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'self_holding_taper_matches_table' not built"
+  },
+  {
+   "rule_id": "DSM-030",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MD-001",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "MD-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'datums_needed' not built"
+  },
+  {
+   "rule_id": "MD-008",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "MD-012",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "MD-013",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'datum_feature_size_toleranced' not built"
+  },
+  {
+   "rule_id": "MD-015",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MD-016",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MD-019",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "a single sheet"
+  },
+  {
+   "rule_id": "MD-020",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'pattern_datum_defined' not built"
+  },
+  {
+   "rule_id": "MD-021",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'thread_datum_qualifier' not built"
+  },
+  {
+   "rule_id": "MP-009",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'hole_table_complete' not built"
+  },
+  {
+   "rule_id": "MP-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'ordinate_origin' not built"
+  },
+  {
+   "rule_id": "DTT-052",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "HNF-061",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'soft_metric_conversion_suspect' not built"
+  },
+  {
+   "rule_id": "ISO-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MF-005",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MF-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "NASA-132",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "NM-008",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "SC-001",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'lifting_info' not built"
+  },
+  {
+   "rule_id": "TL-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "TL-011",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "TL-014",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "WST-239",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'taper_ratio_standard' not built"
+  },
+  {
+   "rule_id": "DTT-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'basic_dimension_untoleranced' not built"
+  },
+  {
+   "rule_id": "DTT-057",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'material_modifier_on_feature_of_size' not built"
+  },
+  {
+   "rule_id": "MD-003",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "MX-011",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'basic_dims_for_position' not built"
+  },
+  {
+   "rule_id": "NASA-134",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'projected_zone_on_threads' not built"
+  },
+  {
+   "rule_id": "TL-005",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "NASA-047",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "WF-014",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MC-001",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MC-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'depth_to_diameter' not built"
+  },
+  {
+   "rule_id": "MC-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MC-004",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'tap_drill_depth' not built"
+  },
+  {
+   "rule_id": "MC-006",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'thread_engagement' not built"
+  },
+  {
+   "rule_id": "MC-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'keyway_standard' not built"
+  },
+  {
+   "rule_id": "MC-008",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'circlip_groove_standard' not built"
+  },
+  {
+   "rule_id": "MC-009",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MC-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "MF-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'stock_size_available' not built"
+  },
+  {
+   "rule_id": "WST-229",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'taper_pin_hole_callout' not built"
+  },
+  {
+   "rule_id": "WST-242",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'thread_undercut_matches' not built"
+  },
+  {
+   "rule_id": "WST-249",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'centre_hole_designation_complete' not built"
+  },
+  {
+   "rule_id": "MF-011",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'material_approved' not built"
+  },
+  {
+   "rule_id": "RQ-004",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "the material is stated in one place only"
+  },
+  {
+   "rule_id": "WPE-001",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'us_india_equivalent' not built"
+  },
+  {
+   "rule_id": "WPM-005",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'material_for_size' not built"
+  },
+  {
+   "rule_id": "MF-006",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'masking_note' not built"
+  },
+  {
+   "rule_id": "MF-010",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "no heat treatment in the notes"
+  },
+  {
+   "rule_id": "MF-013",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'paint_colour_code' not built"
+  },
+  {
+   "rule_id": "NASA-051",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "RQ-003",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "the heat treatment field does not refer to a note"
+  },
+  {
+   "rule_id": "TL-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "TL-016",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "WPM-001",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'heat_treatment_allowed' not built"
+  },
+  {
+   "rule_id": "WPM-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'hardness_in_range' not built"
+  },
+  {
+   "rule_id": "WPM-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "WPM-004",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'treatment_combination' not built"
+  },
+  {
+   "rule_id": "WPS-001",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'surface_treatment_approved' not built"
+  },
+  {
+   "rule_id": "WPS-002",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "WPS-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'treatment_prerequisites' not built"
+  },
+  {
+   "rule_id": "WPS-004",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "WPS-005",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'plating_edge_radius' not built"
+  },
+  {
+   "rule_id": "WPS-006",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "WST-123",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "no heat treatment specified"
+  },
+  {
+   "rule_id": "WST-126",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "no tempering or sub-zero treatment specified"
+  },
+  {
+   "rule_id": "WST-129",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "no hardness value"
+  },
+  {
+   "rule_id": "MC-005",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "no metric threads up to M80"
+  },
+  {
+   "rule_id": "MX-004",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'thread_callout_complete' not built"
+  },
+  {
+   "rule_id": "MX-026",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'intermittent_weld_complete' not built"
+  },
+  {
+   "rule_id": "MX-029",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'insert_spec' not built"
+  },
+  {
+   "rule_id": "WF-004",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "WF-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'weld_class_for_part_class' not built"
+  },
+  {
+   "rule_id": "WF-008",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "its reviewer did not run"
+  },
+  {
+   "rule_id": "WPW-001",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'weld_note_options_resolved' not built"
+  },
+  {
+   "rule_id": "WST-216",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "no thread tolerance classes"
+  },
+  {
+   "rule_id": "WST-220",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'thread_lead_multiple_of_pitch' not built"
+  },
+  {
+   "rule_id": "DSM-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'scale_is_preferred' not built"
+  },
+  {
+   "rule_id": "HNF-057",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'supersede_note_complete' not built"
+  },
+  {
+   "rule_id": "NASA-001",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'sheet1_has_title_revision_notes' not built"
+  },
+  {
+   "rule_id": "NASA-002",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "a single sheet"
+  },
+  {
+   "rule_id": "NASA-005",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'continuation_sheet_title_fields' not built"
+  },
+  {
+   "rule_id": "NASA-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'checker_independent' not built"
+  },
+  {
+   "rule_id": "NASA-098",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "a single sheet"
+  },
+  {
+   "rule_id": "NASA-100",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'revision_markers_match' not built"
+  },
+  {
+   "rule_id": "RQ-001",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "RV-001",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'revision_table_complete' not built"
+  },
+  {
+   "rule_id": "RV-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'revision_change_ref' not built"
+  },
+  {
+   "rule_id": "RV-007",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "no revision rows"
+  },
+  {
+   "rule_id": "SC-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'part_class_stated' not built"
+  },
+  {
+   "rule_id": "TB-001",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "TB-003",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "TB-004",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "TB-005",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "TB-006",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "TB-008",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "TB-009",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "TB-010",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "TB-012",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "TB-013",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "TB-014",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "TB-015",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "TB-016",
+   "status": "fail",
+   "finding_ids": [
+    "F-cbc136c057"
+   ],
+   "note": null
+  },
+  {
+   "rule_id": "TB-018",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "DM-010",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "no reference dimensions"
+  },
+  {
+   "rule_id": "LY-005",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "MX-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'tolerance_coverage' not built"
+  },
+  {
+   "rule_id": "RQ-002",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "no dimension with an upper and a lower limit"
+  },
+  {
+   "rule_id": "TL-003",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "TL-013",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "no fit codes"
+  },
+  {
+   "rule_id": "WST-078",
+   "status": "pass",
+   "finding_ids": [],
+   "note": null
+  },
+  {
+   "rule_id": "WST-203",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'limits_match_deviations' not built"
+  },
+  {
+   "rule_id": "WST-206",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "check 'fit_letter_case_matches_feature' not built"
+  },
+  {
+   "rule_id": "WST-207",
+   "status": "not_applicable",
+   "finding_ids": [],
+   "note": "no tabulated fit printed with deviations"
+  }
+ ],
+ "cost_usd": 0.0,
+ "latency_s": 0.03,
+ "extra": {
+  "rejected": 0,
+  "reviewer_errors": {
+   "drawing_practice": "AttributeError: 'list' object has no attribute 'get'",
+   "manufacturability": "AttributeError: 'list' object has no attribute 'get'",
+   "design_intent": "AttributeError: 'list' object has no attribute 'get'"
+  }
+ }
+}
