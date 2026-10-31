@@ -61,7 +61,7 @@ time**.
 | A1 Understanding model | Zhetao | Zhetao | ✅ | Recorded as **ADR 0009** (0008 went to A2): `qwen3-vl-plus`, thinking off. Labels verified, `--runs` stability added |
 | A5a Planted errors | Mushahid | Mushahid | ✅ | 28 cases (plan: ≥15): 22 planted, 2 near-miss, 4 clean; replacements in the page's own font |
 | R Draft rulebook | Mushahid | Mushahid | ✅ | 174 rules (110 code, 25 lookup, 39 LLM) from the LatentView rulebook v0.2, PARI's guidelines and six engineering books; every LatentView rule mapped or given a reason |
-| A4 Consistency reviewer | Mushahid | Binjie | ✅ | Redesigned as a **check registry** ([ADR 0010](docs/adr/0010-review-stage-design.md)) instead of one `consistency.py`; 44 check functions across all categories, not just consistency |
+| A4 Consistency reviewer | Mushahid | Mushahid | ✅ | Redesigned as a **check registry** ([ADR 0010](docs/adr/0010-review-stage-design.md)) instead of one `consistency.py`; 44 check functions across all categories, not just consistency |
 | A3 Verifier | Mushahid | Binjie | ✅ | As planned, plus quote checks against the PDF text and one status per rule |
 | A5b `di eval review` | Zhetao | Binjie | ✅ | Plus a CI regression gate, and **held-out validation** on unseen client drawings (`di eval heldout`), which the plan did not have |
 | A6 Graph fan-out and report | Binjie | Binjie | ✅ | Report zones from the sheet's border markers ("Sheet 1, zone C4") |
@@ -386,8 +386,9 @@ Paid commands show an estimate and ask before spending.
 
 ### Team rules
 - **One branch per task**, from `main`. **Pull request** into `main`; CI green on Windows, macOS and Linux;
-  Binjie approves; **squash merge**.
-- **Before review:** pytest, ruff and pyright pass locally; for a new check, the 200-drawing sweep is read and the
+  **squash merge**. No approval is needed (changed 2026-10-31): the author merges once CI is green and no known
+  bug is left open on the branch.
+- **Before merging:** pytest, ruff and pyright pass locally; for a new check, the 200-drawing sweep is read and the
   seeded gate holds.
 - **Models:** Qwen only (`qwen3-vl-plus`, `qwen3.8-max`). Never call `gpt-6-astra` without asking Binjie.
 - **Budget:** $8 for the project's API use; **ask before any paid run, with an estimate**; check `di telemetry`.
