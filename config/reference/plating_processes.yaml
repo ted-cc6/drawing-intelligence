@@ -1,46 +1,282 @@
-# PARI's surface-treatment (plating) processes and the base materials each suits, from the "Ferrous / Non Ferrous /
-# Non Metallic" columns of PRD-GD-DES-12. Used by WPS-002 (treatment suits the material). Painting, black oxide
-# and other treatments are not in DES-12, so no material rule applies to them here.
-source: {document: 'Surface Treatment - Plating Process Selection PRD-GD-DES-12, rev 4 (10-Aug-23)', section: 'Ferrous / Non Ferrous / Non Metallic columns'}
+source:
+  document: Surface Treatment-Plating Process Selection PRD-GD-DES-12.pdf
+  section: PDF page 1, rows 1–10; material columns, Input surface pre-requisites,
+    Process Constraints and Remarks
+  sha256: 43961b57d682cc95145124a94fb4b8b25f204195aa27d0c0cdec8930f047989f
+processes:
+- id: hard_anodizing
+  name: Hard Anodizing
+  patterns:
+  - HARD\s+ANODI[SZ]
+  materials:
+  - aluminium
+  source_row: 6
+  prerequisites_as_printed: All surfaces shall be buffed properly
+  process_constraints_as_printed: 'Shade at the welding and heat affected zones not
 
-processes:  # first match wins: specific names first
-  - id: hard_anodizing
-    name: Hard Anodizing
-    patterns: ['HARD\s+ANODI[SZ]']
-    materials: [aluminium]  # "Only Aluminium"
-  - id: silver_anodizing
-    name: Self Anodizing / Silver Anodizing
-    patterns: ['ANODI[SZ]']
-    materials: [aluminium]  # "Only Aluminium"
-  - id: hard_chrome
-    name: Hard Chrome Plating
-    patterns: ['HARD\s+CHROME']
-    materials: [carbon_steel, alloy_steel, tool_steel, copper_alloy]  # "Steel Alloys"; copper/brass "not recommended"
-  - id: flash_chrome
-    name: Flash Chrome Plating
-    patterns: ['FLASH\s+CHROME']
-    materials: [mild_steel, carbon_steel, cast_iron, copper_alloy]
-  - id: enp
-    name: Electroless Nickel Plating (E.N.P.)
-    patterns: ['\bE\.?\s*N\.?\s*P\b', 'ELECT?R?OLESS']
-    materials: [mild_steel, carbon_steel, cast_iron, copper_alloy, aluminium, plastic]  # "Plastic (ABS) and Other"
-  - id: izbp
-    name: Iron Zinc Black Passivation (trivalent only)
-    patterns: ['I\.?\s*Z\.?\s*B\.?\s*P', 'IRON\s+ZINC', 'ZINC\s+BLACK']
-    materials: [mild_steel, carbon_steel]
-  - id: electro_galvanizing
-    name: Electro Galvanizing
-    patterns: ['GALVANI[SZ]']
-    materials: [mild_steel, carbon_steel, cast_iron]
-  - id: balzer
-    name: Balzer Coating
-    patterns: ['BAL[ZS]ER']
-    materials: [tool_steel]  # "OHNS, D2"; "do not use EN-24"
-  - id: zafc
-    name: ZAFC (Zinc Aluminium Flake Coating)
-    patterns: ['\bZAFC\b', 'ZINC\s+ALUMIN']
-    materials: [alloy_steel]  # "12.9 graded hardwares"
-  - id: qpq
-    name: Quench Polish Quench (QPQ)
-    patterns: ['\bQPQ\b']
-    materials: [carbon_steel, alloy_steel, tool_steel]  # "All through hardened steel"
+    matched with the plain uniform surfaces.'
+  remarks_as_printed: null
+- id: silver_anodizing
+  name: Self Anodizing / Silver Anodizing
+  patterns:
+  - ANODI[SZ]
+  materials:
+  - aluminium
+  source_row: 5
+  prerequisites_as_printed: All surfaces shall be buffed properly
+  process_constraints_as_printed: 'Shade at the welding and heat affected zones not
+
+    matched with the plain uniform surfaces.'
+  remarks_as_printed: null
+- id: hard_chrome
+  name: Hard Chrome Plating
+  patterns:
+  - HARD\s+CHROME
+  materials:
+  - carbon_steel
+  - alloy_steel
+  - tool_steel
+  - copper_alloy
+  source_row: 1
+  prerequisites_as_printed: '1.It requires Pre and post Grinding.
+
+    2. All the sharp corners edges shall be
+
+    blended by radius and not by chamfers.
+
+    3. Surface must be case hardened or base
+
+    material must be through hardened ( Min 45
+
+    HRC)'
+  process_constraints_as_printed: '1. Plating is electro deposition the plating layer
+    not
+
+    formed on inside dimeters, corners.
+
+    2. Plating layer is not uniform'
+  remarks_as_printed: null
+- id: flash_chrome
+  name: Flash Chrome Plating
+  patterns:
+  - FLASH\s+CHROME
+  materials:
+  - mild_steel
+  - carbon_steel
+  - cast_iron
+  - copper_alloy
+  source_row: 2
+  prerequisites_as_printed: '1. It requires Pre - Grinding Post grinding is
+
+    not suitable.
+
+    2. All the sharp corners edges shall be
+
+    blended by radius and not by chamfers.
+
+    3.If by geometry any parts not possible to
+
+    grinding shall be buffed uptill machining or
+
+    deep pitting marks vanishes.
+
+    4.Plating thickness allowances shall be
+
+    considered before final sizing of the parts.'
+  process_constraints_as_printed: 'Since Plating is electro deposition the plating
+    layer not
+
+    formed on inside dimeters, corners.'
+  remarks_as_printed: null
+- id: enp
+  name: Electroless Nickel Plating (E.N.P.)
+  patterns:
+  - \bE\.?\s*N\.?\s*P\b
+  - ELECT?R?OLESS
+  materials:
+  - mild_steel
+  - carbon_steel
+  - cast_iron
+  - copper_alloy
+  - aluminium
+  - plastic
+  source_row: 3
+  prerequisites_as_printed: '1.It has required Pre grinding.
+
+    2. If by geometry grinding not possible then
+
+    machining marks blended with Buffing.
+
+    3.Plating thickness allowances shall be
+
+    considered before final sizing of the parts.'
+  process_constraints_as_printed: '1. For the Heat treated parts De-hydrogen
+
+    embrittlement process shall be done.
+
+    2. For better adhesion grinding portions shall be glass
+
+    bead blasting required.'
+  remarks_as_printed: null
+- id: izbp
+  name: Iron Zinc Black Passivation (trivalent only)
+  patterns:
+  - I\.?\s*Z\.?\s*B\.?\s*P
+  - IRON\s+ZINC
+  - ZINC\s+BLACK
+  materials:
+  - mild_steel
+  - carbon_steel
+  source_row: 4
+  prerequisites_as_printed: '1.Parts shall be machined.
+
+    2. If any parts processed without machining
+
+    shall be buffed uptill deep pitting marks
+
+    vanishes.
+
+    3.Plating thickness allowances shall be
+
+    considered before final sizing of the parts.'
+  process_constraints_as_printed: '1.If any parts having small diameters, blind holes
+    shall
+
+    be cleaned with air flow and baked properly uptill no
+
+    chemical residuals.
+
+    2.Welding shall be leak proof in the case of welded
+
+    rollers or any hollow section, if any chemical pours from
+
+    the weld leak inside the tube will tends to form rust.'
+  remarks_as_printed: null
+- id: electro_galvanizing
+  name: Electro Galvanizing
+  patterns:
+  - GALVANI[SZ]
+  materials:
+  - mild_steel
+  - carbon_steel
+  - cast_iron
+  source_row: 7
+  prerequisites_as_printed: '1.Surfaces shall be free from heavy pitting
+
+    marks, deep heavy machining marks.
+
+    2. Plating thickness allowances shall be
+
+    considered before final sizing of the parts.'
+  process_constraints_as_printed: '1.If any parts having small diameters, blind holes
+    shall
+
+    be cleaned with air flow and baked properly uptill no
+
+    chemical residuals.
+
+    2.Welding shall be leak proof in the case of welded
+
+    rollers or any hollow section, if any chemical pours from
+
+    the weld leak inside the tube will tends to form rust.'
+  remarks_as_printed: null
+- id: balzer
+  name: Balzer Coating
+  patterns:
+  - BAL[ZS]ER
+  materials:
+  - tool_steel
+  source_row: 8
+  prerequisites_as_printed: '1. Residual hardness after tempering shall be
+
+    more than 55 HRC.
+
+    2. Tools must be shot peened or sand
+
+    blasted after heat treatment.'
+  process_constraints_as_printed: 'Recommended Heat treatment cycle for D2 material
+    as
+
+    per below -1. Stress Relieving-Tool should be stress
+
+    relieved by gradually heating to 650 to 680 degree C.
+
+    hold for 2 hrs., cool slowly to 500 degree C. and then
+
+    cool to room temp.
+
+    2. Tools should be hardened between 1040 to 1080
+
+    degree C.
+
+    3. Tempering - Tools must be tempered at 500 to 540
+
+    degree C. and should be held for 2 Hrs. Temper at least
+
+    twice and thrice when tolerances are to be kept close.'
+  remarks_as_printed: 'Consult with RM
+
+    before selection. Do
+
+    not use En-24
+
+    material for Balzer
+
+    coating surface
+
+    treatment (It is
+
+    Plasma assisted &
+
+    high temp. coating
+
+    process)'
+- id: zafc
+  name: ZAFC (Zinc Aluminium Flake Coating)
+  patterns:
+  - \bZAFC\b
+  - ZINC\s+ALUMIN
+  materials:
+  - alloy_steel
+  source_row: 9
+  prerequisites_as_printed: 'Plating thickness allowances shall be
+
+    considered before plating'
+  process_constraints_as_printed: 'below M5 size this plating is feasible but due
+    to less
+
+    Allen head socket size the ZAFC solution layer is more
+
+    hence the Allen key slippage chances are more.'
+  remarks_as_printed: null
+- id: qpq
+  name: Quench Polish Quench (QPQ)
+  patterns:
+  - \bQPQ\b
+  materials:
+  - carbon_steel
+  - alloy_steel
+  - tool_steel
+  source_row: 10
+  prerequisites_as_printed: '1. It requires Pre - Grinding, Post grinding is
+
+    not suitable.
+
+    2. All the sharp corners edges shall be
+
+    blended by radius and not by chamfers.
+
+    3.If by geometry any parts not possible to
+
+    grinding shall be buffed uptill machining or
+
+    deep pitting marks vanishes.
+
+    4.Treatment on Fully finished components.'
+  process_constraints_as_printed: 'QPQ is not recommended for case hardened parts,
+
+    Hardness of 30 to 50 HRC is preferred for through
+
+    harden steels.'
+  remarks_as_printed: null

@@ -1,0 +1,405 @@
+source:
+  document: PARI Standard High Carbon  Alloy Steel Material Selection PRD-GD-DES-11.pdf
+  document_id: PRD/GD/DES/11
+  version: 1
+  revision: 1
+  effective_date: '2016-03-09'
+  section: Standard Raw Material Sizes Available in the Market / Buffer Stock Maintained
+    in PARI
+  pdf_pages:
+  - 2
+  repository_path: data/client_set/WP Specific Guidelines/PARI Standard High Carbon  Alloy
+    Steel Material Selection PRD-GD-DES-11.pdf
+  sha256: 282c05fcfdf5a4481e2778a13458029a6f3e3c2d4da53532fd195e80a4f54157
+scope: Complete DES-11 page-2 transcription (2016 revision); kept separate from the
+  2024 raw-material workbook. Buffer stock and market-listed sizes are separate facts.
+  No present-day stock-availability claim.
+materials:
+- material: EN9
+  material_as_printed: EN9
+  sizes_mm:
+    black_round:
+    - 10
+    - 16
+    - 25
+    - 30
+    - 32
+    - 36
+    - 40
+    - 42
+    - 45
+    - 50
+    - 52
+    - 56
+    - 60
+    - 65
+    - 70
+    - 75
+    - 80
+    - 85
+    - 90
+    - 95
+    - 100
+    - 105
+    - 110
+    - 115
+    - 120
+    - 125
+    - 130
+    - 135
+    - 140
+    black_square:
+    - 40
+    - 50
+    - 55
+    - 63
+    - 75
+    - 80
+    - 85
+    - 90
+    - 95
+    - 100
+    - 105
+    - 110
+    - 115
+    - 120
+    - 125
+    - 140
+  sizes_as_printed:
+    black_round: 10, 16, 25, 30, 32, 36, 40, 42, 45, 50, 52, 56, 60, 65, 70, 75, 80,
+      85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140 mm
+    black_square: 40, 50, 55, 63, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125,
+      140 mm Rounded Corner.
+  buffer_round_mm:
+  - 25
+  - 36
+  - 45
+  - 56
+  - 75
+  - 80
+  - 100
+  buffer_as_printed: Maintained Buffer Stock for Round Bar 25, 36, 45, 56, 75, 80,
+    100 mm.
+  supply_note: Supply condition- Rolled Material. Not available in Plate & Flat commodity.
+  unavailable_forms_as_printed:
+  - Plate
+  - Flat
+  plate_sheet_dimensions_mm: null
+  source_location: PDF page 2, stock table row 1
+- material: EN24
+  material_as_printed: EN24
+  sizes_mm:
+    black_round:
+    - 10
+    - 16
+    - 25
+    - 30
+    - 32
+    - 36
+    - 40
+    - 42
+    - 45
+    - 50
+    - 52
+    - 56
+    - 60
+    - 65
+    - 70
+    - 75
+    - 80
+    - 85
+    - 90
+    - 95
+    - 100
+    - 105
+    - 110
+    - 115
+    - 120
+    - 125
+    - 130
+    - 135
+    - 140
+    black_square:
+    - 40
+    - 50
+    - 55
+    - 63
+    - 75
+    - 80
+    - 85
+    - 90
+    - 95
+    - 100
+    - 105
+    - 110
+    - 115
+    - 120
+    - 125
+    - 140
+  sizes_as_printed:
+    black_round: 10, 16, 25, 30, 32, 36, 40, 42, 45, 50, 52, 56, 60, 65, 70, 75, 80,
+      85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140 mm
+    black_square: 40, 50, 55, 63, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125,
+      140 mm Rounded Corner.
+  buffer_round_mm:
+  - 20
+  - 30
+  - 40
+  - 50
+  - 60
+  - 80
+  buffer_as_printed: Maintained Buffer Stock for Round Bar 20, 30, 40, 50, 60, 80
+    mm.
+  supply_note: Supply condition- Rolled Material. Not available in Plate & Flat commodity.
+  unavailable_forms_as_printed:
+  - Plate
+  - Flat
+  plate_sheet_dimensions_mm: null
+  source_location: PDF page 2, stock table row 2
+- material: SAE8620
+  material_as_printed: SAE8620
+  sizes_mm:
+    black_round:
+    - 10
+    - 16
+    - 25
+    - 30
+    - 32
+    - 36
+    - 40
+    - 42
+    - 45
+    - 50
+    - 52
+    - 56
+    - 60
+    - 65
+    - 70
+    - 75
+    - 80
+    - 85
+    - 90
+    - 95
+    - 100
+    - 105
+    - 110
+    - 115
+    - 120
+    - 125
+    - 130
+    - 135
+    - 140
+    black_square:
+    - 40
+    - 50
+    - 55
+    - 63
+    - 75
+    - 80
+    - 85
+    - 90
+    - 95
+    - 100
+    - 105
+    - 110
+    - 115
+    - 120
+    - 125
+    - 140
+  sizes_as_printed:
+    black_round: 10, 16, 25, 30, 32, 36, 40, 42, 45, 50, 52, 56, 60, 65, 70, 75, 80,
+      85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140 mm
+    black_square: 40, 50, 55, 63, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125,
+      140 mm Rounded Corner.
+  buffer_round_mm: null
+  buffer_as_printed: --
+  supply_note: Supply condition- Rolled Material. Not available in Plate & Flat commodity.
+  unavailable_forms_as_printed:
+  - Plate
+  - Flat
+  plate_sheet_dimensions_mm: null
+  source_location: PDF page 2, stock table row 3
+- material: 20MnCr5
+  material_as_printed: 20MnCr5
+  sizes_mm:
+    black_round:
+    - 10
+    - 16
+    - 25
+    - 30
+    - 32
+    - 36
+    - 40
+    - 42
+    - 45
+    - 50
+    - 52
+    - 56
+    - 60
+    - 65
+    - 70
+    - 75
+    - 80
+    - 85
+    - 90
+    - 95
+    - 100
+    - 105
+    - 110
+    - 115
+    - 120
+    - 125
+    - 130
+    - 135
+    - 140
+    black_square:
+    - 40
+    - 50
+    - 55
+    - 63
+    - 75
+    - 80
+    - 85
+    - 90
+    - 95
+    - 100
+    - 105
+    - 110
+    - 115
+    - 120
+    - 125
+    - 140
+  sizes_as_printed:
+    black_round: 10, 16, 25, 30, 32, 36, 40, 42, 45, 50, 52, 56, 60, 65, 70, 75, 80,
+      85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140 mm
+    black_square: 40, 50, 55, 63, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125,
+      140 mm Rounded Corner.
+  buffer_round_mm:
+  - 25
+  - 36
+  - 56
+  - 75
+  - 100
+  buffer_as_printed: Maintained Buffer Stock for Round Bar 25, 36, 56, 75, 100 mm.
+  supply_note: Supply condition- Rolled Material. Not available in Plate & Flat commodity.
+  unavailable_forms_as_printed:
+  - Plate
+  - Flat
+  plate_sheet_dimensions_mm: null
+  source_location: PDF page 2, stock table row 4
+- material: C45
+  material_as_printed: C45 (Plate)
+  sizes_mm:
+    plate_thickness:
+    - 5
+    - 6
+    - 10
+    - 12
+    - 16
+    - 20
+    - 22
+    - 25
+    - 28
+    - 30
+    - 32
+    - 36
+    - 40
+    - 45
+    - 50
+    - 56
+    - 63
+    - 70
+    - 75
+    - 80
+    - 90
+    - 100
+    - 110
+    - 120
+    - 130
+    - 140
+  sizes_as_printed:
+    plate_thickness: 5, 6, 10, 12, 16, 20, 22, 25, 28, 30, 32, 36, 40, 45, 50, 56,
+      63, 70, 75, 80, 90, 100, 110, 120, 130, 140 mm
+  buffer_round_mm: null
+  buffer_as_printed: --
+  supply_note: null
+  unavailable_forms_as_printed: []
+  plate_sheet_dimensions_mm:
+  - 2500
+  - 6000
+  source_location: PDF page 2, stock table row 5
+- material: EN19
+  material_as_printed: En19
+  sizes_mm:
+    black_round:
+    - 10
+    - 16
+    - 25
+    - 30
+    - 32
+    - 36
+    - 40
+    - 42
+    - 45
+    - 50
+    - 52
+    - 56
+    - 60
+    - 65
+    - 70
+    - 75
+    - 80
+    - 85
+    - 90
+    - 95
+    - 100
+    - 105
+    - 110
+    - 115
+    - 120
+    - 125
+    - 130
+    - 135
+    - 140
+    black_square:
+    - 40
+    - 50
+    - 55
+    - 63
+    - 75
+    - 80
+    - 85
+    - 90
+    - 95
+    - 100
+    - 105
+    - 110
+    - 115
+    - 120
+    - 125
+    - 140
+  sizes_as_printed:
+    black_round: 10, 16, 25, 30, 32, 36, 40, 42, 45, 50, 52, 56, 60, 65, 70, 75, 80,
+      85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140 mm
+    black_square: 40, 50, 55, 63, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125,
+      140 mm Rounded Corner.
+  buffer_round_mm:
+  - 36
+  - 45
+  - 56
+  - 75
+  - 100
+  buffer_as_printed: Maintained BFRSTK for Round Bar 36, 45, 56, 75, 100 mm.
+  supply_note: Supply condition- Rolled Material. Not available in Plate & Flat commodity.
+  unavailable_forms_as_printed:
+  - Plate
+  - Flat
+  plate_sheet_dimensions_mm: null
+  source_location: PDF page 2, stock table row 6
+source_anomalies:
+- material: EN24
+  issue: buffer_size_absent_from_market_list
+  sizes_mm:
+  - 20
+  handling: Preserve both source cells. Page 2 lists 20 mm buffer stock but omits
+    it from its market-size list; ask PARI before treating either list as exhaustive.

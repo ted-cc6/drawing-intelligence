@@ -1,0 +1,21 @@
+source:
+  document: Surface Treatment-Plating Process Selection PRD-GD-DES-12.pdf
+  section: 'page 1 rows 1, 8, 10: numeric/material prerequisites only'
+  sha256: 43961b57d682cc95145124a94fb4b8b25f204195aa27d0c0cdec8930f047989f
+scope: Partial prerequisites. Grinding/blasting and other surface state are not proved
+  by this table.
+rows:
+- process: hard_chrome
+  min_base_hrc: 45
+  forbidden_heat: []
+  forbidden_material: []
+- process: qpq
+  min_base_hrc: null
+  forbidden_material: []
+  not_recommended_heat:
+  - case
+- process: balzer
+  min_base_hrc: null
+  forbidden_heat: []
+  forbidden_material:
+  - EN24
