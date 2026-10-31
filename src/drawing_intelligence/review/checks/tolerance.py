@@ -143,3 +143,44 @@ def reference_dim_untoleranced(ctx: ReviewContext, rule: Rule, _: object) -> lis
         for page, d in refs
         if "±" in d.text or d.limits or re.search(r"\(\s*[+\-]?\d+(?:\.\d+)?\s*/", d.text)
     ]
+
+
+# A size, its deviations, then its limits of size: "⌀ 6 H7 (+0.012/0) 6.012/6.000" or "... (6.012/6.000)".
+_SIZE_WITH_LIMITS = re.compile(
+    r"^\s*[⌀Ø]?\s*(?P<nominal>\d+(?:\.\d+)?)\s*(?:[A-Za-z]{1,2}\d{1,2}\s*)?"
+    r"\(\s*(?P<a>[+-]?\d+(?:\.\d+)?)\s*/\s*(?P<b>[+-]?\d+(?:\.\d+)?)\s*\)\s*"
+    r"\(?\s*(?P<max>\d+\.\d+)\s*[/\-–]\s*(?P<min>\d+\.\d+)\s*\)?\s*$"
+)
+
+
+@check("limits_match_deviations")
+def limits_match_deviations(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """Where a size prints deviations and limits of size, each limit is the size plus its deviation.
+
+    PARI prints deviations only, so on its drawings this has nothing to compare; it fires only when a drawing
+    prints the limits too.
+    """
+    found = [
+        (page, d, m) for page in ctx.pages for d in page.dimensions if (m := _SIZE_WITH_LIMITS.match(d.text))
+    ]
+    if not found:
+        raise NotApplicable("no size prints both its deviations and its limits of size")
+    out = []
+    for page, d, m in found:
+        upper, lower = sorted((float(x) for x in (d.limits or (m["a"], m["b"]))), reverse=True)
+        nominal = float(m["nominal"])
+        places = max(decimals(m["max"]), decimals(m["min"]))
+        tolerance = 0.5 * 10**-places + 1e-9
+        want = (nominal + upper, nominal + lower)
+        if abs(float(m["max"]) - want[0]) > tolerance or abs(float(m["min"]) - want[1]) > tolerance:
+            out.append(
+                new_finding(
+                    rule,
+                    reviewer=REVIEWER,
+                    evidence=[ev.dimension(page, d)],
+                    comment=f"'{d.text}': the limits {m['max']} / {m['min']} do not match the size "
+                    f"{m['nominal']} with its deviations ({want[0]:.{places}f} / {want[1]:.{places}f}).",
+                    recommended_correction="Correct the limits of size or the deviations so that they agree.",
+                )
+            )
+    return out

@@ -10,13 +10,14 @@ from drawing_intelligence.extraction.template import resolve_rect
 from drawing_intelligence.review.checks import _evidence as ev
 from drawing_intelligence.review.checks._geometry import drawn_dimensions, supported_scales
 from drawing_intelligence.review.checks._registry import NotApplicable, NotCheckable, check
+from drawing_intelligence.review.checks._text import template_note
 from drawing_intelligence.review.context import ReviewContext
 from drawing_intelligence.review.rulebook import Rule, new_finding
-from drawing_intelligence.schemas import EvidenceRef, Finding, PageExtraction
+from drawing_intelligence.schemas import EvidenceRef, Finding, PageExtraction, TextLine
 
 REVIEWER = "checks"
 _RATIO = re.compile(r"^\s*(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)\s*$")
-_SCALE_LABEL = re.compile(r"SCALE\s*(\d+(?:\.\d+)?\s*:\s*\d+(?:\.\d+)?)", re.IGNORECASE)
+_SCALE_LABEL = re.compile(r"SCALE\s*:?\s*(\d+(?:\.\d+)?\s*:\s*\d+(?:\.\d+)?)", re.IGNORECASE)
 
 
 class FieldParams(BaseModel):
@@ -460,3 +461,376 @@ def sheets_same_revision(ctx: ReviewContext, rule: Rule, params: SheetsParams) -
 def sheets_same_size(ctx: ReviewContext, rule: Rule, params: SheetsParams) -> list[Finding]:
     """All sheets of a multi-sheet drawing are the same size."""
     return _across_sheets(ctx, rule, params, "sheet_size", "sheet size")
+
+
+# "SUPERSEDES DWG P23N1B075061 REV 02": the number, then the revision.
+_SUPERSEDES = re.compile(r"\bSUPERS[EC]DES\b", re.I)
+_SUPERSEDES_FULL = re.compile(
+    r"\bSUPERS[EC]DES\s+(?:DWG\.?|DRAWING)?\s*(?:NO\.?)?\s*(?=[\w./-]*\d)[A-Z0-9][\w./-]{3,}\s+REV(?:ISION)?\.?\s*[A-Z0-9]{1,3}\b",
+    re.I,
+)
+
+
+@check("supersede_note_complete")
+def supersede_note_complete(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """A 'SUPERSEDES' note gives the old drawing's number and its revision (only if the note exists)."""
+    notes = [
+        (p, ln)
+        for p in ctx.pages
+        for ln in p.body_text
+        if _SUPERSEDES.search(ln.text) and ln.text not in {r.text for r in p.revision_rows}
+    ]
+    if not notes:
+        raise NotApplicable("no supersede note")
+    return [
+        new_finding(
+            rule,
+            reviewer=REVIEWER,
+            evidence=[ev.text(page, ln)],
+            comment=f"'{ln.text}' does not give both the superseded drawing number and its revision.",
+            recommended_correction="Write 'SUPERSEDES DWG [number] REV [revision]'.",
+        )
+        for page, ln in notes
+        if not _SUPERSEDES_FULL.search(ln.text)
+    ]
+
+
+# A date, alone or with the drawer's number after it in the same item ("14.07.2025 7273").
+_REV_DATE = re.compile(r"^\d{1,2}\s*[./-]\s*\d{1,2}\s*[./-]\s*\d{2,4}(?:\s+(?P<drawer>\S.*))?$")
+_REV_NUMBER = re.compile(r"^\d{1,2}$")
+_ROW_TOLERANCE = 5.0  # pts: items of one revision row sit on the same line
+_WRAP_GAP = 14.0  # pts: a description's second line is this close to its row
+
+
+def _revision_entries(page: PageExtraction) -> list[list[TextLine]]:
+    """The filled revision rows, each as its items left to right; a wrapped description joins its row."""
+    rows: list[list[TextLine]] = []
+    for item in sorted(page.revision_rows, key=lambda t: (t.bbox[1] + t.bbox[3]) / 2):
+        centre = (item.bbox[1] + item.bbox[3]) / 2
+        last = rows[-1][-1] if rows else None
+        if last is not None and abs(centre - (last.bbox[1] + last.bbox[3]) / 2) <= _ROW_TOLERANCE:
+            rows[-1].append(item)
+        else:
+            rows.append([item])
+    wrapped = [
+        r
+        for r in rows
+        if len(r) == 1 and not _REV_NUMBER.match(r[0].text.strip()) and not _REV_DATE.match(r[0].text.strip())
+    ]
+    for r in wrapped:
+        others = [o for o in rows if o is not r]
+        near = min(
+            others,
+            key=lambda o: abs(o[0].bbox[1] - r[0].bbox[1]),
+            default=None,
+        )
+        if near is not None and abs(near[0].bbox[1] - r[0].bbox[1]) <= _WRAP_GAP:
+            near.append(r[0])
+            rows.remove(r)
+    return [sorted(r, key=lambda t: t.bbox[0]) for r in rows]
+
+
+@check("revision_table_complete")
+def revision_table_complete(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """Every filled revision row has a description, a date and the drawer (DRN.BY)."""
+    pages = [p for p in ctx.pages if p.revision_rows]
+    if not pages:
+        raise NotApplicable("no filled revision rows")
+    out = []
+    for page in pages:
+        for row in _revision_entries(page):
+            texts = [t.text.strip() for t in row]
+            date_at = next((i for i, t in enumerate(texts) if _REV_DATE.match(t)), None)
+            rest = [i for i, t in enumerate(texts) if not _REV_NUMBER.match(t) and not _REV_DATE.match(t)]
+            date_match = _REV_DATE.match(texts[date_at]) if date_at is not None else None
+            joined = bool(date_match and date_match["drawer"])
+            drawer = [i for i in rest if date_at is not None and row[i].bbox[0] > row[date_at].bbox[0]]
+            described = [i for i in rest if i not in drawer]
+            missing = []
+            if not described:
+                missing.append("a description")
+            if date_at is None:
+                missing.append("a date")
+            if not drawer and not joined and not (date_at is None and len(described) > 1):
+                missing.append("the drawer")
+            if missing:
+                out.append(
+                    new_finding(
+                        rule,
+                        reviewer=REVIEWER,
+                        evidence=[ev.text(page, row[0])],
+                        comment=f"The revision row '{' | '.join(texts)}' is missing {' and '.join(missing)}.",
+                        recommended_correction="Fill in the description, date and drawer for every revision.",
+                    )
+                )
+    return out
+
+
+class ScaleListParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    full_size: str
+    reduced: list[str]
+    enlarged: list[str]
+
+
+# "SCALE 1:2", "SCALE/ÉCHELLE 2:1" under a view; the title block holds the sheet's own scale ("1 : 1").
+_VIEW_SCALE = re.compile(
+    r"SCALE(?:\s*/\s*[^\s:]+)?\s*:?\s*(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)", re.IGNORECASE
+)
+
+
+def _ratio_key(a: str, b: str) -> str:
+    return f"{float(a):g}:{float(b):g}"
+
+
+@check("scale_is_preferred", ScaleListParams)
+def scale_is_preferred(ctx: ReviewContext, rule: Rule, params: ScaleListParams) -> list[Finding]:
+    """The sheet's scale and every view's scale is 1:1 or a preferred reduction or enlargement."""
+    allowed = {_ratio_key(*s.split(":")) for s in [params.full_size, *params.reduced, *params.enlarged]}
+    preferred = [*params.reduced, *params.enlarged]
+    out, seen = [], 0
+    for page in ctx.pages:
+        found: list[tuple[str, EvidenceRef]] = []
+        field = ev.value(page, "scale") if page.title_block_layout == "standard" else None
+        if field and (m := _RATIO.match(field)):
+            found.append((_ratio_key(m[1], m[2]), ev.field(page, "scale")))
+        for ln in page.body_text:
+            found += [(_ratio_key(m[1], m[2]), ev.text(page, ln)) for m in _VIEW_SCALE.finditer(ln.text)]
+        seen += len(found)
+        out += [
+            new_finding(
+                rule,
+                reviewer=REVIEWER,
+                evidence=[evidence],
+                comment=f"The scale {ratio} is not a preferred scale.",
+                recommended_correction=f"Use 1:1, or one of {', '.join(preferred)}.",
+            )
+            for ratio, evidence in found
+            if ratio not in allowed
+        ]
+    if not seen:
+        raise NotApplicable("no scale ratio on the drawing")
+    return out
+
+
+_DETAIL = re.compile(r"^\s*DETAIL\b", re.IGNORECASE)
+_NEAR_X, _NEAR_ABOVE, _NEAR_BELOW = 90.0, 12.0, 30.0  # pts: where a view's scale label sits around its name
+
+
+@check("detail_view_scale")
+def detail_view_scale(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """A detail view states its scale: a 'SCALE 2:1' label next to its name, or the ratio in the name."""
+    out, seen = [], 0
+    for page in ctx.pages:
+        scales = [ln for ln in [*page.body_text, *page.view_labels] if _VIEW_SCALE.search(ln.text)]
+        for label in page.view_labels:
+            if not _DETAIL.match(label.text):
+                continue
+            seen += 1
+            x0, y1 = label.bbox[0], label.bbox[3]
+            if re.search(r"\d\s*:\s*\d", label.text) or any(
+                abs(s.bbox[0] - x0) <= _NEAR_X and -_NEAR_ABOVE <= s.bbox[1] - y1 <= _NEAR_BELOW
+                for s in scales
+            ):
+                continue
+            out.append(
+                new_finding(
+                    rule,
+                    reviewer=REVIEWER,
+                    evidence=[ev.text(page, label)],
+                    comment=f"The detail view '{label.text}' has no scale beside it.",
+                    recommended_correction="State the detail view's scale, e.g. 'SCALE 2:1'.",
+                )
+            )
+    if not seen:
+        raise NotApplicable("no detail view")
+    return out
+
+
+class ContinuationParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    required_fields: list[str]
+    min_sheets: int = 2
+    must_match_sheet1: list[str]
+
+
+_FIELD_NAMES = {"drawing_number": "number"}  # the rulebook's name -> the extraction's title-block field
+
+
+@check("continuation_sheet_title_fields", ContinuationParams)
+def continuation_sheet_title_fields(
+    ctx: ReviewContext, rule: Rule, params: ContinuationParams
+) -> list[Finding]:
+    """Every later sheet repeats the drawing number, sheet number, title and scale, and matches sheet 1."""
+    if len(ctx.pages) < params.min_sheets:
+        raise NotApplicable("a single sheet")
+    pages = ev.title_block_pages(ctx)
+    first = ctx.pages[0]
+    if first not in pages:
+        raise NotCheckable("sheet 1's title block was not read")
+    out = []
+    for page in pages:
+        if page is first:
+            continue
+        for name in params.required_fields:
+            field = _FIELD_NAMES.get(name, name)
+            value = ev.value(page, field)
+            if ev.is_placeholder(value):
+                out.append(
+                    new_finding(
+                        rule,
+                        reviewer=REVIEWER,
+                        evidence=[ev.field(page, field)],
+                        comment=f"Sheet {page.page_number} does not repeat the {name.replace('_', ' ')}.",
+                        recommended_correction="Fill in the title block on every sheet.",
+                    )
+                )
+            elif name in params.must_match_sheet1 and _squash(value or "") != _squash(
+                ev.value(first, field) or ""
+            ):
+                out.append(
+                    new_finding(
+                        rule,
+                        reviewer=REVIEWER,
+                        evidence=[ev.field(first, field), ev.field(page, field)],
+                        comment=f"Sheet {page.page_number} has the {name.replace('_', ' ')} {value!r}, "
+                        f"sheet 1 {ev.value(first, field)!r}.",
+                        recommended_correction="Give every sheet the same drawing number and title.",
+                    )
+                )
+    return out
+
+
+class SheetOneParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    min_sheets: int = 2
+
+
+@check("sheet1_has_title_revision_notes", SheetOneParams)
+def sheet1_has_title_revision_notes(ctx: ReviewContext, rule: Rule, params: SheetOneParams) -> list[Finding]:
+    """Sheet 1 carries the revision history and the general notes that a later sheet carries.
+
+    The general notes are the template's own ("ALL DIMENSIONS ARE IN mm"). Notes about a hole table sit on the
+    table's sheet by PARI's practice, so a designer's numbered note on a later sheet is not a finding. The
+    title block's own completeness is judged per sheet by the title-block rules.
+    """
+    if len(ctx.pages) < params.min_sheets:
+        raise NotApplicable("a single sheet")
+    first, later = ctx.pages[0], ctx.pages[1:]
+    out = []
+    if not first.revision_rows and (page := next((p for p in later if p.revision_rows), None)):
+        out.append(
+            new_finding(
+                rule,
+                reviewer=REVIEWER,
+                evidence=[ev.text(page, page.revision_rows[0])],
+                comment=f"Sheet {page.page_number} has revision rows but sheet 1 has none.",
+                recommended_correction="Put the revision history on sheet 1.",
+            )
+        )
+    page = next((p for p in later if template_note(p)), None)
+    note = template_note(page) if page else None
+    if template_note(first) is None and page and note:
+        out.append(
+            new_finding(
+                rule,
+                reviewer=REVIEWER,
+                evidence=[ev.text(page, note)],
+                comment=f"Sheet {page.page_number} prints the general notes but sheet 1 does not.",
+                recommended_correction="Put the general notes on sheet 1.",
+            )
+        )
+    return out
+
+
+def _person(value: str | None) -> str | None:
+    """Who a DRN.BY / CHKD.BY cell names: its first token ('6330(MD)' -> '6330', 'M.S.K.' -> 'MSK')."""
+    if ev.is_placeholder(value):
+        return None
+    m = re.match(r"[A-Za-z0-9.]+", (value or "").strip())
+    return m.group(0).replace(".", "").upper() if m else None
+
+
+@check("checker_independent")
+def checker_independent(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """The checker is not the person who drew the sheet (PARI's DRN.BY and CHKD.BY cells).
+
+    PARI leaves CHKD.BY blank when a drawing is submitted, so a blank checker is not judged here (TB-016).
+    """
+    read = [p for p in ev.title_block_pages(ctx) if {"drawn_by", "checked_by"} <= p.title_block_fields.keys()]
+    if not read:
+        raise NotCheckable(
+            "the DRN.BY and CHKD.BY cells were not read (extraction predates the template cells)"
+        )
+    pages = [p for p in read if _person(ev.value(p, "drawn_by")) and _person(ev.value(p, "checked_by"))]
+    if not pages:
+        raise NotApplicable("the drawer and the checker are not both named")
+    return [
+        new_finding(
+            rule,
+            reviewer=REVIEWER,
+            evidence=[ev.field(p, "drawn_by"), ev.field(p, "checked_by")],
+            comment=f"The checker {ev.value(p, 'checked_by')!r} is the same person as the drawer "
+            f"{ev.value(p, 'drawn_by')!r}.",
+            recommended_correction="Have the drawing checked by someone who did not draw it.",
+        )
+        for p in pages
+        if _person(ev.value(p, "drawn_by")) == _person(ev.value(p, "checked_by"))
+    ]
+
+
+_CAR_HEADER = re.compile(r"^CAR\.?\s*NO\.?$", re.IGNORECASE)
+_DATE_COLUMN_X, _CAR_COLUMN_X, _TABLE_ROWS_ABOVE, _SAME_ROW = 15.0, 20.0, 160.0, 6.0  # pts
+
+
+@check("revision_change_ref")
+def revision_change_ref(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """Every revision row of a table with a CAR. NO. column has its change number.
+
+    Only PARI's older title block has that column (the current one has none, and stage 1 does not read the
+    older one's rows), so the rows are found from the printed text: dates in the DATE column above the header.
+    """
+    out, found = [], False
+    for page in ctx.pages:
+        header = next((ln for ln in page.body_text if _CAR_HEADER.match(ln.text.strip())), None)
+        date_header = next(
+            (
+                ln
+                for ln in page.body_text
+                if header
+                and ln.text.strip().upper() == "DATE"
+                and abs(ln.bbox[1] - header.bbox[1]) <= _SAME_ROW
+            ),
+            None,
+        )
+        if header is None or date_header is None:
+            continue
+        found = True
+        for date in page.body_text:
+            if (
+                not _REV_DATE.match(date.text.strip())
+                or abs(date.bbox[0] - date_header.bbox[0]) > _DATE_COLUMN_X
+                or not 0 < header.bbox[1] - date.bbox[1] <= _TABLE_ROWS_ABOVE
+            ):
+                continue
+            centre = (date.bbox[1] + date.bbox[3]) / 2
+            has_number = any(
+                abs(ln.bbox[0] - header.bbox[0]) <= _CAR_COLUMN_X
+                and abs((ln.bbox[1] + ln.bbox[3]) / 2 - centre) <= _SAME_ROW
+                and not ev.is_placeholder(ln.text)
+                for ln in page.body_text
+                if ln is not header
+            )
+            if not has_number:
+                out.append(
+                    new_finding(
+                        rule,
+                        reviewer=REVIEWER,
+                        evidence=[ev.text(page, date)],
+                        comment=f"The revision dated {date.text.strip()} has no change number (CAR. NO.).",
+                        recommended_correction="Quote the change (CAR) number for every revision.",
+                    )
+                )
+    if not found:
+        raise NotApplicable("no revision table with a CAR. NO. column")
+    return out

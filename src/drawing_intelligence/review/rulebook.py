@@ -60,6 +60,10 @@ class Rule(_Strict):
     check_type: Source
     check: str | None = None
     params: dict[str, Any] = {}
+    result: Literal["warning"] | None = Field(
+        default=None,
+        description="`warning`: findings of this rule are warnings, never fails (it awaits the client)",
+    )
     applies_to: AppliesTo = AppliesTo()
     source: RuleSource
     status: Literal["draft", "client_confirmed"] = "draft"
@@ -72,8 +76,8 @@ class Rule(_Strict):
 
     @property
     def can_fail(self) -> bool:
-        """LLM rules only ever raise warnings (Spike E)."""
-        return self.check_type != "llm"
+        """LLM rules only ever raise warnings (Spike E), and so does a rule marked `result: warning`."""
+        return self.check_type != "llm" and self.result != "warning"
 
     def applies(self, part_family: PartFamily | None, drawing_type: DrawingType | None) -> bool:
         """Unknown family or type (None) means the rule applies: better a checked rule than a silent skip."""
@@ -206,7 +210,7 @@ def new_finding(
         rule_id=rule.id,
         category=rule.category,
         requirement=rule.requirement,
-        result=result or ("fail" if rule.can_fail else "warning"),
+        result=(result or "fail") if rule.can_fail else "warning",
         severity=rule.severity,
         evidence=evidence,
         comment=comment,

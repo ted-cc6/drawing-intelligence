@@ -72,6 +72,8 @@ rules:
     severity: major
     check_type: code
     check: insert_spec
+    # PARI's own practice may differ from the rule, so a finding is a warning until PARI answers
+    result: warning
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-29}
     status: draft
 
