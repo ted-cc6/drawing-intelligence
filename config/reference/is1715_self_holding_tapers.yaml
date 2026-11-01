@@ -1,0 +1,79 @@
+source:
+  document: WESTERMANN_TABLES.pdf
+  section: 'PDF 52L, book 98, all 10 designations: printed alpha, gauge D and tapped-shank
+    d1'
+  sha256: 6bee8669240e88b99383c7c58a6961111e90be0ed86135232d83b7ebd79bb7d8
+scope: Complete designation/alpha/gauge-D/thread columns needed by WST-240. Alpha
+  is the symbol as printed in the table/diagram; no silent doubling or conversion
+  to a different angle convention. Other shank dimensions are outside this transcription.
+rows:
+- designation: Metric 4
+  gauge_d_mm: 4
+  thread: null
+  alpha_dms_as_printed:
+  - 1
+  - 25
+  - 26
+- designation: Metric 6
+  gauge_d_mm: 6
+  thread: null
+  alpha_dms_as_printed:
+  - 1
+  - 25
+  - 56
+- designation: Morse 0
+  gauge_d_mm: 9.045
+  thread: null
+  alpha_dms_as_printed:
+  - 1
+  - 29
+  - 27
+- designation: Morse 1
+  gauge_d_mm: 12.065
+  thread: M6
+  alpha_dms_as_printed:
+  - 1
+  - 25
+  - 43
+- designation: Morse 2
+  gauge_d_mm: 17.78
+  thread: M10
+  alpha_dms_as_printed:
+  - 1
+  - 25
+  - 50
+- designation: Morse 3
+  gauge_d_mm: 23.825
+  thread: M12
+  alpha_dms_as_printed:
+  - 1
+  - 26
+  - 16
+- designation: Morse 4
+  gauge_d_mm: 31.267
+  thread: M16
+  alpha_dms_as_printed:
+  - 1
+  - 29
+  - 15
+- designation: Morse 5
+  gauge_d_mm: 44.399
+  thread: M20
+  alpha_dms_as_printed:
+  - 1
+  - 30
+  - 26
+- designation: Morse 6
+  gauge_d_mm: 63.348
+  thread: M24
+  alpha_dms_as_printed:
+  - 1
+  - 29
+  - 36
+- designation: Metric 80
+  gauge_d_mm: 80
+  thread: M30
+  alpha_dms_as_printed:
+  - 1
+  - 25
+  - 56

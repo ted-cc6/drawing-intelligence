@@ -1,0 +1,20 @@
+source:
+  document: WESTERMANN_TABLES.pdf
+  section: PDF 53L, book 100
+  sha256: 6bee8669240e88b99383c7c58a6961111e90be0ed86135232d83b7ebd79bb7d8
+scope: IS 2473-1963 pilot diameters, type A/B; other geometry not transcribed.
+values:
+  A:
+  - 1
+  - 1.6
+  - 2.5
+  - 4
+  - 6.3
+  - 10
+  - 16
+  B:
+  - 1
+  - 1.6
+  - 2.5
+  - 4
+  - 6.3

@@ -1,0 +1,32 @@
+source:
+  document: Surface Treatment-Plating Process Selection PRD-GD-DES-12.pdf
+  section: 'page 1 rows 1, 8, 10: numeric/material prerequisites only'
+  sha256: 43961b57d682cc95145124a94fb4b8b25f204195aa27d0c0cdec8930f047989f
+scope: Partial prerequisites. Grinding/blasting and other surface state are not proved
+  by this table.
+rows:
+- process: hard_chrome
+  # DES-12 row 1 gives alternatives: case hardened OR through hardened (minimum 45 HRC).
+  # This base-hardness limit must never be applied to the case-hardened alternative.
+  required_heat_one_of: [case, through]
+  hardness_limits:
+  - hardness_state: through_hardened_base
+    operator: '>='
+    hrc: 45
+  forbidden_heat: []
+  forbidden_material: []
+- process: qpq
+  # Advisory, and only for through-hardened steels; it is not a universal acceptance band.
+  preferred_through_hardened_hrc: [30, 50]
+  forbidden_material: []
+  not_recommended_heat:
+  - case
+- process: balzer
+  # DES-12 row 8: residual hardness AFTER tempering shall be MORE THAN 55 HRC.
+  hardness_limits:
+  - hardness_state: residual_after_tempering
+    operator: '>'
+    hrc: 55
+  forbidden_heat: []
+  forbidden_material:
+  - EN24

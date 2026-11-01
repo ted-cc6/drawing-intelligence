@@ -1,0 +1,222 @@
+{
+  "owner": "Zhetao Zhang",
+  "deliverable": "cited reference tables, typed loaders and structure tests",
+  "table_files_loaded": 18,
+  "new_table_files": 13,
+  "source_hashes_verified_for": [
+    "hardness_conversion_steel",
+    "is1369_thread_runout_undercut",
+    "is1715_self_holding_tapers",
+    "is2473_centre_holes",
+    "is3458_standard_tapers",
+    "is6688_taper_pins",
+    "keyways",
+    "material_heat_treatment",
+    "material_specific_weight",
+    "plating_prerequisites",
+    "plating_processes",
+    "raw_material_sizes",
+    "raw_material_sizes_des11",
+    "us_india_materials"
+  ],
+  "des11": {
+    "material_rows": 13,
+    "treatment_cells": 78,
+    "numeric_cells": 21,
+    "nil_cells": 57,
+    "stock_material_rows": 6,
+    "stock_form_lists": 11,
+    "market_size_entries": 251,
+    "source_anomalies": [
+      {
+        "material": "EN24",
+        "issue": "buffer_size_absent_from_market_list",
+        "sizes_mm": [
+          20.0
+        ],
+        "handling": "Preserve both source cells. Page 2 lists 20 mm buffer stock but omits it from its market-size list; ask PARI before treating either list as exhaustive."
+      },
+      {
+        "material": "EN24",
+        "issue": "preferred_diameter_conflicts_with_buffer_stock",
+        "sizes_mm": [
+          20.0,
+          30.0
+        ],
+        "handling": "Page 1 prefers EN24 above 32 mm, while page 2 maintains EN24 buffer stock at 20 and 30 mm. Preserve both pages; availability is not the preferred-use policy. Ask PARI which selection applies before making an automatic substitution."
+      },
+      {
+        "material": "EN9",
+        "issue": "preferred_diameter_conflicts_with_buffer_stock",
+        "sizes_mm": [
+          36.0,
+          45.0,
+          56.0,
+          75.0,
+          80.0,
+          100.0
+        ],
+        "handling": "Page 1 prefers EN9 at or below 32 mm, while page 2 maintains EN9 buffer stock at these larger diameters. Preserve both pages and request PARI clarification; do not filter out printed stock or silently override the preferred-use boundary."
+      }
+    ]
+  },
+  "reference_status_counts": {
+    "reference_ready": 16,
+    "reference_partial": 2,
+    "source_needed": 1
+  },
+  "rules": [
+    {
+      "rule_id": "WPM-001",
+      "tables": [
+        "material_heat_treatment"
+      ],
+      "status": "reference_ready",
+      "note": "DES-11 all 13 rows and all six process columns, including NIL and the special-selection exception."
+    },
+    {
+      "rule_id": "WPM-002",
+      "tables": [
+        "material_heat_treatment"
+      ],
+      "status": "reference_ready",
+      "note": "All printed hardness and case-depth bands, original units and normalised mm values."
+    },
+    {
+      "rule_id": "WPM-004",
+      "tables": [
+        "material_heat_treatment"
+      ],
+      "status": "reference_ready",
+      "note": "Source policies retained: after-finish-machining instruction, prior-toughening preference, chrome avoidance recommendation. Do not silently strengthen recommendations into bans."
+    },
+    {
+      "rule_id": "WPM-005",
+      "tables": [
+        "material_heat_treatment",
+        "raw_material_sizes_des11"
+      ],
+      "status": "reference_ready",
+      "note": "EN9 <=32 mm, EN24 >32 mm per WPM-005; printed EN24 notation retained. Stock availability is not filtered by preferred-use limits. Page-1 selection versus page-2 EN24/EN9 buffer-stock conflicts are explicitly recorded in source_anomalies; PARI clarification remains pending."
+    },
+    {
+      "rule_id": "WPS-001",
+      "tables": [
+        "plating_processes"
+      ],
+      "status": "reference_ready",
+      "note": "Existing 10-process DES-12 table retained; not an exhaustive prohibition on other finishes."
+    },
+    {
+      "rule_id": "WPS-003",
+      "tables": [
+        "plating_processes",
+        "plating_prerequisites"
+      ],
+      "status": "reference_ready",
+      "note": "All ten prerequisite/constraint/remark text cells; structured numeric/material subset remains explicitly scoped."
+    },
+    {
+      "rule_id": "MF-011",
+      "tables": [
+        "material_heat_treatment"
+      ],
+      "status": "reference_partial",
+      "note": "The 13 DES-11 preferred rows are transcribed, but a complete controlled approved-material list is not supplied. DES-11 note iii permits justified special selections."
+    },
+    {
+      "rule_id": "WPE-001",
+      "tables": [
+        "us_india_materials"
+      ],
+      "status": "reference_ready",
+      "note": "All 14 Sheet1 G5:H18 rows, with conditional/prose alternatives preserved; not universal metallurgical equivalence or blanket substitution approval."
+    },
+    {
+      "rule_id": "MF-003",
+      "tables": [
+        "raw_material_sizes_des11",
+        "raw_material_sizes"
+      ],
+      "status": "reference_ready",
+      "note": "Complete 2016 DES-11 stock table plus the documented 22-row numeric lookup subset of the original 2024 workbook. The full workbook remains in data/client_set; no unused catalogue copy or profile-diagram transcription is added."
+    },
+    {
+      "rule_id": "WF-007",
+      "tables": [],
+      "status": "reference_ready",
+      "note": "The cited part-class mapping already exists in WF-007.params.table. Preserve T+S:B, A:C, B:C, C:D."
+    },
+    {
+      "rule_id": "WST-130",
+      "tables": [
+        "hardness_conversion_steel"
+      ],
+      "status": "reference_ready",
+      "note": "All 34 numeric source rows, HB ball types, HRC, HRB and tensile strength; blank cells and operating footnotes retained. Acceptance tolerance remains a separate rule-policy decision."
+    },
+    {
+      "rule_id": "WST-132",
+      "tables": [
+        "material_specific_weight"
+      ],
+      "status": "reference_ready",
+      "note": "All 16 solid-material specific-weight entries on PDF 04L plus copper/aluminium on 03R; babbitt range retained. Envelope association is future check logic."
+    },
+    {
+      "rule_id": "WST-240",
+      "tables": [
+        "is1715_self_holding_tapers"
+      ],
+      "status": "reference_ready",
+      "note": "All ten designations with printed alpha, gauge D and tapped-shank thread; no silent change of angle convention."
+    },
+    {
+      "rule_id": "WST-239",
+      "tables": [
+        "is3458_standard_tapers"
+      ],
+      "status": "reference_ready",
+      "note": "All 12 preferred ratios named by the source/rule."
+    },
+    {
+      "rule_id": "MC-007",
+      "tables": [
+        "keyways"
+      ],
+      "status": "reference_partial",
+      "note": "Both nominal key tables on PDF 49R are transcribed (12 taper-key, 11 Woodruff-key options). Applicable parallel-key/keyway tolerance tables still need a confirmed source."
+    },
+    {
+      "rule_id": "MC-008",
+      "tables": [],
+      "status": "source_needed",
+      "note": "Need PARI to identify the retaining-ring standard and provide its groove dimensions/tolerances. DES-11 contains no circlip table; no standard is guessed."
+    },
+    {
+      "rule_id": "WST-229",
+      "tables": [
+        "is6688_taper_pins"
+      ],
+      "status": "reference_ready",
+      "note": "All 16 small-end nominal diameters and the 1:50 taper."
+    },
+    {
+      "rule_id": "WST-242",
+      "tables": [
+        "is1369_thread_runout_undercut"
+      ],
+      "status": "reference_ready",
+      "note": "All 15 ISO coarse-thread undercut rows: angle-specific external/internal widths, radii and g/g1 expressions, including printed blanks. No fine-pitch or unlisted-size extrapolation."
+    },
+    {
+      "rule_id": "WST-249",
+      "tables": [
+        "is2473_centre_holes"
+      ],
+      "status": "reference_ready",
+      "note": "Complete A/B pilot-diameter lists needed by this designation rule; unrelated centre-hole geometry is outside this transcription."
+    }
+  ],
+  "interpretation": "Reference-data readiness only. This does not assert drawing accuracy, implementation of the 19 checks, or completion of the separate fresh AI-reviewer evaluation."
+}

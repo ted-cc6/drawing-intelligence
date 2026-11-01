@@ -1,0 +1,25 @@
+source:
+  document: WESTERMANN_TABLES.pdf
+  section: PDF 49R, book 93
+  sha256: 6bee8669240e88b99383c7c58a6961111e90be0ed86135232d83b7ebd79bb7d8
+scope: IS 6688-1972 small-end nominal diameters; 1:50 taper.
+values:
+  nominal_d_mm:
+  - 1.5
+  - 2
+  - 2.5
+  - 3
+  - 4
+  - 5
+  - 6
+  - 8
+  - 10
+  - 12
+  - 16
+  - 20
+  - 25
+  - 30
+  - 40
+  - 50
+  taper_denominator:
+  - 50

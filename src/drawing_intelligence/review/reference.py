@@ -13,6 +13,8 @@ from typing import Any
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from drawing_intelligence.review.reference_des11 import Des11Stock, MaterialHeatTreatment
+from drawing_intelligence.review.reference_p2 import P2_MODELS
 from drawing_intelligence.settings import get_settings
 
 
@@ -23,6 +25,7 @@ class _Strict(BaseModel):
 class TableSource(_Strict):
     document: str
     section: str
+    sha256: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
 
 
 class MaterialClass(_Strict):
@@ -63,6 +66,10 @@ class PlatingProcess(_Strict):
     name: str
     patterns: list[str]
     materials: list[str]
+    source_row: int | None = Field(default=None, ge=1, le=10)
+    prerequisites_as_printed: str | None = None
+    process_constraints_as_printed: str | None = None
+    remarks_as_printed: str | None = None
 
 
 class PlatingProcesses(_Strict):
@@ -169,6 +176,9 @@ class MetricThreads(_Strict):
 
 
 TABLE_MODELS: dict[str, type[BaseModel]] = {
+    **P2_MODELS,
+    "material_heat_treatment": MaterialHeatTreatment,
+    "raw_material_sizes_des11": Des11Stock,
     "materials": Materials,
     "plating_processes": PlatingProcesses,
     "is919_fits": FitDeviations,
