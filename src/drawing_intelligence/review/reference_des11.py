@@ -229,7 +229,7 @@ class StockMaterial(Strict):
 
 class StockAnomaly(Strict):
     material: str
-    issue: Literal["buffer_size_absent_from_market_list"]
+    issue: Literal["buffer_size_absent_from_market_list", "preferred_diameter_conflicts_with_buffer_stock"]
     sizes_mm: list[float]
     handling: str
 
@@ -249,7 +249,11 @@ class Des11Stock(Strict):
             m.material: set(m.buffer_round_mm or []) - set(m.sizes_mm.get("black_round", []))
             for m in self.materials
         }
-        declared = {a.material: set(a.sizes_mm) for a in self.source_anomalies}
+        declared = {
+            a.material: set(a.sizes_mm)
+            for a in self.source_anomalies
+            if a.issue == "buffer_size_absent_from_market_list"
+        }
         if {k: v for k, v in missing.items() if v} != declared:
             raise ValueError("every buffer/market mismatch must be preserved and explicitly documented")
         return self

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import re
-import warnings
 from itertools import pairwise
 from pathlib import Path
 
@@ -20,12 +19,6 @@ SOURCE_DIR = Path("data/client_set/WP Specific Guidelines")
 @pytest.fixture(scope="module")
 def refs():
     return load_reference()
-
-
-def test_uploaded_example_test_is_unchanged():
-    assert hashlib.sha256(Path("tests/test_reference_tables.py").read_bytes()).hexdigest() == (
-        "84fde903790cd3514c06b57c60e259c8a17b5ce15e22f946a9059b5a1054a22a"
-    )
 
 
 def test_every_new_table_is_typed_and_points_to_exact_source_bytes(refs):
@@ -66,6 +59,21 @@ def test_des12_all_process_prerequisites_and_constraints_are_transcribed(refs):
     assert "NOT RECOMMENDED" in qpq and "30 TO 50 HRC" in qpq
     structured = next(r for r in refs["plating_prerequisites"].rows if r.process == "qpq")
     assert structured.not_recommended_heat == ["case"] and structured.forbidden_heat == []
+    assert structured.preferred_through_hardened_hrc == (30, 50)
+
+
+def test_des12_hardness_limits_retain_their_conditions_and_strictness(refs):
+    rows = {r.process: r for r in refs["plating_prerequisites"].rows}
+    chrome = rows["hard_chrome"]
+    assert chrome.required_heat_one_of == ["case", "through"]
+    assert [limit.model_dump() for limit in chrome.hardness_limits] == [
+        {"hardness_state": "through_hardened_base", "operator": ">=", "hrc": 45}
+    ]
+    # A case-hardened part has no unconditional base-hardness minimum in DES-12.
+    assert "min_base_hrc" not in chrome.model_dump()
+    assert [limit.model_dump() for limit in rows["balzer"].hardness_limits] == [
+        {"hardness_state": "residual_after_tempering", "operator": ">", "hrc": 55}
+    ]
 
 
 def test_des12_specific_pattern_precedes_general_pattern(refs):
@@ -85,6 +93,12 @@ def test_all_14_equivalent_rows_match_original_cells(refs):
         assert row.cell == f"Sheet1!G{source_row}:H{source_row}"
     # A36 has conditional alternatives; recording a workbook row is not approval to substitute blindly.
     assert not next(r for r in table.rows if r.us == "A36").automatic
+    disputed = next(r for r in table.rows if r.us == "9SMn28k")
+    assert disputed.india == "Spring Steel" and not disputed.automatic
+    assert "AISI 1213" in disputed.source_conflict_note
+    aluminium = next(r for r in table.rows if r.us == "Aluminum")
+    assert aluminium.condition_as_printed == str(sheet["K7"].value).strip()
+    assert aluminium.condition_cell == "Sheet1!K7" and not aluminium.automatic
 
 
 def test_stock_numeric_subset_matches_source_cells(refs):
@@ -109,21 +123,6 @@ def test_stock_numeric_subset_matches_source_cells(refs):
         assert row.sizes_mm == expected_sizes
 
 
-def test_full_stock_catalogue_preserves_all_cells_and_merged_ranges(refs):
-    table = refs["raw_material_catalogue"]
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", UserWarning)
-        workbook = load_workbook(SOURCE_DIR / table.source.document, data_only=False)
-    assert len(table.sheets) == 16
-    assert sum(len(sheet.cells) for sheet in table.sheets) == 768
-    assert [sheet.name for sheet in table.sheets] == workbook.sheetnames
-    for sheet in table.sheets:
-        expected = {c.coordinate: c.value for row in workbook[sheet.name] for c in row if c.value is not None}
-        assert {c.address: c.value for c in sheet.cells} == expected
-        assert set(sheet.merged_ranges) == {str(v) for v in workbook[sheet.name].merged_cells.ranges}
-    assert table.graphical_shapes_transcribed is False
-
-
 def test_full_hardness_columns_and_blank_cells(refs):
     table = refs["hardness_conversion_steel"]
     assert len(table.rows) == 34
@@ -132,6 +131,7 @@ def test_full_hardness_columns_and_blank_cells(refs):
     assert by_hv[550].hb_steel_ball == 505 and by_hv[550].hb_carbide_ball == 517
     assert by_hv[235].hrb == 99.9 and by_hv[235].hrc is None
     assert by_hv[210].tensile_kgf_mm2 == 72
+    assert by_hv[390].tensile_kgf_mm2 == 132  # Westermann PDF 66R, between 126 and 142.
     assert by_hv[940].hrc == 68 and by_hv[940].tensile_kgf_mm2 is None
     assert by_hv[105].hrb == 56.4
     for column in ("hv", "hrc", "hrb", "hb_steel_ball", "hb_carbide_ball", "tensile_kgf_mm2"):

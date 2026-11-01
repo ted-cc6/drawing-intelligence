@@ -38,7 +38,7 @@
         "raw_material_sizes_des11"
       ],
       "status": "reference_ready",
-      "note": "EN9 <=32 mm, EN24 >32 mm per WPM-005; printed EN24 notation retained. Stock availability is not filtered by preferred-use limits."
+      "note": "EN9 <=32 mm, EN24 >32 mm per WPM-005; printed EN24 notation retained. Stock availability is not filtered by preferred-use limits. Page-1 selection versus page-2 EN24/EN9 buffer-stock conflicts are explicitly recorded in source_anomalies; PARI clarification remains pending."
     },
     {
       "rule_id": "WPS-001",
@@ -77,11 +77,10 @@
       "rule_id": "MF-003",
       "tables": [
         "raw_material_sizes_des11",
-        "raw_material_sizes",
-        "raw_material_catalogue"
+        "raw_material_sizes"
       ],
       "status": "reference_ready",
-      "note": "Complete 2016 DES-11 stock table plus all 768 nonempty cells in the 16-sheet 2024 catalogue. Direct numeric stock lookup is a documented 22-row subset. Profile drawings are not transcribed."
+      "note": "Complete 2016 DES-11 stock table plus the documented 22-row numeric lookup subset of the original 2024 workbook. The full workbook remains in data/client_set; no unused catalogue copy or profile-diagram transcription is added."
     },
     {
       "rule_id": "WF-007",

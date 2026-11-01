@@ -306,3 +306,20 @@ def test_unrecorded_source_anomaly_fails_validation(stock):
     data["source_anomalies"] = []
     with pytest.raises(ValidationError):
         Des11Stock.model_validate(data)
+
+
+def test_preferred_use_and_buffer_stock_conflict_is_recorded(stock, heat):
+    conflicts = {
+        a.material: a
+        for a in stock.source_anomalies
+        if a.issue == "preferred_diameter_conflicts_with_buffer_stock"
+    }
+    assert set(conflicts) == {"EN9", "EN24"}
+    assert conflicts["EN24"].sizes_mm == [20, 30]
+    assert conflicts["EN9"].sizes_mm == [36, 45, 56, 75, 80, 100]
+    for grade, anomaly in conflicts.items():
+        selected = heat.by_key(grade).selection
+        buffer = next(m.buffer_round_mm for m in stock.materials if m.material == grade)
+        assert set(anomaly.sizes_mm) <= set(buffer)
+        assert selected.diameter_mm == 32
+        assert all(d > 32 if grade == "EN9" else d <= 32 for d in anomaly.sizes_mm)

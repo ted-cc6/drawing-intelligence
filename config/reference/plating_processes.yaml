@@ -1,10 +1,13 @@
+# PARI DES-12 material compatibility plus literal prerequisite/constraint/remark text.
+# WPS-002 reads the material classes; painting, black oxide and treatments absent from DES-12
+# have no material-compatibility rule here. Source recommendations are not absolute bans.
 source:
   document: Surface Treatment-Plating Process Selection PRD-GD-DES-12.pdf
   section: PDF page 1, rows 1–10; material columns, Input surface pre-requisites,
     Process Constraints and Remarks
   sha256: 43961b57d682cc95145124a94fb4b8b25f204195aa27d0c0cdec8930f047989f
-processes:
-- id: hard_anodizing
+processes:  # First match wins: specific names before general anodizing.
+- id: hard_anodizing  # Only Aluminium.
   name: Hard Anodizing
   patterns:
   - HARD\s+ANODI[SZ]
@@ -16,7 +19,7 @@ processes:
 
     matched with the plain uniform surfaces.'
   remarks_as_printed: null
-- id: silver_anodizing
+- id: silver_anodizing  # Only Aluminium; keep after hard anodizing.
   name: Self Anodizing / Silver Anodizing
   patterns:
   - ANODI[SZ]
@@ -28,7 +31,7 @@ processes:
 
     matched with the plain uniform surfaces.'
   remarks_as_printed: null
-- id: hard_chrome
+- id: hard_chrome  # Steel Alloys; copper/brass are not recommended, rather than forbidden.
   name: Hard Chrome Plating
   patterns:
   - HARD\s+CHROME
@@ -88,7 +91,7 @@ processes:
 
     formed on inside dimeters, corners.'
   remarks_as_printed: null
-- id: enp
+- id: enp  # The non-metallic source column includes Plastic (ABS) and Other.
   name: Electroless Nickel Plating (E.N.P.)
   patterns:
   - \bE\.?\s*N\.?\s*P\b
@@ -181,7 +184,7 @@ processes:
 
     the weld leak inside the tube will tends to form rust.'
   remarks_as_printed: null
-- id: balzer
+- id: balzer  # OHNS, D2; DES-12 explicitly says do not use EN-24.
   name: Balzer Coating
   patterns:
   - BAL[ZS]ER
@@ -232,7 +235,7 @@ processes:
     high temp. coating
 
     process)'
-- id: zafc
+- id: zafc  # The material column says 12.9 graded hardwares.
   name: ZAFC (Zinc Aluminium Flake Coating)
   patterns:
   - \bZAFC\b
@@ -250,7 +253,7 @@ processes:
 
     hence the Allen key slippage chances are more.'
   remarks_as_printed: null
-- id: qpq
+- id: qpq  # The material column says All through hardened steel.
   name: Quench Polish Quench (QPQ)
   patterns:
   - \bQPQ\b

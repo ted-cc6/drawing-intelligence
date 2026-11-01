@@ -35,7 +35,6 @@ def audit() -> dict:
         verified.append(name)
     heat = refs["material_heat_treatment"]
     stock = refs["raw_material_sizes_des11"]
-    catalogue = refs["raw_material_catalogue"]
     statuses = json.loads((PROJECT_ROOT / "docs/reference/p2_reference_status.json").read_text())
     rulebook = load_rulebook()
     for row in statuses["rules"]:
@@ -61,10 +60,6 @@ def audit() -> dict:
             "stock_form_lists": sum(len(m.sizes_mm) for m in stock.materials),
             "market_size_entries": sum(len(s) for m in stock.materials for s in m.sizes_mm.values()),
             "source_anomalies": [a.model_dump() for a in stock.source_anomalies],
-        },
-        "stock_catalogue_2024": {
-            "worksheets": len(catalogue.sheets),
-            "nonempty_cells": sum(len(s.cells) for s in catalogue.sheets),
         },
         "reference_status_counts": dict(Counter(r["status"] for r in statuses["rules"])),
         "rules": statuses["rules"],

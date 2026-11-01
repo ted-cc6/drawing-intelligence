@@ -1,7 +1,7 @@
 # P2 reference tables — Zhetao Zhang
 
 This implements the reference-data responsibility: transcribe and cite tables, add typed loading, and add
-structure tests following the supplied `tests/test_reference_tables.py`. The source example test is unchanged.
+structure tests following the supplied `tests/test_reference_tables.py`. The supplied test remains freely editable; no test pins its file hash.
 The initial 200-PDF sweep was not a measure of this table contribution's completeness.
 
 ## Delivered
@@ -10,12 +10,16 @@ The initial 200-PDF sweep was not a measure of this table contribution's complet
   names/equivalents, form and size selection, UTS/stress, applications, shared notes and exception policy are
   retained. Both source units and normalised case-depth units are available; 20–25 microns is 0.020–0.025 mm.
 - DES-11 page 2: all six material rows, 11 stock-form lists, 251 market-size entries, buffer-stock lists and
-  supply notes. The EN24 20-mm buffer/market discrepancy is documented, not corrected without authority.
+  supply notes. The EN24 20-mm buffer/market discrepancy and page-1 preferred-diameter versus page-2 buffer-stock conflicts for EN24 and EN9 are recorded without silently changing either source.
 - DES-12: all ten existing processes now include the input prerequisites, process constraints and remarks.
-  QPQ's case-hardening advice remains a recommendation rather than an invented absolute prohibition.
-- Stock workbook: all 768 nonempty cells, original addresses and merged ranges across 16 sheets. The
-  separately typed direct-lookup subset covers 22 numeric rows. Graphical profile diagrams are not transcribed.
-- US–India workbook: all 14 Sheet1 rows; conditional substitutions retain their conditions.
+  QPQ's case-hardening advice remains a recommendation. Its preferred 30–50 HRC band applies to through-
+  hardened steels only. Hard chrome has a >=45 HRC through-hardened-base alternative; Balzer requires
+  residual hardness after tempering strictly >55 HRC.
+- Stock workbook: the typed direct-lookup subset covers 22 numeric rows. The original 16-sheet workbook
+  remains in `data/client_set`; an unused full catalogue copy has been removed. Graphical profile diagrams
+  are not transcribed.
+- US–India workbook: all 14 Sheet1 rows; the HE30 condition from K7 is retained. The printed 9SMn28k /
+  Spring Steel pair remains visible but cannot be applied automatically because Sheet2 identifies AISI 1213.
 - Westermann: full 34-row numeric hardness comparison (including both HB ball types, HRB and tensile strength),
   18 material specific weights, ten self-holding taper designations with source alpha/D/thread, twelve
   standard taper ratios, all taper-pin nominal diameters, fifteen ISO coarse-thread undercut rows with
@@ -27,7 +31,9 @@ The initial 200-PDF sweep was not a measure of this table contribution's complet
 
 1. C45/C55 appear in two DES-11 rows for different forms. A candidate lookup returns both unless form is known.
    The two 20MnCr5 rows have different PARI designations/applications; they are not collapsed into one row.
-2. EN9's ≤32-mm preferred-use limit is not a stock-availability limit: page 2 lists larger EN9 sizes.
+2. Page 1 prefers EN24 >32 mm and EN9 ≤32 mm, while page 2 lists EN24 buffer stock at 20/30 mm
+   and EN9 buffer stock at 36–100 mm. Both source statements are preserved in `source_anomalies`;
+   PARI must clarify selection policy rather than treating stock availability as an automatic substitution.
 3. DES-11 note iii explicitly allows justified special selections. Its 13 preferred grades are not an exhaustive
    approved-material list. Blank mechanical-property cells remain null, not zero or NIL.
 4. The EN24 raw note prints `= > 32 dia.`; its `>32` interpretation follows WPM-005 and is recorded explicitly.

@@ -122,7 +122,7 @@ rows:
   hb_carbide_ball: 369
   hrc: 39.8
   hrb: null
-  tensile_kgf_mm2: 133
+  tensile_kgf_mm2: 132
 - hv: 420
   hb_steel_ball: 397
   hb_carbide_ball: 397

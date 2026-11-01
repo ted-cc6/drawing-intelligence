@@ -403,3 +403,15 @@ source_anomalies:
   - 20
   handling: Preserve both source cells. Page 2 lists 20 mm buffer stock but omits
     it from its market-size list; ask PARI before treating either list as exhaustive.
+- material: EN24
+  issue: preferred_diameter_conflicts_with_buffer_stock
+  sizes_mm: [20, 30]
+  handling: Page 1 prefers EN24 above 32 mm, while page 2 maintains EN24 buffer
+    stock at 20 and 30 mm. Preserve both pages; availability is not the preferred-use
+    policy. Ask PARI which selection applies before making an automatic substitution.
+- material: EN9
+  issue: preferred_diameter_conflicts_with_buffer_stock
+  sizes_mm: [36, 45, 56, 75, 80, 100]
+  handling: Page 1 prefers EN9 at or below 32 mm, while page 2 maintains EN9 buffer
+    stock at these larger diameters. Preserve both pages and request PARI clarification;
+    do not filter out printed stock or silently override the preferred-use boundary.

@@ -25,6 +25,9 @@ class Equivalent(Strict):
     cell: str
     # Only literal grade pairs are mechanically checked, never prose/alternatives.
     automatic: bool
+    condition_as_printed: str | None = None
+    condition_cell: str | None = None
+    source_conflict_note: str | None = None
 
 
 class Equivalents(Strict):
@@ -146,9 +149,17 @@ class UndercutTable(Strict):
     rows: list[UndercutRow]
 
 
+class HardnessLimit(Strict):
+    hardness_state: Literal["through_hardened_base", "residual_after_tempering"]
+    operator: Literal[">=", ">"]
+    hrc: float = Field(ge=0, le=100)
+
+
 class Prerequisite(Strict):
     process: str
-    min_base_hrc: float | None = None
+    hardness_limits: list[HardnessLimit] = []
+    required_heat_one_of: list[Literal["case", "through"]] = []
+    preferred_through_hardened_hrc: tuple[float, float] | None = None
     forbidden_heat: list[str] = []
     not_recommended_heat: list[str] = []
     forbidden_material: list[str] = []
@@ -187,36 +198,6 @@ class Keyways(Strict):
     woodruff_keys_is2294: list[KeywayRow]
 
 
-class CatalogueCell(Strict):
-    address: str = Field(pattern=r"^[A-Z]+[1-9][0-9]*$")
-    value: str | int | float
-
-
-class CatalogueSheet(Strict):
-    name: str
-    cells: list[CatalogueCell]
-    merged_ranges: list[str]
-
-    @model_validator(mode="after")
-    def unique_addresses(self) -> CatalogueSheet:
-        if len({c.address for c in self.cells}) != len(self.cells):
-            raise ValueError("duplicate catalogue cell address")
-        return self
-
-
-class RawMaterialCatalogue(Strict):
-    source: Citation
-    scope: str
-    graphical_shapes_transcribed: Literal[False]
-    sheets: list[CatalogueSheet]
-
-    @model_validator(mode="after")
-    def unique_sheets(self) -> RawMaterialCatalogue:
-        if not self.sheets or len({s.name for s in self.sheets}) != len(self.sheets):
-            raise ValueError("catalogue sheets must be nonempty and uniquely named")
-        return self
-
-
 P2_MODELS: dict[str, type[BaseModel]] = {
     "us_india_materials": Equivalents,
     "raw_material_sizes": StockTable,
@@ -229,5 +210,4 @@ P2_MODELS: dict[str, type[BaseModel]] = {
     "is1369_thread_runout_undercut": UndercutTable,
     "plating_prerequisites": Prerequisites,
     "keyways": Keyways,
-    "raw_material_catalogue": RawMaterialCatalogue,
 }

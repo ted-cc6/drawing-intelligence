@@ -17,6 +17,8 @@ rows:
   india: HE30
   cell: Sheet1!G7:H7
   automatic: false
+  condition_as_printed: If no specific grade specified
+  condition_cell: Sheet1!K7
 - us: X46Cr13
   india: SS420
   cell: Sheet1!G8:H8
@@ -24,7 +26,9 @@ rows:
 - us: 9SMn28k
   india: Spring Steel
   cell: Sheet1!G9:H9
-  automatic: true
+  automatic: false
+  source_conflict_note: Sheet1's text is preserved as printed. Sheet2 identifies
+    9SMn28k as AISI 1213 (free-cutting steel); this pair must not be substituted automatically.
 - us: LAMICOID
   india: HE30 Al (1.6mm thick )
   cell: Sheet1!G10:H10

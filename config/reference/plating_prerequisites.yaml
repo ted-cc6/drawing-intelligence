@@ -6,16 +6,27 @@ scope: Partial prerequisites. Grinding/blasting and other surface state are not 
   by this table.
 rows:
 - process: hard_chrome
-  min_base_hrc: 45
+  # DES-12 row 1 gives alternatives: case hardened OR through hardened (minimum 45 HRC).
+  # This base-hardness limit must never be applied to the case-hardened alternative.
+  required_heat_one_of: [case, through]
+  hardness_limits:
+  - hardness_state: through_hardened_base
+    operator: '>='
+    hrc: 45
   forbidden_heat: []
   forbidden_material: []
 - process: qpq
-  min_base_hrc: null
+  # Advisory, and only for through-hardened steels; it is not a universal acceptance band.
+  preferred_through_hardened_hrc: [30, 50]
   forbidden_material: []
   not_recommended_heat:
   - case
 - process: balzer
-  min_base_hrc: null
+  # DES-12 row 8: residual hardness AFTER tempering shall be MORE THAN 55 HRC.
+  hardness_limits:
+  - hardness_state: residual_after_tempering
+    operator: '>'
+    hrc: 55
   forbidden_heat: []
   forbidden_material:
   - EN24
