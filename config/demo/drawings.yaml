@@ -1,0 +1,42 @@
+# Drawings the web demo opens with one click (src/drawing_intelligence/api). Their model replies are cached in
+# data/cache, so opening them is free and gives the same result every time. Paths are relative to the repo root.
+# `questions` are offered as one-click questions in the Q&A panel (answered live, about half a cent each).
+questions:
+  - What are the most serious problems on this drawing?
+  - Is this drawing ready to send to the shop?
+  - What is the material and the surface treatment?
+drawings:
+  - id: bearing-housing
+    title: P23Y5B091115002
+    subtitle: Bearing housing · round part
+    kind: real
+    note: A real PARI drawing nobody tuned the checks on.
+    path: data/client_set/Generic Round Parts (Pins, Shafts)/P23Y5B091115002.PDF
+    questions:
+      - Why is F1 flagged?
+      - What heat treatment does the drawing call for?
+  - id: anti-back-lever
+    title: P24BSB020344
+    subtitle: Module pallet anti-back lever · prismatic part
+    kind: real
+    note: A real PARI drawing from the held-out set.
+    path: data/client_set/Generic Prismatic Parts/20K_MODULE PALLET ANTI BACK LEAVER_01.pdf
+    questions:
+      - Why is F6 flagged?
+  - id: cam-plate-seeded
+    title: P13 · Cam plate, fit limits inverted
+    subtitle: Test drawing with one planted error
+    kind: seeded
+    note: "Planted error: the ⌀16 H7 bore's limits are written upside down."
+    path: data/eval/seeded/P13_fit_limits_inverted/P13_fit_limits_inverted.pdf
+    questions:
+      - Why is finding 3 flagged?
+      - What should the limits of size of the ⌀16 H7 bore be according to IS 919?
+  - id: cam-plate-clean
+    title: C01 · Cam plate, clean
+    subtitle: Test drawing, no planted errors
+    kind: clean
+    note: The same cam plate without planted errors, to show the review stays quiet.
+    path: data/eval/seeded/C01_clean_cam_plate/C01_clean_cam_plate.pdf
+    questions:
+      - What did the review find?

@@ -17,3 +17,4 @@ it with a new one.
 | [0009](0009-understanding-model-default.md) | Default understanding model and thinking setting | 2026-10-17 |
 | [0010](0010-review-stage-design.md) | How the review stage runs the rulebook: check functions, reviewers, graph state (proposed) | 2026-10-23 |
 | [0011](0011-qa-agent.md) | Q&A agent: tools, grounding and limits | 2026-10-25 |
+| [0012](0012-web-demo.md) | Web demo: FastAPI over the package, a React front end, one Docker image | 2026-11-02 |

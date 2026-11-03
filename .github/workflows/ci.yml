@@ -24,3 +24,19 @@ jobs:
       # Unit tests (synthetic PDFs, fake model) + regression tests on the committed sample drawings.
       # Never `live`: those make billed API calls.
       - run: uv run pytest -m "not live"
+
+  web:
+    # The demo front end (web/): type-check and build. The API itself is tested by pytest above.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run build

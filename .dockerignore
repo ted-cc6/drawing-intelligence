@@ -1,0 +1,15 @@
+# Keep the image small and free of secrets: the Dockerfile copies only what the demo needs.
+.env
+.env.*
+.git
+.venv
+**/__pycache__
+**/node_modules
+web/dist
+data/sessions
+data/feedback
+data/telemetry.db
+spikes
+docs
+tests
+*.log

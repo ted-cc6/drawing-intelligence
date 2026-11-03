@@ -22,6 +22,13 @@ dependencies = [
 [project.scripts]
 di = "drawing_intelligence.cli:app"
 
+[project.optional-dependencies]
+web = [
+    "fastapi>=0.115",
+    "python-multipart>=0.0.18",
+    "uvicorn[standard]>=0.32",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -31,6 +38,8 @@ packages = ["src/drawing_intelligence"]
 
 [dependency-groups]
 dev = [
+    "drawing-intelligence[web]",  # the API tests need FastAPI
+    "httpx>=0.28",
     "pre-commit>=4.6.2",
     "pyright>=1.1.414",
     "pytest>=9.1.1",

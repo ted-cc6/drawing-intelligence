@@ -69,3 +69,17 @@ Sample and client data are committed in `data/` ([ADR 0007](docs/adr/0007-commit
 
 A University of Chicago MS in Applied Data Science capstone project, in partnership with LatentView Analytics.
 Team: Binjie Wang, Mushahid Raza, Zhetao Zhang.
+
+## Web demo
+
+A browser front end over the same package (ADR 0012): open a demo drawing or upload a PDF, see the findings
+boxed on the sheet, ask questions, accept or reject findings, and download the Excel checklist.
+
+```
+uv sync --extra web
+uv run uvicorn drawing_intelligence.api.app:create_app --factory --port 8000
+cd web && npm ci && npm run dev      # http://localhost:5173 (or `npm run build` and the API serves web/dist)
+```
+
+`DI_DEMO_PASSWORD` turns on the sign-in screen. `Dockerfile` builds both into one image for a Hugging Face
+Docker Space (`deploy/huggingface/README.md`).

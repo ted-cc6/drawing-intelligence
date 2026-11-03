@@ -1,0 +1,41 @@
+# One-line explanations for readers who are not engineers, shown under each finding in the web demo.
+# by_rule wins over by_category. Wording only: nothing here changes what a check does.
+by_rule:
+  LY-005: >-
+    The number of decimal places should match how precisely the part must be made. Writing 77.05 when the
+    tolerance is ±0.2 suggests more precision than is needed, which can make the part more expensive to make.
+  TB-016: >-
+    The "Checked" and "Approved" boxes are already filled in, even though the drawing is only now being
+    reviewed. Sign-offs should be added after the check, not before it.
+  WPS-002: >-
+    The chosen coating (zinc plating) is listed in PARI's guide for mild and carbon steel only, but this part
+    is made of alloy steel. PARI needs to confirm whether the combination is allowed.
+  WPS-004: >-
+    Plating adds a thin layer of metal. On holes that must fit very precisely (marked H7), the drawing should
+    say whether the size applies before or after plating, or the part may not fit.
+  MF-005: >-
+    The heat-treatment box in the title block is empty, but a note asks for hardening. The two should agree,
+    so the shop knows which treatment to apply and when.
+  NASA-029: >-
+    The notes should be numbered 1, 2, 3 without gaps or repeats. Here a number is used twice, so it is
+    unclear which instruction is meant.
+  NM-002: >-
+    Two notes appear to contradict each other or overlap, which leaves the shop to guess what was intended.
+  RQ-002: >-
+    A tolerance gives the smallest and largest acceptable size. Here they are the wrong way round, so the
+    size range is impossible to make.
+  WST-207: >-
+    H7 is a standard fit with fixed limits from the Indian Standard IS 919. The limits written on the drawing
+    do not match the standard, so one of them is wrong.
+by_category:
+  title_block: The title block (the information box in the corner) is incomplete or inconsistent.
+  material: The material is missing, unclear, or not on the approved list.
+  tolerance: How precisely a size must be made is missing, unclear, or does not follow the standard.
+  gdt: A geometric tolerance symbol (flatness, position and similar) is incomplete or inconsistent.
+  datum: The reference surfaces used for measuring the part are missing or inconsistent.
+  thread_weld: A thread or weld instruction is incomplete or written in a non-standard way.
+  surface_treatment: The coating, finish or heat treatment does not suit the material or is incomplete.
+  inspection: An inspection requirement is missing or unclear.
+  consistency: Two pieces of information on the drawing disagree with each other.
+  manufacturability: The part may be hard or expensive to make as drawn.
+  design_intent: The specification may not match what the part is meant to do.

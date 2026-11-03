@@ -37,7 +37,10 @@ src/drawing_intelligence/
   storage/             session workspaces (ephemeral), telemetry DB, response cache
   eval/                baseline diff, understanding scorecard, seeded cases + answer keys, review eval
   viz/                 annotated images for humans (never needed by the pipeline)
+  api/                 the web demo's FastAPI app (ADR 0012): sessions, views; no review logic
   cli.py               the `di` command
+web/                   the demo front end (React + Vite + TypeScript); Dockerfile builds both
+config/demo/           the web demo's drawings and plain-English explanations
 config/models.yaml     model registry: prices, capabilities, roles, thinking options, role defaults
 config/templates/      drawing-template regions and glyph remaps
 config/rules/          the rulebook, one YAML list of rules per file (see its README)
@@ -70,6 +73,8 @@ uv run di review <pdf> --no-understand --export out    # code checks only ($0); 
 uv run di eval review --no-understand     # recall / precision / false alarms on data/eval/seeded ($0)
 uv run ruff check . && uv run ruff format --check . && uv run pyright
 uv run di --help
+uv run uvicorn drawing_intelligence.api.app:create_app --factory --port 8000   # web demo API (+ web/dist)
+cd web && npm ci && npm run dev          # front end on :5173, proxies /api to :8000 (not on /mnt/d in WSL)
 ```
 Run all checks and tests before saying a change is done.
 

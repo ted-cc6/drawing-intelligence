@@ -173,7 +173,7 @@ outside this code's control.
 SQLite fits a local tool or a single server. A hosted multi-user deployment would move telemetry to Postgres
 behind the same `storage/` interface.
 
-## 7. Future dashboard (not built yet)
+## 7. Web demo and future dashboard (demo built 2026-11-02, ADR 0012)
 
 A web front end over the same package, via a thin API (e.g. FastAPI):
 
@@ -341,7 +341,7 @@ injection test that never reached the agent, absence claimed without a search); 
 | M2 | Review contracts and rulebook loader (A2 ✅); default understanding model (A1 ✅, ADR 0009); draft rulebook, 174 rules (R ✅); review-stage design (ADR 0010 ✅, proposed); title-block fields in stage 1 ✅; `checks` reviewer with 71 check functions (A4, in progress: 76 of 135 code/lookup rules built; P1 adds 27); general tolerance table and stacked limits in stage 1 ✅; verifier (A3 ✅); reference tables and the first lookup checks ✅ (materials, DES-12 plating; IS 919 fits, IS 2102 general tolerances, ISO 261 / IS 4218 threads); next: symbols from text and vectors in stage 1 ✅ (Spike D) with 6 GD&T and datum checks; next: open the `needs: symbols` LLM rules, more lookup tables (DES-11 heat treatment, raw-material sizes) | in progress |
 | M3 | LLM reviewers (`drawing_practice`, `manufacturability`, `design_intent`) ✅; seeded-error eval set (drawings and keys: A5a ✅; `di eval review`: A5b ✅); graph fan-out (A6 part 1 ✅) and report (Excel + annotated sheet, A6 ✅); held-out validation on 24 unseen client drawings ✅ (code 63/0, LLM 88% after fixes); next: a fresh unseen set for the LLM reviewers | in progress |
 | M4 | Q&A agent and feedback log ✅ (ADR 0011: tools over the saved results, cited answers checked by code, `di ask`, `di eval qa`; qwen3.8-max 40/41, all verified); next: compare `qwen-plus` | ✅ |
-| M5 | API + dashboard (model picker, cost and latency) | |
+| M5 | API + dashboard (model picker, cost and latency): web demo built ([ADR 0012](adr/0012-web-demo.md)): FastAPI in `api/`, React in `web/`, one Dockerfile; open/upload, stage progress, sheet with numbered findings, findings list, coverage, Q&A with citations, accept/reject, Excel. Model picker and history are shown as "pilot" | in progress |
 
 ## 10. Open questions
 

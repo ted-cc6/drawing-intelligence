@@ -126,6 +126,14 @@ def test_extract_only_needs_no_keys(make_pdf, settings):
     assert res.extraction.pages[0].dimensions and not res.understanding
 
 
+def test_progress_reports_each_node_and_keeps_the_result(make_pdf, settings):
+    seen: list[str] = []
+    pdf = make_pdf()
+    res = run_workflow(pdf, settings, understand=False, review=True, imaging=SMALL, progress=seen.append)
+    assert seen[0] == "intake" and seen[-2:] == ["verify", "report"] and "checks" in seen
+    assert res.review is not None
+
+
 def test_export_keeps_an_explicit_copy(make_pdf, settings, tmp_path):
     res = run_workflow(
         make_pdf(), settings, imaging=SMALL, completion_fn=FakeModel(), export_dir=tmp_path / "x"

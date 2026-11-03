@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Annotated, Any, Required, TypedDict
 
+from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, START, StateGraph
 
@@ -236,10 +237,12 @@ def run_workflow(
     imaging: ImagingConfig | None = None,
     export_dir: Path | None = None,
     completion_fn: CompletionFn = openai_completion,
+    progress: Callable[[str], None] | None = None,
 ) -> WorkflowResult:
     """Run one drawing through the workflow in its own session; with `review`, through to the verified review.
 
     With understanding on, the review includes the LLM reviewers unless `llm_review` is False.
+    `progress`, when given, is called with each node's name as that node finishes (the web demo's stage bar).
 
     Results are loaded into memory before the session closes. In ephemeral mode the workspace is then
     deleted; `export_dir` is the explicit way to keep a copy (with annotated images).
@@ -271,14 +274,19 @@ def run_workflow(
                 review_thinking,
             )
             app = graph.compile(checkpointer=SqliteSaver(conn))
-            final = app.invoke(
-                {
-                    "pdf_path": str(pdf_path),
-                    "understand_model": model,
-                    "understand_thinking": thinking,
-                },
-                {"configurable": {"thread_id": session.id}},
-            )
+            inputs: WorkflowState = {
+                "pdf_path": str(pdf_path),
+                "understand_model": model,
+                "understand_thinking": thinking,
+            }
+            config: RunnableConfig = {"configurable": {"thread_id": session.id}}
+            if progress is None:
+                final = app.invoke(inputs, config)
+            else:
+                for update in app.stream(inputs, config, stream_mode="updates"):
+                    for node in update:
+                        progress(node)
+                final = app.get_state(config).values
         finally:
             conn.close()  # must close before the workspace is deleted (Windows locks open files)
 
