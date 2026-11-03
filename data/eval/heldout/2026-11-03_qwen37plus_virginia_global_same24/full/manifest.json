@@ -1,0 +1,319 @@
+{
+  "created_at": "2026-11-03T17:26:35.424194+00:00",
+  "version": 1,
+  "drawings": [
+    {
+      "path": "Generic Prismatic Parts/40K_DUNNAGE_AL_DOOR _RH LM BLK PLT.pdf",
+      "sha256": "d0e1109a8a3595fa10795a7a5c894bc4028e4a3585bae02d741967e033efb939"
+    },
+    {
+      "path": "Generic Prismatic Parts/93K_COMPONENT HOLDING PART_02.pdf",
+      "sha256": "58e0dd21120c95920c0f43a4e6bbfa992ecd34439d5a751664882e355b72cac7"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B062113001.PDF",
+      "sha256": "bb8b3f503d5013fa15ff1a90d9f9984a1c7bddda38bf653a3a529a4ef6a427eb"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B076028001.PDF",
+      "sha256": "a8a84be858958fa55f31a4411b19b624ca5d805d465735a48a12201402213628"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B077068001.PDF",
+      "sha256": "b924e657eda74f3895153babaab61c0804b7ae018e53342062236b10bbc5ac7d"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B153031001.PDF",
+      "sha256": "2ef5e89cb531e10c3b53279df38b0af6ae36499f629ac300fe29cde4c99e40aa"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B154003001.PDF",
+      "sha256": "5bc59c0958d9b103eddbc45db04efbae5e7d6df5b69f2c23b3bb5ad4f129e15e"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B154259001.PDF",
+      "sha256": "23d92833b1b710b11fb4c4b6f479af09dda5a16fa6135e31dfbc741a043fb2a0"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B154274001.PDF",
+      "sha256": "5f9ffa6a98aad49842730d5b674d303b9fc817f246b71a36993355028e5605c5"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B154514001.PDF",
+      "sha256": "c04ebf66e7e3766698326e8e7ec682e30d61543a659190c7518170d3b8c9a953"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B156010001.PDF",
+      "sha256": "1c9af3703bf28b17a183c243731720bcc024a1e9eeb2259b69904ccafa80528d"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B157012001.PDF",
+      "sha256": "8da4584f1286e55329c5b893508fd00b34cf86733a075c5bfc63f9df42c8afe9"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B159017003.PDF",
+      "sha256": "ceacfc2adbd2154e3758899850376a9512aeed760dddff5b43374db360a2c9b1"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5C062039001.PDF",
+      "sha256": "e0ddb93ac066b3d905caa52565b62497b6eb1aafbc342b6172fce5743f8e70b0"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/05015NB02996_modified_0A1.pdf",
+      "sha256": "808ac8f3e492e788b39686ac1985c9477ad87c17de7b06d2e88f9272dd25893f"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/05015NB02997_MODI.pdf",
+      "sha256": "f07766afce12a5a513b10ba2560e8ecbe6d0753ea4556b150ec860e93b6ce9e9"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23EAB051109001.PDF",
+      "sha256": "bf89a2072e473b396d583819f9adc372fddf83e43d4910507edbcfc35f05cf66"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23Y5B091093001.PDF",
+      "sha256": "67736259b65576a28191cd4564b63674a02f197b345788b48f10c17a9391a885"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23Y5B091152001.PDF",
+      "sha256": "511ef9fc9352b08ad31aa3bcd3e32f9e0483338175b783fea983a2d13863cb24"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23Y5B096083001.PDF",
+      "sha256": "e8ac81131925fd9b933c407efc7e0766ab29188d4318160d8fb6484fa0812a38"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23Y5B153018001.PDF",
+      "sha256": "29381dd40dd947c67ee12e45a0a9418ac2ea6daa5e02a19d534c8b0cc03770c7"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23Y5B153034001.PDF",
+      "sha256": "70a7a60b116529ecdc48f0d28319120dd2ad8ddc736c1030654953edc425dff7"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23Y5B153069001.PDF",
+      "sha256": "6e5dc736da5cc4f31fac4df8e99d21f65bddf9094b512d223dae9104841574c8"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23Y5B159007001.PDF",
+      "sha256": "f1f021e8ddcbd16e9d9f0fdd5a24848f47d85d40841b90c5a81907fa3e2dbda2"
+    }
+  ],
+  "n": 24,
+  "understand": true,
+  "models": {
+    "understand": {
+      "name": "qwen3-vl-plus",
+      "provider": "qwen",
+      "label": "Qwen3-VL Plus",
+      "roles": [
+        "understand",
+        "qa"
+      ],
+      "capabilities": {
+        "vision": true,
+        "strict_json_schema": true
+      },
+      "max_output_tokens": 16000,
+      "temperature": 0.0,
+      "request": {
+        "extra_body": {
+          "vl_high_resolution_images": true
+        }
+      },
+      "price": {
+        "input_per_mtok": 0.143,
+        "output_per_mtok": 1.434,
+        "verified_on": "2026-09-30",
+        "source": "https://www.alibabacloud.com/help/en/model-studio/model-pricing"
+      },
+      "thinking": {
+        "default": "off",
+        "options": {
+          "off": {
+            "extra_body": {
+              "enable_thinking": false
+            }
+          },
+          "on": {
+            "extra_body": {
+              "enable_thinking": true
+            }
+          }
+        }
+      }
+    },
+    "review": {
+      "name": "qwen3.7-plus",
+      "provider": "qwen",
+      "label": "Qwen3.7 Plus (separate three-drawing trial)",
+      "roles": [
+        "understand",
+        "review",
+        "qa"
+      ],
+      "capabilities": {
+        "vision": true,
+        "strict_json_schema": true
+      },
+      "max_output_tokens": 32000,
+      "temperature": 0.0,
+      "request": {},
+      "price": {
+        "input_per_mtok": 1.2,
+        "output_per_mtok": 4.8,
+        "verified_on": "2026-11-04",
+        "source": "https://www.alibabacloud.com/help/en/model-studio/model-pricing"
+      },
+      "thinking": {
+        "default": "off",
+        "options": {
+          "off": {
+            "extra_body": {
+              "enable_thinking": false
+            }
+          },
+          "on": {
+            "extra_body": {
+              "enable_thinking": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "providers": {
+    "openai": {
+      "label": "OpenAI",
+      "api_key_env": "OPENAI_API_KEY",
+      "base_url": null,
+      "max_tokens_param": "max_completion_tokens",
+      "image_detail": "high",
+      "request": {
+        "store": false
+      }
+    },
+    "qwen": {
+      "label": "Alibaba Qwen",
+      "api_key_env": "QWEN_API_KEY",
+      "base_url": "https://WORKSPACE_REDACTED.us-east-1.maas.aliyuncs.com/compatible-mode/v1",
+      "max_tokens_param": "max_tokens",
+      "image_detail": null,
+      "request": {}
+    }
+  },
+  "files": {
+    "src/drawing_intelligence/__init__.py": "a98064d01a0aaa338b51ebf10a81fbbbc1d20d7d82d12a70be6aa2442cb168a6",
+    "src/drawing_intelligence/cli.py": "0958a83e60d54a113ad2a93ff8bd0bb331026d6ef60b3fc21b2e691d24b7b028",
+    "src/drawing_intelligence/eval/__init__.py": "98b5b48d6796b23c8324a5b5f31afec372f9821b4b331c8087adc4083a7e99ba",
+    "src/drawing_intelligence/eval/answer_key.py": "2fb2c4081b2fbe17296dfce25dceda505f03c2876fa10f15b7b19fa137dbb538",
+    "src/drawing_intelligence/eval/baseline.py": "a76d41c3a1a75630199c867b0d9602201882138db63a9abd67777c5c6fd7710f",
+    "src/drawing_intelligence/eval/heldout.py": "c5fcc8dfa2069b0c2b3835e4503a4831afb80b2a875b700df4ee7e9f65cc2ea0",
+    "src/drawing_intelligence/eval/qa_eval.py": "7bd148098cd08c6961ce24bd2fba8a86bfe61b8970cec0f0a4b6c965cf6f9ef6",
+    "src/drawing_intelligence/eval/review_eval.py": "17fd100e3dad20b657ac2ac8d72e47ac6d2eac0a37046230f51f084e8940aaf8",
+    "src/drawing_intelligence/eval/scorecard.py": "b3d6e3c2e8d4b1fbe97876623e185b2c5169c72b2fe41fe775cd03ecc214440f",
+    "src/drawing_intelligence/eval/seed.py": "f0433ad4b7cc33b1c27a602dc9fd9ea79f189281f03fbe1948918c8f3ae34d52",
+    "src/drawing_intelligence/eval/stability.py": "19de8d3cf037055a57c21a63628c25cdecc38d288c2dbf0504ac9b92c3001f09",
+    "src/drawing_intelligence/extraction/__init__.py": "333d67c4e0dc2ca19d0c3d160aa57355926e30e8d120acf3e69d35fbf3790966",
+    "src/drawing_intelligence/extraction/classify.py": "85ee20381e0e27f1982ece4d61c6a6713aa1c26991d9ca919927623677a4bd8a",
+    "src/drawing_intelligence/extraction/cleanup.py": "199e2e2769aa11dbdf23d628e53fafd32aa2f1e1ad8344c06aa90cf2f51f46ac",
+    "src/drawing_intelligence/extraction/geometry.py": "7ee0df4b3b5438746de2b7f7c37d41ede60a223b5d5292369fc5a56684b7c3a8",
+    "src/drawing_intelligence/extraction/imaging.py": "872adc28cd5940a1710170d921a2ffdf79ea8b337d9d80b4f443a6a4d6556698",
+    "src/drawing_intelligence/extraction/pipeline.py": "be2c0438499b6ab9fd7837a55cb9a62bf2948fe6b84e4db1deca5440a3b2b61d",
+    "src/drawing_intelligence/extraction/symbols.py": "b6487f5196dc5f3043f3ba985692827726abb282e74b25922096a634d216f1c2",
+    "src/drawing_intelligence/extraction/template.py": "9c2b7b91768a80c8d6c037d6926dbe30f4c2bfcdac016ea1072dcb0f41133c27",
+    "src/drawing_intelligence/extraction/text_layer.py": "3e704f862c1504563723573657dff537749625e55eb8356b70d71a116d2a9555",
+    "src/drawing_intelligence/extraction/title_block.py": "374fae6dc01156b690ddd226e7ee148422702b0e1ad53e615902dc29f87f5004",
+    "src/drawing_intelligence/extraction/tolerance_table.py": "b068c131e5635e4e7a4da50086db3e758f79ba94fd51c4add309044d99698d30",
+    "src/drawing_intelligence/graph/__init__.py": "a2fb556dcfed63281fe9874f1e373eecb8fb0182dfdbab4f32da2fec6d48fe8c",
+    "src/drawing_intelligence/graph/workflow.py": "7132070ac346672a66afb372f046dae8b600f5e8022c2f772c877bf4ea613cc9",
+    "src/drawing_intelligence/llm/__init__.py": "8435636fbb719f4e114e87d34bf7bf3c60cdc0ac33a25abc8248bd681ca18263",
+    "src/drawing_intelligence/llm/client.py": "4a3fc2a5de7f38a65b1101f78fbe171e98929db389617262c7fde050a4b79bbe",
+    "src/drawing_intelligence/llm/registry.py": "15bdccc25dec1b9403af64e98aefba3be77fb842d77c25b519245b909bbc0eba",
+    "src/drawing_intelligence/qa/__init__.py": "9726917d4d5550e51f0fc102920ab775ae00fd3625d7fa34d8a75914f3f1143c",
+    "src/drawing_intelligence/qa/agent.py": "b9c0ce62e2fce7f58962c4bb1a3457af37c6e013f5fcafadfbf10521c7e9f0d1",
+    "src/drawing_intelligence/qa/data.py": "a348e44837d98a283673ad61aca9b63f68f3b04ab01d4e4612c07f4237c9d0d7",
+    "src/drawing_intelligence/qa/grounding.py": "a26f39b96d8f01b4f48094ad104764092623e42c3a478870469f76d7c040e4e7",
+    "src/drawing_intelligence/qa/prompts/system.md": "245dd4e5a4b76671144613f80e34f52863e107bd3b77615f24d7fb019b0e7189",
+    "src/drawing_intelligence/qa/session.py": "45ff5004c1eef032edc7cad4dac82496e734723e5bdd38df0c9f42b359dfb4e5",
+    "src/drawing_intelligence/qa/tools.py": "523f3b8c317caa1157e3153787ecedd70748746af2048862a3b155da7e230c49",
+    "src/drawing_intelligence/report/__init__.py": "244297e51c7407935dc53366b0307b84e257885a9a986ec87f795fbc002d4e03",
+    "src/drawing_intelligence/report/build.py": "f5b66360b3e2f5ccb88de38dedf55365a7067204b8128b2b1bf27377a07a7a18",
+    "src/drawing_intelligence/report/zones.py": "d1e5f225ee42d8ca68afbd21824ba773f767e478bf9d7c941df8b47af7e6ff92",
+    "src/drawing_intelligence/review/__init__.py": "5a5b93f29dd2b5916f38ae8742ed0b89cad5b5916d23d2cfacd9a081f81c6587",
+    "src/drawing_intelligence/review/checks/__init__.py": "8fda59764363be04912c05af7cae708abee20e4176606f4d78434a4db0e29930",
+    "src/drawing_intelligence/review/checks/_evidence.py": "050cb1d953664ac0476c9668098439176f744ebaca9a4924cdbd541fcbe5e801",
+    "src/drawing_intelligence/review/checks/_geometry.py": "df089b65e40e345676c132a085922af1053108bca6810ecdd5202f916d1dea4d",
+    "src/drawing_intelligence/review/checks/_registry.py": "334be3ec1ea71fbffc9af5d0c8de5c12c556ae382f5e5a500316bc9b328c5b41",
+    "src/drawing_intelligence/review/checks/_text.py": "0eeecdef1cd7501f04a9456cc912a1270efd2727d9f197e9a6472f48d4f4e962",
+    "src/drawing_intelligence/review/checks/_tolerance.py": "c8b8312b4e6200aceb75ba435d5848b25a05264ef3650c26a8b489ca58fcfff8",
+    "src/drawing_intelligence/review/checks/consistency.py": "dcb2260559a988ff32b260fc831bb33a242d292660f808001a517971ec6c8cec",
+    "src/drawing_intelligence/review/checks/fits.py": "de8f2d669f8e8706d662a9f4502c97a1aecf179b7bd14cc521f5fb9392e4840a",
+    "src/drawing_intelligence/review/checks/gdt.py": "3a9093680e6e80ac3d74f3a72ceb3d3526668ad2224ac32873ec998fcd6dd428",
+    "src/drawing_intelligence/review/checks/material.py": "1bc9b8b744a187bf4974895ac75c446c3a872f49202a34bce8ef8e3f17c54882",
+    "src/drawing_intelligence/review/checks/notes.py": "375f25095cc25799a3eaf0a652ad9524e9801a4456b4a62bedbe83064c5a7c29",
+    "src/drawing_intelligence/review/checks/surface_treatment.py": "1e09064158d5ddc1698e6483d097b0a23b45f345e8ea7b1a5c841cc89c54c9de",
+    "src/drawing_intelligence/review/checks/threads.py": "4eeaa24c37e34df81d60a5e0beba55e367e7b43bc7f5b9e5299da9c2b4f615b0",
+    "src/drawing_intelligence/review/checks/title_block.py": "452d4ceeab1b0a8b29402f42285881cd1498355bd01825e078fd7241a3b1bcd3",
+    "src/drawing_intelligence/review/checks/tolerance.py": "f4c4c3a570546cf6404e749ea6fa752f4b5700d842a56463f010f7d56bb77682",
+    "src/drawing_intelligence/review/context.py": "b790261b316edad09fcc2c07b8481dc8f9c3671451120c6c6fdc022607410c62",
+    "src/drawing_intelligence/review/llm_reviewer.py": "7d3ed340d0c88b4576af133231bdfd4914499e17c25b6f392b5098acf755ea35",
+    "src/drawing_intelligence/review/prompts/reviewer.md": "abe957c54f4d77a105c5a4d8ff04032c0ed8d25658722b3aa330c38f7a8c8898",
+    "src/drawing_intelligence/review/reference.py": "d0addd366a2722b035d4e6436d80e3af47b3ae3efa6afbdef39005f9fe86fe8a",
+    "src/drawing_intelligence/review/reference_des11.py": "69473f838af728efd51717c12ce7738d6a6910ab89389a0a04e1f31c60943f12",
+    "src/drawing_intelligence/review/reference_p2.py": "b26fdb83dea6084300bbcb0bb03f89dc1ae05b1ad4e381fba7de82960f987f37",
+    "src/drawing_intelligence/review/reviewers.py": "938b3fa6eb2f5b42b383877ade8a35404645cc08bb950388b446eb73732ffe0e",
+    "src/drawing_intelligence/review/rulebook.py": "7457e76f0949390b41fcc41a915040f227a4f927409584e45a52319a2e113cdb",
+    "src/drawing_intelligence/review/runner.py": "b709cd033a8c54c3f198db7cbc981acf9367cd15e8137340ea98fefbd91da75f",
+    "src/drawing_intelligence/review/verify.py": "fe13b0a899aec39ba71e519be5399b01270d5e066b903002dc8100fa4dd16697",
+    "src/drawing_intelligence/schemas/__init__.py": "460607ed6ccb8a3ee8f9a3426df2fa41732d777749d1c282cd77665b9cc8d68e",
+    "src/drawing_intelligence/schemas/extraction.py": "df8da9a9d82890242328991dfabb01bb204ee5cc1dc73065c5709ec83790dcc5",
+    "src/drawing_intelligence/schemas/knowledge.py": "1494478a94e8a0d7a4b9a6b189f6ff0c5ba19d1d7dac6d8b294544a278b62a83",
+    "src/drawing_intelligence/schemas/review.py": "3e9413a9bd82b933d59e72efa8d950e084e945902377a33cef112596900cb51b",
+    "src/drawing_intelligence/settings.py": "bd01a5a24dd6473a22782eb0af65fb1f953e45fe72877a60246810df170a4c05",
+    "src/drawing_intelligence/storage/__init__.py": "d282559eb567d79e3afa885409c0a7cf857feec267d8b874f49d2ec7b896f36f",
+    "src/drawing_intelligence/storage/cache.py": "2a7c2526f3af734dee97aedfcf4c534b59300ad4854c915cbec8caa9ca188a13",
+    "src/drawing_intelligence/storage/session.py": "ad68f33081241b64b12b03de29c587da2df5c101c323ae924f28d00113cf4959",
+    "src/drawing_intelligence/storage/telemetry.py": "3a9631405ab50d8ecf67e5c64edec800d2a6a475f7f1aed76ac7f98529b66100",
+    "src/drawing_intelligence/understanding/__init__.py": "65222b4d5ebea21e70de2c8a600ee6f11e4f8774465686fa652b76b123d13ae1",
+    "src/drawing_intelligence/understanding/prompts/understand.md": "9008e0d34f3ec4f0cb53dd9ecdc523ab6b456c0705de47d4baac66faf0fa044f",
+    "src/drawing_intelligence/understanding/understand.py": "d06aa4b3252b13245da0fd4468443f10262230965646873fd7e7a794b7832d66",
+    "src/drawing_intelligence/viz/__init__.py": "558883556d7f8e32b7f9906d3ca6fe866f54c2dd3067892cc8bfd32dd8e34a07",
+    "src/drawing_intelligence/viz/annotate.py": "8bb5ffd7a05f372a3a6fc4c1d49ab238d329d92a655561426e668785fa0bd38c",
+    "config/models.yaml": "0d519813ae2877397ebf28b5db588424b8fad1c8b4aac69ca1867edd7db41458",
+    "config/reference/README.md": "4b946496fc6ff895b3957007d982a40f16a13306fb1197a07ce71fcea49d8299",
+    "config/reference/hardness_conversion_steel.yaml": "6b14a04817cf1518e8dac2e525242b540a593f1406646cc805fa508bf0265d68",
+    "config/reference/is1369_thread_runout_undercut.yaml": "54f08b1f1cefc3c9b9139562fbf2bf1c261ddc2caaa2a2461c420a7001df6d9d",
+    "config/reference/is1715_self_holding_tapers.yaml": "90c4c25d7a66dea3d0b424fcb0f4c3411a04eccf1e61bf4864c09f1a3445527f",
+    "config/reference/is2102_general_tolerances.yaml": "e175a7059dd2a4bef81a9a14e9d226564b6f6752db9cf2bd77c66b60fda71d06",
+    "config/reference/is2473_centre_holes.yaml": "9c0ea83722595e6a1b5a6ed25dbeccf5e9408ffce95249097934e99f2c6498d6",
+    "config/reference/is3458_standard_tapers.yaml": "2492b617320967a5048108eb04920fb775c810a0f5fbd8ae137369bf8d2f97f6",
+    "config/reference/is6688_taper_pins.yaml": "6a7c38a69dd52eaa9b69c46c42246e5e4962e8b0e433067b7b0adc557f55a9d6",
+    "config/reference/is919_fits.yaml": "11b471ff65648a7672384973eb3368b5baa1e1b79b67b49277513e85b812ec27",
+    "config/reference/iso_metric_threads.yaml": "ef94bc47d80bfed409d00359e96e6b388a697ee79ed8b884a823072ff884c65f",
+    "config/reference/keyways.yaml": "77ecb54c8a76c92b88754ff8962fed880d02a7b8348d442cb33717741615b19d",
+    "config/reference/material_heat_treatment.yaml": "a7803b1fe20e10fdbd8f6c72e573d8702391e88bc7bc92fea8f7a432657fec65",
+    "config/reference/material_specific_weight.yaml": "6a87c4e4ff60dc37e39161e9a7a5f3510095fcaa7377533c79287175d9a6ee12",
+    "config/reference/materials.yaml": "faff8e76f70fd25c05ebd5c0a57b0cf5ff694d26404c63732e49fed90f1b6e2f",
+    "config/reference/plating_prerequisites.yaml": "831371624f88eea5749d1afc1021838e3a301ba70696ff97051f5a813fe9f0d4",
+    "config/reference/plating_processes.yaml": "11cce7a0efcfd20c4c428438c32625f76c55de91af062f62f25abca0d8590766",
+    "config/reference/raw_material_sizes.yaml": "6acd6516017f6bba18ef081a508b622c277bee09b4c0996293da6a6efbbb62bf",
+    "config/reference/raw_material_sizes_des11.yaml": "89737cf417668b8a47896f90c9fc95bfe27bc41a97fd590f5e8fb36248f5dae1",
+    "config/reference/us_india_materials.yaml": "1ccf294608cafbc867edc2b849db1853a21c3d12b1b382341f21624119981e0b",
+    "config/rules/README.md": "e52c6203c57518d3c192c181d13b4b94e6d5d3db39d048ad4df0638c3d51af37",
+    "config/rules/consistency.yaml": "3222e3a12dcc5da676c7cb47cf18c8d2ab1d30934f2e5155ef1a7e769eaa5fdd",
+    "config/rules/datum.yaml": "eee06786a60816b7a3cbcbed2a43d412f875fb6cebcd3dc404997187134c3ff0",
+    "config/rules/design_intent.yaml": "a37614f953897fbc67b20e3127de3d38a0c7724e7f4c0842030984005b92e7dc",
+    "config/rules/gdt.yaml": "c56654e549a2db00af5f2ff8d7a23a1e5b4169e42a064ee474444167f0187ee2",
+    "config/rules/inspection.yaml": "91c58c13f37b23808308ecb1000773642ee5ff563353306785b766b18771120c",
+    "config/rules/manufacturability.yaml": "abc76d545ca9e95ac76e260512d1cb8dd56658c5544e4f3238ea7bc60b8990c5",
+    "config/rules/material.yaml": "2a91283b2c781cf8ea8ce88a1b220584bf8f433b106cba6be01c8ed17ab76a9b",
+    "config/rules/surface_treatment.yaml": "255632645d96152b390fc6e181fc50d2c7d3faa33c320242cb0beb9ada8e6906",
+    "config/rules/thread_weld.yaml": "3bab1a1c0146da8b3926cc9964f41fc20a8b2e4ee64dda133dbce24814833c51",
+    "config/rules/title_block.yaml": "a958f888db0b7499f909a9caaa5daa0f0ffc2cec9eacbbe772afbd85c9046283",
+    "config/rules/tolerance.yaml": "17efebe35d9623cdc41275387bd95a32df296e6bd19c18cd696264d9ebc36bb0",
+    "config/templates/wipro_pari.yaml": "db1bce73dfbe56a43bfd11e6f1a8eccb04d856fb3e62fd659d4136b4679b3090"
+  },
+  "team_exclusions_note": "Zhetao Zhang, confirmed on 2026-10-31: no additional calibration drawings beyond the recorded exclusions.",
+  "protocol": "Registry defaults and unchanged prompts; no sample replacements; preserve all attempts."
+}

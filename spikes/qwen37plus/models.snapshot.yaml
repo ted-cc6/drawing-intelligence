@@ -1,0 +1,153 @@
+providers:
+  openai:
+    label: OpenAI
+    api_key_env: OPENAI_API_KEY
+    base_url: null
+    max_tokens_param: max_completion_tokens
+    image_detail: high
+    request:
+      store: false
+  qwen:
+    label: Alibaba Qwen
+    api_key_env: QWEN_API_KEY
+    base_url: https://WORKSPACE_REDACTED.us-east-1.maas.aliyuncs.com/compatible-mode/v1
+    max_tokens_param: max_tokens
+    image_detail: null
+    request: {}
+models:
+  gpt-6-astra:
+    provider: openai
+    label: GPT-6 Astra
+    roles:
+    - understand
+    - review
+    - qa
+    capabilities:
+      vision: true
+      strict_json_schema: true
+    max_output_tokens: 32000
+    temperature: null
+    price:
+      input_per_mtok: 10.0
+      output_per_mtok: 50.0
+      verified_on: 2026-09-30
+      source: https://openai.com/api/pricing
+    thinking:
+      default: medium
+      options:
+        low:
+          reasoning_effort: low
+        medium:
+          reasoning_effort: medium
+        high:
+          reasoning_effort: high
+        xhigh:
+          reasoning_effort: xhigh
+  qwen3.8-max:
+    provider: qwen
+    label: Qwen3.8 Max
+    roles:
+    - understand
+    - review
+    - qa
+    capabilities:
+      vision: true
+      strict_json_schema: true
+    max_output_tokens: 32000
+    temperature: 0
+    price:
+      input_per_mtok: 2.0
+      output_per_mtok: 6.0
+      verified_on: 2026-10-06
+      source: https://anotherwrapper.com/llm-pricing/qwen3.8-max
+    thinking:
+      default: 'off'
+      options:
+        'off':
+          extra_body:
+            enable_thinking: false
+        'on':
+          extra_body:
+            enable_thinking: true
+  qwen3-vl-plus:
+    provider: qwen
+    label: Qwen3-VL Plus
+    roles:
+    - understand
+    - qa
+    capabilities:
+      vision: true
+      strict_json_schema: true
+    max_output_tokens: 16000
+    temperature: 0
+    request:
+      extra_body:
+        vl_high_resolution_images: true
+    price:
+      input_per_mtok: 0.143
+      output_per_mtok: 1.434
+      verified_on: 2026-09-30
+      source: https://www.alibabacloud.com/help/en/model-studio/model-pricing
+    thinking:
+      default: 'off'
+      options:
+        'off':
+          extra_body:
+            enable_thinking: false
+        'on':
+          extra_body:
+            enable_thinking: true
+  qwen3.8-flash:
+    provider: qwen
+    label: Qwen3.8 Flash
+    roles:
+    - review
+    capabilities:
+      vision: true
+      strict_json_schema: true
+    max_output_tokens: 32000
+    temperature: 0
+    price:
+      input_per_mtok: 0.15
+      output_per_mtok: 0.47
+      verified_on: '2026-10-31'
+      source: https://www.alibabacloud.com/help/en/model-studio/qwen3-8-flash
+    thinking:
+      default: 'off'
+      options:
+        'off':
+          extra_body:
+            enable_thinking: false
+        'on':
+          extra_body:
+            enable_thinking: true
+  qwen3.7-plus:
+    provider: qwen
+    label: Qwen3.7 Plus (separate three-drawing trial)
+    roles:
+    - understand
+    - review
+    - qa
+    capabilities:
+      vision: true
+      strict_json_schema: true
+    max_output_tokens: 32000
+    temperature: 0
+    price:
+      input_per_mtok: 1.2
+      output_per_mtok: 4.8
+      verified_on: '2026-11-04'
+      source: https://www.alibabacloud.com/help/en/model-studio/model-pricing
+    thinking:
+      default: 'off'
+      options:
+        'off':
+          extra_body:
+            enable_thinking: false
+        'on':
+          extra_body:
+            enable_thinking: true
+defaults:
+  understand: qwen3-vl-plus
+  review: qwen3.7-plus
+  qa: qwen3.8-max

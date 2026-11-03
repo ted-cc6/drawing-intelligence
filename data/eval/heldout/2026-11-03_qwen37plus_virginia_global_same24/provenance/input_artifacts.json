@@ -1,0 +1,20 @@
+{
+  "github_base_commit": "ed2fc468b35fcb84059c5d308329569c20dbf3c2",
+  "checkpoint": {
+    "filename": "Qwen37Plus_Same24_Checkpoint_20261103T173614Z.zip",
+    "sha256": "b79e88ea540cbb15899403f68d0afa0d084ccfa2d62b59d94c6d2a1ef7eb7c14"
+  },
+  "colab_export": {
+    "filename": "qwen37plus_virginia_trial3_colab.py",
+    "sha256": "135b205c6793eccd65988c83d4b9c7246adff1e75f3893d7e170da58b97ac4e5"
+  },
+  "executed_transport_sha256": "7ff5a58d60af85ec15af4654dd565ca55c727c113d0195b4678997fd28459f09",
+  "all_src_hashes_matched_checkpoint": true,
+  "redaction": "Personal workspace host IDs replaced by WORKSPACE_REDACTED. Original hashes are retained. Published ledgers are audit derivatives, not resumable checkpoints. Original state manifest hashes still identify the unredacted originals; use redaction_map.json to verify that linkage.",
+  "publication_layout": {
+    "variant": "Fresh branch single browser upload: 37 code/data files",
+    "report_storage": "full/reviewer_reports.json maps each original relative path to exact UTF-8 report text. The existing original/published hashes remain authoritative per report.",
+    "retained": "All 72 reviewer outputs, full run/call/row ledgers, prior trial state, recovery logs, 3 representative PNGs.",
+    "p2_tables_included": false
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "drawings": [
+    {
+      "path": "Generic Prismatic Parts/40K_DUNNAGE_AL_DOOR _RH LM BLK PLT.pdf",
+      "sha256": "d0e1109a8a3595fa10795a7a5c894bc4028e4a3585bae02d741967e033efb939"
+    },
+    {
+      "path": "Generic Prismatic Parts/93K_COMPONENT HOLDING PART_02.pdf",
+      "sha256": "58e0dd21120c95920c0f43a4e6bbfa992ecd34439d5a751664882e355b72cac7"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B062113001.PDF",
+      "sha256": "bb8b3f503d5013fa15ff1a90d9f9984a1c7bddda38bf653a3a529a4ef6a427eb"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B076028001.PDF",
+      "sha256": "a8a84be858958fa55f31a4411b19b624ca5d805d465735a48a12201402213628"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B077068001.PDF",
+      "sha256": "b924e657eda74f3895153babaab61c0804b7ae018e53342062236b10bbc5ac7d"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B153031001.PDF",
+      "sha256": "2ef5e89cb531e10c3b53279df38b0af6ae36499f629ac300fe29cde4c99e40aa"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B154003001.PDF",
+      "sha256": "5bc59c0958d9b103eddbc45db04efbae5e7d6df5b69f2c23b3bb5ad4f129e15e"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B154259001.PDF",
+      "sha256": "23d92833b1b710b11fb4c4b6f479af09dda5a16fa6135e31dfbc741a043fb2a0"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B154274001.PDF",
+      "sha256": "5f9ffa6a98aad49842730d5b674d303b9fc817f246b71a36993355028e5605c5"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B154514001.PDF",
+      "sha256": "c04ebf66e7e3766698326e8e7ec682e30d61543a659190c7518170d3b8c9a953"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B156010001.PDF",
+      "sha256": "1c9af3703bf28b17a183c243731720bcc024a1e9eeb2259b69904ccafa80528d"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B157012001.PDF",
+      "sha256": "8da4584f1286e55329c5b893508fd00b34cf86733a075c5bfc63f9df42c8afe9"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5B159017003.PDF",
+      "sha256": "ceacfc2adbd2154e3758899850376a9512aeed760dddff5b43374db360a2c9b1"
+    },
+    {
+      "path": "Generic Prismatic Parts/P23Y5C062039001.PDF",
+      "sha256": "e0ddb93ac066b3d905caa52565b62497b6eb1aafbc342b6172fce5743f8e70b0"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/05015NB02996_modified_0A1.pdf",
+      "sha256": "808ac8f3e492e788b39686ac1985c9477ad87c17de7b06d2e88f9272dd25893f"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/05015NB02997_MODI.pdf",
+      "sha256": "f07766afce12a5a513b10ba2560e8ecbe6d0753ea4556b150ec860e93b6ce9e9"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23EAB051109001.PDF",
+      "sha256": "bf89a2072e473b396d583819f9adc372fddf83e43d4910507edbcfc35f05cf66"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23Y5B091093001.PDF",
+      "sha256": "67736259b65576a28191cd4564b63674a02f197b345788b48f10c17a9391a885"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23Y5B091152001.PDF",
+      "sha256": "511ef9fc9352b08ad31aa3bcd3e32f9e0483338175b783fea983a2d13863cb24"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23Y5B096083001.PDF",
+      "sha256": "e8ac81131925fd9b933c407efc7e0766ab29188d4318160d8fb6484fa0812a38"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23Y5B153018001.PDF",
+      "sha256": "29381dd40dd947c67ee12e45a0a9418ac2ea6daa5e02a19d534c8b0cc03770c7"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23Y5B153034001.PDF",
+      "sha256": "70a7a60b116529ecdc48f0d28319120dd2ad8ddc736c1030654953edc425dff7"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23Y5B153069001.PDF",
+      "sha256": "6e5dc736da5cc4f31fac4df8e99d21f65bddf9094b512d223dae9104841574c8"
+    },
+    {
+      "path": "Generic Round Parts (Pins, Shafts)/P23Y5B159007001.PDF",
+      "sha256": "f1f021e8ddcbd16e9d9f0fdd5a24848f47d85d40841b90c5a81907fa3e2dbda2"
+    }
+  ],
+  "team_exclusions_note": "Zhetao Zhang, confirmed on 2026-10-31: no additional calibration drawings beyond the recorded exclusions.",
+  "model": "qwen3.7-plus",
+  "max_model": "qwen3.8-max",
+  "base_commit": "ed2fc468b35fcb84059c5d308329569c20dbf3c2"
+}

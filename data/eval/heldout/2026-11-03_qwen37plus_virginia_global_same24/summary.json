@@ -1,0 +1,30 @@
+{
+  "model": "qwen3.7-plus",
+  "understanding_model": "qwen3-vl-plus",
+  "thinking": "off",
+  "region": "Virginia (us-east-1)",
+  "deployment_scope": "Global (user console screenshot)",
+  "prediction_status": "complete",
+  "human_validation_status": "pending",
+  "drawings": 24,
+  "successful_drawings": 24,
+  "reviewer_calls": 72,
+  "new_reviewer_calls": 63,
+  "cached_reviewer_calls": 9,
+  "understanding_cache_hits": 25,
+  "findings": 107,
+  "by_source": {
+    "code": 69,
+    "llm:design_intent": 21,
+    "lookup": 6,
+    "llm:manufacturability": 7,
+    "llm:drawing_practice": 4
+  },
+  "full_run_estimate_usd": 0.336175,
+  "prior_trial_estimate_usd": 0.038569,
+  "combined_estimate_usd": 0.374744,
+  "billing_note": "Conservative registry estimates at USD 1.20/4.80 per million input/output tokens; probe, historical understanding and unknown failed-call costs excluded; not invoice totals.",
+  "completed_at_utc": "2026-11-03T17:36:14Z",
+  "completed_at_shanghai": "2026-11-04 01:36:14 +08:00",
+  "causality_note": "Both review model and workspace deployment scope changed versus Max. This run cannot isolate which caused the previous failures."
+}

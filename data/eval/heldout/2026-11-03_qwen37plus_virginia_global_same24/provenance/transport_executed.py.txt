@@ -1,0 +1,287 @@
+"""Provider-500-resilient transport for the native held-out Plus evaluation.
+
+Unchanged: frozen PDFs, model (qwen3.7-plus), thinking off, prompts, schema, generation
+parameters, cache keys, cost telemetry, schema validation and the attempt ledger.
+
+Changed, in this process only (no source/config file is edited, so the frozen manifest
+stays valid):
+1. Plus reviewer calls are serialized, spaced, and streamed with usage reporting. When the provider returns an
+   HTTP 500 / "Receive batching backend response failed!" (or a connection/timeout/429),
+   the IDENTICAL request is retried after spaced waits. Every try is logged.
+2. Optional: one try of the identical request on a disclosed fallback-region endpoint.
+3. Optional: after a pure provider-500 drawing failure the evaluator continues to the
+   next drawing instead of stopping. Unattempted drawings are processed first. The failure stays in the ledger and is retried on
+   the next run. Any other error type still stops the run.
+"""
+
+from __future__ import annotations
+
+import __future__ as future_flags
+import copy
+import hashlib
+import inspect
+import json
+import os
+import threading
+import time
+from datetime import UTC, datetime
+from pathlib import Path
+
+import openai
+from openai import OpenAI
+
+from drawing_intelligence.llm import LLMClient, RawCompletion, load_registry
+from drawing_intelligence.llm.client import openai_completion
+
+PROCESS_START = datetime.now(UTC).isoformat()
+PROVIDER_500_MARKERS = ("internal_server_error", "Receive batching backend response failed")
+_lock = threading.Lock()
+_request_lock = threading.Lock()  # serialize Plus requests, including retries
+_last_call_end = 0.0
+
+
+class InternalServerError(Exception):
+    """Same class name as the SDK error so the evaluator keeps it an infrastructure failure."""
+
+
+def _log(record: dict) -> None:
+    path = Path(os.environ["MAX_RECOVERY_LOG"])
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with _lock, path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps({"at": datetime.now(UTC).isoformat(), **record}, ensure_ascii=False) + "\n")
+
+
+def _is_provider_500(exc: BaseException | None) -> bool:
+    if isinstance(exc, openai.InternalServerError):
+        return True
+    return isinstance(exc, openai.APIError) and (
+        getattr(exc, "status_code", None) == 500
+        or any(m.lower() in str(exc).lower() for m in PROVIDER_500_MARKERS)
+    )
+
+
+def _transient(exc: BaseException) -> bool:
+    return _is_provider_500(exc) or isinstance(
+        exc, (openai.APIConnectionError, openai.RateLimitError, ConnectionError)
+    )
+
+
+def _provider_ids(exc: BaseException) -> dict:
+    ids = {}
+    if getattr(exc, "request_id", None):
+        ids["provider_request_id"] = exc.request_id
+    body = getattr(exc, "body", None)
+    if isinstance(body, dict) and body.get("id"):
+        ids["provider_completion_id"] = body["id"]
+    return ids
+
+
+def _stream_once(request: dict, api_key: str, base_url: str | None, timeout: float,
+                 label: str, request_sha: str) -> RawCompletion:
+    parts: list[str] = []
+    usage = finish = response_id = None
+    started = time.monotonic()
+    client = OpenAI(api_key=api_key, base_url=base_url, timeout=timeout, max_retries=0)
+    try:
+        with client.chat.completions.create(**request) as stream:
+            for chunk in stream:
+                response_id = getattr(chunk, "id", None) or response_id
+                if getattr(chunk, "usage", None) is not None:
+                    usage = chunk.usage
+                for choice in chunk.choices or []:
+                    if choice.index != 0:
+                        raise ValueError("Unexpected multiple completion choices.")
+                    if getattr(choice.delta, "tool_calls", None):
+                        raise ValueError("Unexpected reviewer tool-call response.")
+                    if getattr(choice.delta, "content", None):
+                        parts.append(choice.delta.content)
+                    finish = getattr(choice, "finish_reason", None) or finish
+        if finish is None:
+            raise ConnectionError("Stream ended without a finish reason.")
+        if finish != "stop":
+            raise ValueError(f"Incomplete reviewer response: finish_reason={finish!r}; not cached as success.")
+        if not "".join(parts).strip():
+            raise ValueError("Empty reviewer response; not cached as success.")
+    except Exception as exc:
+        partial = "".join(parts)
+        partial_file = None
+        if partial:  # diagnostic only: shows whether the model was looping before the 500
+            folder = Path(os.environ["MAX_RECOVERY_LOG"]).parent / "partial_outputs"
+            folder.mkdir(parents=True, exist_ok=True)
+            partial_file = folder / f"{request_sha[:16]}_{time.time_ns()}.txt"
+            partial_file.write_text(partial, encoding="utf-8")
+        _log({
+            "event": "max_call_error", "try": label, "request_sha256": request_sha,
+            "endpoint_host": (base_url or "").split("/")[2] if base_url and "//" in base_url else base_url,
+            "error_type": type(exc).__name__, "error": str(exc)[:2000],
+            "response_id": response_id, "partial_chars": len(partial),
+            "billing_unknown": usage is None,
+            "partial_file": str(partial_file) if partial_file else None,
+            "elapsed_s": round(time.monotonic() - started, 2), **_provider_ids(exc),
+        })
+        raise
+    finally:
+        client.close()
+    if usage is None:
+        _log({"event": "max_call_unknown_usage", "try": label, "request_sha256": request_sha,
+              "response_id": response_id})
+        raise ValueError("Streaming returned no usage; billing is unknown. Reconcile provider usage first.")
+    details = getattr(usage, "completion_tokens_details", None)
+    _log({
+        "event": "max_call_received", "try": label, "request_sha256": request_sha,
+        "response_id": response_id, "finish_reason": finish,
+        "input_tokens": usage.prompt_tokens, "output_tokens": usage.completion_tokens,
+        "elapsed_s": round(time.monotonic() - started, 2),
+    })
+    return RawCompletion(
+        text="".join(parts),
+        input_tokens=usage.prompt_tokens,
+        output_tokens=usage.completion_tokens,
+        reasoning_tokens=(getattr(details, "reasoning_tokens", 0) or 0) if details else 0,
+    )
+
+
+def resilient_completion(kwargs: dict, api_key: str, base_url: str | None, timeout: float) -> RawCompletion:
+    """One in-flight Plus call per process, with a short gap between calls."""
+    global _last_call_end
+    if kwargs.get("model") != os.environ["MAX_RECOVERY_MODEL"]:
+        return openai_completion(kwargs, api_key, base_url, timeout)
+    with _request_lock:
+        gap = 3.0 - (time.monotonic() - _last_call_end)
+        if gap > 0:
+            time.sleep(gap)
+        try:
+            return _resilient_completion_serial(kwargs, api_key, base_url, timeout)
+        finally:
+            _last_call_end = time.monotonic()
+
+
+def _resilient_completion_serial(kwargs: dict, api_key: str, base_url: str | None, timeout: float) -> RawCompletion:
+    if kwargs.get("model") != os.environ["MAX_RECOVERY_MODEL"]:
+        return openai_completion(kwargs, api_key, base_url, timeout)
+    if kwargs.get("tools"):
+        raise ValueError("This reviewer-only transport does not support tool calls.")
+    request = copy.deepcopy(kwargs)  # generation parameters are copied unchanged
+    request["stream"] = True
+    request["stream_options"] = {**request.get("stream_options", {}), "include_usage": True}
+    request_sha = LLMClient.cache_key(kwargs)
+    waits = [0.0] + [float(x) for x in os.environ.get("MAX_RECOVERY_WAITS", "").split(",") if x.strip()]
+    last: BaseException | None = None
+    for number, wait in enumerate(waits, start=1):
+        if wait:
+            _log({"event": "waiting_before_retry", "seconds": wait, "request_sha256": request_sha})
+            print(f"  Plus provider error; waiting {wait:.0f}s before identical retry {number}/{len(waits)}",
+                  flush=True)
+            time.sleep(wait)
+        try:
+            return _stream_once(request, api_key, base_url, timeout, f"primary {number}/{len(waits)}",
+                                request_sha)
+        except Exception as exc:
+            if not _transient(exc):
+                raise
+            last = exc
+    fallback_url = os.environ.get("MAX_FALLBACK_BASE_URL", "").strip()
+    fallback_key = os.environ.get("MAX_FALLBACK_API_KEY", "").strip()
+    if fallback_url and fallback_key:
+        print("  Primary endpoint exhausted; one identical try on the disclosed fallback region.", flush=True)
+        try:
+            return _stream_once(request, fallback_key, fallback_url, timeout, "fallback region", request_sha)
+        except Exception as exc:
+            if not _transient(exc):
+                raise
+            last = exc
+    assert last is not None
+    if _is_provider_500(last) and not isinstance(last, openai.InternalServerError):
+        raise InternalServerError(str(last)) from last
+    raise last
+
+
+def _patch_continue_past_provider_500() -> None:
+    """Replace only the stop-on-any-failure line of run_heldout, in memory."""
+    from drawing_intelligence.eval import heldout
+
+    source = inspect.getsource(heldout.run_heldout)
+    old = (
+        '        if attempt["status"] != "ok":\n'
+        "            break  # stop before multiplying a service/authentication/schema failure\n"
+    )
+    new = (
+        '        if attempt["status"] != "ok":\n'
+        "            if not _max_recovery_continue(attempt, state):\n"
+        "                break\n"
+    )
+    if source.count(old) != 1:
+        raise RuntimeError("The evaluator loop differs from the reviewed version; it was not patched.")
+    limit = int(os.environ.get("MAX_RECOVERY_CONSECUTIVE_LIMIT", "2"))
+
+    def _max_recovery_continue(attempt: dict, state: dict) -> bool:
+        streak = 0
+        for previous in reversed(state["attempts"]):
+            if previous.get("started_at", "") < PROCESS_START or previous["status"] == "ok":
+                break
+            streak += 1
+        pure_500 = bool(attempt.get("errors")) and set(attempt["errors"]) == {"InternalServerError"}
+        decision = pure_500 and streak < limit
+        _log({"event": "continue_decision", "drawing": attempt["drawing"], "errors": attempt.get("errors"),
+              "consecutive_failures_this_run": streak, "continue": decision})
+        if decision:
+            print(f"  Provider 500 retained for {attempt['drawing']}; continuing with the next drawing.",
+                  flush=True)
+        else:
+            print("  Stopping: non-provider error or repeated provider failures (possible outage).", flush=True)
+        return decision
+
+    heldout._max_recovery_continue = _max_recovery_continue
+    patched = source.replace(old, new)
+    loop = '    for pdf, entry in zip(drawings, manifest["drawings"], strict=True):'
+    replacement = (
+        '    pending = list(zip(drawings, manifest["drawings"], strict=True))\n'
+        '    pending.sort(key=lambda pair: pair[1]["path"] in latest and '
+        'latest[pair[1]["path"]]["status"] != "ok")\n'
+        '    for pdf, entry in pending:'
+    )
+    if patched.count(loop) != 1:
+        raise RuntimeError("Evaluator ordering changed; no paid calls made.")
+    patched = patched.replace(loop, replacement)
+    code = compile(patched, heldout.__file__, "exec",
+                   flags=future_flags.annotations.compiler_flag, dont_inherit=True)
+    exec(code, heldout.__dict__)
+    _log({"event": "evaluator_loop_patched",
+          "original_sha256": hashlib.sha256(source.encode()).hexdigest(),
+          "patched_sha256": hashlib.sha256(patched.encode()).hexdigest(),
+          "consecutive_failure_limit": limit})
+
+
+def main() -> None:
+    from drawing_intelligence.cli import app
+    from drawing_intelligence.settings import get_settings
+
+    registry = load_registry(get_settings().config_path / "models.yaml")
+    review = registry.model(None, "review")
+    if review.name != "qwen3.7-plus" or review.thinking_level(None) != "off":
+        raise ValueError("Keep the frozen Plus reviewer configuration.")
+    if os.environ["MAX_RECOVERY_MODEL"] != review.name:
+        raise ValueError("Transport target differs from the registry reviewer.")
+    _log({"event": "transport_process_started",
+          "source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+          "waits": os.environ.get("MAX_RECOVERY_WAITS", ""),
+          "fallback_configured": bool(os.environ.get("MAX_FALLBACK_BASE_URL", "").strip()),
+          "continue_past_provider_500": os.environ.get("MAX_RECOVERY_CONTINUE") == "1"})
+
+    import drawing_intelligence.graph as graph_api
+
+    original = graph_api.run_workflow
+
+    def workflow(*args, **kwargs):
+        if "completion_fn" in kwargs:
+            raise ValueError("Do not combine completion adapters.")
+        return original(*args, **kwargs, completion_fn=resilient_completion)
+
+    graph_api.run_workflow = workflow
+    if os.environ.get("MAX_RECOVERY_CONTINUE") == "1":
+        _patch_continue_past_provider_500()
+    app()
+
+
+if __name__ == "__main__":
+    main()
