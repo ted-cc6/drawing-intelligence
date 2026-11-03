@@ -1,0 +1,12 @@
+{
+  "status": "unconfirmed_assistant_review_notes",
+  "candidates": [
+    {
+      "finding_key": "8da4584f1286e55329c5b893508fd00b34cf86733a075c5bfc63f9df42c8afe9:F-443ecca6ff",
+      "drawing": "Generic Prismatic Parts/P23Y5B157012001.PDF",
+      "reviewer": "llm:drawing_practice",
+      "suggestion": "Possible false positive: drawing visibly includes 1.6 THK. Engineer must confirm.",
+      "human_label_written": false
+    }
+  ]
+}

@@ -1,0 +1,422 @@
+{
+  "full/manifest.json": {
+    "original_sha256": "2a4c5696533571dd36d72cf1cf9134cb104c0769aa208278c20bf54631d31166",
+    "published_sha256": "c7fabad1046baab6edcae76d5a379facdc9c035d77ce0bcae6fbdf7abdef6ed6",
+    "redacted": true
+  },
+  "full/run_state.json": {
+    "original_sha256": "61170c8e67b19c02b68b536faa594bef5a13a3b64eaa1ba039e71a0014f10616",
+    "published_sha256": "61170c8e67b19c02b68b536faa594bef5a13a3b64eaa1ba039e71a0014f10616",
+    "redacted": false
+  },
+  "full/drawings.txt": {
+    "original_sha256": "1bb46660d2c4bf178c834f60ebf7d7ce0df85486fbde90f49e6c6bc2d02b6093",
+    "published_sha256": "1bb46660d2c4bf178c834f60ebf7d7ce0df85486fbde90f49e6c6bc2d02b6093",
+    "redacted": false
+  },
+  "full/findings.csv": {
+    "original_sha256": "c7e3253ea16b68af740ad8a112a9d217ebc8909d0db152b3978efd708c9cc747",
+    "published_sha256": "c7e3253ea16b68af740ad8a112a9d217ebc8909d0db152b3978efd708c9cc747",
+    "redacted": false
+  },
+  "full/infrastructure/full24_authorizations.jsonl": {
+    "original_sha256": "95ab397e171a13e100a1509eb91d963e0661281cc57f39613a938cec8880e7c8",
+    "published_sha256": "5eb2c14cadf9cc8375184a2452127b0ce1d8042e84bac265cb7a2a613da5ab12",
+    "redacted": true
+  },
+  "full/infrastructure/plus_recovery.jsonl": {
+    "original_sha256": "f6abbf1129d9ee114247a2ef6eb17cc07f15fde685b9e55bc83e99d4fb7c997d",
+    "published_sha256": "f6abbf1129d9ee114247a2ef6eb17cc07f15fde685b9e55bc83e99d4fb7c997d",
+    "redacted": false
+  },
+  "full/reports/0015/05015NB02996_modified_0A1/drawing_practice.json": {
+    "original_sha256": "a9e168bbf6fbca9c08c03ca34f162ad6f2876e76ff16cc18a8bf43f86701ee75",
+    "published_sha256": "a9e168bbf6fbca9c08c03ca34f162ad6f2876e76ff16cc18a8bf43f86701ee75",
+    "redacted": false
+  },
+  "full/reports/0015/05015NB02996_modified_0A1/design_intent.json": {
+    "original_sha256": "f27808ca1c2d8d6278300f55128acb572bc3f4bda918efb7991b05262aa29cba",
+    "published_sha256": "f27808ca1c2d8d6278300f55128acb572bc3f4bda918efb7991b05262aa29cba",
+    "redacted": false
+  },
+  "full/reports/0015/05015NB02996_modified_0A1/manufacturability.json": {
+    "original_sha256": "d3a1bc12144c772446b3eb75e1350a6d75ffd55d185cdb7dfd62a39b96622c49",
+    "published_sha256": "d3a1bc12144c772446b3eb75e1350a6d75ffd55d185cdb7dfd62a39b96622c49",
+    "redacted": false
+  },
+  "full/reports/0017/P23EAB051109001/drawing_practice.json": {
+    "original_sha256": "21e111a7262fd43109481a34138305de0c668ed935753e9bdce4bdcd222bbffa",
+    "published_sha256": "21e111a7262fd43109481a34138305de0c668ed935753e9bdce4bdcd222bbffa",
+    "redacted": false
+  },
+  "full/reports/0017/P23EAB051109001/design_intent.json": {
+    "original_sha256": "1ecc64820c084b70f377e8e1f62bf6df2b70fe0b754c3dbf0ac3b1e26b61a11a",
+    "published_sha256": "1ecc64820c084b70f377e8e1f62bf6df2b70fe0b754c3dbf0ac3b1e26b61a11a",
+    "redacted": false
+  },
+  "full/reports/0017/P23EAB051109001/manufacturability.json": {
+    "original_sha256": "c85c850df1761f62ed13ffa379de76c0b16f7cd9191add4bae4e5ae642fba754",
+    "published_sha256": "c85c850df1761f62ed13ffa379de76c0b16f7cd9191add4bae4e5ae642fba754",
+    "redacted": false
+  },
+  "full/reports/0016/05015NB02997_MODI/drawing_practice.json": {
+    "original_sha256": "7a57fc494f847a4da5f082c173b03d57b94c8b667aff6a64aaaa35f441d8d84f",
+    "published_sha256": "7a57fc494f847a4da5f082c173b03d57b94c8b667aff6a64aaaa35f441d8d84f",
+    "redacted": false
+  },
+  "full/reports/0016/05015NB02997_MODI/design_intent.json": {
+    "original_sha256": "ea081a5f5a2fbdeea6dd3226a0f5c3bd142dddd868368851fb3a4e09976c3293",
+    "published_sha256": "ea081a5f5a2fbdeea6dd3226a0f5c3bd142dddd868368851fb3a4e09976c3293",
+    "redacted": false
+  },
+  "full/reports/0016/05015NB02997_MODI/manufacturability.json": {
+    "original_sha256": "3626112a3ea9b5ad2a79f9e37df4e03f8823167db096e32704dfd04b912580ed",
+    "published_sha256": "3626112a3ea9b5ad2a79f9e37df4e03f8823167db096e32704dfd04b912580ed",
+    "redacted": false
+  },
+  "full/reports/0018/P23Y5B091093001/drawing_practice.json": {
+    "original_sha256": "d856c06453f5179dfca242ebabf7f71380ff3fdb65b0479a5d22579b42da875b",
+    "published_sha256": "d856c06453f5179dfca242ebabf7f71380ff3fdb65b0479a5d22579b42da875b",
+    "redacted": false
+  },
+  "full/reports/0018/P23Y5B091093001/design_intent.json": {
+    "original_sha256": "90ad4c156a1d994659e232d24d422f39e3db81eb30add282f48a853d1502559c",
+    "published_sha256": "90ad4c156a1d994659e232d24d422f39e3db81eb30add282f48a853d1502559c",
+    "redacted": false
+  },
+  "full/reports/0018/P23Y5B091093001/manufacturability.json": {
+    "original_sha256": "b738533ff9dbd0cef229aa617a65e3a4b19e633c7eebebf8ad0f82f131aa6bac",
+    "published_sha256": "b738533ff9dbd0cef229aa617a65e3a4b19e633c7eebebf8ad0f82f131aa6bac",
+    "redacted": false
+  },
+  "full/reports/0001/40K_DUNNAGE_AL_DOOR _RH LM BLK PLT/drawing_practice.json": {
+    "original_sha256": "ad95565ff595000d29506ef41c31891fa2fb5e18a4d615de202d2731cd3fa8ff",
+    "published_sha256": "ad95565ff595000d29506ef41c31891fa2fb5e18a4d615de202d2731cd3fa8ff",
+    "redacted": false
+  },
+  "full/reports/0001/40K_DUNNAGE_AL_DOOR _RH LM BLK PLT/page_1_review.png": {
+    "original_sha256": "a64df6250a31c1294f7a48ec9265451e46b5a635914273979f83e7cb716d9939",
+    "published_sha256": "a64df6250a31c1294f7a48ec9265451e46b5a635914273979f83e7cb716d9939",
+    "redacted": false
+  },
+  "full/reports/0001/40K_DUNNAGE_AL_DOOR _RH LM BLK PLT/design_intent.json": {
+    "original_sha256": "8f242b01f2c9a8a8ce87c25285cd3cf7446030487c297bfae3b0d60aacd60f76",
+    "published_sha256": "8f242b01f2c9a8a8ce87c25285cd3cf7446030487c297bfae3b0d60aacd60f76",
+    "redacted": false
+  },
+  "full/reports/0001/40K_DUNNAGE_AL_DOOR _RH LM BLK PLT/manufacturability.json": {
+    "original_sha256": "770aab1dbbae4d70ac6fce58934df97e403980e5b21cf8394cc7870344992498",
+    "published_sha256": "770aab1dbbae4d70ac6fce58934df97e403980e5b21cf8394cc7870344992498",
+    "redacted": false
+  },
+  "full/reports/0022/P23Y5B153034001/drawing_practice.json": {
+    "original_sha256": "024e9d0c659eed6d518eec8441aea0c986c49f9c2729ff7afa2d85ee06b5602d",
+    "published_sha256": "024e9d0c659eed6d518eec8441aea0c986c49f9c2729ff7afa2d85ee06b5602d",
+    "redacted": false
+  },
+  "full/reports/0022/P23Y5B153034001/design_intent.json": {
+    "original_sha256": "abacc6c21b6f469f831f029a5959bfea051e57b42bbfa47d890b8257e49126bb",
+    "published_sha256": "abacc6c21b6f469f831f029a5959bfea051e57b42bbfa47d890b8257e49126bb",
+    "redacted": false
+  },
+  "full/reports/0022/P23Y5B153034001/manufacturability.json": {
+    "original_sha256": "66d2649497e923153375ca12fb785ed10347452ecfd7e099351f785dcd332a2c",
+    "published_sha256": "66d2649497e923153375ca12fb785ed10347452ecfd7e099351f785dcd332a2c",
+    "redacted": false
+  },
+  "full/reports/0011/P23Y5B156010001/drawing_practice.json": {
+    "original_sha256": "184f5c5f821c31f57b774b6065d30857592f8fd104951471cbacb08a597d8b2c",
+    "published_sha256": "184f5c5f821c31f57b774b6065d30857592f8fd104951471cbacb08a597d8b2c",
+    "redacted": false
+  },
+  "full/reports/0011/P23Y5B156010001/page_1_review.png": {
+    "original_sha256": "b39fa098ead14a12748a8c448e06777c07d5702624d62fb7bd697d4136ef2da7",
+    "published_sha256": "b39fa098ead14a12748a8c448e06777c07d5702624d62fb7bd697d4136ef2da7",
+    "redacted": false
+  },
+  "full/reports/0011/P23Y5B156010001/design_intent.json": {
+    "original_sha256": "f5453f488ae608888857df3ffb7a1b5137be822f268c020b733a3f94c9a9ac17",
+    "published_sha256": "f5453f488ae608888857df3ffb7a1b5137be822f268c020b733a3f94c9a9ac17",
+    "redacted": false
+  },
+  "full/reports/0011/P23Y5B156010001/manufacturability.json": {
+    "original_sha256": "916a8b8b84f4379353e39e9fa2e8dc25df4a3435272def437d535aebd3642b0c",
+    "published_sha256": "916a8b8b84f4379353e39e9fa2e8dc25df4a3435272def437d535aebd3642b0c",
+    "redacted": false
+  },
+  "full/reports/0009/P23Y5B154274001/drawing_practice.json": {
+    "original_sha256": "d877e070c797095ee619d88d1b459f7474bc6ae7916c99f45629687b8f041fe1",
+    "published_sha256": "d877e070c797095ee619d88d1b459f7474bc6ae7916c99f45629687b8f041fe1",
+    "redacted": false
+  },
+  "full/reports/0009/P23Y5B154274001/design_intent.json": {
+    "original_sha256": "9b028410e8a8868b8115f56e45beae58f0325ef6fea0e8f66bfe1ffa332d417f",
+    "published_sha256": "9b028410e8a8868b8115f56e45beae58f0325ef6fea0e8f66bfe1ffa332d417f",
+    "redacted": false
+  },
+  "full/reports/0009/P23Y5B154274001/manufacturability.json": {
+    "original_sha256": "77e574ce50d3545ccd3889fa2d1adb7d44b88fd6abf82a959b657de0863f9879",
+    "published_sha256": "77e574ce50d3545ccd3889fa2d1adb7d44b88fd6abf82a959b657de0863f9879",
+    "redacted": false
+  },
+  "full/reports/0002/93K_COMPONENT HOLDING PART_02/drawing_practice.json": {
+    "original_sha256": "aee9207c1ec7637f2329f204cece24fb9d6932e196b4d9e6949a375a093b3c2f",
+    "published_sha256": "aee9207c1ec7637f2329f204cece24fb9d6932e196b4d9e6949a375a093b3c2f",
+    "redacted": false
+  },
+  "full/reports/0002/93K_COMPONENT HOLDING PART_02/design_intent.json": {
+    "original_sha256": "e3e95baa50288821529e1afcf0108fcc2ffa0a9800c52841ce7acd3ef738d5e8",
+    "published_sha256": "e3e95baa50288821529e1afcf0108fcc2ffa0a9800c52841ce7acd3ef738d5e8",
+    "redacted": false
+  },
+  "full/reports/0002/93K_COMPONENT HOLDING PART_02/manufacturability.json": {
+    "original_sha256": "3ed9d08dfe85ed9a0d0866c7e1e937efaf5d65714636b5c265c4ca7a92674616",
+    "published_sha256": "3ed9d08dfe85ed9a0d0866c7e1e937efaf5d65714636b5c265c4ca7a92674616",
+    "redacted": false
+  },
+  "full/reports/0005/P23Y5B077068001/drawing_practice.json": {
+    "original_sha256": "cf3ac61a64f1edeb7631bc7f493aedd528799444221ddab4739621f267fdf96a",
+    "published_sha256": "cf3ac61a64f1edeb7631bc7f493aedd528799444221ddab4739621f267fdf96a",
+    "redacted": false
+  },
+  "full/reports/0005/P23Y5B077068001/design_intent.json": {
+    "original_sha256": "24d3cd10ed2d1331bdc51849822748b61c9f53455a42a43cbf1853823d4e2988",
+    "published_sha256": "24d3cd10ed2d1331bdc51849822748b61c9f53455a42a43cbf1853823d4e2988",
+    "redacted": false
+  },
+  "full/reports/0005/P23Y5B077068001/manufacturability.json": {
+    "original_sha256": "7e77f8041381fc15a0f975bb4bbf20e3ebc4acfaa3af68db8a9abc17a0788391",
+    "published_sha256": "7e77f8041381fc15a0f975bb4bbf20e3ebc4acfaa3af68db8a9abc17a0788391",
+    "redacted": false
+  },
+  "full/reports/0008/P23Y5B154259001/drawing_practice.json": {
+    "original_sha256": "b982694b09b20065c0b30c5400fb91d7b2f6fabff34424a35c1fa225c231414b",
+    "published_sha256": "b982694b09b20065c0b30c5400fb91d7b2f6fabff34424a35c1fa225c231414b",
+    "redacted": false
+  },
+  "full/reports/0008/P23Y5B154259001/design_intent.json": {
+    "original_sha256": "02e187ea27bc0d085c4f2cd13a09eb7c1f3af5deffacc7446eef2dcf3b8a2167",
+    "published_sha256": "02e187ea27bc0d085c4f2cd13a09eb7c1f3af5deffacc7446eef2dcf3b8a2167",
+    "redacted": false
+  },
+  "full/reports/0008/P23Y5B154259001/manufacturability.json": {
+    "original_sha256": "56cfac94474c4b28fe8f8a04742f2c783fe21158921c9942a7313d8b509bf9a1",
+    "published_sha256": "56cfac94474c4b28fe8f8a04742f2c783fe21158921c9942a7313d8b509bf9a1",
+    "redacted": false
+  },
+  "full/reports/0024/P23Y5B159007001/drawing_practice.json": {
+    "original_sha256": "898835fb4acd7aa27feaa25c48472462747460e5aa4780bacc4187c39c6ae91b",
+    "published_sha256": "898835fb4acd7aa27feaa25c48472462747460e5aa4780bacc4187c39c6ae91b",
+    "redacted": false
+  },
+  "full/reports/0024/P23Y5B159007001/design_intent.json": {
+    "original_sha256": "f4cea1eb21bcaaf7ee675ea73cb229a03580e2c547bd8a9f505a26f8dba4680e",
+    "published_sha256": "f4cea1eb21bcaaf7ee675ea73cb229a03580e2c547bd8a9f505a26f8dba4680e",
+    "redacted": false
+  },
+  "full/reports/0024/P23Y5B159007001/manufacturability.json": {
+    "original_sha256": "edb7f5ba6377a4ae2616c8842cca92f2e0b7abdc02f2f433b6cf53eaee171202",
+    "published_sha256": "edb7f5ba6377a4ae2616c8842cca92f2e0b7abdc02f2f433b6cf53eaee171202",
+    "redacted": false
+  },
+  "full/reports/0014/P23Y5C062039001/drawing_practice.json": {
+    "original_sha256": "4fc9a972375c7cf52fd65de763b090a8e6ffdc52745400c53c7c99853720e34b",
+    "published_sha256": "4fc9a972375c7cf52fd65de763b090a8e6ffdc52745400c53c7c99853720e34b",
+    "redacted": false
+  },
+  "full/reports/0014/P23Y5C062039001/design_intent.json": {
+    "original_sha256": "6962ae42e6b174616b368a91d3673f879bd9acb4a3a47c63bafd28256db40544",
+    "published_sha256": "6962ae42e6b174616b368a91d3673f879bd9acb4a3a47c63bafd28256db40544",
+    "redacted": false
+  },
+  "full/reports/0014/P23Y5C062039001/manufacturability.json": {
+    "original_sha256": "b3c9013c43a8892577e3a577b321b7fb50508b7ad1a65a8cb919e6d7b8600ce0",
+    "published_sha256": "b3c9013c43a8892577e3a577b321b7fb50508b7ad1a65a8cb919e6d7b8600ce0",
+    "redacted": false
+  },
+  "full/reports/0003/P23Y5B062113001/drawing_practice.json": {
+    "original_sha256": "8b447957caa9762225162f20430fcbb0944f3c2541aac9cae9535ac53392be8f",
+    "published_sha256": "8b447957caa9762225162f20430fcbb0944f3c2541aac9cae9535ac53392be8f",
+    "redacted": false
+  },
+  "full/reports/0003/P23Y5B062113001/design_intent.json": {
+    "original_sha256": "2d828ebe54eef864e1180e6b6ff4f12394b817f5568d7b4a2e2a63adf5967829",
+    "published_sha256": "2d828ebe54eef864e1180e6b6ff4f12394b817f5568d7b4a2e2a63adf5967829",
+    "redacted": false
+  },
+  "full/reports/0003/P23Y5B062113001/manufacturability.json": {
+    "original_sha256": "33273cbb5bc08b9d369232963687beb8e2a46a7313b0e791855ef12f65639d71",
+    "published_sha256": "33273cbb5bc08b9d369232963687beb8e2a46a7313b0e791855ef12f65639d71",
+    "redacted": false
+  },
+  "full/reports/0023/P23Y5B153069001/drawing_practice.json": {
+    "original_sha256": "2811cd4bbce2649799b3e618ec13dbb36913d4e895013b6824451e4e0b167360",
+    "published_sha256": "2811cd4bbce2649799b3e618ec13dbb36913d4e895013b6824451e4e0b167360",
+    "redacted": false
+  },
+  "full/reports/0023/P23Y5B153069001/design_intent.json": {
+    "original_sha256": "79c9247449d1c8c9fc5e284689c5319e2009b420a7ec6cd4a9a65a9027b086b6",
+    "published_sha256": "79c9247449d1c8c9fc5e284689c5319e2009b420a7ec6cd4a9a65a9027b086b6",
+    "redacted": false
+  },
+  "full/reports/0023/P23Y5B153069001/manufacturability.json": {
+    "original_sha256": "ecd60a9b9ed5b3f201047b7e0b12e1f59b1ec12a0bd74fe40693f3b8213ef97c",
+    "published_sha256": "ecd60a9b9ed5b3f201047b7e0b12e1f59b1ec12a0bd74fe40693f3b8213ef97c",
+    "redacted": false
+  },
+  "full/reports/0010/P23Y5B154514001/drawing_practice.json": {
+    "original_sha256": "51d56de174adf9c227888ad99dc1fcbb563e35248b91389be5ab9e1e31c21aaa",
+    "published_sha256": "51d56de174adf9c227888ad99dc1fcbb563e35248b91389be5ab9e1e31c21aaa",
+    "redacted": false
+  },
+  "full/reports/0010/P23Y5B154514001/design_intent.json": {
+    "original_sha256": "6783268d1f0a8396b37d32d70e1669a9d6a7515fed9639a44468c70fedb3498c",
+    "published_sha256": "6783268d1f0a8396b37d32d70e1669a9d6a7515fed9639a44468c70fedb3498c",
+    "redacted": false
+  },
+  "full/reports/0010/P23Y5B154514001/manufacturability.json": {
+    "original_sha256": "965d7dfe70a3b74d2a99a57e3dc2d32d6d870ae3953c7400bf938104e1707bdd",
+    "published_sha256": "965d7dfe70a3b74d2a99a57e3dc2d32d6d870ae3953c7400bf938104e1707bdd",
+    "redacted": false
+  },
+  "full/reports/0021/P23Y5B153018001/drawing_practice.json": {
+    "original_sha256": "a7b899c4dee92500f7658dca411d5ff2380513b419ab8e42e8fd098167bd89b3",
+    "published_sha256": "a7b899c4dee92500f7658dca411d5ff2380513b419ab8e42e8fd098167bd89b3",
+    "redacted": false
+  },
+  "full/reports/0021/P23Y5B153018001/design_intent.json": {
+    "original_sha256": "40b19dc79597931794eddee93718b263641f8395f0ea41ba40fa5888a6a6c117",
+    "published_sha256": "40b19dc79597931794eddee93718b263641f8395f0ea41ba40fa5888a6a6c117",
+    "redacted": false
+  },
+  "full/reports/0021/P23Y5B153018001/manufacturability.json": {
+    "original_sha256": "3503dfc58e3606f4a26c72e7d997170671b6710fdd887b05b84bc429d2a90100",
+    "published_sha256": "3503dfc58e3606f4a26c72e7d997170671b6710fdd887b05b84bc429d2a90100",
+    "redacted": false
+  },
+  "full/reports/0012/P23Y5B157012001/drawing_practice.json": {
+    "original_sha256": "b93ee4df78d1ceed9c280f5fa58b86965f770eee74dbb9080eb37e000b08db7e",
+    "published_sha256": "b93ee4df78d1ceed9c280f5fa58b86965f770eee74dbb9080eb37e000b08db7e",
+    "redacted": false
+  },
+  "full/reports/0012/P23Y5B157012001/page_1_review.png": {
+    "original_sha256": "03bd23b6e01961bb576640b6834273bdb25d2dc328ae309553f30d8add4990c7",
+    "published_sha256": "03bd23b6e01961bb576640b6834273bdb25d2dc328ae309553f30d8add4990c7",
+    "redacted": false
+  },
+  "full/reports/0012/P23Y5B157012001/design_intent.json": {
+    "original_sha256": "9049c13ddfcf168955ec8fc9154e353c4d0fcd0b08a1ba43ca49f2bea32c6332",
+    "published_sha256": "9049c13ddfcf168955ec8fc9154e353c4d0fcd0b08a1ba43ca49f2bea32c6332",
+    "redacted": false
+  },
+  "full/reports/0012/P23Y5B157012001/manufacturability.json": {
+    "original_sha256": "d9f93269aa9e5eb307306b4dcbfd323a33a9b6dc2d1399d2d7940054f1319827",
+    "published_sha256": "d9f93269aa9e5eb307306b4dcbfd323a33a9b6dc2d1399d2d7940054f1319827",
+    "redacted": false
+  },
+  "full/reports/0004/P23Y5B076028001/drawing_practice.json": {
+    "original_sha256": "ddc984670293cce544467c386d450015543d91b4098f8b84c47738ed079e9fdd",
+    "published_sha256": "ddc984670293cce544467c386d450015543d91b4098f8b84c47738ed079e9fdd",
+    "redacted": false
+  },
+  "full/reports/0004/P23Y5B076028001/design_intent.json": {
+    "original_sha256": "b79cf1112798e15efe2372187f6d9335e1af76a8d75e3444222b46e54f4d1845",
+    "published_sha256": "b79cf1112798e15efe2372187f6d9335e1af76a8d75e3444222b46e54f4d1845",
+    "redacted": false
+  },
+  "full/reports/0004/P23Y5B076028001/manufacturability.json": {
+    "original_sha256": "ff6272f983b68ac468ebe8192f01657a0eb886f350c6c1bf353f9de8a7be0aa3",
+    "published_sha256": "ff6272f983b68ac468ebe8192f01657a0eb886f350c6c1bf353f9de8a7be0aa3",
+    "redacted": false
+  },
+  "full/reports/0013/P23Y5B159017003/drawing_practice.json": {
+    "original_sha256": "a474b8e518de0a5f068609e780a87d78de3f11745919457483d60aaef567d153",
+    "published_sha256": "a474b8e518de0a5f068609e780a87d78de3f11745919457483d60aaef567d153",
+    "redacted": false
+  },
+  "full/reports/0013/P23Y5B159017003/design_intent.json": {
+    "original_sha256": "0baf36f0701487caf5dc478d7e6215de912b0ed40f2a6c18110eb40a58398af6",
+    "published_sha256": "0baf36f0701487caf5dc478d7e6215de912b0ed40f2a6c18110eb40a58398af6",
+    "redacted": false
+  },
+  "full/reports/0013/P23Y5B159017003/manufacturability.json": {
+    "original_sha256": "44b8a19c830a0aa11ee24e458e23ac348a60e8f405b93498ee8535915119f05c",
+    "published_sha256": "44b8a19c830a0aa11ee24e458e23ac348a60e8f405b93498ee8535915119f05c",
+    "redacted": false
+  },
+  "full/reports/0019/P23Y5B091152001/drawing_practice.json": {
+    "original_sha256": "6179fe6b2be73610b38623ab1fefcdd980ca4c3874a7a884a4f46d667d00bb01",
+    "published_sha256": "6179fe6b2be73610b38623ab1fefcdd980ca4c3874a7a884a4f46d667d00bb01",
+    "redacted": false
+  },
+  "full/reports/0019/P23Y5B091152001/design_intent.json": {
+    "original_sha256": "7452ac1b1d46bde67ce8957f1500f93b9f05a3a42672952bd3bea234215bf4f8",
+    "published_sha256": "7452ac1b1d46bde67ce8957f1500f93b9f05a3a42672952bd3bea234215bf4f8",
+    "redacted": false
+  },
+  "full/reports/0019/P23Y5B091152001/manufacturability.json": {
+    "original_sha256": "235b2c50d0ffd662d0acff9b02cb6f1a2e41403891bdf07afab99131c03310fd",
+    "published_sha256": "235b2c50d0ffd662d0acff9b02cb6f1a2e41403891bdf07afab99131c03310fd",
+    "redacted": false
+  },
+  "full/reports/0006/P23Y5B153031001/drawing_practice.json": {
+    "original_sha256": "7aff6ce5412f8e7b035ae19ec5e74ec16a95534fb7fa1637568a47cd8b1a5785",
+    "published_sha256": "7aff6ce5412f8e7b035ae19ec5e74ec16a95534fb7fa1637568a47cd8b1a5785",
+    "redacted": false
+  },
+  "full/reports/0006/P23Y5B153031001/design_intent.json": {
+    "original_sha256": "8a09fa9d296cd57f90a48a38ab6c8c1e4123059aa5063fb71bcd98ffa3ad885b",
+    "published_sha256": "8a09fa9d296cd57f90a48a38ab6c8c1e4123059aa5063fb71bcd98ffa3ad885b",
+    "redacted": false
+  },
+  "full/reports/0006/P23Y5B153031001/manufacturability.json": {
+    "original_sha256": "49824760c1365daf0652bf3c2b57dbf39c96f14c80da11ec9488e39dec70ed1b",
+    "published_sha256": "49824760c1365daf0652bf3c2b57dbf39c96f14c80da11ec9488e39dec70ed1b",
+    "redacted": false
+  },
+  "full/reports/0007/P23Y5B154003001/drawing_practice.json": {
+    "original_sha256": "5278eb57bd34ce532be77e7633c68773a201c207d5dd48984956473c6f0f3c2e",
+    "published_sha256": "5278eb57bd34ce532be77e7633c68773a201c207d5dd48984956473c6f0f3c2e",
+    "redacted": false
+  },
+  "full/reports/0007/P23Y5B154003001/design_intent.json": {
+    "original_sha256": "f31edb80bbb34e0abbfcc59fd5044d2c17cb1e26e557f3cce4b304fc2342acd5",
+    "published_sha256": "f31edb80bbb34e0abbfcc59fd5044d2c17cb1e26e557f3cce4b304fc2342acd5",
+    "redacted": false
+  },
+  "full/reports/0007/P23Y5B154003001/manufacturability.json": {
+    "original_sha256": "e1f78fbe66540620bdb1ac6f38c09c6b43404ddbcc51f21b79807f1b1eb543c5",
+    "published_sha256": "e1f78fbe66540620bdb1ac6f38c09c6b43404ddbcc51f21b79807f1b1eb543c5",
+    "redacted": false
+  },
+  "full/reports/0020/P23Y5B096083001/drawing_practice.json": {
+    "original_sha256": "94627f591f7d6e4dd96df9b06736d7331882251da73931d82308a1f7e7e3da61",
+    "published_sha256": "94627f591f7d6e4dd96df9b06736d7331882251da73931d82308a1f7e7e3da61",
+    "redacted": false
+  },
+  "full/reports/0020/P23Y5B096083001/design_intent.json": {
+    "original_sha256": "003a0f563449e39521a265964856731357a8c736c109ea7f836dc233aa62b1ad",
+    "published_sha256": "003a0f563449e39521a265964856731357a8c736c109ea7f836dc233aa62b1ad",
+    "redacted": false
+  },
+  "full/reports/0020/P23Y5B096083001/manufacturability.json": {
+    "original_sha256": "4bba3f288a31a198b738dea1582263fff6a1dd42ae508c1540cff4b1f9be9cf0",
+    "published_sha256": "4bba3f288a31a198b738dea1582263fff6a1dd42ae508c1540cff4b1f9be9cf0",
+    "redacted": false
+  },
+  "prior_trial/manifest.json": {
+    "original_sha256": "7100860c40de593f0f16a6258c9a97d4aa0caccf452872513f3c95fe6817ce68",
+    "published_sha256": "e72caa7d083caf3514c26081bd1064a9f94fb51ae380bb381d72e3ecb9f3a5ce",
+    "redacted": true
+  },
+  "prior_trial/run_state.json": {
+    "original_sha256": "7ed8b5216b0b47ee9ca05b6394e1baacabf35dd65b122e6091c272f4c644f915",
+    "published_sha256": "7ed8b5216b0b47ee9ca05b6394e1baacabf35dd65b122e6091c272f4c644f915",
+    "redacted": false
+  },
+  "prior_trial/infrastructure/compatibility_probe.jsonl": {
+    "original_sha256": "528676456eb03dcbafd64a17395aff26827771338636bf68e55f6ac3ae013ab8",
+    "published_sha256": "528676456eb03dcbafd64a17395aff26827771338636bf68e55f6ac3ae013ab8",
+    "redacted": false
+  }
+}
