@@ -1,0 +1,77 @@
+{
+ "schema_version": "1.1",
+ "reviewer": "manufacturability",
+ "findings": [
+  {
+   "id": "F-9b6b6ade24",
+   "rule_id": "MC-001",
+   "category": "manufacturability",
+   "requirement": "Internal corner radii can be made by standard cutters",
+   "result": "warning",
+   "severity": "major",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D4",
+     "page": 1,
+     "bbox": [
+      594.3,
+      151.1,
+      638.7,
+      194.7
+     ],
+     "quote": "R 0.3",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "dimension",
+     "ref": "D14",
+     "page": 1,
+     "bbox": [
+      838.9,
+      263.6,
+      887.6,
+      296.7
+     ],
+     "quote": "R 0.2",
+     "provenance": "pdf_text"
+    }
+   ],
+   "comment": "The specified internal corner radii of R 0.3 mm (D4) and R 0.2 mm (D14) are smaller than the minimum radius achievable by standard end mills or tooling, which typically require a minimum of R 0.5 mm to R 1.0 mm depending on tool availability. This will require special non-standard cutters or EDM processes, increasing cost and lead time; the designer should increase these radii to at least R 0.5 mm or specify a suitable manufacturing process.",
+   "recommended_correction": "Increase internal corner radii to >= R 0.5 mm.",
+   "reviewer": "manufacturability",
+   "source": "llm"
+  }
+ ],
+ "rule_statuses": [
+  {
+   "rule_id": "MC-001",
+   "status": "warning",
+   "finding_ids": [
+    "F-9b6b6ade24"
+   ],
+   "note": null
+  },
+  {
+   "rule_id": "MC-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MC-009",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MC-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  }
+ ],
+ "cost_usd": 0.005767,
+ "latency_s": 21.31,
+ "error": null
+}

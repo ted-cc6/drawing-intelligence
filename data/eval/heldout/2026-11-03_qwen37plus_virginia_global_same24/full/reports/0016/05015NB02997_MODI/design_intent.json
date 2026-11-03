@@ -1,0 +1,137 @@
+{
+ "schema_version": "1.1",
+ "reviewer": "design_intent",
+ "findings": [
+  {
+   "id": "F-11f5d77e35",
+   "rule_id": "MF-005",
+   "category": "design_intent",
+   "requirement": "Heat treatment and hardness are specified where required, with the stage they apply at",
+   "result": "warning",
+   "severity": "major",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "heat_treatment",
+     "page": 1,
+     "bbox": [
+      1093.3,
+      752.8,
+      1100.2,
+      760.0
+     ],
+     "quote": "---",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "material",
+     "page": 1,
+     "bbox": [
+      894.7,
+      776.0,
+      912.6,
+      784.7
+     ],
+     "quote": "M.S.",
+     "provenance": "pdf_text"
+    }
+   ],
+   "comment": "The part is a 'LOCATING PIN' made of Mild Steel ('M.S.') with a surface treatment, but the heat treatment field is explicitly marked as not applicable ('---'). Locating pins typically require hardening to resist wear and deformation during use; specifying no heat treatment for this function and material is likely an error. The designer should specify an appropriate heat treatment (e.g., case hardening) or change the material to a pre-hardened steel if heat treatment is truly not intended.",
+   "recommended_correction": "Specify required heat treatment and hardness in the title block or notes.",
+   "reviewer": "design_intent",
+   "source": "llm"
+  }
+ ],
+ "rule_statuses": [
+  {
+   "rule_id": "NM-008",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs pari_standard_notes, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-011",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-014",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-016",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "WPM-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "DTT-052",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "ISO-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MF-005",
+   "status": "warning",
+   "finding_ids": [
+    "F-11f5d77e35"
+   ],
+   "note": null
+  },
+  {
+   "rule_id": "MF-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "NASA-132",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "TL-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "NASA-051",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WPS-004",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  }
+ ],
+ "cost_usd": 0.005212,
+ "latency_s": 6.23,
+ "error": null
+}

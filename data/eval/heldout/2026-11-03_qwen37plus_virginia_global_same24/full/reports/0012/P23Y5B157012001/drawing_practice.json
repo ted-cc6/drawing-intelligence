@@ -1,0 +1,185 @@
+{
+ "schema_version": "1.1",
+ "reviewer": "drawing_practice",
+ "findings": [
+  {
+   "id": "F-443ecca6ff",
+   "rule_id": "MX-015",
+   "category": "consistency",
+   "requirement": "Missing material thickness",
+   "result": "warning",
+   "severity": "critical",
+   "evidence": [
+    {
+     "kind": "note",
+     "ref": "N7",
+     "page": 1,
+     "bbox": null,
+     "quote": "NOTE : (English) # MATERIAL: M.S # FINISH: PAINTING # MACHINING: 12.5/ # WEIGHT(Kg ): 2.59 kg",
+     "provenance": "pdf_text"
+    }
+   ],
+   "comment": "The drawing identifies the part as sheet metal with welding notes but fails to specify the material thickness in the title block, notes, or dimensions. Without a defined thickness, the part cannot be manufactured or inspected correctly.",
+   "recommended_correction": "Add the sheet metal thickness to the title block material field or as a specific note/dimension.",
+   "reviewer": "drawing_practice",
+   "source": "llm"
+  },
+  {
+   "id": "F-0adf5d101f",
+   "rule_id": "WF-008",
+   "category": "thread_weld",
+   "requirement": "Weld preparation (bevel angle, root gap) is dimensioned for full-penetration welds",
+   "result": "warning",
+   "severity": "major",
+   "evidence": [
+    {
+     "kind": "note",
+     "ref": "N3",
+     "page": 1,
+     "bbox": null,
+     "quote": "SHEETMETAL WELDING NOTE :-(English) 1) ALL JOINTS TO BE SUITABLE WELD & FINISHED",
+     "provenance": "pdf_text"
+    }
+   ],
+   "comment": "The welding note requires joints to be welded but does not dimension the weld preparation (bevel angle, root gap) for full-penetration welds. This omission prevents the welder from preparing the joint correctly to achieve the required penetration.",
+   "recommended_correction": "Add dimensions for weld preparation (bevel angle and root gap) to the relevant views or detail sections.",
+   "reviewer": "drawing_practice",
+   "source": "llm"
+  }
+ ],
+ "rule_statuses": [
+  {
+   "rule_id": "DTT-023",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs geometry, which the review does not have yet"
+  },
+  {
+   "rule_id": "MX-001",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs geometry, which the review does not have yet"
+  },
+  {
+   "rule_id": "MX-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs geometry, which the review does not have yet"
+  },
+  {
+   "rule_id": "MX-005",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs geometry, which the review does not have yet"
+  },
+  {
+   "rule_id": "MX-020",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs geometry, which the review does not have yet"
+  },
+  {
+   "rule_id": "MX-021",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs geometry, which the review does not have yet"
+  },
+  {
+   "rule_id": "DSM-030",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "MD-015",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "MD-016",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "MX-014",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MX-015",
+   "status": "warning",
+   "finding_ids": [
+    "F-443ecca6ff"
+   ],
+   "note": null
+  },
+  {
+   "rule_id": "MX-017",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MX-018",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MX-019",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "NM-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WST-052",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WST-067",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "NASA-047",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WF-014",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WF-004",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WF-008",
+   "status": "warning",
+   "finding_ids": [
+    "F-0adf5d101f"
+   ],
+   "note": null
+  }
+ ],
+ "cost_usd": 0.009005,
+ "latency_s": 8.01,
+ "error": null
+}

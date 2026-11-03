@@ -1,0 +1,34 @@
+{
+ "schema_version": "1.1",
+ "reviewer": "manufacturability",
+ "findings": [],
+ "rule_statuses": [
+  {
+   "rule_id": "MC-001",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MC-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MC-009",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MC-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  }
+ ],
+ "cost_usd": 0.004475,
+ "latency_s": 12.3,
+ "error": null
+}

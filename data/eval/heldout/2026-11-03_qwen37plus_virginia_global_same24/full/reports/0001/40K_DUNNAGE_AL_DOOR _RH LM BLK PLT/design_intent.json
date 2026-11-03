@@ -1,0 +1,132 @@
+{
+ "schema_version": "1.1",
+ "reviewer": "design_intent",
+ "findings": [
+  {
+   "id": "F-437052ad8c",
+   "rule_id": "WPS-004",
+   "category": "surface_treatment",
+   "requirement": "Plating thickness is allowed for on tight fits and threads",
+   "result": "warning",
+   "severity": "major",
+   "evidence": [
+    {
+     "kind": "note",
+     "ref": "N1",
+     "page": 1,
+     "bbox": null,
+     "quote": "1) ALL H7 HOLES C.D SHOULD BE CONTROLLED WITHIN±0.02. / IT7",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "title_block",
+     "ref": "surface_treatment",
+     "page": 1,
+     "bbox": [
+      804.8,
+      736.9,
+      874.8,
+      744.1
+     ],
+     "quote": "I.Z.B.P. (TRIVALENT)",
+     "provenance": "pdf_text"
+    }
+   ],
+   "comment": "The drawing specifies H7 fit holes (Note N1) and a surface treatment of I.Z.B.P. (plating), but does not state that the plating thickness is allowed for in these tight tolerances. This risks the plated parts failing to assemble with their mating components. The designer should add a note specifying that dimensions are pre-plate or that plating thickness is accounted for in the tolerance stack.",
+   "recommended_correction": "Add a note stating 'Dimensions are before plating' or 'Allow for plating thickness on H7 fits'.",
+   "reviewer": "design_intent",
+   "source": "llm"
+  }
+ ],
+ "rule_statuses": [
+  {
+   "rule_id": "NM-008",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs pari_standard_notes, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-011",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-014",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-016",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "WPM-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "DTT-052",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "ISO-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MF-005",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MF-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "NASA-132",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "TL-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "NASA-051",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WPS-004",
+   "status": "warning",
+   "finding_ids": [
+    "F-437052ad8c"
+   ],
+   "note": null
+  }
+ ],
+ "cost_usd": 0.00817,
+ "latency_s": 12.63,
+ "error": null
+}

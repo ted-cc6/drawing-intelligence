@@ -788,29 +788,67 @@ def eval_heldout(
     ] = None,
     no_understand: NoUnderstandOpt = False,
     yes: Annotated[bool, typer.Option("--yes", "-y", help="skip the cost confirmation")] = False,
+    prepare_only: Annotated[bool, typer.Option("--prepare-only", help="freeze inputs; no API calls")] = False,
+    budget_usd: Annotated[float | None, typer.Option("--budget-usd", help="approved run soft cap")] = None,
+    approval_note: Annotated[
+        str, typer.Option("--approval-note", help="Binjie's actual paid-run approval")
+    ] = "",
+    exclusions_note: Annotated[str, typer.Option("--exclusions-note", help="confirmed team exposures")] = "",
+    retry_note: Annotated[
+        str, typer.Option("--retry-note", help="authorized infrastructure retry reason")
+    ] = "",
+    labels: Annotated[Path | None, typer.Option("--labels", help="score this CSV; no API calls")] = None,
+    engineer_confirmation: Annotated[str, typer.Option("--engineer-confirmation")] = "",
+    label_review_confirmation: Annotated[str, typer.Option("--label-review-confirmation")] = "",
 ) -> None:
     """Review unseen client drawings and write findings.csv for an engineer to label (held-out validation)."""
-    from drawing_intelligence.eval.heldout import run_heldout, select_heldout
+    from drawing_intelligence.eval.heldout import freeze_heldout, run_heldout, score_heldout, select_heldout
     from drawing_intelligence.llm import load_registry
 
     s = get_settings()
+    if labels is not None:
+        console.print_json(
+            data=score_heldout(
+                out,
+                labels,
+                engineer_confirmation=engineer_confirmation,
+                label_review_confirmation=label_review_confirmation,
+            )
+        )
+        return
     client = s.data_path / "client_set"
     if drawings_file is not None:
         names = [ln.strip() for ln in drawings_file.read_text(encoding="utf-8").splitlines() if ln.strip()]
         drawings = [client / name for name in names]
     else:
         drawings = select_heldout(client, n, seed, samples_dir=s.raw_dir)
+    if prepare_only:
+        frozen = freeze_heldout(
+            s, drawings, out, understand=not no_understand, exclusions_note=exclusions_note
+        )
+        console.print(f"Frozen {frozen['n']} drawings in {out / 'manifest.json'}. No API calls made.")
+        return
     if not no_understand:
         registry = load_registry(s.config_path / "models.yaml")
         est = registry.model(None, "understand").cost(30_000, 10_000) + 3 * registry.model(
             None, "review"
         ).cost(10_000, 1_500)
         console.print(
-            f"{len(drawings)} drawing(s), full review: rough estimate {_money(est * len(drawings))}."
+            f"{len(drawings)} drawing(s), review: uncached rough estimate {_money(est * len(drawings))}. "
+            "Saved cache hits can reduce this; the recorded approved soft cap is checked between drawings."
         )
         if not yes:
             typer.confirm("Make these API calls?", abort=True)
-    runs = run_heldout(s, drawings, out, understand=not no_understand)
+    runs = run_heldout(
+        s,
+        drawings,
+        out,
+        understand=not no_understand,
+        approved_budget_usd=budget_usd,
+        approval_note=approval_note,
+        exclusions_note=exclusions_note,
+        retry_note=retry_note,
+    )
     t = Table("drawing", "findings", "variant title block", "cost", "error")
     for r in runs:
         t.add_row(
@@ -823,5 +861,6 @@ def eval_heldout(
     console.print(t)
     console.print(
         f"{sum(r.findings for r in runs)} findings on {len(runs)} drawings; "
-        f"billed {_money(sum(r.cost_usd for r in runs))}. Label them in {out / 'findings.csv'}."
+        f"latest-attempt estimated cost {_money(sum(r.cost_usd for r in runs))}. "
+        f"See run_state.json for all attempts and cumulative cost. Label {out / 'findings.csv'}."
     )

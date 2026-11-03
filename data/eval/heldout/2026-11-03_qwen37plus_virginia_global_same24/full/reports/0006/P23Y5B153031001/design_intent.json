@@ -1,0 +1,132 @@
+{
+ "schema_version": "1.1",
+ "reviewer": "design_intent",
+ "findings": [
+  {
+   "id": "F-70299e674c",
+   "rule_id": "TL-002",
+   "category": "design_intent",
+   "requirement": "Mating and functional features carry fit or tolerance callouts (bearing seats, shaft fits, locating holes)",
+   "result": "warning",
+   "severity": "critical",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D1",
+     "page": 1,
+     "bbox": [
+      714.2,
+      81.1,
+      826.7,
+      162.3
+     ],
+     "quote": "⌀ 4 H7 THRU",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "note",
+     "ref": "N3",
+     "page": 1,
+     "bbox": null,
+     "quote": "NOTE : (English) # MATERIAL: M.S. # FINISH: I.Z.B.P. (TRIVALENT) # MACHINING: 3.2 # WEIGHT(Kg ): 0.05 kg",
+     "provenance": "pdf_text"
+    }
+   ],
+   "comment": "The drawing specifies a precision fit (H7) on the ⌀ 4 holes in D1 and applies a coating (I.Z.B.P.) in N3, but fails to specify how the plating thickness is accounted for in the fit or thread preparation. This omission risks assembly failure due to interference from the coating buildup on the mating surfaces.",
+   "recommended_correction": "Add a note specifying that holes are to be masked during coating, or that they are to be re-machined/reamed after coating to maintain the H7 tolerance, or explicitly state the pre-plate size allowance.",
+   "reviewer": "design_intent",
+   "source": "llm"
+  }
+ ],
+ "rule_statuses": [
+  {
+   "rule_id": "NM-008",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs pari_standard_notes, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-011",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-014",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-016",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "WPM-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "DTT-052",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "ISO-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MF-005",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MF-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "NASA-132",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "TL-002",
+   "status": "warning",
+   "finding_ids": [
+    "F-70299e674c"
+   ],
+   "note": null
+  },
+  {
+   "rule_id": "NASA-051",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WPS-004",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  }
+ ],
+ "cost_usd": 0.0,
+ "latency_s": 0.064,
+ "error": null
+}

@@ -1,0 +1,64 @@
+{
+ "schema_version": "1.1",
+ "reviewer": "manufacturability",
+ "findings": [
+  {
+   "id": "F-a72186abe2",
+   "rule_id": "MC-001",
+   "category": "manufacturability",
+   "requirement": "Internal corner radii can be made by standard cutters",
+   "result": "warning",
+   "severity": "major",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D19",
+     "page": 1,
+     "bbox": [
+      1313.1,
+      581.9,
+      1357.3,
+      639.1
+     ],
+     "quote": "R 0.25",
+     "provenance": "pdf_text"
+    }
+   ],
+   "comment": "The internal corner radius of R 0.25 mm specified in D19 is smaller than the minimum practical radius for standard end mills (typically R 0.4 mm or larger for small tools), making it difficult to machine without specialized tooling. The designer should increase the radius to a standard cutter size, such as R 0.5 mm or R 1.0 mm, to ensure manufacturability.",
+   "recommended_correction": "Change R 0.25 to R 0.5 or larger.",
+   "reviewer": "manufacturability",
+   "source": "llm"
+  }
+ ],
+ "rule_statuses": [
+  {
+   "rule_id": "MC-001",
+   "status": "warning",
+   "finding_ids": [
+    "F-a72186abe2"
+   ],
+   "note": null
+  },
+  {
+   "rule_id": "MC-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MC-009",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MC-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  }
+ ],
+ "cost_usd": 0.008903,
+ "latency_s": 20.39,
+ "error": null
+}

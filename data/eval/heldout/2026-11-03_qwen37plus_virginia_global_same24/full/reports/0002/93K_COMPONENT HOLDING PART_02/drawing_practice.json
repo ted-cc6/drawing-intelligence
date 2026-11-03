@@ -1,0 +1,136 @@
+{
+ "schema_version": "1.1",
+ "reviewer": "drawing_practice",
+ "findings": [],
+ "rule_statuses": [
+  {
+   "rule_id": "DTT-023",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs geometry, which the review does not have yet"
+  },
+  {
+   "rule_id": "MX-001",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs geometry, which the review does not have yet"
+  },
+  {
+   "rule_id": "MX-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs geometry, which the review does not have yet"
+  },
+  {
+   "rule_id": "MX-005",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs geometry, which the review does not have yet"
+  },
+  {
+   "rule_id": "MX-020",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs geometry, which the review does not have yet"
+  },
+  {
+   "rule_id": "MX-021",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs geometry, which the review does not have yet"
+  },
+  {
+   "rule_id": "DSM-030",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "MD-015",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "MD-016",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "MX-014",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MX-015",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MX-017",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MX-018",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MX-019",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "NM-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WST-052",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WST-067",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "NASA-047",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WF-014",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WF-004",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WF-008",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  }
+ ],
+ "cost_usd": 0.004516,
+ "latency_s": 7.2,
+ "error": null
+}

@@ -1,0 +1,174 @@
+{
+ "schema_version": "1.1",
+ "reviewer": "design_intent",
+ "findings": [
+  {
+   "id": "F-4ef2158484",
+   "rule_id": "TL-002",
+   "category": "design_intent",
+   "requirement": "Mating and functional features carry fit or tolerance callouts (bearing seats, shaft fits, locating holes)",
+   "result": "warning",
+   "severity": "critical",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D1",
+     "page": 1,
+     "bbox": [
+      365.0,
+      190.6,
+      387.5,
+      201.5
+     ],
+     "quote": "⌀ 17",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "note",
+     "ref": "N13",
+     "page": 1,
+     "bbox": null,
+     "quote": "RESERVED SPACE FOR",
+     "provenance": "pdf_text"
+    }
+   ],
+   "comment": "The threaded hole M8 (associated with dimension D1) is a functional mating feature but lacks a fit or tolerance callout, relying only on general tolerances. The designer should add a specific thread tolerance class (e.g., 6H) to ensure proper assembly.",
+   "recommended_correction": "Add thread tolerance class to the M8 hole callout.",
+   "reviewer": "design_intent",
+   "source": "llm"
+  },
+  {
+   "id": "F-e589fd1445",
+   "rule_id": "WPS-004",
+   "category": "surface_treatment",
+   "requirement": "Plating thickness is allowed for on tight fits and threads",
+   "result": "warning",
+   "severity": "major",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "surface_treatment",
+     "page": 1,
+     "bbox": [
+      804.8,
+      736.9,
+      874.8,
+      744.1
+     ],
+     "quote": "I.Z.B.P. (TRIVALENT)",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "dimension",
+     "ref": "D4",
+     "page": 1,
+     "bbox": [
+      207.6,
+      439.8,
+      217.1,
+      470.3
+     ],
+     "quote": "40±0.1",
+     "provenance": "pdf_text"
+    }
+   ],
+   "comment": "The part has a trivalent zinc plating (surface_treatment) and a tight tolerance of ±0.1 mm on dimension D4. The drawing does not specify whether this dimension applies before or after plating, nor does it account for plating thickness, which could cause the part to be out of tolerance after coating. The designer should clarify if the dimension is pre-plate or adjust the tolerance/callout to account for the coating thickness.",
+   "recommended_correction": "Specify if dimensions are pre- or post-plating, or adjust tolerances to account for plating thickness.",
+   "reviewer": "design_intent",
+   "source": "llm"
+  }
+ ],
+ "rule_statuses": [
+  {
+   "rule_id": "NM-008",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs pari_standard_notes, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-011",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-014",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-016",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "WPM-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "DTT-052",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "ISO-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MF-005",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MF-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "NASA-132",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "TL-002",
+   "status": "warning",
+   "finding_ids": [
+    "F-4ef2158484"
+   ],
+   "note": null
+  },
+  {
+   "rule_id": "NASA-051",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WPS-004",
+   "status": "warning",
+   "finding_ids": [
+    "F-e589fd1445"
+   ],
+   "note": null
+  }
+ ],
+ "cost_usd": 0.005371,
+ "latency_s": 22.3,
+ "error": null
+}

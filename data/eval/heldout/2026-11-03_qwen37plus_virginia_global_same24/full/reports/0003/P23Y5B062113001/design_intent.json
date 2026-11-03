@@ -1,0 +1,132 @@
+{
+ "schema_version": "1.1",
+ "reviewer": "design_intent",
+ "findings": [
+  {
+   "id": "F-6154ee5fe0",
+   "rule_id": "MF-005",
+   "category": "design_intent",
+   "requirement": "Heat treatment and hardness are specified where required, with the stage they apply at",
+   "result": "warning",
+   "severity": "major",
+   "evidence": [
+    {
+     "kind": "title_block",
+     "ref": "heat_treatment",
+     "page": 1,
+     "bbox": [
+      1585.5,
+      1102.8,
+      1600.1,
+      1110.4
+     ],
+     "quote": "N.A.",
+     "provenance": "pdf_text"
+    },
+    {
+     "kind": "note",
+     "ref": "N3",
+     "page": 1,
+     "bbox": null,
+     "quote": "NOTE : (English) # MATERIAL: M.S # FINISH: I.Z.B.P. (TRIVALENT) # MACHINING: # WEIGHT(Kg ): 3.26 kg",
+     "provenance": "pdf_text"
+    }
+   ],
+   "comment": "The drawing specifies a trivalent zinc plating finish (I.Z.B.P.) on Mild Steel (M.S) but explicitly states 'N.A.' for heat treatment. While heat treatment is not always required for mild steel, the rule requires specification where needed; however, a more critical issue is often the conflict or lack of clarity on surface preparation for plating on MS which may require specific pre-treatment not listed. More importantly, checking rule MF-007: The material is M.S. and the finish is I.Z.B.P. There is no internal conflict stated in the drawing (MS can be plated). Checking MF-005 again: It says 'Heat treatment and hardness are specified where required'. Since no function requiring hardness is stated, and it's a simple block, N.A. might be acceptable. Let's look closer at other rules.",
+   "recommended_correction": "Verify if heat treatment is truly not required for the function. If not, ensure the 'N.A.' is intentional. If hardness is required for wear resistance given the plating, specify the treatment and hardness value.",
+   "reviewer": "design_intent",
+   "source": "llm"
+  }
+ ],
+ "rule_statuses": [
+  {
+   "rule_id": "NM-008",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs pari_standard_notes, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-011",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-014",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-016",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "WPM-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "DTT-052",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "ISO-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MF-005",
+   "status": "warning",
+   "finding_ids": [
+    "F-6154ee5fe0"
+   ],
+   "note": null
+  },
+  {
+   "rule_id": "MF-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "NASA-132",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "TL-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "NASA-051",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WPS-004",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  }
+ ],
+ "cost_usd": 0.0,
+ "latency_s": 0.056,
+ "error": null
+}

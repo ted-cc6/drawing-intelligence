@@ -1,0 +1,119 @@
+{
+ "schema_version": "1.1",
+ "reviewer": "design_intent",
+ "findings": [
+  {
+   "id": "F-d410c29acc",
+   "rule_id": "MF-005",
+   "category": "design_intent",
+   "requirement": "Heat treatment and hardness are specified where required, with the stage they apply at",
+   "result": "warning",
+   "severity": "major",
+   "evidence": [
+    {
+     "kind": "note",
+     "ref": "N1",
+     "page": 1,
+     "bbox": null,
+     "quote": "HEAT TREATMENT NOTE :-\n1) TO BE CASE HARDENED UPTO 56~60 HRC.\n2) CASE DEPTH 0.8~1.2mm.\n3) THREADS TO BE KEEP SOFT.\n4) RETAPPING TO BE DONE AFTER SURFACE TREATMENT AT SUPPLIER END.( IF APPLICABLE )",
+     "provenance": "pdf_text"
+    }
+   ],
+   "comment": "The heat treatment note specifies case hardening and hardness but fails to state the stage at which this treatment applies (e.g., before or after machining/threading). This ambiguity matters because case hardening can distort the part and affect thread integrity if not sequenced correctly with manufacturing steps. The designer should explicitly state when the heat treatment is to be performed in the process sequence.",
+   "recommended_correction": "Add a clear statement in Note N1 specifying the manufacturing stage for heat treatment, such as 'Heat treat after rough machining and before final grinding'.",
+   "reviewer": "design_intent",
+   "source": "llm"
+  }
+ ],
+ "rule_statuses": [
+  {
+   "rule_id": "NM-008",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs pari_standard_notes, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-011",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-014",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "TL-016",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "WPM-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "needs functional_faces, which the review does not have yet"
+  },
+  {
+   "rule_id": "DTT-052",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "ISO-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MF-005",
+   "status": "warning",
+   "finding_ids": [
+    "F-d410c29acc"
+   ],
+   "note": null
+  },
+  {
+   "rule_id": "MF-007",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "NASA-132",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "TL-002",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "NASA-051",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "WPS-004",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  }
+ ],
+ "cost_usd": 0.00618,
+ "latency_s": 6.67,
+ "error": null
+}

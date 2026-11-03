@@ -1,0 +1,64 @@
+{
+ "schema_version": "1.1",
+ "reviewer": "manufacturability",
+ "findings": [
+  {
+   "id": "F-e5056043e1",
+   "rule_id": "MC-001",
+   "category": "manufacturability",
+   "requirement": "Internal corner radii can be made by standard cutters",
+   "result": "warning",
+   "severity": "major",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D7",
+     "page": 1,
+     "bbox": [
+      344.0,
+      394.5,
+      373.4,
+      404.0
+     ],
+     "quote": "R 0.74",
+     "provenance": "pdf_text"
+    }
+   ],
+   "comment": "The internal corner radius of R 0.74 mm (D7) is a non-standard value that does not correspond to common cutter sizes (e.g., R0.5, R0.8, R1.0). This requires a custom tool or special interpolation, increasing manufacturing cost and lead time. The designer should change this to a standard radius such as R0.8 or R1.0.",
+   "recommended_correction": "Change R 0.74 to a standard cutter radius like R 0.8 or R 1.0.",
+   "reviewer": "manufacturability",
+   "source": "llm"
+  }
+ ],
+ "rule_statuses": [
+  {
+   "rule_id": "MC-001",
+   "status": "warning",
+   "finding_ids": [
+    "F-e5056043e1"
+   ],
+   "note": null
+  },
+  {
+   "rule_id": "MC-003",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MC-009",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  },
+  {
+   "rule_id": "MC-012",
+   "status": "not_checked",
+   "finding_ids": [],
+   "note": "LLM judged: no issue raised (not proof of a pass)"
+  }
+ ],
+ "cost_usd": 0.00477,
+ "latency_s": 5.3,
+ "error": null
+}
