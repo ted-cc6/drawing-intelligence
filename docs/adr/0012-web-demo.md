@@ -46,3 +46,15 @@ themselves afterwards.
   block by its anchors, or "scale" and "material" for the older variant blocks). Rejections are plain
   sentences in a dialog. `DI_DEMO_MAX_LIVE_RUNS` defaults to 100.
 - Review failures show a sentence; details go to the server log, never server paths to the user.
+
+## Update 2026-11-08 (pilot phase 1: four PILOT placeholders built)
+- **Model per role:** Options chooses model and thinking for Understand, the AI reviewers and Q&A; kept in the
+  browser, sent with each upload and question, checked against `config/models.yaml` (role, thinking level,
+  provider key present) with 422 before anything runs. Models without a key are shown disabled.
+- **Measure:** two clicks on the sheet give the distance on paper and at the title-block scale (`px_per_pt`
+  per sheet).
+- **Rulebook (.xlsx):** `GET /api/rules.xlsx`.
+- **Batch review:** `POST /api/batches` (up to 10 PDFs, each screened, accepted ones are ordinary live
+  sessions), `GET`/`DELETE /api/batches/{id}`, `GET /api/batches/{id}/reports.zip` (summary + checklists).
+- Still PILOT: compare revisions, sign-off, send to designer, confirm and edit rules, feedback analytics, run
+  history across users. They need persistent storage and user accounts first.
