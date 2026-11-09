@@ -63,6 +63,7 @@ interface Props {
   onAcceptAll: () => void;
   measuring: boolean;
   onMeasure: () => void;
+  onRulebookExcel: () => void;
 }
 
 function Big(p: { icon: ReactNode; label: string; onClick?: () => void; disabled?: boolean; on?: boolean; pilot?: boolean; tip?: string }) {
@@ -174,7 +175,7 @@ export function Ribbon(p: Props) {
       <Group label="Rulebook">
         <Big icon={<BookOpen size={24} />} label="Browse rules" onClick={() => p.onDoc("rules")} tip="All rules, with where each comes from and how it is checked" />
         <div className="rcol">
-          <Small icon={<Download size={15} />} label="Rulebook (.xlsx)" pilot />
+          <Small icon={<Download size={15} />} label="Rulebook (.xlsx)" onClick={p.onRulebookExcel} tip="All 174 rules, their sources and whether a check runs today" />
           <Small icon={<ShieldCheck size={15} />} label="Confirm rules" pilot />
         </div>
       </Group>

@@ -14,6 +14,7 @@ import hashlib
 import hmac
 import os
 import secrets
+import shutil
 import tempfile
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -25,12 +26,14 @@ from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Query, 
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from starlette.background import BackgroundTask
 
 from drawing_intelligence.api.runs import DemoSession, SessionStore
 from drawing_intelligence.api.uploads import UploadRejected, screen_pdf
 from drawing_intelligence.api.views import answer_view, session_detail, session_summary, sheet_image
 from drawing_intelligence.llm import load_registry
 from drawing_intelligence.llm.registry import Registry, Role
+from drawing_intelligence.report.build import write_rulebook_excel
 from drawing_intelligence.review import load_rulebook
 from drawing_intelligence.review.checks import param_models
 from drawing_intelligence.schemas import FindingFeedback
@@ -202,6 +205,18 @@ def create_app(
             for r in book.rules
         ]
         return {"version": book.version, "rules": rules}
+
+    @app.get("/api/rules.xlsx", dependencies=[Auth])
+    def rules_excel() -> FileResponse:
+        checks = param_models()
+        book = load_rulebook(settings.config_path / "rules", checks=checks)
+        built = {r.id for r in book.rules if r.check_type == "llm" or r.check in checks}
+        path = Path(tempfile.mkdtemp(prefix="di-rules-")) / f"rulebook_{book.version}.xlsx"
+        write_rulebook_excel(book, built, path)
+        cleanup = BackgroundTask(shutil.rmtree, path.parent, ignore_errors=True)
+        return FileResponse(
+            path, filename=f"Drawing_Intelligence_rulebook_{book.version}.xlsx", background=cleanup
+        )
 
     @app.get("/api/models", dependencies=[Auth])
     def list_models() -> dict[str, Any]:

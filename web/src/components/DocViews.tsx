@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { FileText, FileUp, FlaskConical, Info, Loader2, Search } from "lucide-react";
+import { Download, FileText, FileUp, FlaskConical, Info, Loader2, Search } from "lucide-react";
 import type { Demo, ModelChoice, ModelInfo, Role, Rule, SessionInfo } from "../api";
 import { api, modelChoice } from "../api";
 import { SEVERITY_COLOR, SOURCE_SHORT, money, secs } from "../format";
@@ -47,7 +47,7 @@ export function Welcome({ demos, onOpenDemo, onUpload }: { demos: Demo[]; onOpen
   );
 }
 
-export function RulebookView() {
+export function RulebookView({ onDownload }: { onDownload: () => void }) {
   const [data, setData] = useState<{ version: string; rules: Rule[] } | null>(null);
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("");
@@ -92,6 +92,9 @@ export function RulebookView() {
         <span className="count">
           {rows.length} of {data.rules.length} rules · version <span className="mono">{data.version}</span>
         </span>
+        <button className="btn" onClick={onDownload} title="All rules as a spreadsheet">
+          <Download size={13} /> Download (.xlsx)
+        </button>
       </div>
       <table className="grid">
         <colgroup>

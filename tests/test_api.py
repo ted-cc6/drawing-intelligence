@@ -260,3 +260,18 @@ def test_a_qa_model_choice_is_checked(client):
     assert _wait(lambda: client.get(f"/api/sessions/{sid}", headers=h).json()["status"] == "done")
     r = client.post(f"/api/sessions/{sid}/ask", json={"question": "Why?", "model": "nope"}, headers=h)
     assert r.status_code == 422
+
+
+def test_the_rulebook_downloads_as_a_spreadsheet(client):
+    from io import BytesIO
+
+    import openpyxl
+
+    h = _login(client)
+    r = client.get(f"/api/rules.xlsx?t={h['X-Demo-Token']}")
+    assert r.status_code == 200 and "rulebook" in r.headers["content-disposition"]
+    ws = openpyxl.load_workbook(BytesIO(r.content))["Rules"]
+    rows = list(ws.iter_rows(values_only=True))
+    n_rules = len(client.get("/api/rules", headers=h).json()["rules"])
+    assert rows[0][:3] == ("Rule", "Category", "Requirement") and len(rows) == n_rules + 1
+    assert {str(row[5]) for row in rows[1:]} == {"yes", "not built yet"}

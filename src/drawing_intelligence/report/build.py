@@ -150,6 +150,55 @@ def write_excel(
     return path
 
 
+SOURCE_LABELS = {"code": "Code check", "lookup": "Table lookup", "llm": "AI judgement"}
+
+
+def write_rulebook_excel(book: Rulebook, built: set[str], path: Path) -> Path:
+    """The whole rulebook as a spreadsheet: what each rule asks, where it comes from, how it is checked and
+    whether a check runs today (`built`: the rule ids that do)."""
+    wb = Workbook()
+    ws = wb.active
+    assert ws is not None
+    ws.title = "Rules"
+    ws.append(
+        ["Rule", "Category", "Requirement", "Severity", "Checked by", "Runs today", "Result", "Status",
+         "Source document", "Source section"]
+    )  # fmt: skip
+    for r in book.rules:
+        ws.append(
+            [
+                r.id,
+                CATEGORY_LABELS.get(r.category, r.category),
+                r.requirement,
+                r.severity,
+                SOURCE_LABELS.get(r.check_type, r.check_type),
+                "yes" if r.id in built else "not built yet",
+                "warning only" if r.result == "warning" else "fail or warning",
+                "confirmed by the client" if r.status == "client_confirmed" else "draft",
+                r.source.document,
+                r.source.section,
+            ]
+        )
+    _style(ws, (10, 22, 70, 10, 14, 13, 15, 20, 30, 30))
+    sm = wb.create_sheet("About")
+    n_built = sum(r.id in built for r in book.rules)
+    for row in [
+        ("Rulebook version", book.version),
+        ("Rules", len(book.rules)),
+        ("Checks that run today", n_built),
+        ("Generated", datetime.now().strftime("%Y-%m-%d %H:%M")),
+        (
+            "Note",
+            "A rule without a built check is reported as 'not checked' in every review, never as passed.",
+        ),
+    ]:
+        sm.append(row)
+    _style(sm, (24, 100), header=False)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    wb.save(path)
+    return path
+
+
 def _style(ws, widths: tuple[int, ...], result_column: int | None = None, header: bool = True) -> None:
     for i, w in enumerate(widths, 1):
         ws.column_dimensions[get_column_letter(i)].width = w

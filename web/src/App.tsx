@@ -269,7 +269,7 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
 
   let center: JSX.Element;
   if (doc.kind === "start") center = <Welcome demos={demos} onOpenDemo={openDemo} onUpload={() => fileRef.current?.click()} />;
-  else if (doc.kind === "rules") center = <RulebookView />;
+  else if (doc.kind === "rules") center = <RulebookView onDownload={() => download("/api/rules.xlsx")} />;
   else if (doc.kind === "reports") center = <ReportsView sessions={Object.values(sessions)} />;
   else if (doc.kind === "settings") center = <SettingsView />;
   else if (!sess) center = <div className="graphics" />;
@@ -343,6 +343,7 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
         onDoc={openStatic}
         onNextOpen={nextOpen}
         onAcceptAll={acceptAllCodeFails}
+        onRulebookExcel={() => download("/api/rules.xlsx")}
         measuring={measuring}
         onMeasure={() => {
           setMeasuring((m) => !m);
