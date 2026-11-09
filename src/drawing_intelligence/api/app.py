@@ -16,6 +16,7 @@ import os
 import secrets
 import shutil
 import tempfile
+import zipfile
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -28,12 +29,18 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.background import BackgroundTask
 
-from drawing_intelligence.api.runs import DemoSession, SessionStore
+from drawing_intelligence.api.runs import BatchItem, DemoSession, SessionStore
 from drawing_intelligence.api.uploads import UploadRejected, screen_pdf
-from drawing_intelligence.api.views import answer_view, session_detail, session_summary, sheet_image
+from drawing_intelligence.api.views import (
+    answer_view,
+    batch_view,
+    session_detail,
+    session_summary,
+    sheet_image,
+)
 from drawing_intelligence.llm import load_registry
 from drawing_intelligence.llm.registry import Registry, Role
-from drawing_intelligence.report.build import write_rulebook_excel
+from drawing_intelligence.report.build import write_batch_summary, write_rulebook_excel
 from drawing_intelligence.review import load_rulebook
 from drawing_intelligence.review.checks import param_models
 from drawing_intelligence.schemas import FindingFeedback
@@ -41,6 +48,7 @@ from drawing_intelligence.schemas.review import CATEGORY_LABELS
 from drawing_intelligence.settings import PROJECT_ROOT, Settings, get_settings
 
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
+MAX_BATCH = 10  # drawings per batch review; they run two at a time in the live lane
 
 
 class Login(BaseModel):
@@ -263,6 +271,68 @@ def create_app(
         models = {k: v for k, v in chosen.items() if v}
         data = await file.read(MAX_UPLOAD_BYTES + 1)
         return session_summary(start_upload(data, file.filename, models))
+
+    # --- batch review ---------------------------------------------------------------------------------------
+
+    @app.post("/api/batches", dependencies=[Auth])
+    async def start_batch(
+        files: Annotated[list[UploadFile], File()],
+        understand_model: Annotated[str | None, Form()] = None,
+        understand_thinking: Annotated[str | None, Form()] = None,
+        review_model: Annotated[str | None, Form()] = None,
+        review_thinking: Annotated[str | None, Form()] = None,
+    ) -> dict[str, Any]:
+        if len(files) > MAX_BATCH:
+            raise HTTPException(422, f"A batch takes up to {MAX_BATCH} drawings; {len(files)} were chosen.")
+        reg = load_registry(settings.config_path / "models.yaml")
+        um, ut = check_choice(reg, settings, "understand", understand_model, understand_thinking)
+        rm, rt = check_choice(reg, settings, "review", review_model, review_thinking)
+        chosen = {"model": um, "thinking": ut, "review_model": rm, "review_thinking": rt}
+        models = {k: v for k, v in chosen.items() if v}
+        items = []
+        for f in files:
+            name = Path(f.filename or "drawing.pdf").name
+            try:
+                sess = start_upload(await f.read(MAX_UPLOAD_BYTES + 1), name, models)
+                items.append(BatchItem(name, session_id=sess.id))
+            except HTTPException as e:  # turned away: listed with its reason, the others still run
+                items.append(BatchItem(name, rejected=str(e.detail)))
+        return batch_view(the_store.add_batch(items), the_store)
+
+    def batch_or_404(bid: str):
+        batch = the_store.get_batch(bid)
+        if batch is None:
+            raise HTTPException(404, "this batch has ended")
+        return batch
+
+    @app.get("/api/batches/{bid}", dependencies=[Auth])
+    def get_batch(bid: str) -> dict[str, Any]:
+        return batch_view(batch_or_404(bid), the_store)
+
+    @app.delete("/api/batches/{bid}", dependencies=[Auth])
+    def end_batch(bid: str) -> dict[str, bool]:
+        return {"deleted": the_store.delete_batch(bid)}
+
+    @app.get("/api/batches/{bid}/reports.zip", dependencies=[Auth])
+    def batch_reports(bid: str) -> FileResponse:
+        view = batch_view(batch_or_404(bid), the_store)
+        folder = Path(tempfile.mkdtemp(prefix="di-batch-"))
+        out = folder / "batch_reports.zip"
+        with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+            z.write(write_batch_summary(view["items"], folder / "summary.xlsx"), "summary.xlsx")
+            used: set[str] = set()
+            for row in view["items"]:
+                sess = the_store.peek(row["session_id"]) if row["status"] == "done" else None
+                report = sess.out_dir / "review_report.xlsx" if sess else None
+                if sess is None or report is None or not report.exists():
+                    continue
+                arc, n = f"{Path(sess.name).stem}_review.xlsx", 2
+                while arc in used:
+                    arc, n = f"{Path(sess.name).stem}_{n}_review.xlsx", n + 1
+                used.add(arc)
+                z.write(report, arc)
+        cleanup = BackgroundTask(shutil.rmtree, folder, ignore_errors=True)
+        return FileResponse(out, filename=f"batch_{bid}_reports.zip", background=cleanup)
 
     @app.get("/api/sessions/{sid}", dependencies=[Auth])
     def get_session(sid: str) -> dict[str, Any]:

@@ -120,6 +120,22 @@ class DemoSession:
         return self.result is not None and all(r.cached for r in self.result.understanding)
 
 
+@dataclass
+class BatchItem:
+    name: str
+    session_id: str | None = None  # None: the file was turned away (see `rejected`)
+    rejected: str | None = None
+
+
+@dataclass
+class Batch:
+    """Several uploads started together; each accepted file is an ordinary live session."""
+
+    id: str
+    items: list[BatchItem]
+    created: float = field(default_factory=time.time)
+
+
 class SessionStore:
     """All open demo sessions. Thread-safe enough for one small server: one lock around the dictionary."""
 
@@ -138,6 +154,7 @@ class SessionStore:
         self.idle_s = idle_s
         self.live_left = max_live
         self._sessions: dict[str, DemoSession] = {}
+        self._batches: dict[str, Batch] = {}
         self._lock = threading.Lock()
         # Two lanes: live uploads take minutes, demo replays seconds; a demo never waits behind uploads.
         self._live_pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="di-live")
@@ -159,6 +176,38 @@ class SessionStore:
             self._sessions[sid] = sess
         (self._live_pool if live else self._demo_pool).submit(self._run, sess)
         return sess
+
+    def add_batch(self, items: list[BatchItem]) -> Batch:
+        batch = Batch(uuid.uuid4().hex[:12], items)
+        with self._lock:
+            self._batches[batch.id] = batch
+        return batch
+
+    def get_batch(self, bid: str) -> Batch | None:
+        with self._lock:
+            batch = self._batches.get(bid)
+            if batch is None:
+                return None
+            ids = [i.session_id for i in batch.items if i.session_id]
+            if ids and not any(sid in self._sessions for sid in ids):  # every drawing in it has ended
+                del self._batches[bid]
+                return None
+            return batch
+
+    def delete_batch(self, bid: str) -> bool:
+        with self._lock:
+            batch = self._batches.pop(bid, None)
+        if batch is None:
+            return False
+        for item in batch.items:
+            if item.session_id:
+                self.delete(item.session_id)
+        return True
+
+    def peek(self, sid: str) -> DemoSession | None:
+        """A session without touching it (a batch view polling must not keep drawings alive)."""
+        with self._lock:
+            return self._sessions.get(sid)
 
     def get(self, sid: str) -> DemoSession | None:
         self.sweep()

@@ -64,6 +64,7 @@ interface Props {
   measuring: boolean;
   onMeasure: () => void;
   onRulebookExcel: () => void;
+  onBatch: () => void;
 }
 
 function Big(p: { icon: ReactNode; label: string; onClick?: () => void; disabled?: boolean; on?: boolean; pilot?: boolean; tip?: string }) {
@@ -122,7 +123,7 @@ export function Ribbon(p: Props) {
         <Big icon={<PlayCircle size={24} />} label="Run review" onClick={p.onUpload} tip="Upload a PDF to run a new review" />
         <div className="rcol">
           <Small icon={<GitCompare size={15} />} label="Compare revisions" pilot />
-          <Small icon={<Layers size={15} />} label="Batch review" pilot />
+          <Small icon={<Layers size={15} />} label="Batch review" onClick={p.onBatch} tip="Review up to 10 PDF drawings in one go (live, two at a time)" />
         </div>
       </Group>
       <Group label="Show">

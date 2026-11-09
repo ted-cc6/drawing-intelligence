@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BookOpen, Cpu, FileText, History, Home, Loader2, X } from "lucide-react";
+import { BookOpen, Cpu, FileText, History, Home, Layers, Loader2, X } from "lucide-react";
 import type { Cite, Demo, SessionInfo } from "./api";
 import { ApiError, api, token, withToken } from "./api";
 import { Login, StatusBar, TitleBar } from "./components/Chrome";
+import { BatchView } from "./components/BatchView";
 import { ReportsView, RulebookView, SettingsView, Welcome } from "./components/DocViews";
 import { FindingsList } from "./components/FindingsList";
 import { PathFinder } from "./components/PathFinder";
@@ -11,14 +12,16 @@ import { RightDock, type ChatMsg, type DockTab } from "./components/RightDock";
 import { SheetView, type SheetHandle } from "./components/SheetView";
 import { isAI, money, scaleFactor, secs } from "./format";
 
-type DocKind = "start" | "drawing" | "rules" | "reports" | "settings";
+type DocKind = "start" | "drawing" | "rules" | "reports" | "settings" | "batch";
 interface Doc {
   key: string;
   kind: DocKind;
   sid?: string;
+  bid?: string; // a batch review
+  members?: string[]; // its sessions
 }
 
-const STATIC_DOCS: Record<Exclude<DocKind, "drawing">, { label: string; icon: JSX.Element }> = {
+const STATIC_DOCS: Record<Exclude<DocKind, "drawing" | "batch">, { label: string; icon: JSX.Element }> = {
   start: { label: "Start", icon: <Home size={13} /> },
   rules: { label: "Rulebook", icon: <BookOpen size={13} /> },
   reports: { label: "Reports", icon: <History size={13} /> },
@@ -67,6 +70,7 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
   const [notice, setNotice] = useState<{ title: string; text: string } | null>(null);
   const sheetRef = useRef<SheetHandle>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const batchRef = useRef<HTMLInputElement>(null);
 
   const fail = useCallback(
     (e: unknown) => {
@@ -126,7 +130,42 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
     api.openDemo(id).then(addSession).catch(fail);
   };
 
-  const openStatic = (kind: Exclude<DocKind, "drawing">) => {
+  const openSession = (sid: string) => {
+    if (docs.some((d) => d.sid === sid)) return setActive(sid);
+    api
+      .session(sid)
+      .then((s) => {
+        setSessions((m) => ({ ...m, [s.id]: s }));
+        setDocs((ds) => [...ds, { key: s.id, kind: "drawing", sid: s.id }]);
+        setActive(s.id);
+        setPrompt(`Opened ${s.name}.`);
+      })
+      .catch(fail);
+  };
+
+  const onBatchFiles = (list: FileList | null) => {
+    const files = [...(list ?? [])];
+    if (!files.length) return;
+    setPrompt(`Uploading ${files.length} drawings for a batch review…`);
+    api
+      .batch(files)
+      .then((b) => {
+        const key = `batch:${b.id}`;
+        const members = b.items.flatMap((i) => (i.session_id ? [i.session_id] : []));
+        setDocs((ds) => [...ds, { key, kind: "batch", bid: b.id, members }]);
+        setActive(key);
+        const turned = b.items.length - members.length;
+        setPrompt(`Batch started: ${members.length} drawings reviewing${turned ? `, ${turned} not reviewed (see why in the list)` : ""}.`);
+      })
+      .catch((e) => {
+        if (e instanceof ApiError && e.status === 401) return onSignedOut();
+        setNotice({ title: "The batch was not started", text: e instanceof Error ? e.message : String(e) });
+      });
+  };
+
+  const batchGone = useCallback((message: string) => setPrompt(`Batch: ${message}`), []);
+
+  const openStatic = (kind: Exclude<DocKind, "drawing" | "batch">) => {
     if (!docs.some((d) => d.key === kind)) setDocs((ds) => [...ds, { key: kind, kind }]);
     setActive(kind);
   };
@@ -148,6 +187,14 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
   const closeDoc = (key: string) => {
     const d = docs.find((x) => x.key === key);
     if (!d) return;
+    let gone = new Set<string>([key]);
+    if (d.kind === "batch" && d.bid) {
+      api.closeBatch(d.bid).catch(() => undefined); // ends its sessions (and stops any still running)
+      const members = new Set(d.members ?? []);
+      gone = new Set([key, ...docs.filter((x) => x.sid && members.has(x.sid)).map((x) => x.key)]);
+      setSessions((m) => Object.fromEntries(Object.entries(m).filter(([id]) => !members.has(id))));
+      setPrompt("Closed the batch. Its drawings were deleted.");
+    }
     if (d.kind === "drawing" && d.sid) {
       const s = sessions[d.sid];
       const wasRunning = s && (s.status === "queued" || s.status === "running");
@@ -159,9 +206,9 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
         return n;
       });
     }
-    const rest = docs.filter((x) => x.key !== key);
+    const rest = docs.filter((x) => !gone.has(x.key));
     setDocs(rest.length ? rest : [{ key: "start", kind: "start" }]);
-    if (active === key) setActive((rest[rest.length - 1] ?? { key: "start" }).key);
+    if (gone.has(active)) setActive((rest[rest.length - 1] ?? { key: "start" }).key);
     setCite(null);
   };
 
@@ -263,7 +310,8 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
     "What is the material and the surface treatment?",
   ];
 
-  const docLabel = (d: Doc) => (d.kind === "drawing" ? sessions[d.sid!]?.name ?? "Drawing" : STATIC_DOCS[d.kind].label);
+  const docLabel = (d: Doc) =>
+    d.kind === "drawing" ? sessions[d.sid!]?.name ?? "Drawing" : d.kind === "batch" ? `Batch (${d.members?.length ?? 0})` : STATIC_DOCS[d.kind].label;
   const done = sess?.status === "done";
   const nFail = allFindings.filter((f) => f.result === "fail").length;
 
@@ -272,6 +320,8 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
   else if (doc.kind === "rules") center = <RulebookView onDownload={() => download("/api/rules.xlsx")} />;
   else if (doc.kind === "reports") center = <ReportsView sessions={Object.values(sessions)} />;
   else if (doc.kind === "settings") center = <SettingsView />;
+  else if (doc.kind === "batch" && doc.bid)
+    center = <BatchView key={doc.bid} id={doc.bid} onOpen={openSession} onDownload={() => download(`/api/batches/${doc.bid}/reports.zip`)} onGone={batchGone} />;
   else if (!sess) center = <div className="graphics" />;
   else if (!done) center = <Progress s={sess} />;
   else
@@ -344,6 +394,7 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
         onNextOpen={nextOpen}
         onAcceptAll={acceptAllCodeFails}
         onRulebookExcel={() => download("/api/rules.xlsx")}
+        onBatch={() => batchRef.current?.click()}
         measuring={measuring}
         onMeasure={() => {
           setMeasuring((m) => !m);
@@ -351,13 +402,14 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
         }}
       />
       <input ref={fileRef} type="file" accept="application/pdf,.pdf" hidden onChange={(e) => (onUploadFile(e.target.files?.[0]), (e.target.value = ""))} />
+      <input ref={batchRef} type="file" accept="application/pdf,.pdf" multiple hidden onChange={(e) => (onBatchFiles(e.target.files), (e.target.value = ""))} />
       <div className={`work${doc.kind === "drawing" ? "" : " nodoc"}`}>
         <PathFinder demos={demos} sessions={openSessions} active={sess} onOpenDemo={openDemo} onActivate={setActive} />
         <div className="center">
           <div className="doctabs">
             {docs.map((d) => (
               <button key={d.key} className={`doctab${d.key === active ? " on" : ""}`} onClick={() => setActive(d.key)} title={docLabel(d)}>
-                {d.kind === "drawing" ? <FileText size={13} /> : STATIC_DOCS[d.kind].icon}
+                {d.kind === "drawing" ? <FileText size={13} /> : d.kind === "batch" ? <Layers size={13} /> : STATIC_DOCS[d.kind].icon}
                 <span className="nm">{docLabel(d)}</span>
                 {!(d.kind === "start" && docs.length === 1) && (
                   <span

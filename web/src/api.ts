@@ -122,6 +122,26 @@ export interface ModelInfo {
   available: boolean; // its provider has an API key on this server
 }
 
+export interface BatchRow {
+  name: string;
+  session_id: string | null;
+  status: "queued" | "running" | "done" | "error" | "cancelled" | "rejected" | "closed";
+  detail: string | null;
+  findings?: number;
+  fails?: number;
+  warnings?: number;
+  cost_usd?: number;
+  seconds?: number | null;
+}
+
+export interface BatchInfo {
+  id: string;
+  items: BatchRow[];
+  running: number;
+  done: number;
+  cost_usd: number;
+}
+
 export type Role = "understand" | "review" | "qa";
 export type ModelChoice = Partial<Record<Role, { model: string; thinking: string }>>;
 
@@ -175,6 +195,12 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
 /** A URL for <img> and downloads, which cannot send the token header. */
 export const withToken = (url: string) => (token.get() ? `${url}${url.includes("?") ? "&" : "?"}t=${token.get()}` : url);
 
+function withModels(fd: FormData) {
+  const c = modelChoice.get();
+  if (c.understand) fd.append("understand_model", c.understand.model), fd.append("understand_thinking", c.understand.thinking);
+  if (c.review) fd.append("review_model", c.review.model), fd.append("review_thinking", c.review.thinking);
+}
+
 export const api = {
   auth: () => call<{ required: boolean; ok: boolean }>("/api/auth"),
   login: (password: string) => call<{ token: string }>("/api/auth/login", { method: "POST", body: JSON.stringify({ password }) }),
@@ -185,11 +211,17 @@ export const api = {
   upload: (file: File) => {
     const fd = new FormData();
     fd.append("file", file);
-    const c = modelChoice.get();
-    if (c.understand) fd.append("understand_model", c.understand.model), fd.append("understand_thinking", c.understand.thinking);
-    if (c.review) fd.append("review_model", c.review.model), fd.append("review_thinking", c.review.thinking);
+    withModels(fd);
     return call<SessionInfo>("/api/sessions/upload", { method: "POST", body: fd });
   },
+  batch: (files: File[]) => {
+    const fd = new FormData();
+    for (const f of files) fd.append("files", f);
+    withModels(fd);
+    return call<BatchInfo>("/api/batches", { method: "POST", body: fd });
+  },
+  getBatch: (id: string) => call<BatchInfo>(`/api/batches/${id}`),
+  closeBatch: (id: string) => call<{ deleted: boolean }>(`/api/batches/${id}`, { method: "DELETE" }),
   session: (id: string) => call<SessionInfo>(`/api/sessions/${id}`),
   close: (id: string) => call<{ deleted: boolean }>(`/api/sessions/${id}`, { method: "DELETE" }),
   ask: (id: string, question: string) =>

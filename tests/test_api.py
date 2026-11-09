@@ -275,3 +275,43 @@ def test_the_rulebook_downloads_as_a_spreadsheet(client):
     n_rules = len(client.get("/api/rules", headers=h).json()["rules"])
     assert rows[0][:3] == ("Rule", "Category", "Requirement") and len(rows) == n_rules + 1
     assert {str(row[5]) for row in rows[1:]} == {"yes", "not built yet"}
+
+
+def test_a_batch_runs_each_drawing_and_zips_the_reports(client):
+    import zipfile
+    from io import BytesIO
+
+    h = _login(client)
+    files = [
+        ("files", ("cam_a.pdf", P13.read_bytes(), "application/pdf")),
+        ("files", ("cam_b.pdf", P13.read_bytes(), "application/pdf")),  # replies cached: finishes for $0
+        ("files", ("blank.pdf", _pdf_bytes(1), "application/pdf")),
+    ]
+    b = client.post("/api/batches", files=files, headers=h).json()
+    assert [i["status"] for i in b["items"]][2] == "rejected" and "no readable text" in b["items"][2][
+        "detail"
+    ]
+
+    def view():
+        return client.get(f"/api/batches/{b['id']}", headers=h).json()
+
+    assert _wait(lambda: view()["running"] == 0, timeout=120)
+    v = view()
+    assert v["done"] == 2 and all(i["findings"] >= 1 and i["fails"] >= 1 for i in v["items"][:2])
+    z = zipfile.ZipFile(
+        BytesIO(client.get(f"/api/batches/{b['id']}/reports.zip?t={h['X-Demo-Token']}").content)
+    )
+    assert sorted(z.namelist()) == ["cam_a_review.xlsx", "cam_b_review.xlsx", "summary.xlsx"]
+
+    # a drawing of the batch is an ordinary session, and closing the batch ends them all
+    sid = v["items"][0]["session_id"]
+    assert client.get(f"/api/sessions/{sid}", headers=h).json()["status"] == "done"
+    assert client.delete(f"/api/batches/{b['id']}", headers=h).json() == {"deleted": True}
+    assert client.get(f"/api/sessions/{sid}", headers=h).status_code == 404
+
+
+def test_a_batch_has_a_size_limit(client):
+    h = _login(client)
+    files = [("files", (f"d{i}.pdf", b"%PDF-1.4", "application/pdf")) for i in range(11)]
+    r = client.post("/api/batches", files=files, headers=h)
+    assert r.status_code == 422 and "up to 10" in r.json()["detail"]

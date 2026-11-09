@@ -10,7 +10,7 @@ from typing import Any
 
 import yaml
 
-from drawing_intelligence.api.runs import DemoSession
+from drawing_intelligence.api.runs import Batch, DemoSession, SessionStore
 from drawing_intelligence.qa.agent import Answer
 from drawing_intelligence.qa.data import DrawingData, note_bbox
 from drawing_intelligence.report.build import location, numbered
@@ -167,4 +167,45 @@ def answer_view(answer: Answer, data: DrawingData, sess: DemoSession) -> dict[st
         "cost_usd": round(answer.cost_usd, 4),
         "stopped_by": answer.stopped_by,
         "cites": cites,
+    }
+
+
+def batch_row(sess: DemoSession | None, name: str, rejected: str | None) -> dict[str, Any]:
+    """One drawing of a batch: its state, and its counts once reviewed."""
+    if rejected is not None:
+        return {"name": name, "session_id": None, "status": "rejected", "detail": rejected}
+    if sess is None:
+        return {
+            "name": name,
+            "session_id": None,
+            "status": "closed",
+            "detail": "Closed; its files were deleted.",
+        }
+    row: dict[str, Any] = {"name": name, "session_id": sess.id, "status": sess.status, "detail": sess.error}
+    running = next((st.label for st in sess.stages if st.status == "running"), None)
+    if sess.status == "running" and running:
+        row["detail"] = running
+    if sess.status == "done" and sess.result is not None and sess.result.review is not None:
+        results = [nf.finding.result for nf in numbered(sess.result.review)]
+        row.update(
+            findings=len(results),
+            fails=results.count("fail"),
+            warnings=results.count("warning"),
+            cost_usd=round(sess.billed(), 4),
+            seconds=round(sess.finished - sess.started, 1) if sess.started and sess.finished else None,
+        )
+    return row
+
+
+def batch_view(batch: Batch, store: SessionStore) -> dict[str, Any]:
+    rows = [
+        batch_row(store.peek(i.session_id) if i.session_id else None, i.name, i.rejected) for i in batch.items
+    ]
+    done = [r for r in rows if r["status"] == "done"]
+    return {
+        "id": batch.id,
+        "items": rows,
+        "running": sum(r["status"] in ("queued", "running") for r in rows),
+        "done": len(done),
+        "cost_usd": round(sum(r.get("cost_usd", 0) for r in done), 4),
     }

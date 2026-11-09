@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
@@ -194,6 +195,24 @@ def write_rulebook_excel(book: Rulebook, built: set[str], path: Path) -> Path:
     ]:
         sm.append(row)
     _style(sm, (24, 100), header=False)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    wb.save(path)
+    return path
+
+
+def write_batch_summary(rows: list[dict[str, Any]], path: Path) -> Path:
+    """One row per drawing of a batch review (the web demo's batch view, as a spreadsheet)."""
+    wb = Workbook()
+    ws = wb.active
+    assert ws is not None
+    ws.title = "Batch"
+    ws.append(["Drawing", "Status", "Findings", "Fails", "Warnings", "Review time (s)", "Cost (USD)", "Note"])
+    for r in rows:
+        ws.append(
+            [r["name"], r["status"], r.get("findings"), r.get("fails"), r.get("warnings"), r.get("seconds"),
+             r.get("cost_usd"), r.get("detail") or ""]
+        )  # fmt: skip
+    _style(ws, (40, 11, 10, 8, 10, 15, 11, 70))
     path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(path)
     return path
