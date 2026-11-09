@@ -5,7 +5,7 @@ Environment:
 
     DI_DEMO_PASSWORD      when set, every /api call needs the token returned by POST /api/auth/login
     DI_WEB_DIST           the built front end (default: <repo>/web/dist); not served when missing
-    DI_DEMO_MAX_LIVE_RUNS uploads this server will review with live model calls (default 30)
+    DI_DEMO_MAX_LIVE_RUNS uploads this server will review with live model calls (default 100)
 """
 
 from __future__ import annotations
@@ -27,6 +27,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from drawing_intelligence.api.runs import DemoSession, SessionStore
+from drawing_intelligence.api.uploads import UploadRejected, screen_pdf
 from drawing_intelligence.api.views import answer_view, session_detail, session_summary, sheet_image
 from drawing_intelligence.llm import load_registry
 from drawing_intelligence.review import load_rulebook
@@ -79,7 +80,7 @@ def create_app(
     secret = secrets.token_bytes(32)  # tokens last as long as this process, like the sessions
     token = hmac.new(secret, b"drawing-intelligence-demo", hashlib.sha256).hexdigest()
     dist = web_dist or Path(os.environ.get("DI_WEB_DIST", PROJECT_ROOT / "web" / "dist"))
-    max_live = int(os.environ.get("DI_DEMO_MAX_LIVE_RUNS", "30"))
+    max_live = int(os.environ.get("DI_DEMO_MAX_LIVE_RUNS", "100"))
     the_store = store or SessionStore(settings, Path(tempfile.mkdtemp(prefix="di-web-")), max_live=max_live)
     demos = {d["id"]: d for d in load_demos(settings)}
 
@@ -187,11 +188,17 @@ def create_app(
     async def upload(file: Annotated[UploadFile, File()]) -> dict[str, Any]:
         data = await file.read(MAX_UPLOAD_BYTES + 1)
         if len(data) > MAX_UPLOAD_BYTES:
-            raise HTTPException(413, "the PDF is larger than 25 MB")
+            raise HTTPException(413, "The PDF is larger than 25 MB.")
         if not data.startswith(b"%PDF"):
-            raise HTTPException(415, "only PDF drawings can be reviewed")
+            raise HTTPException(415, "Only PDF drawings can be reviewed.")
+        try:
+            screen_pdf(data, settings.config_path)  # before the allowance: a turned-away file costs nothing
+        except UploadRejected as e:
+            raise HTTPException(e.status, e.message) from e
         if the_store.live_left <= 0:
-            raise HTTPException(429, "the demo's allowance of live reviews is used up; open a demo drawing")
+            raise HTTPException(
+                429, "The demo's allowance of live reviews is used up. Open a demo drawing instead."
+            )
         the_store.live_left -= 1
         tmp = Path(tempfile.mkdtemp(prefix="di-up-")) / "upload.pdf"
         tmp.write_bytes(data)

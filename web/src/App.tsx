@@ -63,6 +63,7 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
   const [cite, setCite] = useState<{ page: number; bbox: [number, number, number, number] } | null>(null);
   const [prompt, setPrompt] = useState("Ready. Open a drawing from PathFinder or the Start page.");
   const [help, setHelp] = useState(false);
+  const [notice, setNotice] = useState<{ title: string; text: string } | null>(null);
   const sheetRef = useRef<SheetHandle>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -121,7 +122,15 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
   const onUploadFile = (f: File | undefined) => {
     if (!f) return;
     setPrompt(`Uploading ${f.name}…`);
-    api.upload(f).then(addSession).catch(fail);
+    api
+      .upload(f)
+      .then(addSession)
+      .catch((e) => {
+        if (e instanceof ApiError && e.status === 401) return onSignedOut();
+        const text = e instanceof Error ? e.message : String(e);
+        setPrompt(`${f.name} was not reviewed.`);
+        setNotice({ title: `${f.name} was not reviewed`, text });
+      });
   };
 
   const closeDoc = (key: string) => {
@@ -370,6 +379,7 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
         model={done ? sess!.model ?? undefined : undefined}
       />
       {help && <Help onClose={() => setHelp(false)} />}
+      {notice && <Notice title={notice.title} text={notice.text} onClose={() => setNotice(null)} />}
     </div>
   );
 }
@@ -400,6 +410,30 @@ function Progress({ s }: { s: SessionInfo }) {
               </div>
             ))}
             {s.error && <div className="err" style={{ marginTop: 10 }}>{s.error}</div>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Notice({ title, text, onClose }: { title: string; text: string; onClose: () => void }) {
+  return (
+    <div className="overlay" style={{ position: "fixed", background: "rgba(20,30,40,0.25)", zIndex: 10 }} onClick={onClose}>
+      <div className="dialog" style={{ width: 440 }} onClick={(e) => e.stopPropagation()}>
+        <div className="dhead">
+          {title}
+          <span style={{ flex: 1 }} />
+          <button className="iconbtn" onClick={onClose}>
+            <X size={13} />
+          </button>
+        </div>
+        <div className="dbody para">
+          <p style={{ marginTop: 0 }}>{text}</p>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button className="btn primary" onClick={onClose}>
+              OK
+            </button>
           </div>
         </div>
       </div>

@@ -86,7 +86,7 @@ def secrets(api: HfApi) -> None:
         sys.exit("need QWEN_API_KEY in .env and DI_DEMO_PASSWORD in the environment")
     api.add_space_secret(space, "QWEN_API_KEY", key)
     api.add_space_secret(space, "DI_DEMO_PASSWORD", password)
-    api.add_space_variable(space, "DI_DEMO_MAX_LIVE_RUNS", os.environ.get("DI_DEMO_MAX_LIVE_RUNS", "30"))
+    api.add_space_variable(space, "DI_DEMO_MAX_LIVE_RUNS", os.environ.get("DI_DEMO_MAX_LIVE_RUNS", "100"))
     print("secrets set: QWEN_API_KEY, DI_DEMO_PASSWORD; variable: DI_DEMO_MAX_LIVE_RUNS")
 
 

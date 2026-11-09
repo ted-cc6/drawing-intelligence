@@ -10,6 +10,7 @@ import threading
 import time
 from typing import Any, cast
 
+import pymupdf
 import pytest
 from fastapi.testclient import TestClient
 
@@ -165,3 +166,44 @@ def test_closing_a_session_stops_its_review(gated_store, make_pdf):
     assert _wait(lambda: not queued.folder.exists())
     time.sleep(0.3)
     assert queued.started is None and queued.status == "queued"  # it never ran
+
+
+def _pdf_bytes(pages: int = 1, text: str = "") -> bytes:
+    doc = pymupdf.open()
+    for _ in range(pages):
+        page = doc.new_page()
+        if text:
+            page.insert_text((72, 72), text, fontsize=10)
+    data = doc.tobytes()
+    doc.close()
+    return data
+
+
+@pytest.mark.parametrize(
+    ("data", "status", "says"),
+    [
+        (b"%PDF-1.4\n" + b"garbage" * 50, 415, "could not be opened"),
+        (_pdf_bytes(5, "SCALE 1:1 MATERIAL EN8 " * 4), 422, "5 pages"),
+        (_pdf_bytes(1), 422, "no readable text"),
+        (_pdf_bytes(1, "Plating process selection guideline for alloy steels, rev 3"), 422, "PARI drawing"),
+    ],
+    ids=["corrupt", "too-many-pages", "scan-or-blank", "not-a-drawing"],
+)
+def test_uploads_are_screened_before_any_cost(client, data, status, says):
+    h = _login(client)
+    before = client.get("/api/health").json()["live_runs_left"]
+    r = client.post("/api/sessions/upload", files={"file": ("x.pdf", data, "application/pdf")}, headers=h)
+    assert r.status_code == status and says in r.json()["detail"]
+    assert "/" not in r.json()["detail"].replace("1:1", "")  # no server paths in what the user sees
+    assert client.get("/api/health").json()["live_runs_left"] == before  # a turned-away file is free
+
+
+def test_a_pari_drawing_passes_the_screen(client):
+    h = _login(client)
+    before = client.get("/api/health").json()["live_runs_left"]
+    r = client.post(
+        "/api/sessions/upload", files={"file": ("p13.pdf", P13.read_bytes(), "application/pdf")}, headers=h
+    )
+    assert r.status_code == 200
+    assert client.get("/api/health").json()["live_runs_left"] == before - 1
+    client.delete(f"/api/sessions/{r.json()['id']}", headers=h)

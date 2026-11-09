@@ -124,7 +124,7 @@ class SessionStore:
         settings: Settings,
         root: Path | None = None,
         idle_s: float = 2 * 3600,
-        max_live: int = 30,
+        max_live: int = 100,
         completion_fn: CompletionFn = openai_completion,
     ):
         self.settings = settings

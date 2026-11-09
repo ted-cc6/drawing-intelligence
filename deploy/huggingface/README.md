@@ -15,7 +15,7 @@ LatentView Drawing Intelligence for Wipro PARI, a UChicago MSADS capstone. This 
 `Dockerfile`: the FastAPI app in `src/drawing_intelligence/api` serving the React front end in `web/`.
 
 Space secrets: `QWEN_API_KEY` (live reviews and Q&A) and `DI_DEMO_PASSWORD` (the sign-in screen).
-Optional variable: `DI_DEMO_MAX_LIVE_RUNS` (uploads reviewed live per restart, default 30).
+Optional variable: `DI_DEMO_MAX_LIVE_RUNS` (uploads reviewed live per restart, default 100; uploads turned away before review do not count).
 
 The four demo drawings replay cached model replies, so opening them costs nothing. Uploaded PDFs are reviewed
 live and deleted when the session is closed or after two idle hours.
