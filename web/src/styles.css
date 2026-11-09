@@ -412,3 +412,10 @@ table.grid tr.on td { background: var(--select); }
 /* grouped findings (FindingsList) */
 .grid tr.group td { background: rgba(0, 0, 0, 0.035); cursor: pointer; }
 .grid tr.child td:first-child { padding-left: 18px; }
+
+/* Measure (SheetView) */
+.graphics.measuring { cursor: crosshair; }
+.graphics.measuring .mk { pointer-events: none; }
+.measure line { stroke: #0a66c2; }
+.measure circle { fill: #fff; stroke: #0a66c2; }
+.measure text { fill: #0a66c2; font-weight: 700; font-family: var(--font); paint-order: stroke; stroke: #fff; stroke-width: 4px; }

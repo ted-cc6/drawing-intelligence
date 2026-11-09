@@ -54,6 +54,7 @@ export interface Sheet {
   url: string;
   w: number;
   h: number;
+  px_per_pt: number; // sheet-image pixels per PDF point (1 pt = 1/72 inch on the paper)
 }
 
 export interface SessionInfo {

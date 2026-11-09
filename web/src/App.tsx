@@ -9,7 +9,7 @@ import { PathFinder } from "./components/PathFinder";
 import { Ribbon, type Filters, type RibbonTab } from "./components/Ribbon";
 import { RightDock, type ChatMsg, type DockTab } from "./components/RightDock";
 import { SheetView, type SheetHandle } from "./components/SheetView";
-import { isAI, money, secs } from "./format";
+import { isAI, money, scaleFactor, secs } from "./format";
 
 type DocKind = "start" | "drawing" | "rules" | "reports" | "settings";
 interface Doc {
@@ -63,6 +63,7 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
   const [cite, setCite] = useState<{ page: number; bbox: [number, number, number, number] } | null>(null);
   const [prompt, setPrompt] = useState("Ready. Open a drawing from PathFinder or the Start page.");
   const [help, setHelp] = useState(false);
+  const [measuring, setMeasuring] = useState(false);
   const [notice, setNotice] = useState<{ title: string; text: string } | null>(null);
   const sheetRef = useRef<SheetHandle>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -96,6 +97,17 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
     }, 700);
     return () => clearInterval(t);
   }, [running.map((s) => s.id).join(","), fail]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    setMeasuring(false);
+  }, [active]);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && measuring) setMeasuring(false), setPrompt("Measure off.");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [measuring]);
 
   const doc = docs.find((d) => d.key === active) ?? docs[0];
   const sess = doc.kind === "drawing" && doc.sid ? sessions[doc.sid] ?? null : null;
@@ -277,6 +289,7 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
               cite={cite}
               onZoom={setZoom}
               onHover={setCursor}
+              measure={measuring ? { factor: scaleFactor(sess.title_block?.scale), onResult: setPrompt } : null}
             />
             <div className="legend">
               <span>
@@ -330,6 +343,11 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
         onDoc={openStatic}
         onNextOpen={nextOpen}
         onAcceptAll={acceptAllCodeFails}
+        measuring={measuring}
+        onMeasure={() => {
+          setMeasuring((m) => !m);
+          setPrompt(measuring ? "Measure off." : "Measure: click the first point on the sheet (Esc to stop).");
+        }}
       />
       <input ref={fileRef} type="file" accept="application/pdf,.pdf" hidden onChange={(e) => (onUploadFile(e.target.files?.[0]), (e.target.value = ""))} />
       <div className={`work${doc.kind === "drawing" ? "" : " nodoc"}`}>

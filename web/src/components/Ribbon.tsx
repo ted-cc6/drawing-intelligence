@@ -61,6 +61,8 @@ interface Props {
   onDoc: (kind: "rules" | "reports" | "settings") => void;
   onNextOpen: () => void;
   onAcceptAll: () => void;
+  measuring: boolean;
+  onMeasure: () => void;
 }
 
 function Big(p: { icon: ReactNode; label: string; onClick?: () => void; disabled?: boolean; on?: boolean; pilot?: boolean; tip?: string }) {
@@ -162,7 +164,7 @@ export function Ribbon(p: Props) {
         <Big icon={<Users size={22} />} label="Send to designer" pilot />
       </Group>
       <Group label="Measure">
-        <Big icon={<Ruler size={22} />} label="Measure" pilot />
+        <Big icon={<Ruler size={22} />} label="Measure" on={p.measuring} onClick={p.onMeasure} disabled={d} tip="Click two points on the sheet to measure between them (Esc to stop)" />
       </Group>
     </>
   );

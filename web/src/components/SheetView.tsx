@@ -1,6 +1,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
 import type { Finding, Sheet } from "../api";
 import { withToken } from "../api";
+import { measureText } from "../format";
 
 export interface SheetHandle {
   fit: () => void;
@@ -16,6 +17,7 @@ interface Props {
   cite: { page: number; bbox: [number, number, number, number] } | null;
   onZoom: (z: number) => void;
   onHover: (text: string) => void;
+  measure?: { factor: number | null; onResult: (text: string) => void } | null; // Measure mode when set
 }
 
 interface View {
@@ -30,13 +32,17 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 
 /** The drawing sheet in a pan/zoom graphics window, with each finding boxed and numbered on top. */
 export const SheetView = forwardRef<SheetHandle, Props>(function SheetView(
-  { sheet, findings, selected, onSelect, showMarkups, cite, onZoom, onHover },
+  { sheet, findings, selected, onSelect, showMarkups, cite, onZoom, onHover, measure },
   ref,
 ) {
   const box = useRef<HTMLDivElement>(null);
   const [view, setView] = useState<View>({ s: 0.3, x: 0, y: 0, animate: false });
   const [drag, setDrag] = useState<{ x: number; y: number; vx: number; vy: number; moved: boolean } | null>(null);
   const fitScale = useRef(0.3);
+  const [pts, setPts] = useState<[number, number][]>([]); // Measure: the clicked points, sheet pixels
+  useEffect(() => {
+    if (!measure) setPts([]);
+  }, [measure, sheet.url]);
 
   const fit = useCallback(() => {
     const el = box.current;
@@ -132,6 +138,17 @@ export const SheetView = forwardRef<SheetHandle, Props>(function SheetView(
   const onUp = (e: React.PointerEvent) => {
     const wasClick = drag && !drag.moved;
     setDrag(null);
+    if (wasClick && measure) {
+      const r = box.current!.getBoundingClientRect();
+      const p: [number, number] = [(e.clientX - r.left - view.x) / view.s, (e.clientY - r.top - view.y) / view.s];
+      const next = pts.length === 1 ? [pts[0], p] : [p];
+      setPts(next);
+      if (next.length === 2) {
+        const d = Math.hypot(next[1][0] - next[0][0], next[1][1] - next[0][1]);
+        measure.onResult(`Measured ${measureText(d, sheet.px_per_pt, measure.factor)}`);
+      } else measure.onResult("Measure: click the second point (Esc to clear).");
+      return;
+    }
     if (wasClick && (e.target as Element).closest?.(".mk") == null) onSelect(null);
   };
 
@@ -147,7 +164,7 @@ export const SheetView = forwardRef<SheetHandle, Props>(function SheetView(
   return (
     <div
       ref={box}
-      className={`graphics${drag?.moved ? " dragging" : ""}`}
+      className={`graphics${drag?.moved ? " dragging" : ""}${measure ? " measuring" : ""}`}
       onWheel={onWheel}
       onPointerDown={onDown}
       onPointerMove={onMove}
@@ -188,6 +205,19 @@ export const SheetView = forwardRef<SheetHandle, Props>(function SheetView(
               </g>
             );
           })}
+          {pts.length > 0 && (
+            <g className="measure">
+              {pts.length === 2 && <line x1={pts[0][0]} y1={pts[0][1]} x2={pts[1][0]} y2={pts[1][1]} strokeWidth={2 / view.s} />}
+              {pts.map(([x, y], i) => (
+                <circle key={i} cx={x} cy={y} r={5 / view.s} strokeWidth={2 / view.s} />
+              ))}
+              {pts.length === 2 && (
+                <text x={(pts[0][0] + pts[1][0]) / 2} y={(pts[0][1] + pts[1][1]) / 2 - 10 / view.s} fontSize={15 / view.s} textAnchor="middle">
+                  {measureText(Math.hypot(pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]), sheet.px_per_pt, measure?.factor ?? null)}
+                </text>
+              )}
+            </g>
+          )}
           {cite && cite.page === sheet.page && (
             <rect
               className="citebox"

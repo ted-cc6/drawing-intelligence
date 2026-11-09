@@ -76,8 +76,9 @@ def session_detail(sess: DemoSession, config_dir: Path) -> dict[str, Any]:
         if page.images is None:
             continue
         sheet_image(sess, page)
-        _, w, h = sess.sheets[n]
-        sheets.append({"page": n, "url": f"/api/sessions/{sess.id}/sheets/{n}.png", "w": w, "h": h})
+        k, w, h = sess.sheets[n]
+        url = f"/api/sessions/{sess.id}/sheets/{n}.png"
+        sheets.append({"page": n, "url": url, "w": w, "h": h, "px_per_pt": round(k, 6)})
     factors = {n: v[0] for n, v in sess.sheets.items()}
     words = plain_english(config_dir)
     findings = []

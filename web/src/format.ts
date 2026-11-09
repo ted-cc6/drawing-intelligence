@@ -47,3 +47,21 @@ export const secs = (v: number | null | undefined) => (v == null ? "" : v < 10 ?
 export const firstZone = (f: Finding) => f.evidence.find((e) => e.zone)?.zone ?? "";
 
 export const isAI = (f: Finding) => f.source === "llm";
+
+/** "1 : 2" -> 2 (real size per paper size); null when the scale cannot be read. */
+export function scaleFactor(scale: string | null | undefined): number | null {
+  const m = /(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)/.exec(scale ?? "");
+  if (!m) return null;
+  const a = parseFloat(m[1]);
+  const b = parseFloat(m[2]);
+  return a > 0 && b > 0 ? b / a : null;
+}
+
+/** A distance between two sheet-image points, on the paper and at the drawing's scale. */
+export function measureText(px: number, pxPerPt: number, factor: number | null): string {
+  const paper = ((px / pxPerPt) * 25.4) / 72;
+  const fmt = (v: number) => (v >= 100 ? v.toFixed(0) : v.toFixed(1));
+  return factor == null || factor === 1
+    ? `${fmt(paper)} mm${factor == null ? " on paper (scale not read)" : ""}`
+    : `${fmt(paper * factor)} mm at scale (${fmt(paper)} mm on paper)`;
+}
