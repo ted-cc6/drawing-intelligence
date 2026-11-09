@@ -12,7 +12,7 @@ import yaml
 
 from drawing_intelligence.api.runs import DemoSession
 from drawing_intelligence.qa.agent import Answer
-from drawing_intelligence.qa.data import DrawingData
+from drawing_intelligence.qa.data import DrawingData, note_bbox
 from drawing_intelligence.report.build import location, numbered
 from drawing_intelligence.report.zones import zone
 from drawing_intelligence.schemas import PageExtraction
@@ -86,14 +86,17 @@ def session_detail(sess: DemoSession, config_dir: Path) -> dict[str, Any]:
         ev = []
         for e in f.evidence:
             page = pages.get(e.page)
+            bbox = e.bbox
+            if bbox is None and e.kind == "note" and page is not None:  # place the note from stage 1's text
+                bbox = note_bbox(page, e.quote or "")
             ev.append(
                 {
                     "page": e.page,
                     "ref": e.ref,
                     "quote": e.quote,
                     "kind": e.kind,
-                    "bbox": _px(e.bbox, factors.get(e.page, 0)),
-                    "zone": zone(page, data.template, e.bbox) if page and e.bbox else None,
+                    "bbox": _px(bbox, factors.get(e.page, 0)),
+                    "zone": zone(page, data.template, bbox) if page and bbox else None,
                 }
             )
         fb = sess.feedback.get(f.id)

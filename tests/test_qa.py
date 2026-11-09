@@ -279,3 +279,19 @@ def _data_for(pdf: Path, settings) -> DrawingData:
     res = run_workflow(pdf, settings, understand=False, review=True)
     assert res.review is not None
     return DrawingData.build(res.extraction, {}, res.review, settings)
+
+
+def test_a_note_is_placed_from_the_stage1_lines_that_make_it_up():
+    from drawing_intelligence.qa.data import note_bbox
+    from drawing_intelligence.schemas import PageExtraction, TextLine
+
+    page = PageExtraction.model_construct(
+        notes=[],
+        body_text=[
+            TextLine(text="HEAT TREATMENT NOTE:-", bbox=(100, 100, 200, 108)),
+            TextLine(text="1) CASE HARDEN 56~60 HRC.", bbox=(100, 110, 230, 118)),
+            TextLine(text="NOTE", bbox=(500, 500, 520, 508)),  # too short to place anything
+        ],
+    )
+    assert note_bbox(page, "HEAT TREATMENT NOTE :- 1) CASE HARDEN 56~60 HRC.") == [100, 100, 230, 118]
+    assert note_bbox(page, "SOMETHING ELSE ENTIRELY") is None

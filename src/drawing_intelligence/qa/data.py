@@ -29,6 +29,32 @@ from drawing_intelligence.schemas import DrawingKnowledge, Extraction, Finding, 
 from drawing_intelligence.settings import Settings
 
 
+def _squash(text: str) -> str:
+    return re.sub(r"\s+", "", text).upper()
+
+
+def note_bbox(page: PageExtraction, text: str) -> list[float] | None:
+    """Where a note the vision pass read sits on the sheet: the box around the stage 1 lines that make it up.
+
+    The vision pass gives notes no position. Matching ignores spaces (the two passes split and join words
+    differently); a line must be at least 8 characters, so a stray "NOTE" or "1)" cannot place a note.
+    """
+    want = _squash(text)
+    boxes = [
+        ln.bbox
+        for ln in [*page.notes, *page.body_text]
+        if len(_squash(ln.text)) >= 8 and _squash(ln.text) in want
+    ]
+    if not boxes:
+        return None
+    return [
+        min(b[0] for b in boxes),
+        min(b[1] for b in boxes),
+        max(b[2] for b in boxes),
+        max(b[3] for b in boxes),
+    ]
+
+
 @dataclass(frozen=True)
 class Item:
     """One citable thing on the drawing."""
@@ -85,7 +111,7 @@ class DrawingData:
             self._add(n, f"TB:{name}", "title_block", f.value or "", f.bbox, "pdf_text", f)
         k = self.knowledge.get(n)
         for note in k.notes if k else []:
-            self._add(n, note.id, "note", note.text, None, "vision", note)
+            self._add(n, note.id, "note", note.text, note_bbox(page, note.text), "vision", note)
 
     def zone_of(self, page: int, bbox: list[float] | None) -> str | None:
         p = self.pages.get(page)
