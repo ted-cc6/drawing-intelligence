@@ -13,6 +13,7 @@ from typing import Literal, NamedTuple
 
 import pymupdf
 
+from drawing_intelligence.extraction.symbols import revision_marks
 from drawing_intelligence.extraction.template import Rect, Template, resolve_rect
 from drawing_intelligence.schemas import TextLine, TitleBlockField
 
@@ -144,6 +145,12 @@ def read_title_block(page: pymupdf.Page, lines: list[TextLine], template: Templa
     kind = layout(words, template, w, h)
     if kind == "variant":
         return TitleBlockRead(kind, {}, [], [])
+    marks = revision_marks(page)  # a "1" in a Δ next to a changed value is not part of the value
+    words = [
+        wd
+        for wd in words
+        if not (re.fullmatch(r"\d{1,2}", wd[0]) and any(_centre_in(wd[1], m) for m in marks))
+    ]
     fields = read_marked_notes(read_fields(words, template, w, h), lines, template)
     units = read_units(lines, template)
     if units is not None:

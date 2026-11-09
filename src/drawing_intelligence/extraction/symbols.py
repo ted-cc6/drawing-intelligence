@@ -72,6 +72,25 @@ def _strokes(page: pymupdf.Page) -> list[Seg]:
     ]
 
 
+def revision_marks(page: pymupdf.Page) -> list[Rect]:
+    """Revision marks (Δ1) as drawn in title-block cells: two short strokes meeting in an apex above the
+    digit, the base usually being the cell's own border. Visual page coordinates, like `page_words`."""
+    rm = page.rotation_matrix
+    segs = [(a * rm, b * rm) for a, b in _strokes(page)]
+    by_point: dict[tuple[int, int], list[tuple[pymupdf.Point, pymupdf.Point]]] = {}
+    for a, b in segs:
+        if 4 <= _d(a, b) <= 25 and abs(a.x - b.x) > 1 and abs(a.y - b.y) > 1:  # short and slanted
+            for apex, foot in ((a, b), (b, a)):
+                if foot.y > apex.y:
+                    by_point.setdefault((round(apex.x), round(apex.y)), []).append((apex, foot))
+    out: list[Rect] = []
+    for legs in by_point.values():
+        for (apex, f1), (_, f2) in itertools.combinations(legs, 2):
+            if (f1.x - apex.x) * (f2.x - apex.x) < 0 and abs(f1.y - f2.y) < 1.5:
+                out.append((min(f1.x, f2.x), apex.y, max(f1.x, f2.x), max(f1.y, f2.y)))
+    return out
+
+
 def gdt_frames(page: pymupdf.Page) -> list[dict[str, Any]]:
     """Feature control frames: characteristic, tolerance as printed, datum references, unrotated bbox."""
     out = []

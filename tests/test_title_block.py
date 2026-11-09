@@ -201,3 +201,21 @@ def test_a_marked_cell_takes_its_value_from_the_notes(sheet):
 def test_a_marked_cell_with_no_note_stays_as_printed(sheet):
     fields = extract_pdf(sheet({**VALUES, "material": "#"})).pages[0].title_block_fields
     assert (fields["material"].value, fields["material"].source) == ("#", "cell")
+
+
+@pytest.mark.parametrize("marked", [True, False])
+def test_a_revision_mark_in_a_cell_is_not_part_of_the_value(sheet, marked):
+    # PARI sheets flag a changed value with a small "1" under a Λ of two strokes (the cell border is its base)
+    path = sheet({**VALUES, "material": "20MnCr5"})
+    doc = pymupdf.open(path)
+    page = doc[0]
+    _, y0, x1, y1 = load_template().field_cells(page.rect.width, page.rect.height)["material"]
+    cx = x1 - 12
+    if marked:
+        page.draw_line((cx - 3.7, y1 - 1), (cx, y0 + 1), width=0.3)
+        page.draw_line((cx, y0 + 1), (cx + 3.7, y1 - 1), width=0.3)
+    page.insert_text((cx - 1.6, y1 - 2), "1", fontsize=5)
+    doc.saveIncr()
+    doc.close()
+    material = extract_pdf(path).pages[0].title_block_fields["material"].value
+    assert material == ("20MnCr5" if marked else "20MnCr5 1")
