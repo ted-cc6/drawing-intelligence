@@ -215,7 +215,7 @@ button { cursor: pointer; }
 .sheetwrap { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
 .sheetwrap img { display: block; box-shadow: 0 2px 10px rgba(30, 45, 60, 0.35); user-select: none; -webkit-user-drag: none; }
 .sheetwrap svg { position: absolute; left: 0; top: 0; overflow: visible; }
-.mk rect.box { fill: none; stroke-width: 3; }
+.mk rect.box { fill: none; stroke-width: 3; pointer-events: all; } /* the inside of a box is clickable too */
 .mk.fail rect.box { stroke: var(--fail); }
 .mk.warning rect.box { stroke: var(--warn); }
 .mk rect.tag { stroke: none; }
@@ -408,3 +408,7 @@ table.grid tr.on td { background: var(--select); }
 .loginbox .fine { color: var(--text-3); font-size: 11px; border-top: 1px solid var(--line-soft); padding: 10px 20px; }
 .spin { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* grouped findings (FindingsList) */
+.grid tr.group td { background: rgba(0, 0, 0, 0.035); cursor: pointer; }
+.grid tr.child td:first-child { padding-left: 18px; }

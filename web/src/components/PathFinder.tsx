@@ -26,11 +26,11 @@ function Section({ title, children, open = true }: { title: string; children: Re
 
 const KIND_LABEL = { real: "Real", seeded: "Planted", clean: "Clean" } as const;
 const COV: [string, string, string][] = [
-  ["fail", "Failed", "#d13438"],
-  ["warning", "Warning", "#e39400"],
-  ["pass", "Passed", "#2e8540"],
-  ["not_checked", "Not checked", "#9aa3ad"],
-  ["not_applicable", "Not applicable", "#d5dade"],
+  ["fail", "Rules failed", "#d13438"],
+  ["warning", "Rules with a warning", "#e39400"],
+  ["pass", "Rules passed", "#2e8540"],
+  ["not_checked", "Rules not checked", "#9aa3ad"],
+  ["not_applicable", "Rules not applicable", "#d5dade"],
 ];
 
 export function PathFinder({ demos, sessions, active, onOpenDemo, onActivate }: Props) {
@@ -119,7 +119,7 @@ export function PathFinder({ demos, sessions, active, onOpenDemo, onActivate }: 
           {cov ? (
             <div className="cov">
               <div style={{ color: "var(--text-2)" }}>
-                {total} rules applied to this drawing
+                {total} rules, counted once each (one rule can raise several findings)
               </div>
               <div className="covbar">
                 {COV.map(([k, , c]) => (
