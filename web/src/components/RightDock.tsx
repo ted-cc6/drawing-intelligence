@@ -188,7 +188,10 @@ function renderAnswer(text: string, cites: Cite[], onCite: (c: Cite) => void): R
 function Ask({ session, chat, questions, onAsk, asking, onCite }: Props) {
   const [q, setQ] = useState("");
   const end = useRef<HTMLDivElement>(null);
-  useEffect(() => end.current?.scrollIntoView({ behavior: "smooth" }), [chat.length, asking]);
+  // Braces matter: newer browsers return a Promise from scrollIntoView, and React would call it as a cleanup.
+  useEffect(() => {
+    end.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chat.length, asking]);
   if (!session || session.status !== "done") return <div className="empty">Open a drawing to ask questions about it.</div>;
   const send = (text: string) => {
     if (!text.trim() || asking) return;

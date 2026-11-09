@@ -4,6 +4,7 @@ The seeded P13 drawing's model replies are in data/cache, so the session replays
 function makes a cache miss fail loudly instead of reaching a provider.
 """
 
+import re
 import shutil
 import time
 from typing import Any, cast
@@ -95,3 +96,16 @@ def test_upload_accepts_only_pdfs(client):
         "/api/sessions/upload", files={"file": ("x.pdf", b"not a pdf", "application/pdf")}, headers=h
     )
     assert r.status_code == 415
+
+
+def test_front_end_effects_return_nothing():
+    # `useEffect(() => expr)` hands expr's value to React as the cleanup. Chrome 156 returns a Promise from
+    # scrollIntoView, so the Q&A pane's effect blanked the whole app on the first question.
+    src = PROJECT_ROOT / "web" / "src"
+    bad = [
+        f"{p.relative_to(src)}:{i}"
+        for p in sorted(src.rglob("*.tsx"))
+        for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1)
+        if re.search(r"use(Layout)?Effect\(\(\) => [^{\s]", line)
+    ]
+    assert not bad, f"effects with an expression body: {bad}"

@@ -76,7 +76,9 @@ export const SheetView = forwardRef<SheetHandle, Props>(function SheetView(
     return () => ro.disconnect();
   }, [fit]);
 
-  useEffect(() => onZoom(view.s), [view.s, onZoom]);
+  useEffect(() => {
+    onZoom(view.s);
+  }, [view.s, onZoom]);
 
   // Bring a box into view: the selected finding's first box on this sheet, or a cited item.
   const focus = useCallback(
