@@ -36,7 +36,10 @@ drawings:
     title: C01 · Cam plate, clean
     subtitle: Test drawing, no planted errors
     kind: clean
-    note: The same cam plate without planted errors, to show the review stays quiet.
+    note: >-
+      The same cam plate without the planted error. Its two findings come from the original PARI drawing,
+      not from the test edits: checked and approved dates already filled in, and an AI warning to confirm
+      about plating on the H7 bore.
     path: data/eval/seeded/C01_clean_cam_plate/C01_clean_cam_plate.pdf
     questions:
       - What did the review find?
