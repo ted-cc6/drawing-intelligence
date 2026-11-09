@@ -6,6 +6,7 @@ function makes a cache miss fail loudly instead of reaching a provider.
 
 import re
 import shutil
+import threading
 import time
 from typing import Any, cast
 
@@ -109,3 +110,58 @@ def test_front_end_effects_return_nothing():
         if re.search(r"use(Layout)?Effect\(\(\) => [^{\s]", line)
     ]
     assert not bad, f"effects with an expression body: {bad}"
+
+
+P13 = PROJECT_ROOT / "data" / "eval" / "seeded" / "P13_fit_limits_inverted" / "P13_fit_limits_inverted.pdf"
+
+
+def _wait(cond, timeout=60.0):
+    end = time.time() + timeout
+    while time.time() < end:
+        if cond():
+            return True
+        time.sleep(0.05)
+    return False
+
+
+@pytest.fixture
+def gated_store(settings, tmp_path):
+    """A store whose model calls block until `gate` is set (then fail): live uploads hang in Understand."""
+    shutil.copytree(PROJECT_ROOT / "data" / "cache", settings.cache_dir, copy_function=shutil.copyfile)
+    gate = threading.Event()
+
+    def blocked(*_: Any, **__: Any) -> Any:
+        gate.wait(30)
+        raise AssertionError("the gated test model was called")
+
+    store = SessionStore(settings, tmp_path / "sessions", completion_fn=cast(CompletionFn, blocked))
+    yield store, gate
+    gate.set()
+    store.shutdown()
+
+
+def test_demo_replays_do_not_wait_for_live_uploads(gated_store, make_pdf):
+    store, _ = gated_store
+    live = [store.create(make_pdf(f"up{i}.pdf"), f"up{i}.pdf", None, live=True) for i in range(2)]
+    assert _wait(lambda: all(s.status == "running" for s in live))
+    demo = store.create(P13, "P13", "cam-plate-seeded", live=False)
+    assert _wait(lambda: demo.status in ("done", "error")), demo.status
+    assert demo.status == "done", demo.error
+    # the uploads are still stuck in their model call
+    assert all(s.status == "running" for s in live), [(s.status, s.error) for s in live]
+
+
+def test_closing_a_session_stops_its_review(gated_store, make_pdf):
+    store, gate = gated_store
+    running = [store.create(make_pdf(f"up{i}.pdf"), f"up{i}.pdf", None, live=True) for i in range(2)]
+    assert _wait(lambda: all(s.status == "running" for s in running))
+    queued = store.create(make_pdf("up2.pdf"), "up2.pdf", None, live=True)
+    assert queued.status == "queued"
+    assert store.delete(queued.id) and store.delete(running[0].id)
+    gate.set()  # the stuck model call returns (and fails); the closed run must not go on to the reviewers
+    assert _wait(lambda: running[0].status != "running" and running[1].status != "running")
+    assert running[0].status == "cancelled" and not running[0].folder.exists()
+    assert running[1].status == "error"  # still open: its failure is shown, not swallowed
+    assert _wait(lambda: not queued.folder.exists())
+    time.sleep(0.3)
+    assert queued.started is None and queued.status == "queued"  # it never ran

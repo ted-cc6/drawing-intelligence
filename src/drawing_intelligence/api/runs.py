@@ -36,6 +36,10 @@ STAGES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
 )
 
 
+class Cancelled(Exception):
+    """The session was closed while its review was still running."""
+
+
 @dataclass
 class Stage:
     key: str
@@ -61,7 +65,7 @@ class DemoSession:
     folder: Path
     demo_id: str | None
     live: bool  # an upload, whose replies are probably not cached
-    status: str = "queued"  # queued | running | done | error
+    status: str = "queued"  # queued | running | done | error | cancelled
     error: str | None = None
     created: float = field(default_factory=time.time)
     touched: float = field(default_factory=time.time)
@@ -77,6 +81,7 @@ class DemoSession:
     lock: threading.Lock = field(default_factory=threading.Lock)
     expected_nodes: set[str] = field(default_factory=set)  # the graph nodes this run will report
     sheets: dict[int, tuple[float, int, int]] = field(default_factory=dict)  # page -> (pts->px, w, h)
+    cancelled: threading.Event = field(default_factory=threading.Event)  # set when the user closes it
 
     @property
     def out_dir(self) -> Path:
@@ -84,6 +89,8 @@ class DemoSession:
         return self.folder / "out" / self.pdf.stem
 
     def on_progress(self, node: str) -> None:
+        if self.cancelled.is_set():
+            raise Cancelled  # stops the graph before its next node; a model call already sent still finishes
         now = time.monotonic()
         for i, st in enumerate(self.stages):
             if node not in st.nodes or st.status in ("done", "skipped"):
@@ -128,7 +135,9 @@ class SessionStore:
         self.live_left = max_live
         self._sessions: dict[str, DemoSession] = {}
         self._lock = threading.Lock()
-        self._pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="di-review")
+        # Two lanes: live uploads take minutes, demo replays seconds; a demo never waits behind uploads.
+        self._live_pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="di-live")
+        self._demo_pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="di-demo")
 
     # --- lifecycle ------------------------------------------------------------------------------------------
 
@@ -142,7 +151,7 @@ class SessionStore:
         sess.stages = [Stage(k, label, nodes) for k, label, nodes in STAGES]
         with self._lock:
             self._sessions[sid] = sess
-        self._pool.submit(self._run, sess)
+        (self._live_pool if live else self._demo_pool).submit(self._run, sess)
         return sess
 
     def get(self, sid: str) -> DemoSession | None:
@@ -177,9 +186,11 @@ class SessionStore:
             self._sessions.clear()
         for s in sessions:
             self._close(s)
-        self._pool.shutdown(wait=False, cancel_futures=True)
+        for pool in (self._live_pool, self._demo_pool):
+            pool.shutdown(wait=False, cancel_futures=True)
 
     def _close(self, sess: DemoSession) -> None:
+        sess.cancelled.set()  # a queued run is skipped, a running one stops at its next node
         with sess.lock:
             if sess.ask is not None:
                 sess.ask.__exit__(None, None, None)
@@ -189,6 +200,8 @@ class SessionStore:
     # --- the run --------------------------------------------------------------------------------------------
 
     def _run(self, sess: DemoSession) -> None:
+        if sess.cancelled.is_set():
+            return  # closed while it waited in the queue: no work, no model calls
         # "keep" turns on the shared response cache (ephemeral runs never read it); the workspace still goes
         # when the session ends, because it lives inside the session folder.
         run_settings = self.settings.model_copy(
@@ -217,7 +230,10 @@ class SessionStore:
             )
             sess.status = "done"
         except Exception as e:  # shown in the UI; the session stays open so the user can read the error
-            sess.status, sess.error = "error", f"{type(e).__name__}: {e}"
+            if isinstance(e, Cancelled) or sess.cancelled.is_set():
+                sess.status = "cancelled"  # nobody is looking: a failure after the close is not an error
+            else:
+                sess.status, sess.error = "error", f"{type(e).__name__}: {e}"
             for st in sess.stages:
                 if st.status == "running":
                     st.status = "error"
@@ -226,6 +242,8 @@ class SessionStore:
             for st in sess.stages:
                 if st.status == "running":
                     st.status, st.finished = ("done" if sess.status == "done" else "error"), sess.finished
+            if sess.cancelled.is_set():
+                shutil.rmtree(sess.folder, ignore_errors=True)  # the run may have written after the close
 
     # --- Q&A ------------------------------------------------------------------------------------------------
 
