@@ -36,3 +36,13 @@ themselves afterwards.
   (acceptable for a demo; the pilot needs persistent storage).
 - New npm dependencies are a second toolchain; CI builds the front end on Linux only.
 - `npm install` fails on the WSL `/mnt/d` mount, so the front end is installed and built outside the repo there.
+
+## Update 2026-11-08 (before the in-office client demo)
+- **Two run lanes:** live uploads and cached demo replays have separate two-thread pools, so a demo drawing
+  never waits behind uploads. Closing a session cancels its run (skipped if queued, stopped at the next graph
+  node if running).
+- **Upload screen** (`api/uploads.py`): before any model call and before the live allowance is used, an upload
+  must open as a PDF, have at most 4 pages, have a text layer and look like a PARI drawing (standard title
+  block by its anchors, or "scale" and "material" for the older variant blocks). Rejections are plain
+  sentences in a dialog. `DI_DEMO_MAX_LIVE_RUNS` defaults to 100.
+- Review failures show a sentence; details go to the server log, never server paths to the user.
