@@ -163,6 +163,7 @@ def test_closing_a_session_stops_its_review(gated_store, make_pdf):
     assert _wait(lambda: running[0].status != "running" and running[1].status != "running")
     assert running[0].status == "cancelled" and not running[0].folder.exists()
     assert running[1].status == "error"  # still open: its failure is shown, not swallowed
+    assert running[1].error and "could not finish" in running[1].error and "/" not in running[1].error
     assert _wait(lambda: not queued.folder.exists())
     time.sleep(0.3)
     assert queued.started is None and queued.status == "queued"  # it never ran

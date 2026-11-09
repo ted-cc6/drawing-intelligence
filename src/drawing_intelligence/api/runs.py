@@ -7,6 +7,7 @@ deleted when the session ends or goes idle, as ADR 0003 asks of every session.
 
 from __future__ import annotations
 
+import logging
 import shutil
 import tempfile
 import threading
@@ -25,6 +26,8 @@ from drawing_intelligence.qa.session import AskSession
 from drawing_intelligence.review.reviewers import LLM_REVIEWERS, PLANNED_REVIEWERS
 from drawing_intelligence.schemas import FindingFeedback
 from drawing_intelligence.settings import Settings
+
+log = logging.getLogger(__name__)
 
 # The stage bar: (key, label, the graph nodes that finish it).
 STAGES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
@@ -232,8 +235,12 @@ class SessionStore:
         except Exception as e:  # shown in the UI; the session stays open so the user can read the error
             if isinstance(e, Cancelled) or sess.cancelled.is_set():
                 sess.status = "cancelled"  # nobody is looking: a failure after the close is not an error
-            else:
-                sess.status, sess.error = "error", f"{type(e).__name__}: {e}"
+            else:  # the user gets a sentence; the details (which may name server paths) go to the log
+                log.exception("review of %s (session %s) failed", sess.name, sess.id)
+                sess.status = "error"
+                sess.error = (
+                    f"The review could not finish ({type(e).__name__}). Try again, or open a demo drawing."
+                )
             for st in sess.stages:
                 if st.status == "running":
                     st.status = "error"

@@ -90,7 +90,7 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
           .then((n) => {
             setSessions((m) => ({ ...m, [n.id]: n }));
             if (n.status === "done") setPrompt(`Review of ${n.name} finished: ${n.findings?.length ?? 0} findings.`);
-            if (n.status === "error") setPrompt(`Review of ${n.name} failed: ${n.error}`);
+            if (n.status === "error") setPrompt(`Review of ${n.name} failed. ${n.error ?? ""}`);
           })
           .catch(fail);
     }, 700);
@@ -137,6 +137,9 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
     const d = docs.find((x) => x.key === key);
     if (!d) return;
     if (d.kind === "drawing" && d.sid) {
+      const s = sessions[d.sid];
+      const wasRunning = s && (s.status === "queued" || s.status === "running");
+      setPrompt(`Closed ${s?.name ?? "the drawing"}${wasRunning ? "; its review was stopped" : ""}. Its files were deleted.`);
       api.close(d.sid).catch(() => undefined);
       setSessions((m) => {
         const n = { ...m };
