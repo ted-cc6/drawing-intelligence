@@ -118,7 +118,25 @@ export interface ModelInfo {
   thinking_default: string;
   price_in: number;
   price_out: number;
+  available: boolean; // its provider has an API key on this server
 }
+
+export type Role = "understand" | "review" | "qa";
+export type ModelChoice = Partial<Record<Role, { model: string; thinking: string }>>;
+
+/** The model per role chosen on the Options page, kept in this browser; empty = the server's defaults. */
+const MODELS_KEY = "di-models";
+export const modelChoice = {
+  get: (): ModelChoice => {
+    try {
+      return JSON.parse(localStorage.getItem(MODELS_KEY) ?? "{}") as ModelChoice;
+    } catch {
+      return {};
+    }
+  },
+  set: (c: ModelChoice) => localStorage.setItem(MODELS_KEY, JSON.stringify(c)),
+  clear: () => localStorage.removeItem(MODELS_KEY),
+};
 
 const TOKEN_KEY = "di-demo-token";
 export const token = {
@@ -166,12 +184,18 @@ export const api = {
   upload: (file: File) => {
     const fd = new FormData();
     fd.append("file", file);
+    const c = modelChoice.get();
+    if (c.understand) fd.append("understand_model", c.understand.model), fd.append("understand_thinking", c.understand.thinking);
+    if (c.review) fd.append("review_model", c.review.model), fd.append("review_thinking", c.review.thinking);
     return call<SessionInfo>("/api/sessions/upload", { method: "POST", body: fd });
   },
   session: (id: string) => call<SessionInfo>(`/api/sessions/${id}`),
   close: (id: string) => call<{ deleted: boolean }>(`/api/sessions/${id}`, { method: "DELETE" }),
   ask: (id: string, question: string) =>
-    call<AnswerView>(`/api/sessions/${id}/ask`, { method: "POST", body: JSON.stringify({ question }) }),
+    call<AnswerView>(`/api/sessions/${id}/ask`, {
+      method: "POST",
+      body: JSON.stringify({ question, model: modelChoice.get().qa?.model, thinking: modelChoice.get().qa?.thinking }),
+    }),
   feedback: (id: string, no: number, decision: "accept" | "reject") =>
     call<{ no: number; decision: string }>(`/api/sessions/${id}/findings/${no}/feedback`, {
       method: "POST",

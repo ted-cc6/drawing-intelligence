@@ -18,10 +18,10 @@ import tempfile
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, cast
 
 import yaml
-from fastapi import Depends, FastAPI, File, Header, HTTPException, Query, UploadFile
+from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -30,6 +30,7 @@ from drawing_intelligence.api.runs import DemoSession, SessionStore
 from drawing_intelligence.api.uploads import UploadRejected, screen_pdf
 from drawing_intelligence.api.views import answer_view, session_detail, session_summary, sheet_image
 from drawing_intelligence.llm import load_registry
+from drawing_intelligence.llm.registry import Registry, Role
 from drawing_intelligence.review import load_rulebook
 from drawing_intelligence.review.checks import param_models
 from drawing_intelligence.schemas import FindingFeedback
@@ -49,11 +50,34 @@ class OpenDemo(BaseModel):
 
 class Question(BaseModel):
     question: str = Field(min_length=1, max_length=1000)
+    model: str | None = None  # the Q&A model chosen in Options; None = the registry's default
+    thinking: str | None = None
 
 
 class Feedback(BaseModel):
     decision: Literal["accept", "reject"]
     comment: str | None = Field(default=None, max_length=1000)
+
+
+def check_choice(
+    reg: Registry, settings: Settings, role: str, model: str | None, thinking: str | None
+) -> tuple[str | None, str | None]:
+    """A model and thinking level picked for one role, checked against the registry; 422 if unusable."""
+    if not model and not thinking:
+        return None, None
+    name = model or reg.defaults[cast(Role, role)]
+    spec = reg.models.get(name)
+    if spec is None:
+        raise HTTPException(422, f"Unknown model {name!r}.")
+    if role not in spec.roles:
+        raise HTTPException(422, f"{spec.label} cannot be used for the {role} role.")
+    if not settings.api_key(reg.providers[spec.provider].api_key_env):
+        raise HTTPException(
+            422, f"{spec.label} is not available on this server (no API key for its provider)."
+        )
+    if thinking and thinking not in spec.thinking.options:
+        raise HTTPException(422, f"{spec.label} has no thinking level {thinking!r}.")
+    return model, thinking
 
 
 def load_demos(settings: Settings) -> list[dict[str, Any]]:
@@ -111,6 +135,30 @@ def create_app(
     def done_or_409(sess: DemoSession) -> None:
         if sess.status != "done" or sess.data is None:
             raise HTTPException(409, "the review has not finished")
+
+    def start_upload(data: bytes, filename: str | None, models: dict[str, str]) -> DemoSession:
+        """Screen one uploaded PDF and start its live review; HTTPException (a sentence) if turned away."""
+        if len(data) > MAX_UPLOAD_BYTES:
+            raise HTTPException(413, "The PDF is larger than 25 MB.")
+        if not data.startswith(b"%PDF"):
+            raise HTTPException(415, "Only PDF drawings can be reviewed.")
+        try:
+            screen_pdf(data, settings.config_path)  # before the allowance: a turned-away file costs nothing
+        except UploadRejected as e:
+            raise HTTPException(e.status, e.message) from e
+        if the_store.live_left <= 0:
+            raise HTTPException(
+                429, "The demo's allowance of live reviews is used up. Open a demo drawing instead."
+            )
+        the_store.live_left -= 1
+        tmp = Path(tempfile.mkdtemp(prefix="di-up-")) / "upload.pdf"
+        tmp.write_bytes(data)
+        try:
+            name = Path(filename or "drawing.pdf").name
+            return the_store.create(tmp, name, None, live=True, models=models)
+        finally:
+            tmp.unlink(missing_ok=True)
+            tmp.parent.rmdir()
 
     # --- auth -----------------------------------------------------------------------------------------------
 
@@ -170,6 +218,7 @@ def create_app(
                     "thinking_default": m.thinking.default,
                     "price_in": m.price.input_per_mtok,
                     "price_out": m.price.output_per_mtok,
+                    "available": bool(settings.api_key(reg.providers[m.provider].api_key_env)),
                 }
                 for mid, m in reg.models.items()
             ],
@@ -185,29 +234,20 @@ def create_app(
         return session_summary(the_store.create(d["path"], d["title"], d["id"], live=False))
 
     @app.post("/api/sessions/upload", dependencies=[Auth])
-    async def upload(file: Annotated[UploadFile, File()]) -> dict[str, Any]:
+    async def upload(
+        file: Annotated[UploadFile, File()],
+        understand_model: Annotated[str | None, Form()] = None,
+        understand_thinking: Annotated[str | None, Form()] = None,
+        review_model: Annotated[str | None, Form()] = None,
+        review_thinking: Annotated[str | None, Form()] = None,
+    ) -> dict[str, Any]:
+        reg = load_registry(settings.config_path / "models.yaml")
+        um, ut = check_choice(reg, settings, "understand", understand_model, understand_thinking)
+        rm, rt = check_choice(reg, settings, "review", review_model, review_thinking)
+        chosen = {"model": um, "thinking": ut, "review_model": rm, "review_thinking": rt}
+        models = {k: v for k, v in chosen.items() if v}
         data = await file.read(MAX_UPLOAD_BYTES + 1)
-        if len(data) > MAX_UPLOAD_BYTES:
-            raise HTTPException(413, "The PDF is larger than 25 MB.")
-        if not data.startswith(b"%PDF"):
-            raise HTTPException(415, "Only PDF drawings can be reviewed.")
-        try:
-            screen_pdf(data, settings.config_path)  # before the allowance: a turned-away file costs nothing
-        except UploadRejected as e:
-            raise HTTPException(e.status, e.message) from e
-        if the_store.live_left <= 0:
-            raise HTTPException(
-                429, "The demo's allowance of live reviews is used up. Open a demo drawing instead."
-            )
-        the_store.live_left -= 1
-        tmp = Path(tempfile.mkdtemp(prefix="di-up-")) / "upload.pdf"
-        tmp.write_bytes(data)
-        try:
-            name = Path(file.filename or "drawing.pdf").name
-            return session_summary(the_store.create(tmp, name, None, live=True))
-        finally:
-            tmp.unlink(missing_ok=True)
-            tmp.parent.rmdir()
+        return session_summary(start_upload(data, file.filename, models))
 
     @app.get("/api/sessions/{sid}", dependencies=[Auth])
     def get_session(sid: str) -> dict[str, Any]:
@@ -251,8 +291,10 @@ def create_app(
         sess = session_or_404(sid)
         done_or_409(sess)
         assert sess.data is not None
+        reg = load_registry(settings.config_path / "models.yaml")
+        model, thinking = check_choice(reg, settings, "qa", body.model, body.thinking)
         try:
-            answer = the_store.ask(sess, body.question.strip())
+            answer = the_store.ask(sess, body.question.strip(), model, thinking)
         except Exception as e:  # e.g. no API key and no cached reply: tell the user, keep the session
             raise HTTPException(502, f"the Q&A model could not answer: {type(e).__name__}") from e
         return answer_view(answer, sess.data, sess)

@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { FileText, FileUp, FlaskConical, Info, Loader2, Search } from "lucide-react";
-import type { Demo, ModelInfo, Rule, SessionInfo } from "../api";
-import { api } from "../api";
+import type { Demo, ModelChoice, ModelInfo, Role, Rule, SessionInfo } from "../api";
+import { api, modelChoice } from "../api";
 import { SEVERITY_COLOR, SOURCE_SHORT, money, secs } from "../format";
 
 export function Welcome({ demos, onOpenDemo, onUpload }: { demos: Demo[]; onOpenDemo: (id: string) => void; onUpload: () => void }) {
@@ -205,7 +205,7 @@ export function ReportsView({ sessions }: { sessions: SessionInfo[] }) {
   );
 }
 
-const ROLES: [string, string][] = [
+const ROLES: [Role, string][] = [
   ["understand", "Understand the drawing (vision)"],
   ["review", "AI reviewers"],
   ["qa", "Q&A assistant"],
@@ -213,14 +213,17 @@ const ROLES: [string, string][] = [
 
 export function SettingsView() {
   const [m, setM] = useState<{ defaults: Record<string, string>; models: ModelInfo[] } | null>(null);
+  const [choice, setChoice] = useState<ModelChoice>(modelChoice.get());
   useEffect(() => {
     api.models().then(setM).catch(() => setM({ defaults: {}, models: [] }));
   }, []);
+  const update = (c: ModelChoice) => (setChoice(c), modelChoice.set(c));
+  const custom = Object.keys(choice).length > 0;
   return (
     <div className="docview">
       <div className="pilotnote">
-        <Info size={15} /> The demo runs with the models below. Choosing a model and thinking level per role, with its price shown, is part of
-        the pilot.
+        <Info size={15} /> Choose the model and thinking level for each role. The choice is kept in this browser and applies to the
+        drawings you upload and the questions you ask from now on; the demo drawings replay their saved review.
       </div>
       <div className="formgrid">
         <span className="h">Role</span>
@@ -228,34 +231,41 @@ export function SettingsView() {
         <span className="h">Thinking</span>
         <span className="h">Price per million tokens (in / out)</span>
         {ROLES.map(([role, label]) => {
-          const id = m?.defaults[role];
-          const model = m?.models.find((x) => x.id === id);
+          const models = m?.models.filter((x) => x.roles.includes(role)) ?? [];
+          const id = choice[role]?.model ?? m?.defaults[role];
+          const model = models.find((x) => x.id === id);
+          const thinking = choice[role]?.thinking ?? model?.thinking_default ?? "";
+          const pick = (mid: string, t?: string) => {
+            const next = models.find((x) => x.id === mid);
+            if (!next) return;
+            update({ ...choice, [role]: { model: mid, thinking: t ?? next.thinking_default } });
+          };
           return (
-            <FragmentRow key={role} label={label} model={model} models={m?.models.filter((x) => x.roles.includes(role)) ?? []} />
+            <Fragment key={role}>
+              <span>{label}</span>
+              <select value={model?.id ?? ""} onChange={(e) => pick(e.target.value)} aria-label={`${label} model`}>
+                {models.map((x) => (
+                  <option key={x.id} value={x.id} disabled={!x.available}>
+                    {x.label} ({x.provider}){x.available ? "" : " — no API key on this server"}
+                  </option>
+                ))}
+              </select>
+              <select value={thinking} onChange={(e) => model && pick(model.id, e.target.value)} aria-label={`${label} thinking`}>
+                {(model?.thinking ?? []).map((t) => (
+                  <option key={t}>{t}</option>
+                ))}
+              </select>
+              <span className="mono">{model ? `$${model.price_in} / $${model.price_out}` : "–"}</span>
+            </Fragment>
           );
         })}
       </div>
+      <div style={{ marginTop: 14, display: "flex", gap: 10, alignItems: "center" }}>
+        <button className="btn" disabled={!custom} onClick={() => (setChoice({}), modelChoice.clear())}>
+          Reset to the defaults
+        </button>
+        <span style={{ color: "var(--text-3)" }}>{custom ? "Using your choice." : "Using the server's defaults."}</span>
+      </div>
     </div>
-  );
-}
-
-function FragmentRow({ label, model, models }: { label: string; model?: ModelInfo; models: ModelInfo[] }) {
-  return (
-    <>
-      <span>{label}</span>
-      <select disabled value={model?.id ?? ""}>
-        {models.map((x) => (
-          <option key={x.id} value={x.id}>
-            {x.label} ({x.provider})
-          </option>
-        ))}
-      </select>
-      <select disabled value={model?.thinking_default ?? ""}>
-        {(model?.thinking ?? []).map((t) => (
-          <option key={t}>{t}</option>
-        ))}
-      </select>
-      <span className="mono">{model ? `$${model.price_in} / $${model.price_out}` : "–"}</span>
-    </>
   );
 }

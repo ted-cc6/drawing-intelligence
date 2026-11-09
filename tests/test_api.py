@@ -208,3 +208,55 @@ def test_a_pari_drawing_passes_the_screen(client):
     assert r.status_code == 200
     assert client.get("/api/health").json()["live_runs_left"] == before - 1
     client.delete(f"/api/sessions/{r.json()['id']}", headers=h)
+
+
+def test_models_say_whether_their_provider_has_a_key(settings, tmp_path):
+    no_openai = settings.model_copy(update={"openai_api_key": None})
+    store = SessionStore(no_openai, tmp_path / "s", completion_fn=no_model)
+    app = create_app(no_openai, password="secret", web_dist=tmp_path / "none", store=store)
+    with TestClient(app) as c:
+        models = {m["id"]: m for m in c.get("/api/models", headers=_login(c)).json()["models"]}
+    assert models["qwen3.8-max"]["available"] and not models["gpt-6-astra"]["available"]
+
+
+@pytest.mark.parametrize(
+    ("fields", "says"),
+    [
+        ({"review_model": "qwen3-vl-plus"}, "cannot be used for the review role"),
+        ({"understand_model": "no-such-model"}, "Unknown model"),
+        ({"understand_model": "qwen3-vl-plus", "understand_thinking": "ultra"}, "no thinking level"),
+    ],
+)
+def test_an_unusable_model_choice_is_refused_before_anything_runs(client, fields, says):
+    h = _login(client)
+    before = client.get("/api/health").json()["live_runs_left"]
+    r = client.post(
+        "/api/sessions/upload",
+        files={"file": ("p13.pdf", P13.read_bytes(), "application/pdf")},
+        data=fields,
+        headers=h,
+    )
+    assert r.status_code == 422 and says in r.json()["detail"]
+    assert client.get("/api/health").json()["live_runs_left"] == before
+
+
+def test_the_chosen_models_reach_the_session(client):
+    h = _login(client)
+    fields = {"review_model": "qwen3.8-max", "review_thinking": "on"}
+    r = client.post(
+        "/api/sessions/upload",
+        files={"file": ("p13.pdf", P13.read_bytes(), "application/pdf")},
+        data=fields,
+        headers=h,
+    )
+    assert r.status_code == 200, r.text
+    assert r.json()["models"] == fields
+    client.delete(f"/api/sessions/{r.json()['id']}", headers=h)
+
+
+def test_a_qa_model_choice_is_checked(client):
+    h = _login(client)
+    sid = client.post("/api/sessions", json={"demo_id": "cam-plate-seeded"}, headers=h).json()["id"]
+    assert _wait(lambda: client.get(f"/api/sessions/{sid}", headers=h).json()["status"] == "done")
+    r = client.post(f"/api/sessions/{sid}/ask", json={"question": "Why?", "model": "nope"}, headers=h)
+    assert r.status_code == 422

@@ -85,6 +85,7 @@ class DemoSession:
     expected_nodes: set[str] = field(default_factory=set)  # the graph nodes this run will report
     sheets: dict[int, tuple[float, int, int]] = field(default_factory=dict)  # page -> (pts->px, w, h)
     cancelled: threading.Event = field(default_factory=threading.Event)  # set when the user closes it
+    models: dict[str, str] = field(default_factory=dict)  # model / thinking / review_model / review_thinking
 
     @property
     def out_dir(self) -> Path:
@@ -144,13 +145,15 @@ class SessionStore:
 
     # --- lifecycle ------------------------------------------------------------------------------------------
 
-    def create(self, pdf: Path, name: str, demo_id: str | None, live: bool) -> DemoSession:
+    def create(
+        self, pdf: Path, name: str, demo_id: str | None, live: bool, models: dict[str, str] | None = None
+    ) -> DemoSession:
         sid = uuid.uuid4().hex[:12]
         folder = self.root / sid
         folder.mkdir(parents=True)
         local = folder / ("input" + pdf.suffix.lower())
         shutil.copyfile(pdf, local)  # plain copy: some mounts refuse permission bits
-        sess = DemoSession(sid, name, local, folder, demo_id, live)
+        sess = DemoSession(sid, name, local, folder, demo_id, live, models=dict(models or {}))
         sess.stages = [Stage(k, label, nodes) for k, label, nodes in STAGES]
         with self._lock:
             self._sessions[sid] = sess
@@ -225,6 +228,11 @@ class SessionStore:
                 export_dir=sess.folder / "out",
                 progress=sess.on_progress,
                 completion_fn=self.completion_fn,
+                # the user's model per role (Options); None = the registry's default
+                model=sess.models.get("model"),
+                thinking=sess.models.get("thinking"),
+                review_model=sess.models.get("review_model"),
+                review_thinking=sess.models.get("review_thinking"),
             )
             assert sess.result.review is not None
             knowledge = {r.page_number: r.knowledge for r in sess.result.understanding}
@@ -254,13 +262,16 @@ class SessionStore:
 
     # --- Q&A ------------------------------------------------------------------------------------------------
 
-    def ask(self, sess: DemoSession, question: str) -> Answer:
+    def ask(
+        self, sess: DemoSession, question: str, model: str | None = None, thinking: str | None = None
+    ) -> Answer:
         assert sess.data is not None
         with sess.lock:
             if sess.conversation is None:
                 qa_settings = self.settings.model_copy(update={"sessions_root": sess.folder / "qa"})
                 sess.ask = AskSession(qa_settings, keep=False).__enter__()
                 sess.conversation = sess.ask.conversation(sess.data)
+            sess.conversation.model, sess.conversation.thinking = model, thinking  # per question (Options)
             answer = sess.conversation.ask(question)
             sess.qa_cost += answer.cost_usd
             return answer

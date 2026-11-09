@@ -53,6 +53,7 @@ def session_summary(sess: DemoSession) -> dict[str, Any]:
         "name": sess.name,
         "demo_id": sess.demo_id,
         "live": sess.live,
+        "models": sess.models,  # what the user chose in Options for this upload ({} = defaults)
         "status": sess.status,
         "error": sess.error,
         "stages": [
