@@ -896,3 +896,101 @@ def part_class_stated(ctx: ReviewContext, rule: Rule, params: PartClassParams) -
             )
         )
     return out
+
+
+def _rev_key(label: str) -> str:
+    """'01' and '1' are the same revision; letters are compared as printed."""
+    t = label.strip().upper()
+    return str(int(t)) if t.isdigit() else t
+
+
+def _in_revision_block(ctx: ReviewContext, page: PageExtraction, bbox: tuple[float, ...]) -> bool:
+    """A mark drawn in the revision table's own cells, not on the field."""
+    cx, cy = (bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2
+    if ctx.template.revision_rows is not None:
+        w, h = page.page_size_pts
+        x0, y0, x1, y1 = resolve_rect(ctx.template.revision_rows, w, h)
+        if x0 <= cx <= x1 and y0 <= cy <= y1:
+            return True
+    if any(abs(cx - (n.bbox[0] + n.bbox[2]) / 2) <= 15 for n in page.revision_numbers):
+        return True  # in the table's number column (its empty rows carry printed triangles too)
+    rows = [*page.revision_numbers, *page.revision_rows]
+    return any(
+        r.bbox[1] - 3 <= cy <= r.bbox[3] + 3 and max(r.bbox[0] - bbox[2], bbox[0] - r.bbox[2], 0) <= 40
+        for r in rows
+    )
+
+
+@check("revision_markers_match")
+def revision_markers_match(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """Revision triangles on the field (Δ1 at the point of change) name revisions the revision table lists,
+    and, on a drawing that marks its changes, every listed revision after the first issue has a mark."""
+    from drawing_intelligence.review.checks.drafting import graphic_pages
+
+    pages = graphic_pages(ctx)
+    listed: dict[str, tuple[PageExtraction, TextLine]] = {}
+    for page in pages:
+        for n in page.revision_numbers:
+            listed.setdefault(_rev_key(n.text), (page, n))
+    marks = []
+    for page in pages:
+        assert page.graphics is not None
+        for m in page.graphics.revision_marks:
+            if _in_revision_block(ctx, page, m.bbox):
+                # the table's own number, drawn in a triangle (stage 1 reads only plain numbers)
+                listed.setdefault(
+                    _rev_key(m.label),
+                    (page, TextLine(text=m.label, bbox=tuple(m.bbox))),  # type: ignore[arg-type]
+                )
+            else:
+                marks.append((page, m))
+    if not listed and not marks:
+        raise NotApplicable("no revisions listed and no revision marks on the field")
+    if not listed:
+        raise NotCheckable("revision marks on the field, but the revision table was not read")
+    # revisions are numbered in order (RV-007 checks that), so every number up to the latest is a listed one,
+    # including rows stage 1 could not read (a number in a triangle drawn on the cell's border)
+    latest = max((int(k) for k in listed if k.isdigit()), default=-1)
+    known = set(listed) | {str(i) for i in range(latest + 1)}
+    out = []
+    for page, m in marks:
+        if _rev_key(m.label) not in known:
+            out.append(
+                new_finding(
+                    rule,
+                    reviewer=REVIEWER,
+                    evidence=[
+                        EvidenceRef(
+                            kind="region",
+                            page=page.page_number,
+                            bbox=list(m.bbox),
+                            quote=f"Δ{m.label}",
+                            provenance="vector",
+                        )
+                    ],
+                    comment=f"The revision mark Δ{m.label} on the field names a revision the revision table "
+                    f"does not list (it lists {', '.join(sorted(listed, key=_order))}).",
+                    recommended_correction="Correct the mark's number, or add the revision to the table.",
+                )
+            )
+    if marks:  # the drawing marks its changes, so every revision after the first issue should be marked
+        marked = {_rev_key(m.label) for _, m in marks}
+        for key, (page, n) in sorted(listed.items(), key=lambda kv: _order(kv[0])):
+            if key in ("0", "00") or key in marked:
+                continue
+            out.append(
+                new_finding(
+                    rule,
+                    reviewer=REVIEWER,
+                    evidence=[ev.text(page, n)],
+                    comment=f"Revision {n.text.strip()} is in the revision table, but no revision mark on "
+                    "the field shows where it changed the drawing.",
+                    recommended_correction=f"Put a Δ{key} next to each feature that revision {key} changed.",
+                    result="warning",
+                )
+            )
+    return out
+
+
+def _order(key: str) -> tuple[int, str]:
+    return (int(key), "") if key.isdigit() else (10**6, key)

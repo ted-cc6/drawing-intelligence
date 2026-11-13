@@ -90,6 +90,8 @@ rules:
     severity: major
     check_type: code
     check: datum_feature_size_toleranced
+    # read from the PDF's vector geometry by heuristics, so a finding is a warning (lighter bar, 2026-11-13)
+    result: warning
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-13}
     status: draft
 
@@ -149,6 +151,8 @@ rules:
     severity: major
     check_type: code
     check: pattern_datum_defined
+    # read from the PDF's vector geometry by heuristics, so a finding is a warning (lighter bar, 2026-11-13)
+    result: warning
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-20}
     status: draft
 

@@ -14,7 +14,9 @@ from drawing_intelligence.settings import get_settings
 pytestmark = pytest.mark.regression
 
 SEEDED = get_settings().data_path / "eval" / "seeded"
-RECALL_FLOOR = 18  # planted errors caught on 2026-10-25: P01-P04, P07-P18, P21, P22
+RECALL_FLOOR = (
+    19  # planted errors caught: P01-P04, P07-P18, P21, P22 (2026-10-25); P20 by DSM-023 (2026-11-13)
+)
 
 
 @pytest.mark.skipif(not SEEDED.is_dir(), reason="no seeded cases in data/eval/seeded")

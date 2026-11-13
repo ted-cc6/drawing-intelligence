@@ -208,3 +208,34 @@ def thread_lead_multiple_of_pitch(ctx: ReviewContext, rule: Rule, _: object) -> 
             )
         )
     return out
+
+
+_INTERMITTENT = re.compile(r"\b(?:STITCH|INTERMITTENT|CHAIN|STAGGERED)\b[^.]*\bWELD", re.I)
+_LENGTH_PITCH = re.compile(r"\b\d+\s*[-–]\s*\d+\b|\b\d+\s*[xX×]\s*\d+\s*\(\s*\d+\s*\)|PITCH\D{0,12}\d")
+_WELD_TABLE = re.compile(r"WELD[\s-]*PITCH|WELD\s+LENGTH", re.I)
+
+
+@check("intermittent_weld_complete")
+def intermittent_weld_complete(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """An intermittent (stitch) weld gives its weld length and pitch ('50-150', or ISO 2553 'n x l (e)'),
+    in the call-out, or in a weld length / pitch table on the drawing (PARI's GENERAL WELDING DETAILS),
+    which covers every stitch weld it does not size."""
+    lines = [(p, ln) for p in ctx.pages for ln in p.body_text]
+    stitches = [(p, ln) for p, ln in lines if _INTERMITTENT.search(ln.text)]
+    if not stitches:
+        raise NotApplicable("no intermittent or stitch weld on the drawing")
+    if any(_WELD_TABLE.search(ln.text) for _, ln in lines):
+        return []
+    return [
+        new_finding(
+            rule,
+            reviewer=REVIEWER,
+            evidence=[ev.text(page, ln)],
+            comment=f"'{ln.text.strip()}' asks for an intermittent weld without its weld length and pitch, "
+            "and the drawing has no weld length / pitch table.",
+            recommended_correction="Give the length and pitch (e.g. 50-150), or add PARI's general welding "
+            "details table.",
+        )
+        for page, ln in stitches
+        if not _LENGTH_PITCH.search(ln.text)
+    ]

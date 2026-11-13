@@ -18,6 +18,7 @@ from drawing_intelligence.extraction.geometry import (
     find_chains,
     match_dimension_lines,
 )
+from drawing_intelligence.extraction.graphics import read_graphics
 from drawing_intelligence.extraction.imaging import ImagingConfig, export_page_images
 from drawing_intelligence.extraction.symbols import read_symbols
 from drawing_intelligence.extraction.template import Rect, Template, load_template
@@ -86,7 +87,8 @@ def extract_page(
     chains = find_chains(matches)
 
     text: dict[str, list[TextLine]] = {"title_block": [], "tolerance_table": [], "drawing_body": []}
-    for t, bbox in all_text_lines(page, template.glyph_remap):
+    lines = all_text_lines(page, template.glyph_remap)
+    for t, bbox in lines:
         text[_region_of(bbox, regions)].append(TextLine(text=t, bbox=bbox))
 
     tb = read_title_block(
@@ -140,6 +142,7 @@ def extract_page(
         ],
         scale_pts_per_mm=calibrate_scale(matches),
         chain_checks=check_chain_vs_overall(chains, matches, dim_ids),
+        graphics=read_graphics(page, rows, dim_ids, segments, lines, template.excluded_rects(w, h)),
         warnings=warnings,
     )
 

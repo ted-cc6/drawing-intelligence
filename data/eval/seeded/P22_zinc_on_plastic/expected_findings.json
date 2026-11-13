@@ -85,7 +85,7 @@
    "rule_id": "MF-011",
    "category": "material",
    "severity": "minor",
-   "result": "fail",
+   "result": "warning",
    "evidence": [
     {
      "kind": "title_block",

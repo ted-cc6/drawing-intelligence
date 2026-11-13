@@ -146,12 +146,8 @@ class MaterialRows:
     rows: list[Material]
 
 
-def des11_rows(ctx: ReviewContext, table: MaterialHeatTreatment) -> MaterialRows | None:
-    """The DES-11 rows the drawing's material matches: the title block's, else the '# MATERIAL :' note.
-
-    One designation can match two rows (C45 is a row and one of EN9's equivalents), and "EN9/C45" names two
-    grades; every row any part matches is returned, so a check judges only when the rows agree.
-    """
+def material_texts(ctx: ReviewContext) -> list[tuple[str, EvidenceRef]]:
+    """The material as printed: the title block's field (unless a placeholder), then '# MATERIAL :' notes."""
     found: list[tuple[str, EvidenceRef]] = []
     for page in ctx.pages:
         material = ev.value(page, "material")
@@ -160,7 +156,16 @@ def des11_rows(ctx: ReviewContext, table: MaterialHeatTreatment) -> MaterialRows
         for line in page.body_text:
             if m := _MATERIAL_NOTE.match(line.text):
                 found.append((m[1].strip(), ev.text(page, line)))
-    for text, evidence in found:
+    return found
+
+
+def des11_rows(ctx: ReviewContext, table: MaterialHeatTreatment) -> MaterialRows | None:
+    """The DES-11 rows the drawing's material matches: the title block's, else the '# MATERIAL :' note.
+
+    One designation can match two rows (C45 is a row and one of EN9's equivalents), and "EN9/C45" names two
+    grades; every row any part matches is returned, so a check judges only when the rows agree.
+    """
+    for text, evidence in material_texts(ctx):
         rows: list[Material] = []
         for part in re.split(r"[/,]| OR ", text):
             rows += [r for r in table.candidates(part.strip()) if r not in rows]

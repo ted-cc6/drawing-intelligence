@@ -33,6 +33,7 @@ _EXCLUDE_FROM_TEXT: dict[str, Any] = {
     "revision_numbers": True,
     "general_tolerances": True,
     "symbols": True,
+    "graphics": True,
     "dimensions": _PER_ITEM,
     "view_labels": _PER_ITEM,
     "notes": _PER_ITEM,

@@ -7,10 +7,11 @@ import re
 
 from pydantic import BaseModel, ConfigDict
 
+from drawing_intelligence.review.checks import _evidence as ev
 from drawing_intelligence.review.checks._registry import NotApplicable, check
 from drawing_intelligence.review.context import ReviewContext
 from drawing_intelligence.review.rulebook import Rule, new_finding
-from drawing_intelligence.schemas import EvidenceRef, Finding, PageExtraction, SymbolItem
+from drawing_intelligence.schemas import EvidenceRef, Finding, PageExtraction, SymbolItem, TextItem, TextLine
 
 REVIEWER = "checks"
 FORM = frozenset({"flatness", "straightness", "cylindricity", "circularity"})  # never take a datum
@@ -330,3 +331,158 @@ def material_modifier_on_feature_of_size(ctx: ReviewContext, rule: Rule, _: obje
                 )
             )
     return out
+
+
+# --- From stage 1's graphics (schema 2.3): basic dimensions and what a datum flag sits on -------------------
+
+
+@check("basic_dims_for_position")
+def basic_dims_for_position(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """A position tolerance locates its feature from basic (boxed) dimensions. A sheet with a position frame
+    and no boxed dimension at all leaves the true position undefined. Which feature each frame is on is not
+    known, so a sheet with some boxed dimensions passes."""
+    from drawing_intelligence.review.checks.drafting import boxed_values, graphic_pages
+
+    pages = graphic_pages(ctx)
+    frames = [(p, s) for p, s in _frames(ctx) if s.characteristic == "position" and p in pages]
+    if not frames:
+        raise NotApplicable("no position tolerance on the drawing")
+    boxed_on = {p.page_number for p, _ in boxed_values(ctx)}
+    return [
+        new_finding(
+            rule,
+            reviewer=REVIEWER,
+            evidence=[symbol(page, s)],
+            comment=f"The position tolerance '{s.text}' has no basic (boxed) dimension anywhere on the sheet "
+            "to locate its true position.",
+            recommended_correction="Box the dimensions that locate the feature (basic dimensions), or "
+            "state them in a note.",
+        )
+        for page, s in frames
+        if page.page_number not in boxed_on
+    ]
+
+
+def _foot(page: PageExtraction, flag: SymbolItem) -> tuple[float, float] | None:
+    """The centre of the flag's triangle: the filled triangle nearest its letter, within 40 pt."""
+    if page.graphics is None:
+        return None
+    cx, cy = (flag.bbox[0] + flag.bbox[2]) / 2, (flag.bbox[1] + flag.bbox[3]) / 2
+    feet = [((t[0] + t[2]) / 2, (t[1] + t[3]) / 2) for t in page.graphics.datum_triangles]
+    near = [f for f in feet if ((f[0] - cx) ** 2 + (f[1] - cy) ** 2) ** 0.5 <= 40]
+    return min(near, key=lambda f: (f[0] - cx) ** 2 + (f[1] - cy) ** 2) if near else None
+
+
+def _on_dimension_line(foot: tuple[float, float], line: tuple[float, float, float, float]) -> float | None:
+    """How far a datum triangle is from a dimension line it sits on: on the line itself or on its
+    continuation just past an end (where it replaces an arrowhead). None when it is not on the line."""
+    x0, y0, x1, y1 = line
+    cx, cy = foot
+    dx, dy = x1 - x0, y1 - y0
+    n = (dx * dx + dy * dy) ** 0.5
+    if n == 0:
+        return None
+    across = abs((cx - x0) * dy - (cy - y0) * dx) / n
+    t = ((cx - x0) * dx + (cy - y0) * dy) / (n * n)
+    along = 0.0 if 0 <= t <= 1 else (-t if t < 0 else t - 1) * n
+    if across <= 3 and along <= 15:
+        return across + along
+    return None
+
+
+def datum_dimensions(ctx: ReviewContext) -> list[tuple[PageExtraction, SymbolItem, TextItem]]:
+    """Datum flags whose triangle sits on a dimension line (or its continuation): the datum is the feature
+    of size that dimension measures. The nearest such dimension per flag."""
+    from drawing_intelligence.review.checks.drafting import _values
+
+    values = _values(ctx)
+    out = []
+    for page, s in _flags(ctx):
+        foot = _foot(page, s)
+        if foot is None:
+            continue
+        best = None
+        for p, d, g in values:
+            if p is not page or g.line is None or g.span_pts is None:
+                continue
+            dist = _on_dimension_line(foot, g.line)
+            if dist is not None and (best is None or dist < best[0]):
+                best = (dist, d)
+        if best is not None:
+            out.append((page, s, best[1]))
+    return out
+
+
+def _explicitly_toleranced(page: PageExtraction, d: TextItem) -> bool:
+    from drawing_intelligence.review.checks.fits import _stacked_partner, parse_fit
+
+    t = d.text
+    return bool(
+        d.limits or re.search(r"±|\+\s*\d|[-–]\s*0[.,]\d", t) or parse_fit(t) or _stacked_partner(page, d)
+    )
+
+
+@check("datum_feature_size_toleranced")
+def datum_feature_size_toleranced(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """A datum that is a feature of size (a datum flag in line with a size's dimension line) has a size
+    tolerance of its own; the general tolerance is too loose to set up a datum from."""
+    on_sizes = [(p, s, d) for p, s, d in datum_dimensions(ctx) if "°" not in d.text and not d.is_reference]
+    if not on_sizes:
+        raise NotApplicable("no datum flag on a dimensioned feature of size")
+    return [
+        new_finding(
+            rule,
+            reviewer=REVIEWER,
+            evidence=[symbol(page, s), ev.dimension(page, d)],
+            comment=f"Datum {', '.join(s.datums)}'s triangle sits in line with the dimension "
+            f"{d.text.strip()}, which makes the datum that feature of size (ASME Y14.5); the size has no "
+            "tolerance of its own, only the general tolerance.",
+            recommended_correction=f"Tolerance {d.text.strip()} directly, e.g. with a fit or ± limits; or, "
+            "if the face is meant, move the triangle off the dimension line.",
+        )
+        for page, s, d in on_sizes
+        if not _explicitly_toleranced(page, d)
+    ]
+
+
+# "4X Ø9", "4 x M6", "4-M6", "6 HOLES": a count of two or more and a hole, thread or diameter
+_PATTERN = re.compile(r"^\s*(?:[2-9]|\d{2,})\s*(?:[xX×]|-|NOS?\.?)?\s*(?:[Ø⌀M]|DIA|HOLES?\b|DRILL|TAP)", re.I)
+
+
+def _nearest_callout(page: PageExtraction, s: SymbolItem) -> TextItem | TextLine | None:
+    items = [
+        it
+        for it in [*page.dimensions, *page.other_numeric, *page.body_text]
+        if re.search(r"\d", it.text) and _gap(s.bbox, it.bbox) <= NEAR
+    ]
+    return min(items, key=lambda it: _gap(s.bbox, it.bbox)) if items else None
+
+
+@check("pattern_datum_defined")
+def pattern_datum_defined(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """A pattern used as a datum (a flag on '4X Ø9') is defined by a position tolerance on the pattern, so
+    the datum axis is the pattern's true positions. Judged by nearness on the sheet."""
+    on_patterns = []
+    for page, s in _flags(ctx):
+        c = _nearest_callout(page, s)
+        if c is not None and _PATTERN.match(c.text):
+            on_patterns.append((page, s, c))
+    if not on_patterns:
+        raise NotApplicable("no datum flag next to a pattern call-out")
+    positions = [(p, f) for p, f in _frames(ctx) if f.characteristic == "position"]
+    return [
+        new_finding(
+            rule,
+            reviewer=REVIEWER,
+            evidence=[
+                symbol(page, s),
+                ev.dimension(page, c) if isinstance(c, TextItem) and c.id else ev.text(page, c),
+            ],
+            comment=f"Datum {', '.join(s.datums)} is the pattern {c.text.strip()}, but no position tolerance "
+            "near it defines the pattern.",
+            recommended_correction="Add a position frame to the pattern call-out so the datum is the "
+            "pattern's true positions.",
+        )
+        for page, s, c in on_patterns
+        if not any(p is page and _gap(f.bbox, c.bbox) <= NEAR for p, f in positions)
+    ]

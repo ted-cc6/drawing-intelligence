@@ -454,3 +454,89 @@ def hole_depth_stated(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding
         for page, item in calls
         if not _HAS_DEPTH.search(item.text) and not _depth_below(page, item)
     ]
+
+
+class TapDrillParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    min_extra_pitches: float
+    table: str = "iso_metric_threads"  # for the coarse pitch when the call-out does not give one
+    report_missing: bool = (
+        False  # PARI's call-outs never state a drill depth: until PARI decides, not a finding
+    )
+
+
+_BLIND_TAPPED = re.compile(
+    r"(?<![\w.])M\s?(?P<d>\d+(?:\.\d+)?)(?:\s*[xX×]\s*(?P<p>\d+(?:\.\d+)?)(?=\s*[xX×]))?\s*[xX×\-]\s*"
+    r"(?P<depth>\d+(?:\.\d+)?)" + _MM + r"(?:DEEP|DP\b)",
+    re.I,
+)
+_TAP_DRILL = re.compile(
+    r"(?:DRILL\w*\s*|TAP\s+DRILL\s*)?(?:[Ø⌀]|DIA\.?)\s*(?P<d>\d+(?:\.\d+)?)" + _MM + r"[xX×\-]\s*"
+    r"(?P<depth>\d+(?:\.\d+)?)" + _MM + r"(?:DEEP|DP\b)",
+    re.I,
+)
+
+
+@check("tap_drill_depth", TapDrillParams)
+def tap_drill_depth(ctx: ReviewContext, rule: Rule, params: TapDrillParams) -> list[Finding]:
+    """A blind tapped hole's drill goes at least `min_extra_pitches` pitches deeper than its thread, so the
+    tap's lead has room. Judged where the call-out (or the line under it) states the drill depth."""
+    from drawing_intelligence.review.reference import MetricThreads
+
+    table = ctx.reference.get(params.table)
+    out, tapped, judged = [], 0, 0
+    for page, item in all_text(ctx):
+        for m in _BLIND_TAPPED.finditer(item.text):
+            tapped += 1
+            d, thread_depth = float(m["d"]), float(m["depth"])
+            pitch = float(m["p"]) if m["p"] else None
+            if pitch is None and isinstance(table, MetricThreads) and d in table.sizes:
+                pitch = table.sizes[d].coarse
+            below = [
+                ln.text
+                for ln in page.body_text
+                if 0 < ln.bbox[1] - item.bbox[1] <= 14 and abs(ln.bbox[0] - item.bbox[0]) <= 40
+            ]
+            drill = next(
+                (
+                    k
+                    for t in [item.text[m.end() :], *below]
+                    for k in _TAP_DRILL.finditer(t)
+                    if float(k["d"]) < d
+                ),
+                None,
+            )
+            if drill is None:
+                if params.report_missing:
+                    out.append(
+                        new_finding(
+                            rule,
+                            reviewer=REVIEWER,
+                            evidence=[ev.text(page, item)],
+                            comment=f"The tapped hole {m.group(0).strip()} does not state its drill depth.",
+                            recommended_correction="State the tap drill and its depth, e.g. "
+                            "'Ø6.8 x 20 DEEP'.",
+                        )
+                    )
+                continue
+            if pitch is None:
+                continue
+            judged += 1
+            need = thread_depth + params.min_extra_pitches * pitch
+            if float(drill["depth"]) < need - 1e-6:
+                out.append(
+                    new_finding(
+                        rule,
+                        reviewer=REVIEWER,
+                        evidence=[ev.text(page, item)],
+                        comment=f"{m.group(0).strip()} is drilled only {drill['depth']} deep; the thread "
+                        f"needs at least {need:g} ({thread_depth:g} + {params.min_extra_pitches:g} x "
+                        f"{pitch:g} pitch).",
+                        recommended_correction=f"Drill at least {need:g} deep, or shorten the thread.",
+                    )
+                )
+    if not tapped:
+        raise NotApplicable("no blind tapped hole on the drawing")
+    if not judged and not params.report_missing:
+        raise NotCheckable("no blind tapped hole states its drill depth")
+    return out

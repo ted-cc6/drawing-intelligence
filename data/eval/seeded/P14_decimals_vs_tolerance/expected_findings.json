@@ -103,6 +103,29 @@
    ],
    "description": "The ⌀ 16 H7 hole is zinc plated (I.Z.B.P., 8-12 µm per PARI DES-12) with no allowance for the plating, which can take up the whole 18 µm H7 band.",
    "also_acceptable": []
+  },
+  {
+   "rule_id": "ISO-029",
+   "category": "consistency",
+   "severity": "minor",
+   "result": "warning",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D10",
+     "page": 1,
+     "bbox": [
+      362.4,
+      383.8,
+      371.9,
+      431.9
+     ],
+     "quote": "28.500±0.1",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The planted value is longer than the original 28.5±0.1 and now runs over the hole's centre line, so the line crosses its last characters.",
+   "also_acceptable": []
   }
  ]
 }

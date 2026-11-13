@@ -16,6 +16,8 @@ rules:
     severity: major
     check_type: code
     check: basic_dimension_untoleranced
+    # box detection (drawn rectangles meeting at corners) is a heuristic, so a finding is a warning
+    result: warning
     source: {document: Dimensioning and Tolerancing tutorial slides (author not stated; ASME Y14.5-1994), section: Terminology (p9-10)}
     status: draft
 
@@ -64,6 +66,8 @@ rules:
     severity: critical
     check_type: code
     check: basic_dims_for_position
+    # box detection (drawn rectangles meeting at corners) is a heuristic, so a finding is a warning
+    result: warning
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-11}
     status: draft
 

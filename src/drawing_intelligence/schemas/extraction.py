@@ -10,9 +10,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-EXTRACTION_SCHEMA_VERSION = (
-    "2.2"  # 2.2: symbols. 2.1: title-block fields, revision rows, chain ids, general tolerances
-)
+# 2.3: graphics. 2.2: symbols. 2.1: title-block fields, revision rows, chain ids, general tolerances
+EXTRACTION_SCHEMA_VERSION = "2.3"
 
 BBox = tuple[float, float, float, float]
 
@@ -94,6 +93,82 @@ class SymbolItem(BaseModel):
     provenance: Literal["pdf_text", "vector"]
 
 
+class ArrowheadItem(BaseModel):
+    """A dimension-line termination drawn on the sheet."""
+
+    tip: tuple[float, float]
+    axis: tuple[float, float] = Field(description="unit vector from the base to the tip")
+    length: float
+    style: Literal["filled", "closed", "open"] = Field(
+        description="filled triangle, outlined triangle, or two strokes with no base"
+    )
+
+
+class CircleItem(BaseModel):
+    """A full circle, drawn as a closed chain of short segments."""
+
+    centre: tuple[float, float]
+    radius: float = Field(description="in PDF points")
+
+
+class DimensionGraphics(BaseModel):
+    """How one dimension value is drawn: the line it sits on and what is around its text."""
+
+    dimension_id: str
+    direction: tuple[float, float] = Field(description="the text's reading direction, a unit vector")
+    line: BBox | None = Field(
+        default=None, description="the arrowed dimension line or leader nearest the value, or None"
+    )
+    arrowheads: int = Field(default=0, description="arrowheads on that line and the strokes joined to it")
+    arrow_tips: list[tuple[float, float]] = []
+    line_arrowheads: int = Field(
+        default=0,
+        description="arrowheads on the straight line itself (collinear with it), not on joined strokes",
+    )
+    span_pts: float | None = Field(
+        default=None, description="tip-to-tip distance when the line has two opposed arrowheads"
+    )
+    tip_on_circle: bool = Field(default=False, description="an arrow tip lies on a full circle")
+    arc_radius_pts: float | None = Field(
+        default=None,
+        description="radius values: the drawn radius of the arc the arrow lands on, in PDF points",
+    )
+    boxed: bool = Field(default=False, description="the value is framed by a drawn rectangle")
+    underlined: bool = Field(default=False, description="a stroke the length of the value runs under it")
+    crossed_by: list[BBox] = Field(default=[], description="strokes passing through the value's text")
+    in_table: bool = Field(default=False, description="the value sits in a ruled table cell")
+    ordinate: bool = Field(
+        default=False,
+        description="no arrowed line, but a line ends at the value along its reading direction (an ordinate "
+        "or running dimension, which has no arrowheads)",
+    )
+
+
+class FieldRevisionMark(BaseModel):
+    """A revision triangle (Δ) with its label, on the drawing field (outside the title block)."""
+
+    label: str
+    bbox: BBox
+
+
+class PageGraphics(BaseModel):
+    arrowheads: list[ArrowheadItem] = []
+    arrowhead_styles: dict[str, int] = Field(default={}, description="style -> count")
+    circles: list[CircleItem] = []
+    dimensions: list[DimensionGraphics] = []
+    revision_marks: list[FieldRevisionMark] = []
+    revision_cells: list[BBox] = Field(
+        default=[],
+        description="revision triangles drawn on a table cell's border (two strokes and the border)",
+    )
+    datum_triangles: list[BBox] = Field(
+        default=[], description="filled, about equilateral triangles: the feet of datum flags"
+    )
+    leadered_text: list[BBox] = Field(
+        default=[], description="body text lines an arrowed leader starts from (a note pointing at an area)"
+    )
+
+
 class Tile(BaseModel):
     file: str = Field(description="path relative to the extraction folder")
     pixel_box: tuple[int, int, int, int]
@@ -137,11 +212,14 @@ class PageExtraction(BaseModel):
     matched_lines: list[MatchedLine] = []
     scale_pts_per_mm: float | None = None
     chain_checks: list[ChainCheck] = []
+    graphics: PageGraphics | None = Field(
+        default=None, description="arrowheads, dimension lines, circles, revision marks (schema 2.3)"
+    )
     warnings: list[str] = []
 
 
 class Extraction(BaseModel):
-    schema_version: Literal["2.0", "2.1", "2.2"] = EXTRACTION_SCHEMA_VERSION
+    schema_version: Literal["2.0", "2.1", "2.2", "2.3"] = EXTRACTION_SCHEMA_VERSION
     source_file: str
     template: str
     n_pages: int

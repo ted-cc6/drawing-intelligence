@@ -21,7 +21,15 @@ rules:
     severity: minor
     check_type: lookup
     check: material_approved
-    params: {table: approved_materials, suggest_closest: true}
+    # DES-11 as PARI's approved list is our reading until PARI confirms it, so a finding is a warning
+    result: warning
+    # DES-11 is PARI's approved list for the steels it covers; other materials are not judged until PARI names a
+    # list for them (docs/pari_questions.md).
+    params:
+      table: material_heat_treatment
+      classes_table: materials
+      governed_classes: [carbon_steel, alloy_steel, tool_steel]
+      suggest_closest: true
     source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: Material table (13 grades) + US-India equivalents}
     status: draft
 

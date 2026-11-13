@@ -182,3 +182,59 @@ def stock_size_available(ctx: ReviewContext, rule: Rule, params: StockParams) ->
                 )
             )
     return out
+
+
+_REFERS = re.compile(r"\bREF\b|AS\s+PER|SEE\s+NOTE|^\W*#\W*$", re.I)  # "REF. NOTE": the material is elsewhere
+
+
+class ApprovedParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    table: str  # DES-11's material table: PARI's approved high-carbon and alloy steel grades
+    classes_table: str  # material designation -> class, to tell which materials DES-11 governs
+    governed_classes: list[str]  # the classes DES-11 lists grades for
+    suggest_closest: bool = True
+
+
+@check("material_approved", ApprovedParams)
+def material_approved(ctx: ReviewContext, rule: Rule, params: ApprovedParams) -> list[Finding]:
+    """A carbon or alloy steel is one of DES-11's grades (its 13 rows and their equivalents). DES-11 covers
+    those steels only, so mild steel, stainless, aluminium and plastics are not judged; a material no list
+    recognises at all is a warning, as it may be a spelling DES-11 does not print."""
+    import difflib
+
+    from drawing_intelligence.review.reference import Materials
+
+    des11 = ctx.reference.get(params.table)
+    classes = ctx.reference.get(params.classes_table)
+    if not isinstance(des11, MaterialHeatTreatment) or not isinstance(classes, Materials):
+        raise NotCheckable(f"reference tables {params.table!r} / {params.classes_table!r} not loaded")
+    named = [(t, e) for t, e in pr.material_texts(ctx) if not ev.is_placeholder(t) and not _REFERS.search(t)]
+    if not named:
+        raise NotCheckable("no material on the drawing (title block or '# MATERIAL' note)")
+    text, evidence = named[0]
+    if pr.des11_rows(ctx, des11) is not None:
+        return []
+    cls = classes.classify(text)
+    if cls is not None and cls not in params.governed_classes:
+        raise NotApplicable(f"{text.strip()} is {cls.replace('_', ' ')}, which DES-11 does not cover")
+    grades = [m.key for m in des11.materials]
+    near = (
+        difflib.get_close_matches(_norm(text), [_norm(g) for g in grades], n=1, cutoff=0.5)
+        if params.suggest_closest
+        else []
+    )
+    closest = next((g for g in grades if near and _norm(g) == near[0]), None)
+    what = f"a {cls.replace('_', ' ')}" if cls else "a material no PARI list recognises"
+    return [
+        new_finding(
+            rule,
+            reviewer=REVIEWER,
+            evidence=[evidence],
+            comment=f"The material {text.strip()!r} is {what} and not one of DES-11's grades.",
+            recommended_correction=(
+                f"Use a DES-11 grade{f' (closest: {closest})' if closest else ''}, or have the material "
+                "approved and added to DES-11."
+            ),
+            result="warning" if cls is None else None,
+        )
+    ]

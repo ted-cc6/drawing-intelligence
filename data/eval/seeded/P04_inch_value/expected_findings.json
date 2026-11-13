@@ -73,7 +73,7 @@
    "rule_id": "MF-013",
    "category": "surface_treatment",
    "severity": "minor",
-   "result": "fail",
+   "result": "warning",
    "evidence": [
     {
      "kind": "title_block",

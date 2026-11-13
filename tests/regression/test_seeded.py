@@ -94,7 +94,8 @@ def test_keys_follow_the_rulebook():
         for f in key.expected + key.pre_existing:
             rule = rules[f.rule_id]
             assert (f.category, f.severity) == (rule.category, rule.severity), f"{key.case} {f.rule_id}"
-            assert f.result == ("warning" if rule.check_type == "llm" else "fail"), f"{key.case} {f.rule_id}"
+            # LLM rules and rules marked `result: warning` only ever warn
+            assert f.result == ("fail" if rule.can_fail else "warning"), f"{key.case} {f.rule_id}"
             assert set(f.also_acceptable) <= set(rules), f"{key.case} {f.also_acceptable}"
         for trap in key.must_not_flag:
             assert set(trap.rule_ids) <= set(rules), f"{key.case} {trap.rule_ids}"

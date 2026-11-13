@@ -14,7 +14,7 @@ from drawing_intelligence.review.checks._text import all_text
 from drawing_intelligence.review.context import ReviewContext
 from drawing_intelligence.review.reference_p2 import HardnessTable, NumericTable
 from drawing_intelligence.review.rulebook import Rule, new_finding
-from drawing_intelligence.schemas import ChainCheck, EvidenceRef, Finding, PageExtraction
+from drawing_intelligence.schemas import ChainCheck, EvidenceRef, Finding, PageExtraction, TextLine
 
 REVIEWER = "checks"
 
@@ -533,4 +533,56 @@ def mass_within_envelope(ctx: ReviewContext, rule: Rule, params: MassParams) -> 
             )
     if not judged:
         raise NotApplicable("no stated mass with a known material and enough dimensions")
+    return out
+
+
+class WhereIndicatedParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    trigger_phrases: list[str]
+
+
+_MARKER_TEXT = re.compile(r"^\s*X{4,}\s*$")  # an area marked XXXX on the field
+
+
+def _block(page: PageExtraction, line: TextLine) -> list[TextLine]:
+    """The note a line belongs to: the lines just above and below it, in the same column."""
+    h = line.bbox[3] - line.bbox[1]
+    return [
+        ln
+        for ln in page.body_text
+        if abs(ln.bbox[1] - line.bbox[1]) <= 3 * h and ln.bbox[0] < line.bbox[2] and line.bbox[0] < ln.bbox[2]
+    ]
+
+
+@check("where_indicated_has_marker", WhereIndicatedParams)
+def where_indicated_has_marker(ctx: ReviewContext, rule: Rule, params: WhereIndicatedParams) -> list[Finding]:
+    """A note that applies "where indicated" or to "surfaces marked" has its marker on the field: a leader
+    from the note to the area, or the area marked XXXX. Stage 1 reads leaders from the note's lines."""
+    triggers = [re.compile(re.escape(p).replace(r"\ ", r"\s+"), re.I) for p in params.trigger_phrases]
+    hits = [
+        (page, ln) for page in ctx.pages for ln in page.body_text if any(t.search(ln.text) for t in triggers)
+    ]
+    if not hits:
+        raise NotApplicable("no note applies to an indicated or marked area")
+    if all(page.graphics is None for page, _ in hits):
+        raise NotCheckable("stage 1 did not read the drawing's graphics (extracted before schema 2.3)")
+    marked = any(_MARKER_TEXT.match(ln.text) for page in ctx.pages for ln in page.body_text)
+    out = []
+    for page, ln in hits:
+        if page.graphics is None or marked:
+            continue
+        led = {tuple(b) for b in page.graphics.leadered_text}
+        if any(tuple(b.bbox) in led for b in _block(page, ln)):
+            continue
+        out.append(
+            new_finding(
+                rule,
+                reviewer=REVIEWER,
+                evidence=[ev.text(page, ln)],
+                comment=f"'{ln.text.strip()}' applies to an indicated area, but no leader runs from the "
+                "note and no area is marked on the field.",
+                recommended_correction="Mark the area (a leader from the note, or the area marked XXXX) so "
+                "the shop knows where the note applies.",
+            )
+        )
     return out

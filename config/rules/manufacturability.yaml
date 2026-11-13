@@ -60,7 +60,8 @@ rules:
     severity: major
     check_type: code
     check: tap_drill_depth
-    params: {min_extra_pitches: 3}
+    # PARI's call-outs never state a drill depth: only a stated one is judged until PARI decides.
+    params: {min_extra_pitches: 3, report_missing: false}
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-04}
     status: draft
 
