@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 
 from drawing_intelligence.review.context import ReviewContext
-from drawing_intelligence.schemas import PageExtraction, TextLine
+from drawing_intelligence.schemas import PageExtraction, TextItem, TextLine
 
 
 def term(word: str) -> re.Pattern[str]:
@@ -65,3 +65,18 @@ def template_note(page: PageExtraction) -> TextLine | None:
         if TEMPLATE_NUMBERED.match(ln.text[m.end() :] if m else ln.text):
             return ln
     return None
+
+
+def all_text(ctx: ReviewContext) -> list[tuple[PageExtraction, TextItem | TextLine]]:
+    """Every dimension, other number and body line on the drawing, each printed text once (stage 1 gives
+    a note
+    both as a note and as a body line)."""
+    out: list[tuple[PageExtraction, TextItem | TextLine]] = []
+    for page in ctx.pages:
+        seen = set()
+        for item in [*page.dimensions, *page.other_numeric, *page.notes, *page.body_text]:
+            key = (item.text.strip(), tuple(round(v) for v in item.bbox[:2]))
+            if key not in seen:
+                seen.add(key)
+                out.append((page, item))
+    return out

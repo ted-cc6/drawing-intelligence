@@ -75,6 +75,7 @@ rules:
     severity: major
     check_type: code
     check: closed_chain
+    result: warning
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: DM-03}
     status: draft
 
@@ -564,6 +565,7 @@ rules:
     severity: minor
     check_type: code
     check: content_inside_border
+    result: warning
     source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: 3.1 (p37)}
     status: draft
 

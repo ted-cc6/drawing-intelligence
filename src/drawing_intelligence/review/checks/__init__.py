@@ -11,6 +11,7 @@ from drawing_intelligence.review.checks import (  # noqa: F401 - importing regis
     consistency,
     fits,
     gdt,
+    manufacturability,
     material,
     notes,
     surface_treatment,

@@ -8,6 +8,74 @@ tests in `tests/test_checks.py`, sweep it over the 200-drawing development sampl
 confirm `di eval review --no-understand` still has 0 code false alarms. Until a rule has a check it is reported
 "not checked", never "pass".
 
+## Ranking of the 59 left (2026-11-12)
+
+On `main` at `6e76182`: 76 of 135 code/lookup rules have a check; 59 do not (41 `code`, 18 `lookup`). Ranked by
+how hard the check is to build with what stage 1 and `config/reference/` give today. "PARI hits" counts the 137
+PARI drawings in `data/client_set/` whose text has the rule's trigger (0 means the check will rarely fire).
+
+With the deadline close, the easy and medium checks are built with a lighter test bar: one passing and one failing
+unit test per check and one sweep over the client drawings. A check that rests on a heuristic gets
+`result: warning`, so it cannot add a false fail and the seeded eval keeps 0 code false alarms.
+
+**Easy (18):** stage-1 text plus a table already transcribed or a pattern an existing check uses.
+
+| Rule | Why easy | PARI hits |
+|---|---|---|
+| NM-001 | the three notes are in `params` | 136 |
+| MC-002 | Ø and depth from the hole callout, a ratio | 64 |
+| DM-003 | `chain_checks` already finds chains that close on an overall | n/a |
+| WPM-001, WPM-002 | DES-11 `material_heat_treatment`; same shape as `treatment_material_compat` | 73 |
+| WPS-001, WPS-003 | `plating_processes`, `plating_prerequisites` | 11 |
+| WPS-005, MF-006 | plated part + chamfer callout / threads with no masking note (warning) | 11 |
+| WPM-004 | two keywords; "nitriding follows finish machining" left to the LLM | 0 |
+| NASA-061 | border regions are in the template | n/a |
+| WST-130 | `hardness_conversion_steel` | 2 |
+| WPE-001, WST-239, WST-229, WST-249, WST-240, NASA-078 | regex plus a list or table | 0 |
+
+**Status (2026-11-12, branch `feat/easy-checks`): all 18 easy rules have a check (76 → 94 of 135).** Tests in
+`tests/test_checks_easy.py`; `di eval review --no-understand` unchanged (71/71, 0 code false alarms). Sweep over
+the 137 client drawings, findings read one by one:
+
+| Rule | pass | finding | not checked | Notes |
+|---|---|---|---|---|
+| WPM-001 | 31 | 1 fail | 36 | induction hardening on 20MnCr5 (DES-11: NIL). Not checked = material not a DES-11 row (M.S.) |
+| WPM-002 | 27 | 4 fail | 35 | 20MnCr5 case hardened 40-45 and 55-60 HRC (DES-11 56-60); EN24 "HARDENED 32-35 HRC", in no DES-11 column |
+| WPS-001 (warning) | 41 | 1 | 0 | "ZINK BLACK PASSIVATION": not DES-12's name for IZBP |
+| WPS-005 (warning) | 1 | 8 | 0 | hard / flash chrome parts with chamfers |
+| MF-006 (warning) | 1 | 8 | 0 | flash chrome parts with threads, no masking note |
+| DM-003 (warning) | 9 | 8 | 0 | chains that close on an overall with no reference link |
+| NM-001 | 136 | 1 fail | 0 | one portrait sheet on another template |
+| MC-002 | 62 | 0 | 0 | |
+| NASA-061 (warning) | 123 | 0 | 14 | judged against the zone markers' line; sheets with no markers are not checked |
+| WPS-003, WPM-004 | 1, 2 | 0 | 0 | |
+| WST-130, WPE-001, WST-239, WST-229, WST-249, WST-240, NASA-078 | n/a | 0 | 0 | trigger absent on all 137 (unit tests only) |
+
+Narrower than the rule text: WPM-004 judges "not chrome plated" only (nitriding after finish machining is left to
+the AI reviewers); MF-006 judges thick or hard platings only (`processes`), as PARI leaves IZBP threads unmasked;
+NASA-061 flags only items that reach the zone markers, because the template's border strips are wider than the
+printed frame. Heat treatment and material are read from the notes as well as the title block (`checks/_process.py`):
+PARI's title block mostly says "---" and the notes carry "TO BE TOUGHENED UPTO 28-32 HRC" and "# MATERIAL : EN9".
+A bare HARDENED is compared with every DES-11 column for the material.
+
+**Medium (21):** text heuristics with false-alarm risk, nearness on the sheet, a small stage-1 change, or a PARI
+decision.
+- Hole and thread callouts: MX-003, MC-004, MC-006, MX-006.
+- Material and size: WPM-005 (31 hits), MF-003, WST-132.
+- GD&T by nearness: NASA-134, MD-021, DTT-057 (stage 1 does not read MMC/LMC modifiers yet).
+- Part class: SC-002, WF-007. The title block has a PART CLASS. cell the template does not read yet, and some
+  notes say "WELD CLASS : B".
+- Labels and markers: VW-003 (70 hits), NASA-100, NASA-006.
+- Dimensions: DM-002, DSM-023, MP-009 (17 hits).
+- Needs PARI: MD-002 and SC-001 (thresholds not set), MF-011 (no approved-materials list).
+
+**Hard (20):** new vector detection, knowing what a feature is, or a missing table.
+- Arrowheads and lines: CN-003, ISO-023, ISO-025, ISO-027, ISO-029, WST-050.
+- Text direction (stage 1 does not record it): ISO-030, ISO-031.
+- Feature identity: MX-009, MX-011, MX-012, MD-013, MD-020, MP-012, WST-206, DTT-002 (boxed basic dimensions),
+  MX-026 (weld symbols are graphics).
+- Tables: MC-007 (keyway tolerances not transcribed), MC-008 (no circlip table), WST-242 (undercut tied to a thread).
+
 ## P1 Text and title-block checks (27)
 
 **Status (2026-10-27, branch `feat/p1-text-checks`, Mushahid): all 27 have a check.** Six are narrower than the

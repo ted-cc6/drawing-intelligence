@@ -17,6 +17,8 @@ rules:
     severity: minor
     check_type: code
     check: masking_note
+    params: {table: plating_processes, processes: [hard_chrome, flash_chrome, hard_anodizing, enp, balzer]}
+    result: warning
     source: {document: PARI US-India equivalent Materials Info.xlsx, section: Note 1 (mask the functional area)}
     status: draft
 
@@ -166,7 +168,8 @@ rules:
     severity: major
     check_type: lookup
     check: surface_treatment_approved
-    params: {table: plating_processes}
+    params: {table: plating_processes, not_plating: [paint, powder coat, enamel, lacquer, oil, blacken, black oxide]}
+    result: warning
     source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: Type of surface treatment (10 processes)}
     status: draft
 
@@ -191,7 +194,7 @@ rules:
     severity: major
     check_type: lookup
     check: treatment_prerequisites
-    params: {table: plating_processes}
+    params: {table: plating_processes, prerequisites: plating_prerequisites}
     source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: Input surface pre-requisites; remarks}
     status: draft
 
@@ -217,6 +220,7 @@ rules:
     check_type: code
     check: plating_edge_radius
     params: {processes: [hard chrome, flash chrome, QPQ]}
+    result: warning
     source: {document: 'PARI PRD-GD-DES-12 Surface Treatment / Plating Process Selection (rev 4, 2023-08-10)', section: Process constraints}
     status: draft
 

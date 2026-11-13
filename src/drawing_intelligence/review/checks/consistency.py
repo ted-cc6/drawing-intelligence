@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import re
 
 from pydantic import BaseModel, ConfigDict
@@ -9,7 +10,9 @@ from pydantic import BaseModel, ConfigDict
 from drawing_intelligence.review.checks import _evidence as ev
 from drawing_intelligence.review.checks._geometry import Drawn, drawn_dimensions, supported_scales
 from drawing_intelligence.review.checks._registry import NotApplicable, NotCheckable, check
+from drawing_intelligence.review.checks._text import all_text
 from drawing_intelligence.review.context import ReviewContext
+from drawing_intelligence.review.reference_p2 import HardnessTable
 from drawing_intelligence.review.rulebook import Rule, new_finding
 from drawing_intelligence.schemas import ChainCheck, EvidenceRef, Finding, PageExtraction
 
@@ -185,4 +188,231 @@ def no_mixed_unit_systems(ctx: ReviewContext, rule: Rule, params: UnitParams) ->
                     recommended_correction="Give the value in mm, or mark it as a declared dual dimension.",
                 )
             )
+    return out
+
+
+@check("closed_chain")
+def closed_chain(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """A chain of end-to-end dimensions that closes on an overall dimension has one link marked as reference.
+
+    A chain that does not add up is `chain_sum`'s finding, so only chains that add up are judged here.
+    """
+    closed = [(p, c) for p, c in _chains(ctx) if c.match]
+    if not closed:
+        raise NotApplicable("no dimension chain closes on an overall dimension")
+    return [
+        new_finding(
+            rule,
+            reviewer=REVIEWER,
+            evidence=_chain_evidence(page, c),
+            comment=f"{' + '.join(c.chain_texts)} = {c.overall_text}: the chain and its overall are all "
+            "toleranced, so the part is dimensioned twice over.",
+            recommended_correction="Mark one link or the overall as a reference dimension, e.g. (40), or "
+            "drop it.",
+        )
+        for page, c in closed
+        if not any(_is_reference(page, i) for i in [c.overall_id, *c.chain_ids])
+    ]
+
+
+def _squash(text: str) -> str:
+    return re.sub(r"[^A-Z0-9]", "", text.upper())
+
+
+class TemplateNotesParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    notes: list[str]
+
+
+@check("template_notes_present", TemplateNotesParams)
+def template_notes_present(ctx: ReviewContext, rule: Rule, params: TemplateNotesParams) -> list[Finding]:
+    """The template's standard notes (unspecified radii and chamfers, general tolerance) are on every sheet.
+
+    Matched without spaces and punctuation: PARI's sheets print "UNSP.RADII" and "Gen Tol.: IS 2102".
+    """
+    out = []
+    for page in ctx.pages:
+        lines = [*page.tolerance_table_text, *page.title_block_text, *page.body_text, *page.notes]
+        if not lines:
+            continue
+        text = _squash(" ".join(ln.text for ln in lines))
+        missing = [n for n in params.notes if _squash(n) not in text]
+        if missing:
+            out.append(
+                new_finding(
+                    rule,
+                    reviewer=REVIEWER,
+                    evidence=[ev.field(page, "number")],
+                    comment=f"Sheet {page.page_number} does not show the standard note(s) "
+                    f"{', '.join(missing)}.",
+                    recommended_correction="Use the current drawing template, which prints these notes.",
+                )
+            )
+    return out
+
+
+_BORDERS = {
+    "border_top": (1, "column"),
+    "border_bottom": (1, "column"),
+    "border_left": (0, "row"),
+    "border_right": (0, "row"),
+}  # strip -> (axis across the strip, which zone markers it holds)
+_ZONE_MARKER = {"column": re.compile(r"^\d{1,2}$"), "row": re.compile(r"^[A-Z]$")}
+
+
+def _marker_lines(
+    page: PageExtraction, regions: dict[str, tuple[float, float, float, float]]
+) -> dict[str, float]:
+    """Per border strip, where its zone markers (1 2 3 ... along the top and bottom, A B C ... up the sides)
+    sit
+    across the strip: the middle of the margin, so anything reaching it is outside the drawing border."""
+    out = {}
+    lines = [*page.body_text, *page.title_block_text, *page.tolerance_table_text]
+    for name, (axis, kind) in _BORDERS.items():
+        r = regions[name]
+        at = sorted(
+            (ln.bbox[axis] + ln.bbox[axis + 2]) / 2
+            for ln in lines
+            if _ZONE_MARKER[kind].match(ln.text.strip())
+            and r[0] <= (ln.bbox[0] + ln.bbox[2]) / 2 <= r[2]
+            and r[1] <= (ln.bbox[1] + ln.bbox[3]) / 2 <= r[3]
+        )
+        if len(at) >= 2:
+            out[name] = at[len(at) // 2]
+    return out
+
+
+@check("content_inside_border")
+def content_inside_border(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """Dimensions, notes and view labels stay inside the drawing border, not in the margin.
+
+    The template's border strips are wider than the printed frame, so the line of zone markers in each strip
+    is the test: an item that reaches it is in the margin. A sheet without zone markers is not judged.
+    """
+    out, judged = [], False
+    for page in ctx.pages:
+        regions = ctx.template.regions_for(*page.page_size_pts)
+        if not all(b in regions for b in _BORDERS):
+            raise NotCheckable("the template has no border regions")
+        edges = _marker_lines(page, regions)
+        if not edges:
+            continue
+        judged = True
+        for item in [*page.dimensions, *page.notes, *page.view_labels]:
+            b = item.bbox
+            outside = [
+                name
+                for name, at in edges.items()
+                if (name == "border_top" and b[1] < at)
+                or (name == "border_bottom" and b[3] > at)
+                or (name == "border_left" and b[0] < at)
+                or (name == "border_right" and b[2] > at)
+            ]
+            if outside:
+                out.append(
+                    new_finding(
+                        rule,
+                        reviewer=REVIEWER,
+                        evidence=[ev.text(page, item)],
+                        comment=f"{item.text.strip()!r} runs into the sheet's "
+                        f"{outside[0].split('_')[1]} margin, "
+                        "outside the drawing border.",
+                        recommended_correction="Move it inside the border.",
+                    )
+                )
+    if not judged:
+        raise NotCheckable("no zone markers found in the border to place it")
+    return out
+
+
+_ROTATED = re.compile(r"ROTATED", re.I)
+_ANGLE = re.compile(r"\d+(?:\.\d+)?\s*(?:°|DEG)", re.I)
+_DIRECTION = re.compile(r"\b(?:CCW|CW|CLOCKWISE|COUNTER[\s-]*CLOCKWISE|ANTI[\s-]*CLOCKWISE)\b", re.I)
+
+
+class RotatedParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    label_pattern: str
+
+
+@check("rotated_view_labelled", RotatedParams)
+def rotated_view_labelled(ctx: ReviewContext, rule: Rule, params: RotatedParams) -> list[Finding]:
+    """A view label that says ROTATED states the angle and the direction (ROTATED 90° CW)."""
+    labels = [(p, v) for p in ctx.pages for v in p.view_labels if _ROTATED.search(v.text)]
+    if not labels:
+        raise NotApplicable("no view is labelled as rotated")
+    out = []
+    for page, v in labels:
+        missing = [w for w, pat in (("angle", _ANGLE), ("direction", _DIRECTION)) if not pat.search(v.text)]
+        if missing:
+            out.append(
+                new_finding(
+                    rule,
+                    reviewer=REVIEWER,
+                    evidence=[ev.text(page, v)],
+                    comment=f"The view label {v.text.strip()!r} does not state the "
+                    f"{' or '.join(missing)} of rotation.",
+                    recommended_correction="Label it as e.g. 'SECTION A-A ROTATED 90° CW'.",
+                )
+            )
+    return out
+
+
+# "58-62 HRC (650-750 HV)", "250 HB", "HARDNESS 850 TO 1000 HV"
+_HARDNESS = re.compile(r"(\d+(?:\.\d+)?)(?:\s*(?:-|~|–|TO)\s*(\d+(?:\.\d+)?))?\s*(HRC|HRB|HV|HB|BHN)\b", re.I)
+_COLUMN = {"HRC": "hrc", "HRB": "hrb", "HV": "hv", "HB": "hb_steel_ball", "BHN": "hb_steel_ball"}
+
+
+def _to_hv(table: HardnessTable, scale: str, value: float) -> tuple[float, float] | None:
+    """Value in `scale` as HV, by linear interpolation in the table, with the size of one table step there."""
+    col = _COLUMN[scale]
+    pts = [(v, r.hv) for r in table.rows if (v := getattr(r, col)) is not None]
+    for (a, ha), (b, hb) in itertools.pairwise(pts):
+        if a <= value <= b:
+            return ha + (hb - ha) * (value - a) / (b - a), hb - ha
+    return None
+
+
+class HardnessScaleParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    table: str
+    tolerance: str = ""
+
+
+@check("hardness_scales_agree", HardnessScaleParams)
+def hardness_scales_agree(ctx: ReviewContext, rule: Rule, params: HardnessScaleParams) -> list[Finding]:
+    """A hardness given in two scales in one call-out agrees with the steel comparison table, within one
+    table step."""
+    table = ctx.reference.get(params.table)
+    if not isinstance(table, HardnessTable):
+        raise NotCheckable(f"reference table {params.table!r} not loaded")
+    out, judged = [], False
+    for page, item in all_text(ctx):
+        found = [(m[3].upper(), float(m[1]), float(m[2] or m[1]), m) for m in _HARDNESS.finditer(item.text)]
+        if len({_COLUMN[s] for s, *_ in found}) < 2:
+            continue
+        hv = []
+        for scale, low, high, m in found:
+            lo, hi = _to_hv(table, scale, low), _to_hv(table, scale, high)
+            if lo and hi:
+                hv.append((m.group(0).strip(), lo[0] - lo[1], hi[0] + hi[1]))
+        if len(hv) < 2:
+            continue
+        judged = True
+        (a, a_lo, a_hi), (b, b_lo, b_hi) = hv[0], hv[1]
+        if a_hi < b_lo or b_hi < a_lo:
+            out.append(
+                new_finding(
+                    rule,
+                    reviewer=REVIEWER,
+                    evidence=[ev.text(page, item)],
+                    comment=f"{a} and {b} do not agree: the steel hardness comparison table puts them at "
+                    "about "
+                    f"{(a_lo + a_hi) / 2:.0f} HV and {(b_lo + b_hi) / 2:.0f} HV.",
+                    recommended_correction="Correct one of the two values, or give the hardness in one scale "
+                    "only.",
+                )
+            )
+    if not judged:
+        raise NotApplicable("no hardness given in two scales")
     return out
