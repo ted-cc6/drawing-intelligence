@@ -7,9 +7,11 @@ import re
 from pydantic import BaseModel, ConfigDict
 
 from drawing_intelligence.review.checks import _evidence as ev
+from drawing_intelligence.review.checks import _process as pr
 from drawing_intelligence.review.checks._registry import NotApplicable, NotCheckable, check
 from drawing_intelligence.review.context import ReviewContext
-from drawing_intelligence.review.reference_p2 import Equivalents
+from drawing_intelligence.review.reference_des11 import MaterialHeatTreatment
+from drawing_intelligence.review.reference_p2 import Equivalents, StockTable
 from drawing_intelligence.review.rulebook import Rule, new_finding
 from drawing_intelligence.schemas import Finding, PageExtraction, TextLine
 
@@ -100,4 +102,83 @@ def us_india_equivalent(ctx: ReviewContext, rule: Rule, params: EquivalentParams
             )
     if not judged:
         raise NotApplicable("no material on PARI's US-India equivalents list")
+    return out
+
+
+def _grade(text: str) -> str:
+    """En-8(D) -> EN8D, EN 24 -> EN24."""
+    return _norm(re.sub(r"[()]", "", text))
+
+
+@check("material_for_size", EquivalentParams)
+def material_for_size(ctx: ReviewContext, rule: Rule, params: EquivalentParams) -> list[Finding]:
+    """A round bar named in a stock note ("USE STD. Ø35 En-8(D) BRIGHT BAR") follows DES-11's selection: EN9
+    (C45 / C55 / En8D) up to Ø32, EN24 above. Bars of other grades are not judged."""
+    table = ctx.reference.get(params.table)
+    if not isinstance(table, MaterialHeatTreatment):
+        raise NotCheckable(f"reference table {params.table!r} not loaded")
+    stock = pr.stock_notes(ctx)
+    if not stock:
+        raise NotApplicable("no stock note names a round bar")
+    out = []
+    for s in stock:
+        rows = {r.key for r in table.candidates(_grade(s.material)) if r.key in {"EN9", "EN24"}}
+        if len(rows) != 1:
+            continue
+        preferred = table.preferred_round_grade(s.diameter_mm)
+        if preferred not in rows:
+            out.append(
+                new_finding(
+                    rule,
+                    reviewer=REVIEWER,
+                    evidence=[s.evidence],
+                    comment=f"A Ø{s.diameter_mm:g} bar in {s.material} ({next(iter(rows))}): PARI's DES-11 "
+                    f"selects "
+                    f"{preferred} for this size (EN9 up to Ø32, EN24 above).",
+                    recommended_correction=f"Use {preferred}, or note why this grade is needed.",
+                )
+            )
+    return out
+
+
+class StockParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    table: str
+    allowance_mm: float = 0
+
+
+@check("stock_size_available", StockParams)
+def stock_size_available(ctx: ReviewContext, rule: Rule, params: StockParams) -> list[Finding]:
+    """A bar size named in a stock note is one PARI's raw-material list stocks for that material (India raw
+    material sizes, round). Materials the list does not hold are not judged."""
+    table = ctx.reference.get(params.table)
+    if not isinstance(table, StockTable):
+        raise NotCheckable(f"reference table {params.table!r} not loaded")
+    stock = pr.stock_notes(ctx)
+    if not stock:
+        raise NotApplicable("no stock note names a bar size")
+    out = []
+    for s in stock:
+        grade = _grade(s.material)
+        rows = [
+            r
+            for r in table.rows
+            if r.form == "round" and _norm(r.material) and grade.startswith(_norm(r.material))
+        ]
+        if not rows:
+            continue
+        row = max(rows, key=lambda r: len(r.material))  # EN8 for En-8(D), not a shorter name
+        if s.diameter_mm not in row.sizes_mm:
+            near = min(row.sizes_mm, key=lambda v: abs(v - s.diameter_mm))
+            out.append(
+                new_finding(
+                    rule,
+                    reviewer=REVIEWER,
+                    evidence=[s.evidence],
+                    comment=f"Ø{s.diameter_mm:g} {s.material} bar is not a size PARI's raw-material list "
+                    f"stocks for "
+                    f"{row.material} round (nearest: Ø{near:g}).",
+                    recommended_correction="Use a stocked bar size, or confirm the size with purchase.",
+                )
+            )
     return out

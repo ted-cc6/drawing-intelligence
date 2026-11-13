@@ -163,6 +163,7 @@ rules:
     severity: minor
     check_type: code
     check: thread_datum_qualifier
+    result: warning
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-21}
     status: draft
 
@@ -178,6 +179,7 @@ rules:
     severity: critical
     check_type: code
     check: hole_table_complete
+    result: warning
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MP-09}
     status: draft
 

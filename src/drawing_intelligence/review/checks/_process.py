@@ -167,3 +167,36 @@ def des11_rows(ctx: ReviewContext, table: MaterialHeatTreatment) -> MaterialRows
         if rows:
             return MaterialRows(text, evidence, rows)
     return None
+
+
+# "1) # USE STD. ф20g6 En-8(D) BRIGHT BAR.", "1)#USE STD. DIA.35g6 En-8(D) BRIGHT BAR." (the OCR'd O and ф
+# are Ø)
+_STOCK_NOTE = re.compile(
+    r"USE\s+STD\.?\s*(?:[Øø⌀фO]|DIA\.?)\s*(?P<d>\d+(?:\.\d+)?)\s*(?:[a-hj-zA-HJ-Z]\d{1,2})?\s+"
+    r"(?P<material>.+?)\s+(?P<form>BRIGHT\s+BAR|BLACK\s+BAR|BAR|ROUND)\b",
+    re.I,
+)
+
+
+@dataclass(frozen=True)
+class StockNote:
+    """A note that names the bar stock to use: its diameter, material and form, as printed."""
+
+    page: PageExtraction
+    diameter_mm: float
+    material: str
+    form: str
+    evidence: EvidenceRef
+
+
+def stock_notes(ctx: ReviewContext) -> list[StockNote]:
+    out = []
+    for page in ctx.pages:
+        for line in page.body_text:
+            if m := _STOCK_NOTE.search(line.text):
+                out.append(
+                    StockNote(
+                        page, float(m["d"]), m["material"].strip(), m["form"].upper(), ev.text(page, line)
+                    )
+                )
+    return out

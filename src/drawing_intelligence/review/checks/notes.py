@@ -916,3 +916,59 @@ def dual_dimensioning(ctx: ReviewContext, rule: Rule, params: DualDimensionParam
                 )
             )
     return out
+
+
+# "WELD CLASS : B IF APPLICABLE", '8) WELD CLASS - "B"', "'B' CLASS WELD"; ISO 5817 levels B (strict) to D
+_WELD_CLASS = re.compile(r"WELD\s+CLASS\W*([BCD])\b|\b([BCD])\W{0,2}\s*CLASS\s+WELD", re.I)
+_WELDED = re.compile(r"\bWELD", re.I)
+
+
+class WeldClassParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    table: dict[str, str]  # part class -> the loosest weld quality level allowed
+
+
+@check("weld_class_for_part_class", WeldClassParams)
+def weld_class_for_part_class(ctx: ReviewContext, rule: Rule, params: WeldClassParams) -> list[Finding]:
+    """A welded part states its weld quality level, at least as strict as its part class asks (T+S: B, A
+    and B: C, C: D; B is the strictest ISO 5817 level)."""
+    lines = [(p, ln) for p in ctx.pages for ln in p.body_text if "\\" not in ln.text]  # not a file path
+    welds = [(p, ln) for p, ln in lines if _WELDED.search(ln.text)]
+    if not welds:
+        raise NotApplicable("no welding on the drawing")
+    stated = [(p, ln, (m[1] or m[2]).upper()) for p, ln in lines if (m := _WELD_CLASS.search(ln.text))]
+    part = next(
+        (
+            (p, v)
+            for p in ctx.pages
+            if (v := re.sub(r"\s", "", (ev.value(p, "part_class") or "").upper())) in params.table
+        ),
+        None,
+    )
+    if not stated:
+        page, weld = welds[0]
+        return [
+            new_finding(
+                rule,
+                reviewer=REVIEWER,
+                evidence=[ev.text(page, weld)],
+                comment="The part is welded, but no weld quality level (WELD CLASS) is stated.",
+                recommended_correction="State the weld class, e.g. 'WELD CLASS : C (ISO 5817)'.",
+            )
+        ]
+    if part is None:
+        return []  # the level is stated; with no part class there is nothing to compare it with
+    page, cls = part
+    need = params.table[cls]
+    return [
+        new_finding(
+            rule,
+            reviewer=REVIEWER,
+            evidence=[ev.text(p, ln), ev.field(page, "part_class")],
+            comment=f"Weld class {level} is looser than part class {cls} allows (weld class {need} or "
+            f"stricter).",
+            recommended_correction=f"Use weld class {need} or stricter for a class {cls} part.",
+        )
+        for p, ln, level in stated
+        if level > need  # B < C < D: a later letter is a looser level
+    ]

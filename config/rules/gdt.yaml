@@ -78,6 +78,7 @@ rules:
     check_type: code
     check: projected_zone_on_threads
     params: {features: [tapped_hole, threaded_insert, dowel_pin_hole]}
+    result: warning
     source: {document: NASA Goddard Space Flight Center GSFC-X-673-64-1F Engineering Drawing Standards Manual (1994), section: App. A (o) (p120)}
     status: draft
 

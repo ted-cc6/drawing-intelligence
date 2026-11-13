@@ -640,6 +640,7 @@ rules:
     severity: major
     check_type: code
     check: section_labels_match
+    result: warning
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: VW-03}
     status: draft
 
@@ -791,6 +792,7 @@ rules:
     check_type: lookup
     check: mass_within_envelope
     params: {table: material_specific_weight, specific_weight_gf_cm3: {steel: 7.85, cast steel: 7.85, grey cast iron: 7.2, high-speed steel: 9.0, tungsten carbide: 14.75, brass: 8.5, Al bronze: 8.4, tin bronze: 8.6, lead bronze: 9.5, 'Al alloy (Al, Cu, Mg)': 2.8, Mg alloy: 1.8, plexiglass: 1.2, copper: 8.9, aluminium: 2.7}}
+    result: warning
     applies_to: {part_family: [prismatic, round]}
     source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Specific Weight—Melting Point—Coefficient of Thermal Expansion—Shrinkage (pdf 04L, book 2)'}
     status: draft

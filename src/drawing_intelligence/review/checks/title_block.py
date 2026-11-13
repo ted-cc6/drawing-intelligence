@@ -861,3 +861,38 @@ def revision_change_ref(ctx: ReviewContext, rule: Rule, _: object) -> list[Findi
     if not found:
         raise NotApplicable("no revision table with a CAR. NO. column")
     return out
+
+
+class PartClassParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    classes: list[str]
+
+
+@check("part_class_stated", PartClassParams)
+def part_class_stated(ctx: ReviewContext, rule: Rule, params: PartClassParams) -> list[Finding]:
+    """The PART CLASS. cell holds one of PARI's classes (T+S, A, B, C), so safety-critical parts are flagged.
+
+    Which classes count as safety critical is PARI's to say (docs/pari_questions.md 3.4); this checks the
+    class is stated and valid.
+    """
+    allowed = {re.sub(r"\s", "", c.upper()) for c in params.classes}
+    out = []
+    for page in ev.title_block_pages(ctx):
+        value = ev.value(page, "part_class")
+        if value and re.sub(r"\s", "", value.upper()) in allowed:
+            continue
+        comment = (
+            f"The PART CLASS. cell says {value!r}, which is not one of {', '.join(params.classes)}."
+            if value and not ev.is_placeholder(value)
+            else "The PART CLASS. cell is empty."
+        )
+        out.append(
+            new_finding(
+                rule,
+                reviewer=REVIEWER,
+                evidence=[ev.field(page, "part_class")],
+                comment=comment,
+                recommended_correction=f"State the part class ({', '.join(params.classes)}).",
+            )
+        )
+    return out

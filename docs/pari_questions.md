@@ -21,6 +21,10 @@ real issue on the drawing or a PARI practice the rule should allow.
 | 1.6 | Chains of dimensions close on an overall with no link marked as reference (28.5 + 16.5±0.1 = 45). Does PARI accept this under general tolerances, or should one link be a reference? | 40K_LM RAIL ADAPTAR PLATE and 7 others | DM-003 |
 | 1.7 | "ZINK BLACK PASSIVATION" is written on one drawing. Is it IZBP (trivalent)? Should the drawing use DES-12's name? | PRR74A055037005 | WPS-001 |
 | 1.8 | A portrait sheet has none of the template's standard notes (UNSP. RADII, UNSP. CHF, Gen Tol). Is that template still in use? | PRT84F150002001 | NM-001 |
+| 1.9 | Two drawings ask for "USE STD. DIA.35g6 En-8(D) BRIGHT BAR". DES-11 selects EN24 above Ø32, and Ø35 is not on the EN8 raw-material list (nearest Ø36). Is the Ø35 En-8(D) bright bar intended? | PRF83A104011002, PRF83A106004002 | WPM-005, MF-003 |
+| 1.10 | "M50 x 1.5 x 30 DEEP" in 20MnCr5 is 0.6 × D of thread. Is a fine-pitch thread shorter than 1 × D accepted? | PRV59J200037001 | MC-006 |
+| 1.11 | Three sheets leave PART CLASS. empty. Is the class required on every part? | 45K_DUNNAGE DOOR LM BLK MTG PLT, 05015NB02996/7 | SC-002 |
+| 1.12 | Datum A is placed on the M65 x 2 thread with no MD / PD / LD qualifier. Which diameter is meant? | PRR74A055037005 | MD-021 |
 
 ## 2. Rules that only warn until PARI confirms the convention
 
@@ -39,6 +43,7 @@ real issue on the drawing or a PARI practice the rule should allow.
 | 3.2 | Above what part mass must lifting points and their rated capacity be shown? | SC-001 |
 | 3.3 | Is there an approved or preferred materials list? Sheet 2 of the US-India file is not one. | MF-011 |
 | 3.4 | What do the PART CLASS. values in the title block mean (T+S, A, B, C)? Which classes count as safety critical? Is "WELD CLASS : B" the weld quality level (e.g. ISO 5817 B)? | SC-002, WF-007 |
+| 3.5 | Tapped holes are called out as "M6 x 12 DEEP" with no drill depth. Should the drill depth (about 3 pitches deeper) be stated, or is it left to the shop? | MC-004 |
 
 ## 4. Standing project questions
 

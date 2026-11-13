@@ -186,6 +186,7 @@ rules:
     severity: critical
     check_type: code
     check: part_class_stated
+    params: {classes: [T+S, A, B, C]}
     source: {document: PARI Guidelines for Welding Notes & Symbols, section: '4. Classification of parts (T+S, A, B, C; PRD-GD-DES-03)'}
     status: draft
 

@@ -54,6 +54,7 @@ rules:
     check_type: lookup
     check: material_for_size
     params: {table: material_heat_treatment}
+    result: warning
     applies_to: {part_family: [round]}
     source: {document: 'PARI PRD-GD-DES-11 Material Selection (rev 1, 2016-03-09)', section: Raw material notes (rows 1 and 3)}
     status: draft

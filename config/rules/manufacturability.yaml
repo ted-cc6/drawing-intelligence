@@ -160,6 +160,7 @@ rules:
     check_type: lookup
     check: stock_size_available
     params: {table: raw_material_sizes, allowance_mm: 2}
+    result: warning
     source: {document: PARI India Raw material sizes 08-Feb-24.xlsx, section: Plate/Round/Square sizes; PRD-GD-DES-11 sheet 2}
     status: draft
 

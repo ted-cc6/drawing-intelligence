@@ -10,6 +10,7 @@ from drawing_intelligence.review.checks import _evidence as ev
 from drawing_intelligence.review.checks._registry import NotApplicable, NotCheckable, check
 from drawing_intelligence.review.checks._text import all_text
 from drawing_intelligence.review.context import ReviewContext
+from drawing_intelligence.review.reference import Materials
 from drawing_intelligence.review.reference_p2 import MorseTable, NumericTable
 from drawing_intelligence.review.rulebook import Rule, new_finding
 from drawing_intelligence.schemas import Finding
@@ -254,3 +255,202 @@ def self_holding_taper_matches_table(ctx: ReviewContext, rule: Rule, params: Mor
                 )
             )
     return out
+
+
+# A blind tapped hole: "M6 x 12.00 mm DEEP", "M50 x 1.5 x 30 DEEP" (the 1.5 is the pitch)
+_TAPPED = re.compile(
+    r"(?<![\w.])M\s?"
+    + _NUM
+    + r"(?:\s*[xX×]\s*\d+(?:\.\d+)?(?=\s*[xX×]))?"
+    + _MM
+    + r"[xX×]\s*"
+    + _NUM
+    + _MM
+    + r"(?:DEEP|DP\b)",
+    re.I,
+)
+_MATERIAL_NOTE = re.compile(r"^[\W\d)]*(?:MATERIAL|MATL)\s*:\s*-?\s*(.+)$", re.I)
+
+
+class EngagementParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    min_factor: dict[str, float]  # material family or class -> minimum thread depth as a multiple of D
+
+
+def _material_kind(ctx: ReviewContext, factors: dict[str, float]) -> tuple[str, str] | None:
+    """(the material as printed, the `min_factor` key it falls under): its class, else its family (steel for
+    any ferrous class)."""
+    materials = ctx.reference.get("materials")
+    if not isinstance(materials, Materials):
+        return None
+    texts = [v for p in ctx.pages if (v := ev.value(p, "material")) and not ev.is_placeholder(v)]
+    texts += [m[1].strip() for p in ctx.pages for ln in p.body_text if (m := _MATERIAL_NOTE.match(ln.text))]
+    for text in texts:
+        cls = materials.classify(text)
+        if cls in factors:
+            return text, cls
+        if materials.family(cls) == "ferrous" and "steel" in factors:
+            return text, "steel"
+    return None
+
+
+@check("thread_engagement", EngagementParams)
+def thread_engagement(ctx: ReviewContext, rule: Rule, params: EngagementParams) -> list[Finding]:
+    """A blind tapped hole is deep enough for the material: at least `min_factor` × D (1.5 × D in
+    aluminium)."""
+    holes = [(p, item, m) for p, item in all_text(ctx) for m in _TAPPED.finditer(item.text)]
+    if not holes:
+        raise NotApplicable("no blind tapped hole with a depth")
+    kind = _material_kind(ctx, params.min_factor)
+    if kind is None:
+        raise NotCheckable("the material is not stated or not one the rule gives a factor for")
+    material, key = kind
+    factor = params.min_factor[key]
+    out, seen = [], set()
+    for page, item, m in holes:
+        d, depth = float(m[1]), float(m[2])
+        if depth >= factor * d or (page.page_number, m.group(0)) in seen:
+            continue
+        seen.add((page.page_number, m.group(0)))
+        out.append(
+            new_finding(
+                rule,
+                reviewer=REVIEWER,
+                evidence=[ev.text(page, item)],
+                comment=f"{m.group(0).strip()!r} in {material}: {depth:g} deep is {depth / d:.2f} × D, "
+                f"under the "
+                f"{factor:g} × D a thread in {key.replace('_', ' ')} needs.",
+                recommended_correction=f"Tap at least {factor * d:g} deep, or use a thread insert.",
+            )
+        )
+    return out
+
+
+_HOLE_TABLE = re.compile(r"^\s*HOLE\s+TABLE\s*$", re.I)
+_COORD = re.compile(r"^\s*-?\d+(?:\.\d+)?\s*$")
+_HAS_DEPTH = re.compile(r"THRU|DEEP|\bDP\b|↧", re.I)
+ROW_PITCH = 30.0  # pts: a gap larger than this below the last row ends the table
+
+
+@check("hole_table_complete")
+def hole_table_complete(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """Every row of a HOLE TABLE gives the hole's X, Y and its size with a depth (or THRU)."""
+    out, found = [], False
+    for page in ctx.pages:
+        for title in [ln for ln in page.body_text if _HOLE_TABLE.match(ln.text)]:
+            below = [ln for ln in page.body_text if 0 < ln.bbox[1] - title.bbox[1] < 40]
+            heads = {
+                key: next((ln for ln in below if ln.text.strip().upper() == key), None)
+                for key in ("X", "Y", "SIZE")
+            }
+            if any(h is None for h in heads.values()):
+                continue
+            found = True
+            hx, hy, hs = heads["X"], heads["Y"], heads["SIZE"]
+            assert hx is not None and hy is not None and hs is not None
+            right = max((ln.bbox[2] for ln in below), default=hs.bbox[2])  # the header's last column (REMARK)
+            cells = sorted(
+                (
+                    ln
+                    for ln in page.body_text
+                    if ln.bbox[1] > hs.bbox[1] + 5 and hx.bbox[0] - 60 <= ln.bbox[0] <= right
+                ),
+                key=lambda ln: ln.bbox[1],
+            )
+            rows: list[list] = []
+            for ln in cells:
+                if rows and ln.bbox[1] - rows[-1][0].bbox[1] < 6:
+                    rows[-1].append(ln)
+                elif not rows or ln.bbox[1] - rows[-1][0].bbox[1] <= ROW_PITCH:
+                    rows.append([ln])
+                else:
+                    break
+
+            holes: list[tuple[list, str, object]] = []  # (coordinate cells, size text, first cell)
+            for row in rows:
+                coords = [c for c in sorted(row, key=lambda c: c.bbox[0]) if _COORD.match(c.text)]
+                size = " ".join(
+                    c.text for c in row if _DIAMETER.search(c.text) or _THREAD_SIZE.search(c.text)
+                )
+                if not coords and not size:
+                    break  # past the last row of the table
+                if not coords and holes:  # the size cell wraps: "C'BORE Ø 10.00 mm - 10.00 mm DEEP"
+                    holes[-1] = (holes[-1][0], f"{holes[-1][1]} {size}", holes[-1][2])
+                    continue
+                holes.append((coords, size, row[0]))
+            for coords, size, first in holes:
+                missing = [
+                    name
+                    for name, ok in (
+                        ("X and Y", len(coords) >= 2),
+                        ("size", bool(size)),
+                        ("depth or THRU", bool(size) and _HAS_DEPTH.search(size)),
+                    )
+                    if not ok
+                ]
+                if missing:
+                    out.append(
+                        new_finding(
+                            rule,
+                            reviewer=REVIEWER,
+                            evidence=[ev.text(page, first)],  # type: ignore[arg-type]
+                            comment=f"A HOLE TABLE row ({' | '.join(c.text.strip() for c in coords)} "
+                            f"{size}) has "
+                            f"no {', '.join(missing)}.",
+                            recommended_correction="Give every hole its X, Y, size and depth (or THRU) in "
+                            "the table.",
+                        )
+                    )
+    if not found:
+        raise NotApplicable("no hole table")
+    return out
+
+
+# Words that make a text a hole call-out rather than a shaft diameter ("⌀ 30" alone is either).
+_HOLE_WORDS = re.compile(
+    r"\bDRILL|\bHOLES?\b|\bTAP(?:PED|PING)?\b|C\W?BORE|\bCSK\b|C\W?SINK|SPOT\s*FACE|\bREAM", re.I
+)
+_SIZE = re.compile(r"(?:[Ø⌀]|DIA\.?)\s*\d|(?<![\w.])M\s?\d", re.I)
+# A revision description ("2-M6 TAP & DIA.6.6 ADDED."), not a call-out
+_CHANGE_WORDS = re.compile(r"\b(?:CHANGED|ADDED|REVISED|REMOVED|DELETED|UPDATED|WAS)\b", re.I)
+
+
+def _depth_below(page, item) -> bool:
+    """A call-out wrapped onto two lines: its depth on the line just below, at the same left edge."""
+    return any(
+        0 < ln.bbox[1] - item.bbox[1] <= 14
+        and abs(ln.bbox[0] - item.bbox[0]) <= 40
+        and _HAS_DEPTH.search(ln.text)
+        for ln in page.body_text
+    )
+
+
+@check("hole_depth_stated")
+def hole_depth_stated(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """A hole call-out (DRILL, TAP, C'BORE ... with a size) states its depth or THRU. Revision rows and
+    general notes about holes ("ALL HOLES ... C.D") are not call-outs."""
+    calls = []
+    for page, item in all_text(ctx):
+        text = item.text
+        revision = {r.text for r in page.revision_rows}
+        if (
+            text in revision
+            or not (_HOLE_WORDS.search(text) and _SIZE.search(text))
+            or re.search(r"\bALL\b", text, re.I)
+            or _CHANGE_WORDS.search(text)
+        ):
+            continue
+        calls.append((page, item))
+    if not calls:
+        raise NotApplicable("no hole call-out")
+    return [
+        new_finding(
+            rule,
+            reviewer=REVIEWER,
+            evidence=[ev.text(page, item)],
+            comment=f"The hole call-out {item.text.strip()!r} gives no depth and does not say THRU.",
+            recommended_correction="State the depth (e.g. '↧ 12' or 'x 12 DEEP') or THRU.",
+        )
+        for page, item in calls
+        if not _HAS_DEPTH.search(item.text) and not _depth_below(page, item)
+    ]

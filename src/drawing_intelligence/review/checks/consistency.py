@@ -12,7 +12,7 @@ from drawing_intelligence.review.checks._geometry import Drawn, drawn_dimensions
 from drawing_intelligence.review.checks._registry import NotApplicable, NotCheckable, check
 from drawing_intelligence.review.checks._text import all_text
 from drawing_intelligence.review.context import ReviewContext
-from drawing_intelligence.review.reference_p2 import HardnessTable
+from drawing_intelligence.review.reference_p2 import HardnessTable, NumericTable
 from drawing_intelligence.review.rulebook import Rule, new_finding
 from drawing_intelligence.schemas import ChainCheck, EvidenceRef, Finding, PageExtraction
 
@@ -415,4 +415,122 @@ def hardness_scales_agree(ctx: ReviewContext, rule: Rule, params: HardnessScaleP
             )
     if not judged:
         raise NotApplicable("no hardness given in two scales")
+    return out
+
+
+_VIEW_LABEL = re.compile(r"^\s*(SECTION|DETAIL|VIEW)\s+([A-Z])(?:\s*-\s*([A-Z]))?\b")
+_LETTER = re.compile(r"^[A-Z]$")
+_INSIDE = ("title_block", "tolerance_table")  # template blocks that sit in the margin by design
+
+
+def _in_margin(ctx: ReviewContext, page: PageExtraction, bbox: tuple[float, float, float, float]) -> bool:
+    """In a border strip, the title block or the tolerance table: where zone letters and labels live."""
+    x, y = (bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2
+    return any(
+        r[0] <= x <= r[2] and r[1] <= y <= r[3]
+        for name, r in ctx.template.regions_for(*page.page_size_pts).items()
+        if name.startswith("border") or name in _INSIDE
+    )
+
+
+@check("section_labels_match")
+def section_labels_match(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """Every SECTION A-A, DETAIL B or VIEW C label has its letter on the drawing field (at the cutting line,
+    detail circle or view arrow), on any sheet. A section whose two labels differ (SECTION A-B) is flagged
+    too."""
+    labels = [(p, v, m) for p in ctx.pages for v in p.view_labels if (m := _VIEW_LABEL.match(v.text))]
+    if not labels:
+        raise NotApplicable("no section, detail or view label")
+    letters = {
+        ln.text.strip()
+        for p in ctx.pages
+        for ln in [*p.body_text, *p.other_numeric, *p.dimensions]
+        if _LETTER.match(ln.text.strip()) and not _in_margin(ctx, p, ln.bbox)
+    }
+    out = []
+    for page, v, m in labels:
+        problem = None
+        if m[3] and m[3] != m[2]:
+            problem = f"its two letters differ ({m[2]}-{m[3]})"
+        elif m[2] not in letters:
+            where = {"SECTION": "cutting line", "DETAIL": "detail circle", "VIEW": "view arrow"}[m[1]]
+            problem = f"no {where} on the drawing is lettered {m[2]}"
+        if problem:
+            out.append(
+                new_finding(
+                    rule,
+                    reviewer=REVIEWER,
+                    evidence=[ev.text(page, v)],
+                    comment=f"The view label {v.text.strip()!r}: {problem}.",
+                    recommended_correction="Letter the cutting line, detail circle or arrow to match the "
+                    "label.",
+                )
+            )
+    return out
+
+
+_WEIGHT = re.compile(r"(\d+(?:\.\d+)?)\s*(kg|g)\b", re.I)
+_PLAIN_VALUE = re.compile(r"^\s*\(?(?:[Ø⌀]\s*)?(\d+(?:\.\d+)?)")
+# Material class -> the specific-weight entries (gf/cm³) it may be; the heaviest is used, so the bound
+# stays safe
+_DENSITY_KEYS = {
+    "ferrous": ["steel", "cast steel", "grey cast iron", "high-speed steel"],
+    "aluminium": ["aluminium", "Al alloy (Al, Cu, Mg)"],
+    "copper_alloy": ["brass", "Al bronze", "tin bronze", "lead bronze", "copper"],
+}
+
+
+class MassParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    table: str
+    specific_weight_gf_cm3: dict[str, float] = {}
+    # Stage 1 does not always read the longest dimension (a long rail drawn broken), so the box can be too
+    # small;
+    # only a mass this many times over it is flagged: grams written as kg is 1000 times.
+    margin: float = 50
+
+
+@check("mass_within_envelope", MassParams)
+def mass_within_envelope(ctx: ReviewContext, rule: Rule, params: MassParams) -> list[Finding]:
+    """The stated mass is no more than a box of the part's three largest dimensions would weigh at the
+    heaviest specific weight of its material family, times `margin`. Only a gross error (grams written as kg)
+    is caught."""
+    from drawing_intelligence.review.reference import Materials
+
+    materials = ctx.reference.get("materials")
+    table = ctx.reference.get(params.table)
+    if not isinstance(materials, Materials) or not isinstance(table, NumericTable):
+        raise NotCheckable("the materials or specific-weight table is not loaded")
+    out, judged = [], False
+    for page in ev.title_block_pages(ctx):
+        weight, material = ev.value(page, "weight"), ev.value(page, "material")
+        m = _WEIGHT.search(weight or "")
+        cls = materials.classify(material)
+        family = "ferrous" if materials.family(cls) == "ferrous" else cls
+        if not m or float(m[1]) <= 0 or family not in _DENSITY_KEYS:
+            continue
+        sizes = sorted(
+            {float(v[1]) for p in ctx.pages for d in p.dimensions if (v := _PLAIN_VALUE.match(d.text))}
+        )
+        if len(sizes) < 3:
+            continue
+        judged = True
+        a, b, c = sizes[-3:]
+        density = max(max(table.values.get(k, [0])) for k in _DENSITY_KEYS[family])
+        bound_kg = a * b * c / 1000 * density / 1000
+        kg = float(m[1]) / (1000 if m[2].lower() == "g" else 1)
+        if kg > params.margin * bound_kg:
+            out.append(
+                new_finding(
+                    rule,
+                    reviewer=REVIEWER,
+                    evidence=[ev.field(page, "weight"), ev.field(page, "material")],
+                    comment=f"The stated mass {weight} is over {params.margin:g} times what a solid {c:g} × "
+                    f"{b:g} × "
+                    f"{a:g} mm block of {material} would weigh ({bound_kg:.3g} kg).",
+                    recommended_correction="Check the mass and its unit.",
+                )
+            )
+    if not judged:
+        raise NotApplicable("no stated mass with a known material and enough dimensions")
     return out

@@ -69,6 +69,32 @@ decision.
 - Dimensions: DM-002, DSM-023, MP-009 (17 hits).
 - Needs PARI: MD-002 and SC-001 (thresholds not set), MF-011 (no approved-materials list).
 
+**Status (2026-11-12, branch `feat/medium-checks`): 12 of the 21 built (94 -> 106 of 135).** Tests in
+`tests/test_checks_medium.py`. The template now reads the PART CLASS. cell (`part_class`), so SC-002 and WF-007
+have it. Sweep over the 137 client drawings, findings read one by one:
+
+| Rule | pass | finding | not checked | Notes |
+|---|---|---|---|---|
+| SC-002 | 43 | 3 fail | 91 | PART CLASS. empty. Not checked = variant title block |
+| WF-007 | 9 | 0 | 0 | weld class read from "WELD CLASS : B IF APPLICABLE" |
+| WPM-005 (warning) | 5 | 2 | 0 | Ø35 En-8(D) bar (DES-11: EN24 above Ø32). Judged on stock notes only ("USE STD. Ø20g6 En-8(D) BRIGHT BAR") |
+| MF-003 (warning) | 5 | 2 | 0 | same Ø35 bar: not a size the raw-material list stocks for EN8 |
+| MC-006 | 19 | 1 fail | 32 | M50 x 1.5 x 30 DEEP in 20MnCr5 (0.6 × D). Not checked = material unknown |
+| VW-003 (warning) | 76 | 0 | 0 | the letter is looked for on every sheet of the drawing |
+| MP-009 (warning) | 13 | 0 | 0 | rows read by content; a call-out wrapped onto a second line joins its row |
+| MX-003 | 9 | 0 | 0 | revision descriptions ("... ADDED") and "ALL HOLES" notes are not call-outs |
+| MD-021 (warning) | 0 | 2 | 0 | 1 real (datum A on M65 x 2), 1 false (the flag is on the Ø16 extension line next to an M10) |
+| WST-132 (warning) | 41 | 0 | 91 | a box of the three largest dimensions × 50: only a gross error is caught, because stage 1 does not always read the longest dimension |
+| NASA-134, DTT-057 | n/a | 0 | 0 | no position tolerance and no MMC/LMC on any client drawing (unit tests only) |
+
+Not built, moved:
+- To PARI (`docs/pari_questions.md`): MC-004 (PARI's tapped call-outs never state a drill depth, so it would
+  fail every blind tapped hole), MD-002, SC-001, MF-011.
+- To hard: DM-002 (627 repeated dimension texts on 104 drawings; telling a duplicate from a symmetric feature
+  needs feature identity), MX-006 (a pattern's location is geometry), NASA-100 (revision triangles on the field
+  are graphics), NASA-006 (the "indicated" marker is a hatch or XXXX line, not text), DSM-023 (needs underline
+  detection).
+
 **Hard (20):** new vector detection, knowing what a feature is, or a missing table.
 - Arrowheads and lines: CN-003, ISO-023, ISO-025, ISO-027, ISO-029, WST-050.
 - Text direction (stage 1 does not record it): ISO-030, ISO-031.

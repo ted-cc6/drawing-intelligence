@@ -46,6 +46,7 @@ title_block_fields:
   general_tolerance_standard: [W-105, H-186, W-40, H-172]
   drawing_type: [W-105, H-136, W-30, H-120]   # MACHINING / FABRICATION: which general tolerances apply
   sheet: [W-72, H-44, W-30, H-28]              # "1 OF 2"
+  part_class: [W-250, H-92, W-228, H-79]       # PART CLASS. value (T+S, A, B, C), right of its label
 
 # Printed label text that comes before the value in the same cell.
 title_block_prefixes: {general_tolerance_standard: "Gen Tol.:"}
