@@ -95,6 +95,52 @@ Not built, moved:
   are graphics), NASA-006 (the "indicated" marker is a hatch or XXXX line, not text), DSM-023 (needs underline
   detection).
 
+**Status (2026-11-13, branch `feat/hard-checks`): the 18 rules better kept off the AI reviewers are built
+(106 -> 124 of 135).** The 29 left were split by whether an AI reviewer can judge them: it reads stage 2's JSON
+and never sees the sheet, so a rule about how something is drawn (arrowheads, lines through text, which way a
+value reads, boxes, underlines) cannot go to it. Those 18 are code; the other 11 (MX-012, DM-002, MD-002,
+SC-001, MX-009 for the AI reviewers; WST-206, MX-006, MP-012, MC-007, MC-008, WST-242 split between both) are
+next. Stage 1 reads the drawing's graphics for them (`extraction/graphics.py`, schema 2.3, kept out of the
+understanding prompt): each value's arrowheads and the dimension line or leader it sits on, its reading
+direction, whether it is boxed, underlined, crossed or in a table cell, full circles, the radius of the arc a
+radius arrow lands on, revision triangles on the field, datum triangles, and note lines a leader starts from.
+PARI's Solid Edge PDFs draw every stroke as a straight segment (arcs are chains) and every arrowhead as a filled
+2.3 x 6.9 pt triangle whose legs are stroked as well. Tests in `tests/test_checks_hard.py`. Seeded eval: 19 of
+22 caught (DSM-023 now catches P20's R 0.2 drawn R 8; floor raised to 19), 19/19 where built, 73/73 correct, 0
+false alarms on the clean drawings. Sweep over the 137 client drawings, findings read one by one:
+
+| Rule | pass | finding | n/a or not checked | Notes |
+|---|---|---|---|---|
+| CN-003 (warning) | 136 | 0 | 1 | table cells, revision numbers, Ra values, balloons and stacked-limit fragments are not values |
+| ISO-023 (warning) | 136 | 0 | 1 | ordinate values have no arrowheads by design and are not judged |
+| ISO-025 (warning) | 137 | 0 | 0 | every PARI arrowhead is filled |
+| ISO-027 (warning) | 78 | 0 | 59 | counts arrowheads collinear with the radius line, not on joined leaders |
+| ISO-029 (warning) | 125 | 11 | 1 | all 11 read as real: hatching, centre, extension and outline lines through 15°, 45°, Ø6.6, 35±0.1, R 6 ... A value's own line is not judged (a text box is deeper than its characters) |
+| ISO-030 (warning) | 125 | 0 | 12 | |
+| ISO-031 | 127 | 9 warnings | 1 | all angles reading from the left (20°, 25°, 30°); ISO 129 orients angles by its figure 22, so angles warn and linear values fail |
+| DSM-023 (warning) | 90 | 0 | 47 | lengths tip to tip, 5-50% off, not at the same ratio as two others nor exactly at a standard scale; radii by an arc fit, only 3x off. Not checked = fewer than 3 lengths at a standard scale |
+| DTT-002, MX-011 (warning) | n/a | 0 | 137 | no boxed basic dimension and no position tolerance on these 137. A box is four strokes meeting at corners: extension lines around a vertical value are not one |
+| WST-050 (warning) | 78 | 0 | 59 | |
+| MD-013 (warning) | 2 | 3 | 132 | the datum triangle sits on the extension line where a dimension's arrow lands, which ASME reads as that feature of size: a drafting ambiguity worth a warning |
+| MD-020 (warning) | 0 | 0 | 137 | no datum flag on a pattern call-out |
+| NASA-100 | 18 | 1 warning | 118 | revision 2 of PRR74A055037005 has no mark on the field. Numbers up to the latest listed one count as listed (stage 1 cannot read numbers drawn in a cell's triangle) |
+| NASA-006 (warning) | 1 | 0 | 136 | "AS SHOWN" dropped from the triggers, "INDICATED AREA" added; the leader may have no arrowhead |
+| MX-026 | 1 | 0 | 136 | PARI's weld length / pitch table covers every stitch weld it does not size |
+| MF-011 (warning) | 35 | 1 | 101 | judged on carbon, alloy and tool steels (what DES-11 covers): SAE4140/41CrMo4 is not a DES-11 grade |
+| MC-004 | 0 | 0 | 137 | judges a stated drill depth only (`report_missing: false`); no client drawing states one |
+
+Counted, not read one by one, over all 1,171 client drawings (findings / drawings): ISO-029 333 / 231, ISO-031
+238 / 145 (12 fails), MD-013 32 / 32, MF-011 32 / 32, CN-003 30 / 15, NASA-100 20 / 15, DSM-023 10 / 10, MX-011
+10 / 4, the rest 4 or fewer. Nearly all the ISO-029 and ISO-031 hits are on the P23Y5 sheets (upper-case .PDF,
+none in the 137), an older drawing style that puts lines through values and angles reading from the left more
+often; a sample of them read as real. Sampling these also found three faults, now fixed: extension lines read as
+a basic-dimension box, hole-table rows deeper than the cell test allowed, and a revision triangle taking the
+label of a dimension beside it.
+
+Narrower than the rule text, until PARI answers (`docs/pari_questions.md` §1b, §3): MF-011 does not judge
+mild steel, stainless, cast iron, aluminium or plastics; MC-004 does not ask for a drill depth; MX-011 and
+MD-020 only judge by nearness, not by knowing which feature a frame is on.
+
 **Hard (20):** new vector detection, knowing what a feature is, or a missing table.
 - Arrowheads and lines: CN-003, ISO-023, ISO-025, ISO-027, ISO-029, WST-050.
 - Text direction (stage 1 does not record it): ISO-030, ISO-031.

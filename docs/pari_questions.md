@@ -4,7 +4,7 @@ Every open question for PARI in one place, so they can be asked together. Most i
 changes a rule in `config/rules/` (its `result: warning` is removed, a threshold is filled in, or a parked rule
 is built or dropped). When PARI answers, record it next to the question and update the rule.
 
-Last updated 2026-11-12.
+Last updated 2026-11-13.
 
 ## 1. Findings from the new checks on PARI's own drawings (2026-11-12)
 
@@ -26,6 +26,18 @@ real issue on the drawing or a PARI practice the rule should allow.
 | 1.11 | Three sheets leave PART CLASS. empty. Is the class required on every part? | 45K_DUNNAGE DOOR LM BLK MTG PLT, 05015NB02996/7 | SC-002 |
 | 1.12 | Datum A is placed on the M65 x 2 thread with no MD / PD / LD qualifier. Which diameter is meant? | PRR74A055037005 | MD-021 |
 
+## 1b. Findings from the drafting checks on PARI's own drawings (2026-11-13)
+
+From the checks that read how dimensions are drawn (arrowheads, lines, text direction). All are warnings.
+
+| # | Question | Example drawing | Rule |
+|---|---|---|---|
+| 1b.1 | Angle values (20°, 25°, 30°) read from the left, top to bottom. ISO 129 asks for values readable from the bottom or the right. Is Solid Edge's default placement accepted? | PRS85A281021001, PRE93A203014001 and 7 others | ISO-031 |
+| 1b.2 | Hatching, centre and extension lines run through values (15°, 45°, Ø6.6, 35±0.1, R 6). Should lines be broken around a value? | PAV14B041607002, PRE93B305014003 and 9 others | ISO-029 |
+| 1b.3 | A datum triangle sits on the extension line exactly where a dimension's arrow lands (datum A with 20, 90, 170). Under ASME Y14.5 that makes the datum the feature of size, not the face. Which is meant? | PRC89A200079001, PAB87S010051001, 40K_LM RAIL ADAPTAR PLATE_RH_02 | MD-013 |
+| 1b.4 | Revision 2 is in the revision table but no Δ2 marks where it changed the drawing. Does PARI mark every revision on the field? | PRR74A055037005 | NASA-100 |
+| 1b.5 | SAE4140 / 41CrMo4 is not one of DES-11's grades. Is it approved for this part? | PRQ93C123008001 | MF-011 |
+
 ## 2. Rules that only warn until PARI confirms the convention
 
 | # | Question | Rule |
@@ -41,9 +53,9 @@ real issue on the drawing or a PARI practice the rule should allow.
 |---|---|---|
 | 3.1 | When does a part need datums? For example: any tolerance tighter than some value, or any GD&T frame. | MD-002 |
 | 3.2 | Above what part mass must lifting points and their rated capacity be shown? | SC-001 |
-| 3.3 | Is there an approved or preferred materials list? Sheet 2 of the US-India file is not one. | MF-011 |
+| 3.3 | Is there an approved or preferred materials list? Sheet 2 of the US-India file is not one. Built 2026-11-13 with DES-11 as the list for carbon, alloy and tool steels; is that right, and which list covers mild steel, stainless, cast iron, aluminium and plastics (DES-11 also prints SS304, FG260 and FG300)? | MF-011 |
 | 3.4 | What do the PART CLASS. values in the title block mean (T+S, A, B, C)? Which classes count as safety critical? Is "WELD CLASS : B" the weld quality level (e.g. ISO 5817 B)? | SC-002, WF-007 |
-| 3.5 | Tapped holes are called out as "M6 x 12 DEEP" with no drill depth. Should the drill depth (about 3 pitches deeper) be stated, or is it left to the shop? | MC-004 |
+| 3.5 | Tapped holes are called out as "M6 x 12 DEEP" with no drill depth. Should the drill depth (about 3 pitches deeper) be stated, or is it left to the shop? Built 2026-11-13: a stated drill depth is judged; a missing one is not a finding (`report_missing: false`) until PARI answers. | MC-004 |
 
 ## 4. Standing project questions
 
