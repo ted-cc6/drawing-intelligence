@@ -29,6 +29,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.background import BackgroundTask
 
+from drawing_intelligence.api.compare import compare
 from drawing_intelligence.api.runs import BatchItem, DemoSession, SessionStore
 from drawing_intelligence.api.uploads import UploadRejected, screen_pdf
 from drawing_intelligence.api.views import (
@@ -338,6 +339,13 @@ def create_app(
     def get_session(sid: str) -> dict[str, Any]:
         sess = session_or_404(sid)
         return session_detail(sess, settings.config_path) if sess.status == "done" else session_summary(sess)
+
+    @app.get("/api/compare", dependencies=[Auth])
+    def compare_reviews(old: str, new: str) -> dict[str, Any]:
+        sessions = [session_or_404(old), session_or_404(new)]
+        for sess in sessions:
+            done_or_409(sess)
+        return compare(*(session_detail(sess, settings.config_path) for sess in sessions))
 
     @app.delete("/api/sessions/{sid}", dependencies=[Auth])
     def end_session(sid: str) -> dict[str, bool]:

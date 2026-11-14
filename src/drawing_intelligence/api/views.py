@@ -125,10 +125,12 @@ def session_detail(sess: DemoSession, config_dir: Path) -> dict[str, Any]:
             }
         )
     statuses = Counter(s.status for s in review.rule_statuses)
-    tb = res.extraction.pages[0].title_block_fields if res.extraction.pages else {}
+    first = res.extraction.pages[0] if res.extraction.pages else None
+    tb = first.title_block_fields if first else {}
     out.update(
         {
             "title_block": {k: v.value for k, v in tb.items() if v.value},
+            "revision_rows": [r.text for r in first.revision_rows] if first else [],
             "sheets": sheets,
             "findings": findings,
             "rejected": len(res.rejected),

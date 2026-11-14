@@ -61,16 +61,24 @@ def test_rules_and_models(client):
     assert any(m["id"] == "qwen3.8-max" for m in models)
 
 
-def test_a_review_session_end_to_end(client, settings):
-    h = _login(client)
-    sid = client.post("/api/sessions", json={"demo_id": "cam-plate-seeded"}, headers=h).json()["id"]
+def _done(c: TestClient, h: dict[str, str], demo_id: str) -> str:
+    """Open a demo drawing and wait for its (replayed) review; its session id."""
+    sid = c.post("/api/sessions", json={"demo_id": demo_id}, headers=h).json()["id"]
     s: dict[str, Any] = {}
     for _ in range(200):
-        s = client.get(f"/api/sessions/{sid}", headers=h).json()
+        s = c.get(f"/api/sessions/{sid}", headers=h).json()
         if s["status"] in ("done", "error"):
             break
         time.sleep(0.1)
     assert s["status"] == "done", s.get("error")
+    return sid
+
+
+def test_a_review_session_end_to_end(client, settings):
+    h = _login(client)
+    sid = _done(client, h, "cam-plate-seeded")
+    s = client.get(f"/api/sessions/{sid}", headers=h).json()
+    assert isinstance(s["revision_rows"], list)
     assert [st["status"] for st in s["stages"]] == ["done"] * 5
     assert s["cached"] and s["cost_usd"] == 0
     rules = {f["rule_id"] for f in s["findings"]}
@@ -90,6 +98,35 @@ def test_a_review_session_end_to_end(client, settings):
 
     assert client.delete(f"/api/sessions/{sid}", headers=h).json() == {"deleted": True}
     assert client.get(f"/api/sessions/{sid}", headers=h).status_code == 404
+
+
+def test_compare_the_clean_and_the_seeded_cam_plate(client):
+    h = _login(client)
+    clean, seeded = _done(client, h, "cam-plate-clean"), _done(client, h, "cam-plate-seeded")
+    out = client.get(f"/api/compare?old={clean}&new={seeded}", headers=h).json()
+    found = out["findings"]
+    assert {f["rule_id"] for f in found["new"]} == {"RQ-002", "WST-207"}  # the planted error
+    assert all(f["evidence"][0]["quote"].startswith("⌀ 16 H7") for f in found["new"])
+    assert found["fixed"] == []
+    assert {f["rule_id"] for f in found["still_open"]} == {"TB-016", "WPS-004"}
+    (wps,) = [f for f in found["still_open"] if f["rule_id"] == "WPS-004"]
+    assert "(+0.018/0)" in wps["was"] and "(-0.018/0)" in wps["now"]
+    assert out["title_block"] == []
+    assert any("Both sheets say revision 00" in n for n in out["notes"])
+
+    back = client.get(f"/api/compare?old={seeded}&new={clean}", headers=h).json()["findings"]
+    assert len(back["fixed"]) == 2 and back["new"] == []
+
+
+def test_compare_needs_two_finished_reviews(gated_store, make_pdf, settings, tmp_path):
+    store, _ = gated_store
+    app = create_app(settings, password=None, web_dist=tmp_path / "none", store=store)
+    with TestClient(app) as c:
+        busy = store.create(make_pdf("up.pdf"), "up.pdf", None, live=True)  # stuck in its model call
+        replay = store.create(P13, "P13", "cam-plate-seeded", live=False)
+        assert _wait(lambda: busy.status == "running" and replay.status == "done")
+        assert c.get(f"/api/compare?old=nope&new={replay.id}").status_code == 404
+        assert c.get(f"/api/compare?old={busy.id}&new={replay.id}").status_code == 409
 
 
 def test_upload_accepts_only_pdfs(client):
