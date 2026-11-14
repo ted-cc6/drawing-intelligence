@@ -11,6 +11,7 @@ misquotes it, is dropped.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from importlib import resources
 from pathlib import Path
@@ -20,7 +21,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 
 from drawing_intelligence.llm import ImagePart, LLMClient, Part, TextPart
 from drawing_intelligence.schemas import DimensionTag, DrawingKnowledge, PageExtraction, TagResult
-from drawing_intelligence.understanding.understand import image_caption
+from drawing_intelligence.understanding.understand import _EXCLUDE_FROM_TEXT, image_caption
 
 NODE = "understand:tag"
 PROMPT = resources.files(__package__).joinpath("prompts/tag.md").read_text(encoding="utf-8")
@@ -45,8 +46,17 @@ def build_parts(page: PageExtraction, root: Path, knowledge: DrawingKnowledge) -
     parts: list[Part] = [TextPart(PROMPT)]
     if page.images is not None:
         imgs = page.images
+        # the images are renders of this page, so the page's exact text (identical on every platform) and the
+        # tile name key them in the cache; the PNG bytes differ between platforms
+        text = json.dumps(
+            page.model_dump(mode="json", exclude=_EXCLUDE_FROM_TEXT), sort_keys=True, ensure_ascii=False
+        )
+        page_key = hashlib.sha256(text.encode()).hexdigest()
         for f in [imgs.full, *(t.file for t in imgs.tiles)]:
-            parts += [TextPart(image_caption(page, f)), ImagePart(Path(f).name, (root / f).read_bytes())]
+            parts += [
+                TextPart(image_caption(page, f)),
+                ImagePart(Path(f).name, (root / f).read_bytes(), key=f"{page_key}:{Path(f).name}:{imgs.dpi}"),
+            ]
     drawing = json.dumps(knowledge.model_dump(mode="json", exclude=_VIEW), ensure_ascii=False)
     return [*parts, TextPart("DRAWING:\n" + drawing)]
 

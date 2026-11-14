@@ -33,6 +33,10 @@ class TextPart:
 class ImagePart:
     name: str
     png: bytes
+    # Stands in for the bytes in the cache key when set: rendered PNGs differ by platform (pymupdf on Linux,
+    # Windows and macOS), so a caller whose images derive from content it can name gets one cache entry
+    # everywhere. Unset (the understanding call), the bytes are the key, as before.
+    key: str | None = None
 
 
 Part = TextPart | ImagePart
@@ -196,7 +200,21 @@ class LLMClient:
         level = spec.thinking_level(thinking)
         provider = self.registry.provider(spec)
         req = self.build_request(spec, parts, schema, level)
-        return self._send(spec, provider.api_key_env, provider.base_url, req, node, level)
+        return self._send(
+            spec, provider.api_key_env, provider.base_url, req, node, level, self._stable_key(req, parts)
+        )
+
+    def _stable_key(self, req: dict[str, Any], parts: list[Part]) -> str | None:
+        """The cache key with each keyed image's bytes replaced by its key; None when no image is keyed."""
+        keys = [p.key for p in parts if isinstance(p, ImagePart)]
+        if not any(keys):
+            return None
+        stable = json.loads(json.dumps(req))
+        images = iter(keys)
+        for part in stable["messages"][0]["content"]:
+            if part.get("type") == "image_url" and (k := next(images)):
+                part["image_url"]["url"] = f"key:{k}"
+        return self.cache_key(stable)
 
     def _send(
         self,
@@ -206,8 +224,9 @@ class LLMClient:
         req: dict[str, Any],
         node: str,
         level: str,
+        key: str | None = None,
     ) -> LLMResponse:
-        key = self.cache_key(req)
+        key = key or self.cache_key(req)
 
         hit = self.cache.get(key) if self.cache else None
         if hit is not None:

@@ -137,3 +137,18 @@ def test_missing_key(registry, settings, tmp_path):
     client, _ = _client(registry, settings, tmp_path, FakeCompletion(), cache=False)
     with pytest.raises(MissingKeyError, match="QWEN_API_KEY"):
         client.complete([TextPart("q")], role="understand", node="understand", model="qwen3-vl-plus")
+
+
+def test_keyed_images_share_a_cache_entry_across_renders(registry, settings, tmp_path):
+    # pymupdf renders a page to different PNG bytes on Linux, Windows and macOS: a keyed image is cached by
+    # its key, so one entry serves every platform; an unkeyed one is cached by its bytes, as before
+    fake = FakeCompletion()
+    client, _ = _client(registry, settings, tmp_path, fake)
+
+    def ask(png: bytes, key: str | None):
+        return client.complete([TextPart("q"), ImagePart("a.png", png, key=key)], role="understand", node="n")
+
+    assert not ask(b"linux", "page1:a.png").cached
+    assert ask(b"windows", "page1:a.png").cached and len(fake.calls) == 1
+    assert not ask(b"macos", None).cached and len(fake.calls) == 2
+    assert "data:image/png" in fake.calls[1]["kwargs"]["messages"][0]["content"][1]["image_url"]["url"]

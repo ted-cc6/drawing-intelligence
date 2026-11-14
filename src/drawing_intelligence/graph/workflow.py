@@ -8,6 +8,7 @@ appends the path of its output to `reviewer_outputs`, and `verify` joins them.
 from __future__ import annotations
 
 import json
+import logging
 import operator
 import shutil
 import sqlite3
@@ -44,6 +45,8 @@ from drawing_intelligence.schemas import (
 from drawing_intelligence.settings import Settings
 from drawing_intelligence.storage import Session
 from drawing_intelligence.understanding import tag_page, understand_page
+
+log = logging.getLogger(__name__)
 
 
 class WorkflowState(TypedDict, total=False):
@@ -140,15 +143,21 @@ def build_graph(
                 client, page, ex_path.parent, state.get("understand_model"), state.get("understand_thinking")
             )
             if res.knowledge is not None and rulebook is not None:  # the split checks' dimension roles
-                tags = tag_page(
-                    client,
-                    page,
-                    ex_path.parent,
-                    res.knowledge,
-                    state.get("understand_model"),
-                    state.get("understand_thinking"),
-                )
-                res = res.model_copy(update={"tagging": tags})
+                try:
+                    tags = tag_page(
+                        client,
+                        page,
+                        ex_path.parent,
+                        res.knowledge,
+                        state.get("understand_model"),
+                        state.get("understand_thinking"),
+                    )
+                    res = res.model_copy(update={"tagging": tags})
+                except Exception as e:  # without tags the split checks are not checked; the review goes on
+                    log.warning("tagger failed on page %s: %s", page.page_number, e)
+                    res = res.model_copy(
+                        update={"problems": [*res.problems, f"tagger failed: {type(e).__name__}"]}
+                    )
             p = out / f"page_{page.page_number}.json"
             p.write_text(res.model_dump_json(indent=1), encoding="utf-8")
             paths.append(str(p))
