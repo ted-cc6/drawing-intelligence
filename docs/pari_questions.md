@@ -51,11 +51,14 @@ From the checks that read how dimensions are drawn (arrowheads, lines, text dire
 
 | # | Question | Rule |
 |---|---|---|
-| 3.1 | When does a part need datums? For example: any tolerance tighter than some value, or any GD&T frame. | MD-002 |
-| 3.2 | Above what part mass must lifting points and their rated capacity be shown? | SC-001 |
+| 3.1 | When does a part need datums? For example: any tolerance tighter than some value, or any GD&T frame. Built 2026-11-13 with ±0.02 (or an orientation or location frame) as a provisional threshold, warning only: the cylinder-rod and anti-back-lever drawings hold ±0.02 sizes with no datum at all. | MD-002 |
+| 3.2 | Above what part mass must lifting points and their rated capacity be shown? Until then SC-001 is an AI rule that only reports a lifting point named without its capacity. | SC-001 |
 | 3.3 | Is there an approved or preferred materials list? Sheet 2 of the US-India file is not one. Built 2026-11-13 with DES-11 as the list for carbon, alloy and tool steels; is that right, and which list covers mild steel, stainless, cast iron, aluminium and plastics (DES-11 also prints SS304, FG260 and FG300)? | MF-011 |
 | 3.4 | What do the PART CLASS. values in the title block mean (T+S, A, B, C)? Which classes count as safety critical? Is "WELD CLASS : B" the weld quality level (e.g. ISO 5817 B)? | SC-002, WF-007 |
 | 3.5 | Tapped holes are called out as "M6 x 12 DEEP" with no drill depth. Should the drill depth (about 3 pitches deeper) be stated, or is it left to the shop? Built 2026-11-13: a stated drill depth is judged; a missing one is not a finding (`report_missing: false`) until PARI answers. | MC-004 |
+
+| 3.6 | Which retaining-ring standard does PARI use for circlip grooves (DIN 471/472, IS 3075 ...)? MC-008 finds the grooves but has no table to compare them with. | MC-008 |
+| 3.7 | Is the same size dimensioned in two projected views (a width in the front and the top view) accepted? DM-002 warns on it (P23Y5B154529001, P23Y5B159003001). | DM-002 |
 
 ## 4. Standing project questions
 

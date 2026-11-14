@@ -141,6 +141,29 @@ Narrower than the rule text, until PARI answers (`docs/pari_questions.md` §1b, 
 mild steel, stainless, cast iron, aluminium or plastics; MC-004 does not ask for a drill depth; MX-011 and
 MD-020 only judge by nearness, not by knowing which feature a frame is on.
 
+**Status (2026-11-13, later): the last 11 are done; every code/lookup rule has a check (132 of 132).** They were
+planned as 5 AI rules and 6 split between AI and code. Each was run on the seeded (28) and held-out (24) drawings
+and then on 30 fresh drawings never used for tuning (stratified: 10 with keyways, 10 round parts with thread
+reliefs, 10 random), with every new finding read. Where the AI was wrong more often than right, the rule moved to
+code or waits for an input, so the split is now:
+
+| Rule | Now | Why (measured) |
+|---|---|---|
+| MX-012 | AI (drawing_practice) | 6 findings on 54 unseen drawings, about 4 plausible (a locating pin's Ø7, keyway widths with no fit, a size a note wants ±0.01), 1 wrong (a Ø55 read as an M12's major diameter). Not in design_intent: there it changed TL-002's answers |
+| SC-001 | AI (design_intent) | no finding on 82 drawings (no lifting points named). Adding it to design_intent changed that reviewer's prompt: the seeded run with AI is 19/22 (P19, already unstable on 2026-10-25, is missed) and design_intent 13/19 (was 13/17) |
+| MX-006 | AI with candidates, waits for geometry | it called patterns unlocated that are located by coordinates (P23D2C042261001) |
+| MD-002 | code (warning, ±0.02 provisional) | the AI only restated stage 1's facts and once read ±0.1 as tight. 5 on the 137, 1 held-out, 1 fresh, all real by the rule |
+| DM-002 | code (warning) | as AI-judged candidates about 2 of 9 right. Code: the same distance twice from the dimension lines, 4 of 6 right on the 137, 2 of 2 fresh. Across views not checked |
+| MX-009 | code (warning) | as AI its 2 findings were a groove width and an Ra value. Code reads the call-out text: 1 on all 1,171 ("CHAMFER ALL TAPPED HOLES") |
+| MP-012 | code (warning) | from stage 1's ordinate values and datum flags: 1 fresh (origin 0 with no datum near), 1 on the 137 |
+| WST-206 | tagger + code (warning) | the tagger labels fits on holes reliably; no case error found on 82 drawings |
+| MC-007 | tagger + code (warning) | the held-out keyway width is right; on the fresh set 2 findings, 1 an across-flats taken for a keyway, 1 unclear |
+| WST-242 | tagger + code (warning) | undercut tags were mostly wrong (bar lengths, chamfers, tapped holes) until the plausibility guards; none left |
+| MC-008 | tagger + code, not checked | no retaining-ring table until PARI names the standard |
+
+The tagger and the candidates mechanism are ADR 0013. Spend for the batch: about $4.95 of the $10 allowed (four rounds
+on the seeded, held-out and fresh sets, tagger included).
+
 **Hard (20):** new vector detection, knowing what a feature is, or a missing table.
 - Arrowheads and lines: CN-003, ISO-023, ISO-025, ISO-027, ISO-029, WST-050.
 - Text direction (stage 1 does not record it): ISO-030, ISO-031.
