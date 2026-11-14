@@ -431,3 +431,8 @@ table.grid tr.on td { background: var(--select); }
 .signrow input { height: 24px; border: 1px solid var(--line); padding: 0 6px; flex: 1; }
 .warnline { background: #fff7e6; border: 1px solid #f0d199; padding: 6px 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .statusbar .stamp { background: #e9f5ec; color: #1f6b30; font-weight: 600; }
+.mailhead { display: grid; grid-template-columns: 70px 1fr; gap: 4px 10px; align-items: center; }
+.mailhead .k { color: var(--text-2); font-weight: 600; }
+.mailbody { white-space: pre-wrap; font-family: inherit; background: #f7f9fa; border: 1px solid var(--line); padding: 8px 10px; max-height: 260px; overflow: auto; margin: 10px 0 0; }
+.linkbtn { border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0; display: inline-flex; align-items: center; gap: 4px; }
+.linkbtn:hover { text-decoration: underline; }

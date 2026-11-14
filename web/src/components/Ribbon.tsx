@@ -68,6 +68,7 @@ interface Props {
   onCompare: () => void;
   stamped: boolean;
   onMarkChecked: () => void;
+  onSendDesigner: () => void;
 }
 
 function Big(p: { icon: ReactNode; label: string; onClick?: () => void; disabled?: boolean; on?: boolean; pilot?: boolean; tip?: string }) {
@@ -172,7 +173,7 @@ export function Ribbon(p: Props) {
           disabled={d}
           tip={p.stamped ? "Clear this drawing's status" : "Sign the drawing off (demo: nothing is stored)"}
         />
-        <Big icon={<Users size={22} />} label="Send to designer" pilot />
+        <Big icon={<Users size={22} />} label="Send to designer" onClick={p.onSendDesigner} disabled={d} tip="Send the accepted findings to the designer (demo: nothing is sent)" />
       </Group>
       <Group label="Measure">
         <Big icon={<Ruler size={22} />} label="Measure" on={p.measuring} onClick={p.onMeasure} disabled={d} tip="Click two points on the sheet to measure between them (Esc to stop)" />

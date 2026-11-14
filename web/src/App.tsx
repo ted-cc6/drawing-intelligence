@@ -11,7 +11,8 @@ import { PathFinder } from "./components/PathFinder";
 import { Ribbon, type Filters, type RibbonTab } from "./components/Ribbon";
 import { RightDock, type ChatMsg, type DockTab } from "./components/RightDock";
 import { SheetView, type SheetHandle } from "./components/SheetView";
-import { SignOffDialog, stampText, type Stamp } from "./components/SignOff";
+import { SendToDesignerDialog } from "./components/SendToDesigner";
+import { SignOffDialog, counts, stampText, today, type Stamp } from "./components/SignOff";
 import { isAI, money, scaleFactor, secs } from "./format";
 
 type DocKind = "start" | "drawing" | "rules" | "reports" | "settings" | "batch" | "compare";
@@ -73,6 +74,7 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
   const [notice, setNotice] = useState<{ title: string; text: string } | null>(null);
   const [picking, setPicking] = useState(false);
   const [signing, setSigning] = useState(false);
+  const [sending, setSending] = useState(false);
   const [stamps, setStamps] = useState<Record<string, Stamp>>({}); // demo sign-off state, this browser only
   const [pendingCompare, setPendingCompare] = useState<{ old: string; new: string } | null>(null);
   const sheetRef = useRef<SheetHandle>(null);
@@ -366,7 +368,7 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
   const stamp = sess ? stamps[sess.id] : undefined;
   const onMarkChecked = () => {
     if (!sess || !done) return;
-    if (!stamp) return setSigning(true);
+    if (stamp?.kind !== "checked") return setSigning(true); // a "returned" status is replaced by the sign-off
     setStamps((m) => {
       const n = { ...m };
       delete n[sess.id];
@@ -380,6 +382,25 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
     setSigning(false);
     setPrompt(`${sess.name} marked as checked (demo: nothing stored).`);
   };
+
+  const accepted = allFindings.filter((f) => f.feedback === "accept");
+  const onSendDesigner = () => {
+    setSigning(false);
+    if (!sess || !done) return;
+    if (!accepted.length) return setPrompt("No accepted findings to send. Accept the findings the designer should fix first.");
+    setSending(true);
+  };
+  const sendDemo = () => {
+    if (!sess) return;
+    setStamps((m) => ({ ...m, [sess.id]: { kind: "returned", by: "", date: today(), ...counts(allFindings) } }));
+    setSending(false);
+    setPrompt("Demo: not sent.");
+  };
+  const copyText = (text: string) =>
+    navigator.clipboard
+      .writeText(text)
+      .then(() => setPrompt("Message copied."))
+      .catch(() => setPrompt("The browser did not allow copying."));
 
   const acceptAllCodeFails = () => {
     for (const f of shown) if (!f.feedback && f.result === "fail" && !isAI(f)) feedback(f.no, "accept");
@@ -484,8 +505,9 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
         onRulebookExcel={() => download("/api/rules.xlsx")}
         onBatch={() => batchRef.current?.click()}
         onCompare={() => done && setPicking(true)}
-        stamped={!!stamp}
+        stamped={stamp?.kind === "checked"}
         onMarkChecked={onMarkChecked}
+        onSendDesigner={onSendDesigner}
         measuring={measuring}
         onMeasure={() => {
           setMeasuring((m) => !m);
@@ -558,7 +580,19 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
           findings={allFindings}
           onSign={signOff}
           onNextOpen={() => (setSigning(false), nextOpen())}
+          onSend={onSendDesigner}
           onClose={() => setSigning(false)}
+        />
+      )}
+      {sending && sess && (
+        <SendToDesignerDialog
+          session={sess}
+          accepted={accepted}
+          page={pageNo}
+          onDownload={download}
+          onCopy={copyText}
+          onSend={sendDemo}
+          onClose={() => setSending(false)}
         />
       )}
       {picking && sess && (
