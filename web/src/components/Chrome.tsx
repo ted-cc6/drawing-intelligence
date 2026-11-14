@@ -44,6 +44,7 @@ export interface StatusInfo {
   time?: string;
   cost?: string;
   model?: string;
+  stamp?: string; // the demo sign-off status of the open drawing
 }
 
 export function StatusBar(s: StatusInfo) {
@@ -59,6 +60,7 @@ export function StatusBar(s: StatusInfo) {
       {s.time && <span className="cell">{s.time}</span>}
       {s.cost && <span className="cell">{s.cost}</span>}
       {s.model && <span className="cell mono">{s.model}</span>}
+      {s.stamp && <span className="cell stamp">{s.stamp}</span>}
       <span className="cell">Rulebook v1 · 174 rules</span>
     </div>
   );

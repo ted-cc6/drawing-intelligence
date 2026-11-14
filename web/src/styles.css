@@ -425,3 +425,9 @@ table.grid tr.on td { background: var(--select); }
 .pickrow { display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 6px 8px; border: 1px solid var(--line); background: #fff; margin-bottom: 4px; cursor: pointer; }
 .pickrow:hover { border-color: var(--select-line); background: #f4faff; }
 .cmph { margin: 14px 12px 4px; font-size: 13px; }
+
+/* Sign-off and send to designer (demo) */
+.signrow { display: flex; align-items: center; gap: 8px; }
+.signrow input { height: 24px; border: 1px solid var(--line); padding: 0 6px; flex: 1; }
+.warnline { background: #fff7e6; border: 1px solid #f0d199; padding: 6px 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.statusbar .stamp { background: #e9f5ec; color: #1f6b30; font-weight: 600; }

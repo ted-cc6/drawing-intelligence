@@ -11,6 +11,7 @@ import { PathFinder } from "./components/PathFinder";
 import { Ribbon, type Filters, type RibbonTab } from "./components/Ribbon";
 import { RightDock, type ChatMsg, type DockTab } from "./components/RightDock";
 import { SheetView, type SheetHandle } from "./components/SheetView";
+import { SignOffDialog, stampText, type Stamp } from "./components/SignOff";
 import { isAI, money, scaleFactor, secs } from "./format";
 
 type DocKind = "start" | "drawing" | "rules" | "reports" | "settings" | "batch" | "compare";
@@ -71,6 +72,8 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
   const [measuring, setMeasuring] = useState(false);
   const [notice, setNotice] = useState<{ title: string; text: string } | null>(null);
   const [picking, setPicking] = useState(false);
+  const [signing, setSigning] = useState(false);
+  const [stamps, setStamps] = useState<Record<string, Stamp>>({}); // demo sign-off state, this browser only
   const [pendingCompare, setPendingCompare] = useState<{ old: string; new: string } | null>(null);
   const sheetRef = useRef<SheetHandle>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -255,6 +258,11 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
       const wasRunning = s && (s.status === "queued" || s.status === "running");
       setPrompt(`Closed ${s?.name ?? "the drawing"}${wasRunning ? "; its review was stopped" : ""}. Its files were deleted.`);
       api.close(d.sid).catch(() => undefined);
+      setStamps((m) => {
+        const n = { ...m };
+        delete n[d.sid!];
+        return n;
+      });
       setSessions((m) => {
         const n = { ...m };
         delete n[d.sid!];
@@ -353,6 +361,24 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
     if (!open.length) return setPrompt("Every finding shown has a decision.");
     const i = open.findIndex((f) => f.no === sel);
     select(open[(i + 1) % open.length].no);
+  };
+
+  const stamp = sess ? stamps[sess.id] : undefined;
+  const onMarkChecked = () => {
+    if (!sess || !done) return;
+    if (!stamp) return setSigning(true);
+    setStamps((m) => {
+      const n = { ...m };
+      delete n[sess.id];
+      return n;
+    });
+    setPrompt(`Reopened ${sess.name}.`);
+  };
+  const signOff = (st: Stamp) => {
+    if (!sess) return;
+    setStamps((m) => ({ ...m, [sess.id]: st }));
+    setSigning(false);
+    setPrompt(`${sess.name} marked as checked (demo: nothing stored).`);
   };
 
   const acceptAllCodeFails = () => {
@@ -458,6 +484,8 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
         onRulebookExcel={() => download("/api/rules.xlsx")}
         onBatch={() => batchRef.current?.click()}
         onCompare={() => done && setPicking(true)}
+        stamped={!!stamp}
+        onMarkChecked={onMarkChecked}
         measuring={measuring}
         onMeasure={() => {
           setMeasuring((m) => !m);
@@ -522,8 +550,17 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
         time={done ? `Review ${secs(sess!.seconds)}` : undefined}
         cost={done ? `Cost ${money((sess!.cost_usd ?? 0) + (sess!.qa_cost_usd ?? 0))}` : undefined}
         model={done ? sess!.model ?? undefined : undefined}
+        stamp={done && stamp ? stampText(stamp) : undefined}
       />
       {help && <Help onClose={() => setHelp(false)} />}
+      {signing && sess && (
+        <SignOffDialog
+          findings={allFindings}
+          onSign={signOff}
+          onNextOpen={() => (setSigning(false), nextOpen())}
+          onClose={() => setSigning(false)}
+        />
+      )}
       {picking && sess && (
         <ComparePicker demos={demos} sessions={openSessions} current={sess} onPick={onComparePick} onClose={() => setPicking(false)} />
       )}

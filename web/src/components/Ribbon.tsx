@@ -66,6 +66,8 @@ interface Props {
   onRulebookExcel: () => void;
   onBatch: () => void;
   onCompare: () => void;
+  stamped: boolean;
+  onMarkChecked: () => void;
 }
 
 function Big(p: { icon: ReactNode; label: string; onClick?: () => void; disabled?: boolean; on?: boolean; pilot?: boolean; tip?: string }) {
@@ -163,7 +165,13 @@ export function Ribbon(p: Props) {
         <Big icon={<ThumbsUp size={22} />} label="Accept all code fails" onClick={p.onAcceptAll} disabled={d} tip="Accept every code-check fail still open" />
       </Group>
       <Group label="Sign-off">
-        <Big icon={<CheckCheck size={22} />} label="Mark as checked" pilot />
+        <Big
+          icon={<CheckCheck size={22} />}
+          label={p.stamped ? "Reopen" : "Mark as checked"}
+          onClick={p.onMarkChecked}
+          disabled={d}
+          tip={p.stamped ? "Clear this drawing's status" : "Sign the drawing off (demo: nothing is stored)"}
+        />
         <Big icon={<Users size={22} />} label="Send to designer" pilot />
       </Group>
       <Group label="Measure">
