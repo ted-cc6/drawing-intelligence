@@ -58,3 +58,15 @@ themselves afterwards.
   sessions), `GET`/`DELETE /api/batches/{id}`, `GET /api/batches/{id}/reports.zip` (summary + checklists).
 - Still PILOT: compare revisions, sign-off, send to designer, confirm and edit rules, feedback analytics, run
   history across users. They need persistent storage and user accounts first.
+
+## Update 2026-11-14 (compare revisions; sign-off and send to designer as demo mock-ups)
+- **Compare revisions:** `GET /api/compare?old=&new=` (`api/compare.py`) diffs two finished session views:
+  findings new, fixed and still open (with the quote that changed), title-block fields, revision-table rows,
+  and plain notes (different drawings; findings changed under the same revision). Findings match on rule plus
+  an anchor; D/S refs are list positions, so for those the anchor is the quote without its tolerance plus the
+  zone. A changed nominal shows as fixed plus new. The session view gains `revision_rows`.
+- **Mark as checked** and **Send to designer** are browser-only mock-ups: a sign-off dialog and a pre-filled
+  message (the designer is the title block's drawn-by number; attachments are the real downloads). Each says
+  "Demo: nothing is stored / sent"; the status chip lives in the browser for the open session only. No
+  endpoint pretends to sign off or send: the pilot builds those on storage and accounts.
+- Still PILOT: confirm and edit rules, feedback analytics, run history across users.
