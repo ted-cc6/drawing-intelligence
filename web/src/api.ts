@@ -81,6 +81,23 @@ export interface SessionInfo {
   rulebook_version?: string;
 }
 
+/** GET /api/compare: what changed between two reviews (api/compare.py). */
+export interface CompareSide {
+  id: string;
+  name: string;
+  number: string | null;
+  revision: string | null;
+}
+
+export interface Comparison {
+  old: CompareSide;
+  new: CompareSide;
+  findings: { new: Finding[]; fixed: Finding[]; still_open: (Finding & { was: string | null; now: string | null })[] };
+  title_block: { field: string; old: string | null; new: string | null }[];
+  revision_rows: { added: string[]; removed: string[] };
+  notes: string[];
+}
+
 export interface Cite {
   cite: string;
   finding_no?: number;
@@ -224,6 +241,7 @@ export const api = {
   closeBatch: (id: string) => call<{ deleted: boolean }>(`/api/batches/${id}`, { method: "DELETE" }),
   session: (id: string) => call<SessionInfo>(`/api/sessions/${id}`),
   close: (id: string) => call<{ deleted: boolean }>(`/api/sessions/${id}`, { method: "DELETE" }),
+  compare: (oldId: string, newId: string) => call<Comparison>(`/api/compare?old=${oldId}&new=${newId}`),
   ask: (id: string, question: string) =>
     call<AnswerView>(`/api/sessions/${id}/ask`, {
       method: "POST",

@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BookOpen, Cpu, FileText, History, Home, Layers, Loader2, X } from "lucide-react";
-import type { Cite, Demo, SessionInfo } from "./api";
+import { BookOpen, Cpu, FileText, GitCompare, History, Home, Layers, Loader2, X } from "lucide-react";
+import type { Cite, Comparison, Demo, SessionInfo } from "./api";
 import { ApiError, api, token, withToken } from "./api";
 import { Login, StatusBar, TitleBar } from "./components/Chrome";
 import { BatchView } from "./components/BatchView";
+import { ComparePicker, CompareView, type ComparePick } from "./components/CompareView";
 import { ReportsView, RulebookView, SettingsView, Welcome } from "./components/DocViews";
 import { FindingsList } from "./components/FindingsList";
 import { PathFinder } from "./components/PathFinder";
@@ -12,16 +13,17 @@ import { RightDock, type ChatMsg, type DockTab } from "./components/RightDock";
 import { SheetView, type SheetHandle } from "./components/SheetView";
 import { isAI, money, scaleFactor, secs } from "./format";
 
-type DocKind = "start" | "drawing" | "rules" | "reports" | "settings" | "batch";
+type DocKind = "start" | "drawing" | "rules" | "reports" | "settings" | "batch" | "compare";
 interface Doc {
   key: string;
   kind: DocKind;
   sid?: string;
   bid?: string; // a batch review
   members?: string[]; // its sessions
+  compare?: Comparison; // fetched once, so it outlives the drawings it compares
 }
 
-const STATIC_DOCS: Record<Exclude<DocKind, "drawing" | "batch">, { label: string; icon: JSX.Element }> = {
+const STATIC_DOCS: Record<Exclude<DocKind, "drawing" | "batch" | "compare">, { label: string; icon: JSX.Element }> = {
   start: { label: "Start", icon: <Home size={13} /> },
   rules: { label: "Rulebook", icon: <BookOpen size={13} /> },
   reports: { label: "Reports", icon: <History size={13} /> },
@@ -68,6 +70,8 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
   const [help, setHelp] = useState(false);
   const [measuring, setMeasuring] = useState(false);
   const [notice, setNotice] = useState<{ title: string; text: string } | null>(null);
+  const [picking, setPicking] = useState(false);
+  const [pendingCompare, setPendingCompare] = useState<{ old: string; new: string } | null>(null);
   const sheetRef = useRef<SheetHandle>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const batchRef = useRef<HTMLInputElement>(null);
@@ -143,6 +147,57 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
       .catch(fail);
   };
 
+  const runCompare = (oldSid: string, newSid: string) => {
+    setPrompt("Comparing the two reviews…");
+    api
+      .compare(oldSid, newSid)
+      .then((c) => {
+        const key = `compare-${oldSid}-${newSid}`;
+        setDocs((ds) => [...ds.filter((d) => d.key !== key), { key, kind: "compare", compare: c }]);
+        setActive(key);
+        const f = c.findings;
+        setPrompt(`Compared: ${f.new.length} new, ${f.fixed.length} fixed, ${f.still_open.length} still open.`);
+      })
+      .catch(fail);
+  };
+
+  const onComparePick = (pick: ComparePick) => {
+    setPicking(false);
+    if (!sess) return;
+    if ("sid" in pick) return runCompare(pick.sid, sess.id);
+    const newSid = sess.id;
+    api
+      .openDemo(pick.demoId)
+      .then((s) => {
+        addSession(s);
+        setPendingCompare({ old: s.id, new: newSid });
+      })
+      .catch(fail);
+  };
+
+  // A drawing opened for a comparison: compare once its (replayed) review is done.
+  const pendingStatus = pendingCompare ? sessions[pendingCompare.old]?.status : undefined;
+  useEffect(() => {
+    if (!pendingCompare) return;
+    if (pendingStatus === "done") {
+      setPendingCompare(null);
+      runCompare(pendingCompare.old, pendingCompare.new);
+    } else if (pendingStatus === "error" || pendingStatus === undefined) setPendingCompare(null);
+  }, [pendingCompare, pendingStatus]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const showFinding = (sid: string, no: number) => {
+    const s = sessions[sid];
+    if (!s || !docs.some((d) => d.sid === sid)) {
+      const c = docs.find((d) => d.key === active)?.compare;
+      return setPrompt(`${c?.old.id === sid ? c.old.name : c?.new.name ?? "That drawing"} is closed.`);
+    }
+    setActive(sid);
+    setSelected((m) => ({ ...m, [sid]: no }));
+    setDockTab("props");
+    const f = s.findings?.find((x) => x.no === no);
+    if (f) setPrompt(`#${f.no} ${f.result === "fail" ? "Fail" : "Warning"} · ${f.rule_id} · ${f.location}`);
+  };
+
   const onBatchFiles = (list: FileList | null) => {
     const files = [...(list ?? [])];
     if (!files.length) return;
@@ -165,7 +220,7 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
 
   const batchGone = useCallback((message: string) => setPrompt(`Batch: ${message}`), []);
 
-  const openStatic = (kind: Exclude<DocKind, "drawing" | "batch">) => {
+  const openStatic = (kind: Exclude<DocKind, "drawing" | "batch" | "compare">) => {
     if (!docs.some((d) => d.key === kind)) setDocs((ds) => [...ds, { key: kind, kind }]);
     setActive(kind);
   };
@@ -311,7 +366,13 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
   ];
 
   const docLabel = (d: Doc) =>
-    d.kind === "drawing" ? sessions[d.sid!]?.name ?? "Drawing" : d.kind === "batch" ? `Batch (${d.members?.length ?? 0})` : STATIC_DOCS[d.kind].label;
+    d.kind === "drawing"
+      ? sessions[d.sid!]?.name ?? "Drawing"
+      : d.kind === "batch"
+        ? `Batch (${d.members?.length ?? 0})`
+        : d.kind === "compare"
+          ? `Compare: ${d.compare?.old.name} → ${d.compare?.new.name}`
+          : STATIC_DOCS[d.kind].label;
   const done = sess?.status === "done";
   const nFail = allFindings.filter((f) => f.result === "fail").length;
 
@@ -322,6 +383,7 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
   else if (doc.kind === "settings") center = <SettingsView />;
   else if (doc.kind === "batch" && doc.bid)
     center = <BatchView key={doc.bid} id={doc.bid} onOpen={openSession} onDownload={() => download(`/api/batches/${doc.bid}/reports.zip`)} onGone={batchGone} />;
+  else if (doc.kind === "compare" && doc.compare) center = <CompareView data={doc.compare} onSelect={showFinding} />;
   else if (!sess) center = <div className="graphics" />;
   else if (!done) center = <Progress s={sess} />;
   else
@@ -395,6 +457,7 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
         onAcceptAll={acceptAllCodeFails}
         onRulebookExcel={() => download("/api/rules.xlsx")}
         onBatch={() => batchRef.current?.click()}
+        onCompare={() => done && setPicking(true)}
         measuring={measuring}
         onMeasure={() => {
           setMeasuring((m) => !m);
@@ -409,7 +472,15 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
           <div className="doctabs">
             {docs.map((d) => (
               <button key={d.key} className={`doctab${d.key === active ? " on" : ""}`} onClick={() => setActive(d.key)} title={docLabel(d)}>
-                {d.kind === "drawing" ? <FileText size={13} /> : d.kind === "batch" ? <Layers size={13} /> : STATIC_DOCS[d.kind].icon}
+                {d.kind === "drawing" ? (
+                  <FileText size={13} />
+                ) : d.kind === "batch" ? (
+                  <Layers size={13} />
+                ) : d.kind === "compare" ? (
+                  <GitCompare size={13} />
+                ) : (
+                  STATIC_DOCS[d.kind].icon
+                )}
                 <span className="nm">{docLabel(d)}</span>
                 {!(d.kind === "start" && docs.length === 1) && (
                   <span
@@ -453,6 +524,9 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
         model={done ? sess!.model ?? undefined : undefined}
       />
       {help && <Help onClose={() => setHelp(false)} />}
+      {picking && sess && (
+        <ComparePicker demos={demos} sessions={openSessions} current={sess} onPick={onComparePick} onClose={() => setPicking(false)} />
+      )}
       {notice && <Notice title={notice.title} text={notice.text} onClose={() => setNotice(null)} />}
     </div>
   );
