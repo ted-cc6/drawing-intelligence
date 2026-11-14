@@ -1,6 +1,6 @@
 # Nov 13 (later): the last 11 rules, every code/lookup rule built (132 of 132)
 
-Not committed yet. These were the rules planned for the AI reviewers (MX-012, DM-002, MD-002, SC-001, MX-009)
+On `main` (`a2fe00d`, docs `2277d98`). These were the rules planned for the AI reviewers (MX-012, DM-002, MD-002, SC-001, MX-009)
 or split between AI and code (WST-206, MX-006, MP-012, MC-007, MC-008, WST-242). Each was run on the seeded (28)
 and held-out (24) drawings, then on 30 fresh drawings never used for tuning (10 with keyways, 10 round parts
 with thread reliefs, 10 random), and every new finding was read. Where the AI was wrong more often than right,
@@ -37,3 +37,9 @@ Results:
   pre-existing.
 
 Tests: 659 unit and regression tests, ruff, format, pyright. Spend: about $4.95 of the $10 allowed.
+
+Next:
+- Redeploy the Space: it still runs the Nov 08 code, so none of today's 26 checks or the tagger are live.
+- Send PARI the new questions (`docs/pari_questions.md` §1b and 3.1, 3.2, 3.6, 3.7).
+- Read more of the ISO-029 / ISO-031 findings on the P23Y5 sheets before the Space shows them.
+- View geometry (which feature a dimension is on) would open MX-006, MX-002 and DM-002 across views.

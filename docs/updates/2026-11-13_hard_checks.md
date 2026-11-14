@@ -1,6 +1,6 @@
 # Nov 13: the 18 rules kept off the AI reviewers (106 -> 124 of 135 code/lookup rules)
 
-On branch `feat/hard-checks`. The 29 rules left after Nov 12 were sorted by whether an AI reviewer could judge
+On `main` (`f3ce7a5`, docs `0d33901`). The 29 rules left after Nov 12 were sorted by whether an AI reviewer could judge
 them. The AI reviewers read stage 2's JSON and never see the sheet, so any rule about how something is drawn
 (arrowheads, lines through text, which way a value reads, boxes, underlines) cannot go to them. Those 18 are
 now code checks. The other 11 go to the AI reviewers next, or are split between AI and code (the backlog
