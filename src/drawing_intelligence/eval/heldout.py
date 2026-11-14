@@ -90,7 +90,7 @@ def run_heldout(
                 continue
             assert res.review is not None
             template = load_template(res.extraction.template)
-            cost = res.review.cost_usd + sum(r.cost_usd for r in res.understanding if not r.cached)
+            cost = res.review.cost_usd + sum(r.billed_usd for r in res.understanding)
             variant = any(p.title_block_layout == "variant" for p in res.extraction.pages)
             runs.append(HeldoutRun(pdf.stem, res.exported_to, len(res.review.findings), cost, variant))
             for nf in numbered(res.review):

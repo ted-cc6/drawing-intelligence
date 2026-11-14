@@ -51,8 +51,11 @@ class FakeModel:
 
     def __call__(self, kwargs, api_key, base_url, timeout) -> RawCompletion:
         self.calls.append(kwargs)
-        if kwargs.get("response_format", {}).get("json_schema", {}).get("name") == "Review":
+        schema = kwargs.get("response_format", {}).get("json_schema", {}).get("name")
+        if schema == "Review":
             return RawCompletion(json.dumps({"findings": self.review_findings}), 8_000, 300)
+        if schema == "_Answer":  # the dimension tagger (understanding/tagging.py)
+            return RawCompletion(json.dumps({"tags": []}), 9_000, 20)
         if self.garbage_first and len(self.calls) == 1:
             return RawCompletion('{"drawing": "oops"}', 1000, 10)
         return RawCompletion(json.dumps(knowledge_from_request(kwargs, self.drop)), 30_000, 5_000)

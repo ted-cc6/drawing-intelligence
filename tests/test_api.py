@@ -274,7 +274,9 @@ def test_the_rulebook_downloads_as_a_spreadsheet(client):
     rows = list(ws.iter_rows(values_only=True))
     n_rules = len(client.get("/api/rules", headers=h).json()["rules"])
     assert rows[0][:3] == ("Rule", "Category", "Requirement") and len(rows) == n_rules + 1
-    assert {str(row[5]) for row in rows[1:]} == {"yes", "not built yet"}
+    assert (
+        "yes" in {str(row[5]) for row in rows[1:]} <= {"yes", "not built yet"}
+    )  # every rule built since 2026-11-13
 
 
 def test_a_batch_runs_each_drawing_and_zips_the_reports(client):

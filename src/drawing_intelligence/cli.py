@@ -266,7 +266,9 @@ def review(
         review_thinking=review_thinking,
         export_dir=export,
     )
-    understanding_cost = sum(r.cost_usd for r in res.understanding)
+    understanding_cost = sum(
+        r.cost_usd + (r.tagging.cost_usd if r.tagging else 0.0) for r in res.understanding
+    )
     if res.understanding:
         console.print(f"Understanding: {_money(understanding_cost)} ({res.understanding[0].model})")
     assert res.review is not None

@@ -486,3 +486,47 @@ def pattern_datum_defined(ctx: ReviewContext, rule: Rule, _: object) -> list[Fin
         for page, s, c in on_patterns
         if not any(p is page and _gap(f.bbox, c.bbox) <= NEAR for p, f in positions)
     ]
+
+
+class DatumsNeededParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    tight_tolerance_mm: float  # ± this or tighter needs a datum frame (provisional until PARI sets it)
+
+
+@check("datums_needed", DatumsNeededParams)
+def datums_needed(ctx: ReviewContext, rule: Rule, params: DatumsNeededParams) -> list[Finding]:
+    """A part with a tolerance of ±`tight_tolerance_mm` or tighter, or an orientation or location frame, has
+    datums: a datum flag, or datum letters in a frame. From stage 1's exact symbols and text. A fit alone
+    (H7 on a hole) controls a size, not a position, and does not need one.
+
+    Built as an AI rule first (2026-11-13); on the seeded and held-out drawings the model only restated these
+    facts, and once read ±0.1 as tighter than ±0.02, so code does it."""
+    from drawing_intelligence.review.checks._tolerance import tolerances
+
+    if any(s.type == "datum" or s.datums for p in ctx.pages for s in p.symbols):
+        return []
+    needs: list[tuple[float, PageExtraction, TextItem, str]] = []
+    for page in ctx.pages:
+        for t in tolerances(page):
+            if t.fit or t.band is None or abs(t.band) > 2 * params.tight_tolerance_mm + 1e-9:
+                continue  # a fit's limits are a size tolerance too
+            band = abs(t.band)
+            needs.append(
+                (band, page, t.dim, f"±{band / 2:g}" if t.upper == -(t.lower or 0) else "tight limits")
+            )
+    frames = [(p, s) for p, s in _frames(ctx) if s.characteristic not in FORM]
+    if not needs and not frames:
+        raise NotApplicable("no tight tolerance or orientation/location frame that needs datums")
+    needs.sort(key=lambda n: n[0])
+    evidence = [ev.dimension(p, d) for _, p, d, _ in needs[:3]] + [symbol(p, s) for p, s in frames[:2]]
+    what = ", ".join(sorted({w for *_, w in needs[:3]})) or "orientation or location frames"
+    return [
+        new_finding(
+            rule,
+            reviewer=REVIEWER,
+            evidence=evidence,
+            comment=f"The drawing has {what} but no datum at all (no datum flag, no datum letter in a "
+            "frame), so there is no reference frame to machine and inspect them from.",
+            recommended_correction="Add datum flags on the functional faces or axes and reference them.",
+        )
+    ]

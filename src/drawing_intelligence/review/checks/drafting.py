@@ -7,6 +7,7 @@ A drawing extracted before schema 2.3 has no graphics, and these rules are not c
 
 from __future__ import annotations
 
+import itertools
 import math
 import re
 from typing import Literal
@@ -535,3 +536,150 @@ def basic_dimension_untoleranced(ctx: ReviewContext, rule: Rule, _: object) -> l
         for page, d in boxed
         if d.limits or _TOLERANCED.search(d.text)
     ]
+
+
+# --- MP-012: ordinate dimensioning has a marked origin that is a datum --------------------------------------
+
+_ZERO = re.compile(r"\s*0(?:[.,]0+)?\s*")
+
+
+@check("ordinate_origin")
+def ordinate_origin(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """Ordinate (running) dimensions start from a marked 0, and the 0 is on a datum feature. Judged per
+    sheet and direction: ordinate values reading one way (horizontal or vertical) need a 0 among them, and a
+    datum flag within 80 pt of it. Hole and coordinate tables are MP-009's."""
+    out, judged = [], False
+    for page in graphic_pages(ctx):
+        values = [(d, g) for p, d, g in _values(ctx) if p is page and g.ordinate]
+        for horizontal in (True, False):
+            run = [(d, g) for d, g in values if (abs(g.direction[0]) >= abs(g.direction[1])) == horizontal]
+            if len(run) < 3:
+                continue
+            judged = True
+            zeros = [d for d, _ in run if _ZERO.fullmatch(d.text)]
+            if not zeros:
+                out.append(
+                    new_finding(
+                        rule,
+                        reviewer=REVIEWER,
+                        evidence=[ev.dimension(page, d) for d, _ in run[:3]],
+                        comment=f"{len(run)} ordinate values "
+                        f"({', '.join(d.text.strip() for d, _ in run[:4])} ...) run from an origin that is "
+                        "not marked 0.",
+                        recommended_correction="Mark the origin with 0 on the feature the ordinates start "
+                        "from.",
+                    )
+                )
+                continue
+            flags = [s for s in page.symbols if s.type == "datum"]
+            if not any(_gap(z.bbox, s.bbox) <= 80 for z in zeros for s in flags):
+                out.append(
+                    new_finding(
+                        rule,
+                        reviewer=REVIEWER,
+                        evidence=[ev.dimension(page, zeros[0])],
+                        comment="The ordinate origin (0) is not on a datum feature: no datum flag near it.",
+                        recommended_correction="Put a datum flag on the origin feature, or start the "
+                        "ordinates from a datum.",
+                    )
+                )
+    if not judged:
+        raise NotApplicable("no ordinate dimensions on the drawing")
+    return out
+
+
+# --- DM-002: one distance dimensioned twice -----------------------------------------------------------------
+
+
+def _same_distance(g1: DimensionGraphics, g2: DimensionGraphics) -> bool:
+    """Two dimension lines measuring one distance: equal spans, one direction, tips level along the line."""
+    if g1 is None or g2 is None or g1.span_pts is None or g2.span_pts is None:
+        return False
+    if abs(g1.span_pts - g2.span_pts) > 1.0 or g1.direction != g2.direction or len(g1.arrow_tips) != 2:
+        return False
+    horizontal = abs(g1.direction[0]) >= abs(g1.direction[1])
+    k = 0 if horizontal else 1
+    a = sorted(t[k] for t in g1.arrow_tips)
+    b = sorted(t[k] for t in g2.arrow_tips)
+    return len(b) == 2 and abs(a[0] - b[0]) <= 1.5 and abs(a[1] - b[1]) <= 1.5
+
+
+@check("duplicate_dimension")
+def duplicate_dimension(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """The same distance dimensioned twice on a view: two equal values whose dimension lines run the same way
+    and have the same span with their arrow tips level, so they measure between the same two lines.
+
+    Built as an AI rule first (2026-11-13): asked whether equal values are one feature dimensioned twice, the
+    model was right on about 2 of 9 (most were equal features). A duplicate across two views needs to know
+    which feature each view shows, and is not checked."""
+    out, seen = [], False
+    for page in graphic_pages(ctx):
+        groups: dict[str, list[tuple[TextItem, DimensionGraphics]]] = {}
+        for p, d, g in _values(ctx):
+            if p is page and g.span_pts is not None:
+                seen = True
+                if not re.search(
+                    r"[xX×°]|TYP", d.text
+                ):  # chamfers and repeated call-outs on symmetric corners
+                    groups.setdefault(" ".join(d.text.split()), []).append((d, g))
+        for text, items in groups.items():
+            for (d1, g1), (d2, g2) in itertools.combinations(items, 2):
+                if _same_distance(g1, g2):
+                    out.append(
+                        new_finding(
+                            rule,
+                            reviewer=REVIEWER,
+                            evidence=[ev.dimension(page, d1), ev.dimension(page, d2)],
+                            comment=f"{text} is dimensioned twice between the same two lines.",
+                            recommended_correction="Keep one of the two dimensions.",
+                        )
+                    )
+    if not seen:
+        raise NotApplicable("no dimension lines with two arrowheads on the drawing")
+    return out
+
+
+# --- MX-009: a chamfer, countersink or taper call-out gives its angle ---------------------------------------
+
+_ANGLED = re.compile(r"\b(?:CHAMFER|CSK|C'SK|C'SNK|COUNTER\s?SINK|C/SINK|TAPER|BEVEL)\b", re.I)
+_HAS_ANGLE = re.compile(r"°|º|\bDEG|[xX×]\s*45\b|\b1\s*:\s*\d+|\bC\d", re.I)
+_NOT_A_CALLOUT = re.compile(r"\bNO\b|\bADDED\b|\bMODIFIED\b|\bCHANGED\b|\bREMOVED\b|\bUPDATED\b", re.I)
+
+
+@check("angle_stated")
+def angle_stated(ctx: ReviewContext, rule: Rule, _: object) -> list[Finding]:
+    """A call-out that names a chamfer, countersink, taper or bevel gives its angle (45°, 90° CSK, a 1:n
+    taper ratio, C1 for 1 x 45°). Revision rows and notes about changes ("CHAMFER ADDED") are not call-outs.
+
+    Built as an AI rule first (2026-11-13): on 82 drawings its two findings were a groove width and a
+    surface-finish value it took for chamfers. PARI dimensions chamfers as "0.5 x 45°", so this rarely
+    fires."""
+    found = []
+    for page in ctx.pages:
+        revision = {r.text for r in page.revision_rows}
+        for item in [*page.dimensions, *page.notes, *page.body_text]:
+            text = item.text
+            if text in revision or not _ANGLED.search(text) or _NOT_A_CALLOUT.search(text):
+                continue
+            found.append((page, item))
+    if not found:
+        raise NotApplicable("no chamfer, countersink or taper call-out")
+    out, seen = [], set()
+    for page, item in found:
+        if _HAS_ANGLE.search(item.text) or (page.page_number, item.text) in seen:
+            continue
+        seen.add((page.page_number, item.text))
+        out.append(
+            new_finding(
+                rule,
+                reviewer=REVIEWER,
+                evidence=[
+                    ev.dimension(page, item)
+                    if isinstance(item, TextItem) and item.id
+                    else ev.text(page, item)
+                ],
+                comment=f"'{item.text.strip()}' calls for a chamfer, countersink or taper without its angle.",
+                recommended_correction="Give the angle (e.g. 1 x 45°, 90° CSK) or the taper ratio.",
+            )
+        )
+    return out

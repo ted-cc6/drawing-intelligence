@@ -10,7 +10,7 @@ from typing import Any
 
 from drawing_intelligence.extraction.template import Template
 from drawing_intelligence.review.rulebook import DrawingType, PartFamily, Rulebook
-from drawing_intelligence.schemas import DrawingKnowledge, Extraction, PageExtraction
+from drawing_intelligence.schemas import DimensionTag, DrawingKnowledge, Extraction, PageExtraction
 
 
 @dataclass(frozen=True)
@@ -25,6 +25,7 @@ class ReviewContext:
     rulebook: Rulebook
     template: Template
     knowledge: Mapping[int, DrawingKnowledge | None] = field(default_factory=dict)
+    tags: Mapping[int, list[DimensionTag]] = field(default_factory=dict)  # page -> the tagger's roles
     reference: Mapping[str, Any] = field(default_factory=dict)  # lookup tables (config/reference), later
     part_family: PartFamily | None = None
     drawing_type: DrawingType | None = None
@@ -32,6 +33,11 @@ class ReviewContext:
     @property
     def pages(self) -> list[PageExtraction]:
         return self.extraction.pages
+
+    @property
+    def tagged(self) -> bool:
+        """The tagger ran on at least one page (the split checks are not checked without it)."""
+        return bool(self.tags)
 
     def knowledge_of(self, page: PageExtraction) -> DrawingKnowledge | None:
         return self.knowledge.get(page.page_number)

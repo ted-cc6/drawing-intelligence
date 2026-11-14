@@ -128,7 +128,11 @@ def test_llm_review_can_be_turned_off(make_pdf, settings):
     fake = FakeModel()
     res = run_workflow(make_pdf(), settings, imaging=SMALL, review=True, llm_review=False, completion_fn=fake)
     assert res.review is not None and res.review.reviewers_run == ["checks"]
-    assert len(fake.calls) == 1  # understanding only
+    # understanding and the dimension tagger (its tags feed code checks), no reviewer
+    assert [c["response_format"]["json_schema"]["name"] for c in fake.calls] == [
+        "DrawingKnowledge",
+        "_Answer",
+    ]
 
 
 def _sent(fake: ReviewModel) -> tuple[dict, list]:

@@ -91,6 +91,29 @@
    ],
    "description": "The 11 is printed with -0.2 above -0.1, so its upper limit is below its lower one. This is in PARI's original drawing (to confirm with PARI).",
    "also_acceptable": []
+  },
+  {
+   "rule_id": "MD-002",
+   "category": "datum",
+   "severity": "critical",
+   "result": "warning",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D21",
+     "page": 1,
+     "bbox": [
+      183.7,
+      425.6,
+      193.3,
+      461.4
+     ],
+     "quote": "20±0.02",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The part holds 20±0.02 but has no datum flag or datum letter anywhere, so the tight size has no reference frame. A PARI drawing convention as much as an error: the ±0.02 threshold waits for PARI.",
+   "also_acceptable": []
   }
  ]
 }

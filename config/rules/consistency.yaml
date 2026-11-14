@@ -61,7 +61,10 @@ rules:
     severity: minor
     check_type: code
     check: duplicate_dimension
-    params: {mode: identical}
+    # 2026-11-13: tried as code candidates judged by the AI; it was right on about 2 of 9 (equal values on different
+    #   features). Now code only: the same distance twice on one view, from stage 1's dimension lines. Across views it
+    #   needs view geometry and is not checked
+    result: warning
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: DM-02}
     status: draft
 
@@ -381,8 +384,14 @@ rules:
     category: consistency
     requirement: Pattern not fully defined
     severity: critical
-    check_type: code
-    check: pattern_callout_complete
+    check_type: llm
+    # 2026-11-13: code lists the pattern call-outs (candidates); the AI judges whether each pattern is located
+    params:
+      llm_instruction: 'Judge only the candidate call-outs given with this rule. Report one only when the pattern''s position is not given at all: no PCD or bolt-circle diameter, no spacing or pitch, no coordinates or hole table, and no linear dimensions locating its features in DRAWING. ''EQ SP'' on a PCD is complete. Cite the call-out.'
+      candidates: pattern_callouts
+      # 2026-11-13: on 4 drawings the model called patterns unlocated that are located by coordinates it cannot
+      #   tie to the pattern without the view geometry (same as MX-002), so it waits for geometry
+      needs: [geometry]
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-06}
     status: draft
 
@@ -396,6 +405,9 @@ rules:
     severity: major
     check_type: code
     check: angle_stated
+    # 2026-11-13: tried as an AI rule; on 82 drawings its two findings were a groove width and a surface-finish
+    #   value read as chamfers. Code now judges the call-out text; a chamfer drawn without a call-out needs geometry
+    result: warning
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-09}
     status: draft
 

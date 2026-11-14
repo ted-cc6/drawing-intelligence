@@ -90,6 +90,29 @@
    ],
    "description": "The surface treatment is PAINTING, but no colour code (e.g. RAL) is given anywhere.",
    "also_acceptable": []
+  },
+  {
+   "rule_id": "MD-002",
+   "category": "datum",
+   "severity": "critical",
+   "result": "warning",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D2",
+     "page": 1,
+     "bbox": [
+      287.7,
+      161.4,
+      327.8,
+      171.0
+     ],
+     "quote": "70±0.002",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The planted 70±0.002 is far tighter than ±0.02, and the part has no datum, so MD-002 also flags it.",
+   "also_acceptable": []
   }
  ]
 }

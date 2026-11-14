@@ -125,6 +125,29 @@
    ],
    "description": "The ⌀8   H7 THRU` hole is zinc plated (I.Z.B.P., 8-12 µm per PARI DES-12) with no allowance for the plating, which can take up the whole 18 µm H7 band.",
    "also_acceptable": []
+  },
+  {
+   "rule_id": "MD-002",
+   "category": "datum",
+   "severity": "critical",
+   "result": "warning",
+   "evidence": [
+    {
+     "kind": "dimension",
+     "ref": "D21",
+     "page": 1,
+     "bbox": [
+      183.7,
+      425.6,
+      193.3,
+      461.4
+     ],
+     "quote": "20±0.02",
+     "provenance": "pdf_text"
+    }
+   ],
+   "description": "The part holds 20±0.02 but has no datum flag or datum letter anywhere, so the tight size has no reference frame. A PARI drawing convention as much as an error: the ±0.02 threshold waits for PARI.",
+   "also_acceptable": []
   }
  ]
 }

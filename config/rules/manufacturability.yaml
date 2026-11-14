@@ -97,6 +97,9 @@ rules:
     check_type: lookup
     check: keyway_standard
     params: {table: keyways}
+    # 2026-11-13: the tagger (stage 2) finds the feature's dimensions; code compares them with the table. A
+    #   finding rests on the tagger, so it is a warning
+    result: warning
     applies_to: {part_family: [round]}
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-07}
     status: draft
@@ -112,6 +115,9 @@ rules:
     check_type: lookup
     check: circlip_groove_standard
     params: {table: circlip_grooves}
+    # 2026-11-13: the tagger (stage 2) finds the feature's dimensions; code compares them with the table. A
+    #   finding rests on the tagger, so it is a warning
+    result: warning
     applies_to: {part_family: [round]}
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: MC-08}
     status: draft
@@ -190,6 +196,9 @@ rules:
     check_type: lookup
     check: thread_undercut_matches
     params: {table: is1369_thread_runout_undercut, g1_minus_d_mm: 0.5}
+    # 2026-11-13: the tagger (stage 2) finds the feature's dimensions; code compares them with the table. A
+    #   finding rests on the tagger, so it is a warning
+    result: warning
     applies_to: {part_family: [round]}
     source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Thread run-out and undercut for ISO threads, IS: 1369-1961 (pdf 52R, book 99)'}
     status: draft

@@ -128,6 +128,49 @@ class DrawingKnowledge(_Strict):
     uncertain: list[Uncertain]
 
 
+TagRole = Literal[
+    "internal_fit",
+    "external_fit",
+    "keyway_width",
+    "keyway_depth_shaft",
+    "keyway_depth_hub",
+    "keyway_bottom_shaft",
+    "keyway_bottom_hub",
+    "circlip_groove_diameter",
+    "circlip_groove_width",
+    "undercut_width",
+    "undercut_diameter",
+    "undercut_radius",
+]
+
+
+class DimensionTag(_Strict):
+    """What feature one dimension measures, for the checks that need to know (stage 2's tagger)."""
+
+    dimension_id: str = Field(description="the dimension's id in DRAWING (D1, D2, ...)")
+    quote: str = Field(description="the dimension's text exactly as in DRAWING")
+    role: TagRole
+    of: str | None = Field(
+        description="the shaft, bore or thread the feature belongs to: its dimension id, or its call-out "
+        "text exactly as printed (e.g. M20 x 1.5); null when the drawing does not say"
+    )
+
+
+class TagResult(BaseModel):
+    """The tagger's answer for one page and how it was produced."""
+
+    model: str
+    thinking: str
+    tags: list[DimensionTag] = []
+    dropped: int = Field(
+        default=0, description="tags naming a dimension the page does not have, or misquoting it"
+    )
+    valid: bool = True
+    cost_usd: float = 0.0
+    latency_s: float = 0.0
+    cached: bool = False
+
+
 class UnderstandingResult(BaseModel):
     """What stage 2 saves per page: the knowledge plus how it was produced."""
 
@@ -144,3 +187,14 @@ class UnderstandingResult(BaseModel):
     cost_usd: float = 0.0
     latency_s: float = 0.0
     cached: bool = False
+    tagging: TagResult | None = Field(default=None, description="the tagger's dimension roles (2026-11-13)")
+
+    @property
+    def billed_usd(self) -> float:
+        """What this page cost in API calls on this run: cached replies are free."""
+        tag = self.tagging
+        return (0.0 if self.cached else self.cost_usd) + (0.0 if tag is None or tag.cached else tag.cost_usd)
+
+    @property
+    def all_cached(self) -> bool:
+        return self.cached and (self.tagging is None or self.tagging.cached)

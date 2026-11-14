@@ -33,7 +33,7 @@ def review_drawing(
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     assert res.review is not None
-    billed = res.review.cost_usd + sum(r.cost_usd for r in res.understanding if not r.cached)
+    billed = res.review.cost_usd + sum(r.billed_usd for r in res.understanding)
     knowledge = {r.page_number: r.knowledge for r in res.understanding}
     return DrawingData.build(res.extraction, knowledge, res.review, settings), billed
 

@@ -1,0 +1,1 @@
+{"text": "{\n  \"tags\": [\n    {\n      \"dimension_id\": \"D21\",\n      \"of\": \"⌀8 H7 THRU`\",\n      \"quote\": \"⌀ 8 H7 THRU` \",\n      \"role\": \"internal_fit\"\n    }\n  ]\n}", "model": "qwen3-vl-plus", "thinking": "off", "input_tokens": 62520, "output_tokens": 59, "reasoning_tokens": 0, "cost_usd": 0.009025, "latency_s": 22.31, "tool_calls": []}

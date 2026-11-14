@@ -21,7 +21,9 @@ from drawing_intelligence.schemas.extraction import (
 )
 from drawing_intelligence.schemas.knowledge import (
     KNOWLEDGE_SCHEMA_VERSION,
+    DimensionTag,
     DrawingKnowledge,
+    TagResult,
     TitleBlock,
     UnderstandingResult,
 )
@@ -44,6 +46,7 @@ __all__ = [
     "ChainCheck",
     "CircleItem",
     "DimensionGraphics",
+    "DimensionTag",
     "DrawingKnowledge",
     "EvidenceRef",
     "Extraction",
@@ -60,6 +63,7 @@ __all__ = [
     "ReviewerOutput",
     "RuleStatus",
     "SymbolItem",
+    "TagResult",
     "TextItem",
     "TextLine",
     "Tile",

@@ -114,10 +114,10 @@ class DemoSession:
         if self.result is None:
             return 0.0
         review = self.result.review.cost_usd if self.result.review else 0.0
-        return review + sum(r.cost_usd for r in self.result.understanding if not r.cached)
+        return review + sum(r.billed_usd for r in self.result.understanding)
 
     def cached(self) -> bool:
-        return self.result is not None and all(r.cached for r in self.result.understanding)
+        return self.result is not None and all(r.all_cached for r in self.result.understanding)
 
 
 @dataclass

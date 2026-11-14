@@ -48,8 +48,10 @@ rules:
     category: tolerance
     requirement: Missing tolerance
     severity: critical
-    check_type: code
-    check: tolerance_coverage
+    check_type: llm
+    # 2026-11-13: an AI rule beside TL-002 (fits on mating features), so the two do not report the same thing
+    params:
+      llm_instruction: 'Report only a dimension of a feature the drawing itself marks as functional (a datum feature, a feature controlled by a GD&T frame, or a feature a note calls critical, mating or sealing) that has no tolerance of its own, only the general tolerance. Fits on bearing seats, shafts and locating holes belong to TL-002: do not report those under MX-012. Cite the dimension.'
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MX-12}
     status: draft
 
@@ -146,6 +148,9 @@ rules:
     severity: major
     check_type: code
     check: fit_letter_case_matches_feature
+    # 2026-11-13: the tagger (stage 2) says whether a fit is on an internal or external feature; code compares
+    #   the letter case. A finding rests on the tagger, so it is a warning
+    result: warning
     source: {document: 'Westermann Tables for the Metal Trade (Jutz-Scharkus), revised to Indian Standards; in PARI''s WP Specific Guidelines (WESTERMANN_TABLES.pdf, a scan)', section: 'Limits and Fits, IS Symbols, IS: 919-1963 (pdf 42L, book 78)'}
     status: draft
 

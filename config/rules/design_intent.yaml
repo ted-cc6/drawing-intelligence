@@ -113,9 +113,10 @@ rules:
     category: design_intent
     requirement: Lifting points are identified with rated capacity; lifting lugs are designed and marked
     severity: critical
-    check_type: code
-    check: lifting_info
-    params: {mass_kg: null}
+    check_type: llm
+    # 2026-11-13: an AI rule until PARI sets the mass threshold (docs/pari_questions.md 3.2)
+    params:
+      llm_instruction: 'Report only when the drawing names a lifting point, lifting lug, eye bolt or lifting hole (in a note, a call-out or a feature) without its rated capacity (SWL, WLL or a load in kg). Do not judge from the part''s size or weight whether it needs lifting points.'
     source: {document: LatentView Drawing Check Rulebook v0.2 (2026-10-15), section: SC-01}
     status: draft
 

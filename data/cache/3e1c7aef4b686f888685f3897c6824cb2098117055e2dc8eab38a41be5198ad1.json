@@ -1,0 +1,1 @@
+{"text": "{\n  \"tags\": []\n}", "model": "qwen3-vl-plus", "thinking": "off", "input_tokens": 33635, "output_tokens": 8, "reasoning_tokens": 0, "cost_usd": 0.004821, "latency_s": 11.09, "tool_calls": []}

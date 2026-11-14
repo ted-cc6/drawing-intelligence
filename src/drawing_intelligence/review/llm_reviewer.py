@@ -13,7 +13,9 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import time
+from collections.abc import Callable
 from importlib import resources
 from typing import Any, Literal
 
@@ -84,13 +86,45 @@ def output_schema(rule_ids: list[str], symbols: bool = False) -> type[BaseModel]
     return create_model("Review", __config__=ConfigDict(extra="forbid"), findings=(list[item], ...))
 
 
+# Code finds, the model judges (2026-11-13): a rule's `params.candidates` names a finder whose items are sent
+# with the rule, and the rule judges only those. With none on a drawing the rule is not sent at all.
+_PATTERN = re.compile(r"^\s*(?:[2-9]|\d{2,})\s*(?:[xX×]|-|NOS?\.?)?\s*(?:[Ø⌀M]|DIA|HOLES?\b|DRILL|TAP)", re.I)
+
+
+def _pattern_callouts(ctx: ReviewContext) -> list[dict[str, Any]]:
+    """Call-outs for a pattern of features: a count of two or more and a hole, thread or diameter."""
+    out = []
+    for p in ctx.pages:
+        for d in p.dimensions:
+            if _PATTERN.match(d.text):
+                out.append({"page": p.page_number, "dimension_id": d.id, "text": d.text})
+        for ln in [*p.other_numeric, *p.body_text]:
+            if _PATTERN.match(ln.text) and not any(o["text"] == ln.text for o in out):
+                out.append({"page": p.page_number, "text": ln.text})
+    return out[:30]
+
+
+CANDIDATE_FINDERS: dict[str, Callable[[ReviewContext], list[dict[str, Any]]]] = {
+    "pattern_callouts": _pattern_callouts,
+}
+
+
+def candidates_for(ctx: ReviewContext, rule: Rule) -> list[dict[str, Any]] | None:
+    """The rule's candidates on this drawing, or None for a rule that judges the whole drawing."""
+    name = rule.params.get("candidates")
+    return CANDIDATE_FINDERS[name](ctx) if name else None
+
+
 def build_message(ctx: ReviewContext, rules: list[Rule]) -> str:
     # A rule's `llm_instruction` narrows what may be reported under it (MF-007: only a stated conflict).
-    rules_json = [
-        {"id": r.id, "requirement": r.requirement}
-        | ({"only_when": r.params["llm_instruction"]} if r.params.get("llm_instruction") else {})
-        for r in rules
-    ]
+    rules_json = []
+    for r in rules:
+        item: dict[str, Any] = {"id": r.id, "requirement": r.requirement}
+        if r.params.get("llm_instruction"):
+            item["only_when"] = r.params["llm_instruction"]
+        if (found := candidates_for(ctx, r)) is not None:
+            item["candidates"] = found
+        rules_json.append(item)
     pages = []
     for p in ctx.pages:
         k = ctx.knowledge_of(p)
@@ -153,6 +187,11 @@ def run_llm_reviewer(
             )
         )
     rules = [r for r in rules if r not in blocked]
+    empty = [r for r in rules if candidates_for(ctx, r) == []]
+    statuses += [
+        RuleStatus(rule_id=r.id, status="not_applicable", note="no candidates on this drawing") for r in empty
+    ]
+    rules = [r for r in rules if r not in empty]
     if not rules:
         return ReviewerOutput(reviewer=name, rule_statuses=statuses)
     if not any(ctx.knowledge_of(p) for p in ctx.pages):

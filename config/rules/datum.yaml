@@ -48,7 +48,10 @@ rules:
     severity: critical
     check_type: code
     check: datums_needed
-    params: {tight_tolerance_ratio: null}
+    # 2026-11-13: tried as an AI rule; it only restated stage 1's facts and once misread ±0.1 as tight, so code.
+    #   The ±0.02 threshold is provisional until PARI sets it (docs/pari_questions.md 3.1), so a warning
+    params: {tight_tolerance_mm: 0.02}
+    result: warning
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MD-02}
     status: draft
 
@@ -199,5 +202,7 @@ rules:
     severity: critical
     check_type: code
     check: ordinate_origin
+    # read from stage 1's ordinate values and datum flags by heuristics, so a finding is a warning (2026-11-13)
+    result: warning
     source: {document: 'LatentView Missing Datums, Dimensions and Points Detection Guide (2026-10-15)', section: MP-12}
     status: draft

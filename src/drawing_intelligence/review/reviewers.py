@@ -18,6 +18,9 @@ LLM_REVIEWER_FOR_CATEGORY: dict[str, str] = {
     "manufacturability": "manufacturability",
     "design_intent": "design_intent",
     "surface_treatment": "design_intent",
+    # MX-012. Not with TL-002 in design_intent: adding it there changed that reviewer's answers (the seeded
+    # run lost P19 and gained 5 false alarms, 2026-11-13)
+    "tolerance": "drawing_practice",
 }
 
 # Every reviewer the workflow will have, in the order the verifier reads their outputs.

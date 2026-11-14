@@ -224,7 +224,7 @@ def run_review_eval(
             )
             assert res.review is not None
             score = score_case(key, res.review, built)
-            score.cost_usd += sum(r.cost_usd for r in res.understanding if not r.cached)
+            score.cost_usd += sum(r.billed_usd for r in res.understanding)
             score.latency_s += sum(r.latency_s for r in res.understanding if not r.cached)
             scores.append(score)
         return scores

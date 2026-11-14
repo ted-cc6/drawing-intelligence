@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from drawing_intelligence.review.checks import (  # noqa: F401 - importing registers the checks
     consistency,
     drafting,
+    features,
     fits,
     gdt,
     manufacturability,

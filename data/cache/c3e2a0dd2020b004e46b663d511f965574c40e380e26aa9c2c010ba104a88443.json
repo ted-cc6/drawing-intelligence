@@ -1,0 +1,1 @@
+{"text": "{\n  \"tags\": [\n    {\n      \"dimension_id\": \"D12\",\n      \"of\": \"⌀16\",\n      \"quote\": \"⌀ 16 H7 (+0.018/0)\",\n      \"role\": \"internal_fit\"\n    }\n  ]\n}", "model": "qwen3-vl-plus", "thinking": "off", "input_tokens": 19103, "output_tokens": 61, "reasoning_tokens": 0, "cost_usd": 0.002819, "latency_s": 6.05, "tool_calls": []}

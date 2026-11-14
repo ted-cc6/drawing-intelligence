@@ -33,6 +33,7 @@ from drawing_intelligence.review.reviewers import BUILT_REVIEWERS, LLM_REVIEWERS
 from drawing_intelligence.review.runner import run_checks
 from drawing_intelligence.review.verify import verify
 from drawing_intelligence.schemas import (
+    DimensionTag,
     DrawingKnowledge,
     Extraction,
     RejectedFinding,
@@ -42,7 +43,7 @@ from drawing_intelligence.schemas import (
 )
 from drawing_intelligence.settings import Settings
 from drawing_intelligence.storage import Session
-from drawing_intelligence.understanding import understand_page
+from drawing_intelligence.understanding import tag_page, understand_page
 
 
 class WorkflowState(TypedDict, total=False):
@@ -78,6 +79,15 @@ class WorkflowResult:
 
 def _load_extraction(state: WorkflowState) -> Extraction:
     return Extraction.model_validate_json(Path(state.get("extraction_path", "")).read_text(encoding="utf-8"))
+
+
+def _load_tags(state: WorkflowState) -> dict[int, list[DimensionTag]]:
+    out: dict[int, list[DimensionTag]] = {}
+    for p in state.get("understanding_paths", []):
+        r = UnderstandingResult.model_validate_json(Path(p).read_text(encoding="utf-8"))
+        if r.tagging is not None:
+            out[r.page_number] = r.tagging.tags
+    return out
 
 
 def _load_knowledge(state: WorkflowState) -> dict[int, DrawingKnowledge | None]:
@@ -129,6 +139,16 @@ def build_graph(
             res = understand_page(
                 client, page, ex_path.parent, state.get("understand_model"), state.get("understand_thinking")
             )
+            if res.knowledge is not None and rulebook is not None:  # the split checks' dimension roles
+                tags = tag_page(
+                    client,
+                    page,
+                    ex_path.parent,
+                    res.knowledge,
+                    state.get("understand_model"),
+                    state.get("understand_thinking"),
+                )
+                res = res.model_copy(update={"tagging": tags})
             p = out / f"page_{page.page_number}.json"
             p.write_text(res.model_dump_json(indent=1), encoding="utf-8")
             paths.append(str(p))
@@ -146,6 +166,7 @@ def build_graph(
                     rulebook=rulebook,
                     template=load_template(state.get("template", "wipro_pari")),
                     knowledge=_load_knowledge(state),
+                    tags=_load_tags(state),
                     reference=reference or {},
                 )
                 output = fn(ctx)
