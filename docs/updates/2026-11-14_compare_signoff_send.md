@@ -15,7 +15,7 @@ Matching findings across revisions: rule plus an anchor. Dimension and symbol re
 the page's list, so a new dimension renumbers the rest; for those the anchor is the quote without its
 tolerance plus the zone. A dimension whose nominal value changed shows as one fixed and one new finding.
 
-Tests: 11 new (9 for the diff, 2 API tests replaying the cache: the cam-plate pair both ways, 404 and 409).
+Tests: 12 new (10 for the diff, including no same-drawing claim when the title block was not read; 2 API tests replaying the cache: the cam-plate pair both ways, 404 and 409).
 Spend: $0.
 
 Still PILOT: confirm rules, edit rule, feedback analytics, run history across users (they need persistent
