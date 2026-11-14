@@ -111,3 +111,11 @@ def test_notes():
     (note,) = compare(a, other)["notes"]
     assert "P1" in note and "P2" in note
     assert compare(a, _view([], tb={"number": "P1", "revision": "01"}))["notes"] == []
+
+
+def test_no_revision_claim_when_the_title_block_was_not_read():
+    # uploads on an unknown template have no number or revision: never claim they are the same drawing
+    out = compare(_view([_f("A", location="x")], tb={}), _view([], tb={}))
+    assert out["notes"] == ["The drawing number could not be read on one or both sheets."]
+    one = compare(_view([_f("A", location="x")]), _view([], tb={"number": "P1"}))
+    assert one["notes"] == []

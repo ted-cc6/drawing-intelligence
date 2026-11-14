@@ -70,11 +70,11 @@ def compare(old: dict[str, Any], new: dict[str, Any]) -> dict[str, Any]:
 
     a, b = _side(old), _side(new)
     notes = []
-    if a["number"] != b["number"]:
-        notes.append(
-            f"These are different drawings: {a['number'] or 'no number'} and {b['number'] or 'no number'}."
-        )
-    elif (added or fixed) and a["revision"] == b["revision"]:
+    if not (a["number"] and b["number"]):  # an unknown template: no title-block fields read
+        notes.append("The drawing number could not be read on one or both sheets.")
+    elif a["number"] != b["number"]:
+        notes.append(f"These are different drawings: {a['number']} and {b['number']}.")
+    elif (added or fixed) and a["revision"] and a["revision"] == b["revision"]:
         notes.append(
             f"Both sheets say revision {a['revision']}. The findings changed, so the drawing changed without"
             " a new revision."
