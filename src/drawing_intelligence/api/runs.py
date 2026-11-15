@@ -187,6 +187,7 @@ class SessionStore:
         sess.stages = [Stage(k, label, nodes) for k, label, nodes in STAGES]
         with self._lock:
             self._sessions[sid] = sess
+        self.ledger.visit(visitor)
         (self._live_pool if live else self._demo_pool).submit(self._run, sess)
         return sess
 
@@ -339,7 +340,8 @@ class SessionStore:
             seconds=round(sess.finished - sess.started, 1) if sess.started and sess.finished else None,
             cost_usd=round(sess.billed(), 4),
             model=res.understanding[0].model if res and res.understanding else sess.models.get("model"),
-            cached=sess.cached(),
+            # a failed run has no result to read the cache from: a demo replay is still not a live run
+            cached=sess.cached() if res else not sess.live,
         )
 
     # --- Q&A ------------------------------------------------------------------------------------------------

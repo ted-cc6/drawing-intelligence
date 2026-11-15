@@ -276,6 +276,29 @@ def test_closing_a_session_stops_its_review(gated_store, make_pdf):
     assert queued.started is None and queued.status == "queued"  # it never ran
 
 
+def test_a_failed_demo_replay_is_not_counted_as_a_live_run(gated_store, make_pdf):
+    store, gate = gated_store
+    gate.set()  # its model call fails at once
+    sess = store.create(make_pdf("demo.pdf"), "Demo", "cam-plate-seeded", live=False)
+    assert _wait(lambda: sess.status == "error"), sess.status
+    assert _wait(lambda: store.ledger.history(None)["runs"])
+    (row,) = store.ledger.history(None)["runs"]
+    assert row["cached"] is True
+    assert all(m["live_runs"] == 0 for m in store.ledger.history(None)["models"])
+
+
+def test_visitors_are_numbered_in_the_order_they_open_a_review(gated_store, make_pdf):
+    store, _ = gated_store
+    # opened first, then stuck in its model call
+    slow = store.create(make_pdf("up.pdf"), "up.pdf", None, live=True, visitor="v-slow")
+    assert _wait(lambda: slow.status == "running")
+    fast = store.create(P13, "P13", "cam-plate-seeded", live=False, visitor="v-fast")
+    assert _wait(lambda: fast.status == "done"), fast.status
+    assert _wait(lambda: store.ledger.history(None)["runs"])
+    (row,) = store.ledger.history(None)["runs"]
+    assert row["visitor"] == "Visitor 2"
+
+
 def _pdf_bytes(pages: int = 1, text: str = "") -> bytes:
     doc = pymupdf.open()
     for _ in range(pages):

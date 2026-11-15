@@ -52,6 +52,14 @@ def test_runs_newest_first_with_visitor_labels():
     assert h["visitors"] == 2 and h["since"] == ledger.since
 
 
+def test_visitors_are_numbered_when_first_seen_not_when_their_review_ends():
+    ledger = Ledger()
+    ledger.visit("v-slow")  # opened an upload first; its review ends later
+    _run(ledger, session_id="s1", visitor="v-fast")
+    _run(ledger, session_id="s2", visitor="v-slow")
+    assert [r["visitor"] for r in ledger.history(None)["runs"]] == ["Visitor 1", "Visitor 2"]
+
+
 def test_a_request_without_a_visitor():
     ledger = Ledger()
     _run(ledger, visitor=None)

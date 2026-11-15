@@ -3,7 +3,7 @@
 A demo stand-in for the pilot's stored history (ADR 0012). Nothing about an upload is kept beyond its session:
 callers list an upload as `UPLOAD_LABEL`, and a feedback row holds the rule and the decision, never the
 drawing's text (a finding with no rule loses its model-written requirement). Visitors are anonymous browser
-ids, numbered in the order the server first sees them.
+ids, numbered in the order they open a review (`visit`), not the order their reviews end.
 """
 
 from __future__ import annotations
@@ -35,6 +35,11 @@ class Ledger:
     def _visitor(self, visitor: str | None) -> None:
         if visitor and visitor not in self._visitors:
             self._visitors[visitor] = len(self._visitors) + 1
+
+    def visit(self, visitor: str | None) -> None:
+        """Number a visitor when they open a review: a slow upload started first stays Visitor 1."""
+        with self._lock:
+            self._visitor(visitor)
 
     def _label(self, visitor: str | None) -> str:
         return f"Visitor {self._visitors[visitor]}" if visitor in self._visitors else "Visitor ?"
