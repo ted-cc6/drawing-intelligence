@@ -18,13 +18,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from drawing_intelligence.api.ledger import UPLOAD_LABEL, Ledger
 from drawing_intelligence.graph import WorkflowResult, run_workflow
 from drawing_intelligence.llm.client import CompletionFn, openai_completion
 from drawing_intelligence.qa.agent import Answer, Conversation
 from drawing_intelligence.qa.data import DrawingData
 from drawing_intelligence.qa.session import AskSession
 from drawing_intelligence.review.reviewers import LLM_REVIEWERS, PLANNED_REVIEWERS
-from drawing_intelligence.schemas import FindingFeedback
+from drawing_intelligence.schemas import Finding, FindingFeedback
 from drawing_intelligence.settings import Settings
 
 log = logging.getLogger(__name__)
@@ -86,6 +87,8 @@ class DemoSession:
     sheets: dict[int, tuple[float, int, int]] = field(default_factory=dict)  # page -> (pts->px, w, h)
     cancelled: threading.Event = field(default_factory=threading.Event)  # set when the user closes it
     models: dict[str, str] = field(default_factory=dict)  # model / thinking / review_model / review_thinking
+    visitor: str | None = None  # the anonymous browser id that opened it (the demo's run history)
+    batch: bool = False  # a member of a batch review
 
     @property
     def out_dir(self) -> Path:
@@ -156,6 +159,7 @@ class SessionStore:
         self._sessions: dict[str, DemoSession] = {}
         self._batches: dict[str, Batch] = {}
         self._lock = threading.Lock()
+        self.ledger = Ledger()  # run history and feedback analytics, in memory until the server stops
         # Two lanes: live uploads take minutes, demo replays seconds; a demo never waits behind uploads.
         self._live_pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="di-live")
         self._demo_pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="di-demo")
@@ -163,14 +167,23 @@ class SessionStore:
     # --- lifecycle ------------------------------------------------------------------------------------------
 
     def create(
-        self, pdf: Path, name: str, demo_id: str | None, live: bool, models: dict[str, str] | None = None
+        self,
+        pdf: Path,
+        name: str,
+        demo_id: str | None,
+        live: bool,
+        models: dict[str, str] | None = None,
+        visitor: str | None = None,
+        batch: bool = False,
     ) -> DemoSession:
         sid = uuid.uuid4().hex[:12]
         folder = self.root / sid
         folder.mkdir(parents=True)
         local = folder / ("input" + pdf.suffix.lower())
         shutil.copyfile(pdf, local)  # plain copy: some mounts refuse permission bits
-        sess = DemoSession(sid, name, local, folder, demo_id, live, models=dict(models or {}))
+        sess = DemoSession(
+            sid, name, local, folder, demo_id, live, models=dict(models or {}), visitor=visitor, batch=batch
+        )
         sess.stages = [Stage(k, label, nodes) for k, label, nodes in STAGES]
         with self._lock:
             self._sessions[sid] = sess
@@ -308,6 +321,26 @@ class SessionStore:
                     st.status, st.finished = ("done" if sess.status == "done" else "error"), sess.finished
             if sess.cancelled.is_set():
                 shutil.rmtree(sess.folder, ignore_errors=True)  # the run may have written after the close
+            else:
+                self._record_run(sess)
+
+    def _record_run(self, sess: DemoSession) -> None:
+        """The finished review's row in the run history: an upload by label only, never its file name."""
+        res = sess.result
+        findings = list(res.review.findings) if res and res.review else []
+        self.ledger.record_run(
+            session_id=sess.id,
+            visitor=sess.visitor,
+            drawing=sess.name if sess.demo_id else UPLOAD_LABEL,
+            mode="Batch" if sess.batch else "Live upload" if sess.live else "Demo (cached)",
+            status=sess.status,
+            findings=len(findings),
+            fails=sum(f.result == "fail" for f in findings),
+            seconds=round(sess.finished - sess.started, 1) if sess.started and sess.finished else None,
+            cost_usd=round(sess.billed(), 4),
+            model=res.understanding[0].model if res and res.understanding else sess.models.get("model"),
+            cached=sess.cached(),
+        )
 
     # --- Q&A ------------------------------------------------------------------------------------------------
 
@@ -323,6 +356,7 @@ class SessionStore:
             sess.conversation.model, sess.conversation.thinking = model, thinking  # per question (Options)
             answer = sess.conversation.ask(question)
             sess.qa_cost += answer.cost_usd
+            self.ledger.add_qa_cost(sess.id, answer.cost_usd)
             return answer
 
     def record_feedback(self, sess: DemoSession, fb: FindingFeedback) -> None:
@@ -331,6 +365,21 @@ class SessionStore:
         log.parent.mkdir(parents=True, exist_ok=True)
         with log.open("a", encoding="utf-8") as fh:
             fh.write(fb.model_dump_json() + "\n")
+
+    def record_decision(self, sess: DemoSession, finding: Finding, decision: str) -> None:
+        """An accept/reject in the feedback analytics: the rule and the decision, no drawing text."""
+        self.ledger.record_feedback(
+            session_id=sess.id,
+            visitor=sess.visitor,
+            finding_id=finding.id,
+            rule_id=finding.rule_id,
+            requirement=finding.requirement,
+            category=finding.category,
+            source=finding.source,
+            reviewer=finding.reviewer,
+            result=finding.result,
+            decision=decision,
+        )
 
     def stats(self) -> dict[str, Any]:
         with self._lock:

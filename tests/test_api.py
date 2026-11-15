@@ -34,6 +34,7 @@ def client(settings, tmp_path):
     store = SessionStore(settings, tmp_path / "sessions", completion_fn=no_model)
     app = create_app(settings, password="secret", web_dist=tmp_path / "none", store=store)
     with TestClient(app) as c:
+        c.store = store  # type: ignore[attr-defined]  # for tests that reach past the API
         yield c
 
 
@@ -61,8 +62,10 @@ def test_rules_and_models(client):
     assert any(m["id"] == "qwen3.8-max" for m in models)
 
 
-def _done(c: TestClient, h: dict[str, str], demo_id: str) -> str:
+def _done(c: TestClient, h: dict[str, str], demo_id: str, visitor: str | None = None) -> str:
     """Open a demo drawing and wait for its (replayed) review; its session id."""
+    if visitor:
+        h = h | {"X-Demo-Visitor": visitor}
     sid = c.post("/api/sessions", json={"demo_id": demo_id}, headers=h).json()["id"]
     s: dict[str, Any] = {}
     for _ in range(200):
@@ -127,6 +130,72 @@ def test_compare_needs_two_finished_reviews(gated_store, make_pdf, settings, tmp
         assert _wait(lambda: busy.status == "running" and replay.status == "done")
         assert c.get(f"/api/compare?old=nope&new={replay.id}").status_code == 404
         assert c.get(f"/api/compare?old={busy.id}&new={replay.id}").status_code == 409
+
+
+def test_history_across_two_visitors(client):
+    h = _login(client)
+    seeded = _done(client, h, "cam-plate-seeded", visitor="a")
+    clean = _done(client, h, "cam-plate-clean", visitor="b")
+    out = client.get("/api/history", headers=h | {"X-Demo-Visitor": "b"}).json()
+    runs = out["runs"]
+    assert [r["session_id"] for r in runs] == [clean, seeded]  # newest first
+    assert {r["visitor"] for r in runs} == {"Visitor 1", "Visitor 2"} and out["visitors"] == 2
+    assert [r["you"] for r in runs] == [True, False]
+    assert runs[0]["drawing"] == "C01 · Cam plate, clean" and runs[1]["drawing"].startswith("P13")
+    assert all(r["mode"] == "Demo (cached)" and r["cost_usd"] == 0 and r["status"] == "done" for r in runs)
+    assert runs[1]["fails"] >= 2 and runs[1]["model"]
+
+
+def test_history_and_summary_need_the_password(client):
+    assert client.get("/api/history").status_code == 401
+    assert client.get("/api/feedback/summary").status_code == 401
+
+
+def test_feedback_summary_counts_the_latest_decision(client):
+    h = _login(client)
+    sid = _done(client, h, "cam-plate-seeded")
+    rule = client.get(f"/api/sessions/{sid}", headers=h).json()["findings"][0]["rule_id"]
+    for decision in ("accept", "reject"):
+        client.post(f"/api/sessions/{sid}/findings/1/feedback", json={"decision": decision}, headers=h)
+    s = client.get("/api/feedback/summary", headers=h).json()
+    assert (s["decisions"], s["rejected"]) == (1, 1)
+    assert [r["rule_id"] for r in s["by_rule"]] == [rule]
+    client.delete(f"/api/sessions/{sid}", headers=h)
+    assert client.get("/api/feedback/summary", headers=h).json()["decisions"] == 1
+
+
+def test_qa_cost_survives_closing(client):
+    h = _login(client)
+    sid = _done(client, h, "cam-plate-seeded")
+    store = client.store  # type: ignore[attr-defined]
+    sess = store.get(sid)
+
+    class Stub:
+        model = thinking = None
+
+        def ask(self, q: str) -> Any:
+            return type("A", (), {"cost_usd": 0.01})()
+
+    sess.conversation = Stub()
+    store.ask(sess, "q")
+    client.delete(f"/api/sessions/{sid}", headers=h)
+    (row,) = client.get("/api/history", headers=h).json()["runs"]
+    assert row["session_id"] == sid and row["qa_cost_usd"] == 0.01
+
+
+def test_an_upload_is_listed_without_its_name(client):
+    h = _login(client)
+    r = client.post(
+        "/api/sessions/upload",
+        files={"file": ("secret_part_9.pdf", P13.read_bytes(), "application/pdf")},
+        headers=h,
+    )
+    sid = r.json()["id"]
+    assert _wait(lambda: client.get(f"/api/sessions/{sid}", headers=h).json()["status"] in ("done", "error"))
+    out = client.get("/api/history", headers=h)
+    (row,) = out.json()["runs"]
+    assert row["drawing"] == "Uploaded PDF" and row["mode"] == "Live upload"
+    assert "secret_part_9" not in out.text
 
 
 def test_upload_accepts_only_pdfs(client):

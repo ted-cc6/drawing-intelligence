@@ -50,6 +50,8 @@ from drawing_intelligence.settings import PROJECT_ROOT, Settings, get_settings
 
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 MAX_BATCH = 10  # drawings per batch review; they run two at a time in the live lane
+# The anonymous id the browser sends with each request: it labels "Visitor N" in the run history (ADR 0012)
+Visitor = Annotated[str | None, Header(alias="X-Demo-Visitor")]
 
 
 class Login(BaseModel):
@@ -148,7 +150,9 @@ def create_app(
         if sess.status != "done" or sess.data is None:
             raise HTTPException(409, "the review has not finished")
 
-    def start_upload(data: bytes, filename: str | None, models: dict[str, str]) -> DemoSession:
+    def start_upload(
+        data: bytes, filename: str | None, models: dict[str, str], visitor: str | None, batch: bool = False
+    ) -> DemoSession:
         """Screen one uploaded PDF and start its live review; HTTPException (a sentence) if turned away."""
         if len(data) > MAX_UPLOAD_BYTES:
             raise HTTPException(413, "The PDF is larger than 25 MB.")
@@ -167,7 +171,7 @@ def create_app(
         tmp.write_bytes(data)
         try:
             name = Path(filename or "drawing.pdf").name
-            return the_store.create(tmp, name, None, live=True, models=models)
+            return the_store.create(tmp, name, None, live=True, models=models, visitor=visitor, batch=batch)
         finally:
             tmp.unlink(missing_ok=True)
             tmp.parent.rmdir()
@@ -251,11 +255,11 @@ def create_app(
     # --- sessions -------------------------------------------------------------------------------------------
 
     @app.post("/api/sessions", dependencies=[Auth])
-    def open_demo(body: OpenDemo) -> dict[str, Any]:
+    def open_demo(body: OpenDemo, visitor: Visitor = None) -> dict[str, Any]:
         d = demos.get(body.demo_id)
         if d is None:
             raise HTTPException(404, "unknown demo drawing")
-        return session_summary(the_store.create(d["path"], d["title"], d["id"], live=False))
+        return session_summary(the_store.create(d["path"], d["title"], d["id"], live=False, visitor=visitor))
 
     @app.post("/api/sessions/upload", dependencies=[Auth])
     async def upload(
@@ -264,6 +268,7 @@ def create_app(
         understand_thinking: Annotated[str | None, Form()] = None,
         review_model: Annotated[str | None, Form()] = None,
         review_thinking: Annotated[str | None, Form()] = None,
+        visitor: Visitor = None,
     ) -> dict[str, Any]:
         reg = load_registry(settings.config_path / "models.yaml")
         um, ut = check_choice(reg, settings, "understand", understand_model, understand_thinking)
@@ -271,7 +276,7 @@ def create_app(
         chosen = {"model": um, "thinking": ut, "review_model": rm, "review_thinking": rt}
         models = {k: v for k, v in chosen.items() if v}
         data = await file.read(MAX_UPLOAD_BYTES + 1)
-        return session_summary(start_upload(data, file.filename, models))
+        return session_summary(start_upload(data, file.filename, models, visitor))
 
     # --- batch review ---------------------------------------------------------------------------------------
 
@@ -282,6 +287,7 @@ def create_app(
         understand_thinking: Annotated[str | None, Form()] = None,
         review_model: Annotated[str | None, Form()] = None,
         review_thinking: Annotated[str | None, Form()] = None,
+        visitor: Visitor = None,
     ) -> dict[str, Any]:
         if len(files) > MAX_BATCH:
             raise HTTPException(422, f"A batch takes up to {MAX_BATCH} drawings; {len(files)} were chosen.")
@@ -294,7 +300,7 @@ def create_app(
         for f in files:
             name = Path(f.filename or "drawing.pdf").name
             try:
-                sess = start_upload(await f.read(MAX_UPLOAD_BYTES + 1), name, models)
+                sess = start_upload(await f.read(MAX_UPLOAD_BYTES + 1), name, models, visitor, batch=True)
                 items.append(BatchItem(name, session_id=sess.id))
             except HTTPException as e:  # turned away: listed with its reason, the others still run
                 items.append(BatchItem(name, rejected=str(e.detail)))
@@ -346,6 +352,14 @@ def create_app(
         for sess in sessions:
             done_or_409(sess)
         return compare(*(session_detail(sess, settings.config_path) for sess in sessions))
+
+    @app.get("/api/history", dependencies=[Auth])
+    def history(visitor: Visitor = None) -> dict[str, Any]:
+        return the_store.ledger.history(visitor)
+
+    @app.get("/api/feedback/summary", dependencies=[Auth])
+    def feedback_summary() -> dict[str, Any]:
+        return the_store.ledger.feedback_summary()
 
     @app.delete("/api/sessions/{sid}", dependencies=[Auth])
     def end_session(sid: str) -> dict[str, bool]:
@@ -404,6 +418,7 @@ def create_app(
             sess,
             FindingFeedback(finding_id=f.id, decision=body.decision, comment=body.comment, role="checker"),
         )
+        the_store.record_decision(sess, f, body.decision)
         return {"no": no, "decision": body.decision}
 
     # --- the front end --------------------------------------------------------------------------------------
