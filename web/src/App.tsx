@@ -318,9 +318,20 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
       });
     const before = allFindings.find((f) => f.no === no)?.feedback ?? null;
     patch(decision);
+    const sid = sess.id;
     api
-      .feedback(sess.id, no, decision)
-      .then(() => setPrompt(`Finding ${no} ${decision === "accept" ? "accepted" : "rejected"}; logged for the rulebook owner.`))
+      .feedback(sid, no, decision)
+      .then(() => {
+        const said = `Finding ${no} ${decision === "accept" ? "accepted" : "rejected"}; logged for the rulebook owner.`;
+        if (stamps[sid]?.kind !== "checked" || decision === before) return setPrompt(said);
+        // the sign-off counted the old decisions: a changed one reopens the review
+        setStamps((m) => {
+          const n = { ...m };
+          delete n[sid];
+          return n;
+        });
+        setPrompt(`${said} Reopened: a decision changed after sign-off.`);
+      })
       .catch((e) => (patch(before), fail(e)));
   };
 
