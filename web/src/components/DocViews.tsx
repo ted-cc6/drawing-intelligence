@@ -143,17 +143,21 @@ export function RulebookView({ onDownload }: { onDownload: () => void }) {
   );
 }
 
-/** Fetch on open and every 5 s while the page is open (other visitors keep adding rows). */
-function usePoll<T>(load: () => Promise<T>): T | null {
+/** Fetch on open and every 5 s while the page is open (other visitors keep adding rows). `error` is the last
+ * fetch's failure, cleared by the next success; the last data stays on screen meanwhile. */
+function usePoll<T>(load: () => Promise<T>): { data: T | null; error: string | null } {
   const [data, setData] = useState<T | null>(null);
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     let live = true;
     const tick = () => {
       load()
         .then((d) => {
-          if (live) setData(d);
+          if (live) setData(d), setError(null);
         })
-        .catch(() => undefined);
+        .catch((e) => {
+          if (live) setError(e instanceof Error ? e.message : String(e));
+        });
     };
     tick();
     const t = setInterval(tick, 5000);
@@ -162,20 +166,32 @@ function usePoll<T>(load: () => Promise<T>): T | null {
       clearInterval(t);
     };
   }, [load]);
-  return data;
+  return { data, error };
+}
+
+/** What a polled page shows before its first data, or above it when the latest fetch failed. */
+function PollNote({ what, error, stale }: { what: string; error: string | null; stale: boolean }) {
+  if (!error) return stale ? null : <div className="empty">Loading…</div>;
+  return (
+    <div className="warnline" style={{ margin: stale ? "0 0 10px" : 12 }}>
+      {stale ? `The last update of the ${what} failed (${error}); showing the earlier data.` : `Could not load the ${what} (${error}).`} Trying
+      again every 5 s.
+    </div>
+  );
 }
 
 const hhmm = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 const pct = (r: number | null) => (r == null ? "–" : `${Math.round(r * 100)}%`);
 
 export function ReportsView() {
-  const h = usePoll(api.history);
-  if (!h) return <div className="docview"><div className="empty">Loading…</div></div>;
+  const { data: h, error } = usePoll(api.history);
+  if (!h) return <div className="docview"><PollNote what="run history" error={error} stale={false} /></div>;
   const live = h.runs.filter((r) => !r.cached && r.status === "done");
   const cost = h.runs.reduce((a, r) => a + r.cost_usd + r.qa_cost_usd, 0);
   const avg = live.length ? live.reduce((a, r) => a + (r.seconds ?? 0), 0) / live.length : 0;
   return (
     <div className="docview">
+      <PollNote what="run history" error={error} stale />
       <div className="kpis">
         <div className="kpi">
           <div className="v">{h.runs.length}</div>
@@ -283,8 +299,8 @@ function RateBar({ rate }: { rate: number | null }) {
 }
 
 export function FeedbackView() {
-  const s = usePoll(api.feedbackSummary);
-  if (!s) return <div className="docview"><div className="empty">Loading…</div></div>;
+  const { data: s, error } = usePoll(api.feedbackSummary);
+  if (!s) return <div className="docview"><PollNote what="feedback analytics" error={error} stale={false} /></div>;
   const code = s.by_source.filter((x) => x.source !== "llm");
   const ai = s.by_source.filter((x) => x.source === "llm");
   const rate = (xs: { decisions: number; accepted: number }[]) => {
@@ -293,6 +309,7 @@ export function FeedbackView() {
   };
   return (
     <div className="docview">
+      <PollNote what="feedback analytics" error={error} stale />
       <div className="kpis">
         <div className="kpi">
           <div className="v">{s.decisions}</div>
