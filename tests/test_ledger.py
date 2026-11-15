@@ -44,7 +44,9 @@ def test_runs_newest_first_with_visitor_labels():
     _run(ledger, session_id="s2", visitor="v-b", drawing="C01")
     _run(ledger, session_id="s3", visitor="v-a")
     h = ledger.history("v-b")
-    assert [r["session_id"] for r in h["runs"]] == ["s3", "s2", "s1"]
+    # session ids are the only key to another visitor's open session: never handed out
+    assert all("session_id" not in r for r in h["runs"])
+    assert [r["no"] for r in h["runs"]] == [3, 2, 1]
     assert [r["visitor"] for r in h["runs"]] == ["Visitor 1", "Visitor 2", "Visitor 1"]
     assert [r["you"] for r in h["runs"]] == [False, True, False]
     assert h["visitors"] == 2 and h["since"] == ledger.since

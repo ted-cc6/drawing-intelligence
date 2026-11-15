@@ -138,7 +138,8 @@ def test_history_across_two_visitors(client):
     clean = _done(client, h, "cam-plate-clean", visitor="b")
     out = client.get("/api/history", headers=h | {"X-Demo-Visitor": "b"}).json()
     runs = out["runs"]
-    assert [r["session_id"] for r in runs] == [clean, seeded]  # newest first
+    assert seeded not in str(out) and clean not in str(out)  # a session id opens that visitor's session
+    assert [r["drawing"][:3] for r in runs] == ["C01", "P13"]  # newest first
     assert {r["visitor"] for r in runs} == {"Visitor 1", "Visitor 2"} and out["visitors"] == 2
     assert [r["you"] for r in runs] == [True, False]
     assert runs[0]["drawing"] == "C01 · Cam plate, clean" and runs[1]["drawing"].startswith("P13")
@@ -180,7 +181,7 @@ def test_qa_cost_survives_closing(client):
     store.ask(sess, "q")
     client.delete(f"/api/sessions/{sid}", headers=h)
     (row,) = client.get("/api/history", headers=h).json()["runs"]
-    assert row["session_id"] == sid and row["qa_cost_usd"] == 0.01
+    assert row["drawing"].startswith("P13") and row["qa_cost_usd"] == 0.01
 
 
 def test_an_upload_is_listed_without_its_name(client):

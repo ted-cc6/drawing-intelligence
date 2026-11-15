@@ -100,7 +100,7 @@ export interface Comparison {
 
 /** GET /api/history: every review since the server started (api/ledger.py). */
 export interface HistoryRun {
-  session_id: string;
+  no: number;
   at: string;
   visitor: string;
   you: boolean;

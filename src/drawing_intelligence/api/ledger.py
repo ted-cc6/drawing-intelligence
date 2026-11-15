@@ -56,7 +56,9 @@ class Ledger:
     ) -> None:
         with self._lock:
             self._visitor(visitor)
+            old = self._runs.get(session_id)
             self._runs[session_id] = {
+                "no": old["no"] if old else len(self._runs) + 1,  # the row's key in the UI
                 "session_id": session_id,
                 "at": _now(),
                 "visitor_id": visitor,
@@ -112,8 +114,9 @@ class Ledger:
             n_visitors = len(self._visitors)
         rows = []
         for r in reversed(runs):
-            vid = r.pop("visitor_id")
-            rows.append(r | {"visitor": labels[r["session_id"]], "you": bool(visitor) and vid == visitor})
+            # a session id is the only key to another visitor's open session (one shared password): kept here
+            vid, sid = r.pop("visitor_id"), r.pop("session_id")
+            rows.append(r | {"visitor": labels[sid], "you": bool(visitor) and vid == visitor})
         by_model: dict[str | None, list[dict[str, Any]]] = defaultdict(list)
         for r in runs:
             by_model[r["model"]].append(r)

@@ -216,7 +216,7 @@ export function ReportsView() {
           </thead>
           <tbody>
             {h.runs.map((r) => (
-              <tr key={r.session_id} style={{ cursor: "default", fontWeight: r.you ? 600 : undefined }}>
+              <tr key={r.no} style={{ cursor: "default", fontWeight: r.you ? 600 : undefined }}>
                 <td>{hhmm(r.at)}</td>
                 <td>{r.you ? `${r.visitor} (you)` : r.visitor}</td>
                 <td>{r.drawing}</td>
