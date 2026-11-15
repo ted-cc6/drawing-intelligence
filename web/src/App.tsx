@@ -361,11 +361,17 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
     a.remove();
   };
 
+  // Walks every finding, as the sign-off counts do; one hidden by the Show filters is shown again.
   const nextOpen = () => {
-    const open = shown.filter((f) => !f.feedback);
-    if (!open.length) return setPrompt("Every finding shown has a decision.");
+    const open = allFindings.filter((f) => !f.feedback);
+    if (!open.length) return setPrompt("Every finding has a decision.");
     const i = open.findIndex((f) => f.no === sel);
-    select(open[(i + 1) % open.length].no);
+    const next = open[(i + 1) % open.length];
+    select(next.no);
+    if (!shown.includes(next)) {
+      setFilters((fs) => ({ ...fs, [next.result === "fail" ? "fail" : "warning"]: true, [isAI(next) ? "ai" : "code"]: true }));
+      setPrompt(`#${next.no} ${next.rule_id} was hidden by the Show filters; shown again.`);
+    }
   };
 
   const stamp = sess ? stamps[sess.id] : undefined;
