@@ -436,3 +436,8 @@ table.grid tr.on td { background: var(--select); }
 .mailbody { white-space: pre-wrap; font-family: inherit; background: #f7f9fa; border: 1px solid var(--line); padding: 8px 10px; max-height: 260px; overflow: auto; margin: 10px 0 0; }
 .linkbtn { border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0; display: inline-flex; align-items: center; gap: 4px; }
 .linkbtn:hover { text-decoration: underline; }
+
+/* Feedback analytics */
+.ratebar { position: relative; display: inline-block; width: 110px; height: 14px; background: #eef1f4; border: 1px solid var(--line); vertical-align: middle; }
+.ratebar i { position: absolute; left: 0; top: 0; bottom: 0; background: #8cc49a; }
+.ratebar b { position: relative; font-size: 10.5px; padding-left: 4px; font-weight: 600; }

@@ -58,7 +58,7 @@ interface Props {
   onClose: () => void;
   onAsk: () => void;
   onProps: () => void;
-  onDoc: (kind: "rules" | "reports" | "settings") => void;
+  onDoc: (kind: "rules" | "reports" | "feedback" | "settings") => void;
   onNextOpen: () => void;
   onAcceptAll: () => void;
   measuring: boolean;
@@ -203,7 +203,7 @@ export function Ribbon(p: Props) {
         <Big icon={<BarChart3 size={24} />} label="Cost & latency" onClick={() => p.onDoc("reports")} />
       </Group>
       <Group label="Quality">
-        <Big icon={<Gauge size={22} />} label="Feedback analytics" pilot />
+        <Big icon={<Gauge size={22} />} label="Feedback analytics" onClick={() => p.onDoc("feedback")} tip="Accept and reject rates per rule and reviewer, from every visitor" />
       </Group>
     </>
   );

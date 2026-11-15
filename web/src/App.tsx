@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BookOpen, Cpu, FileText, GitCompare, History, Home, Layers, Loader2, X } from "lucide-react";
+import { BookOpen, Cpu, FileText, Gauge, GitCompare, History, Home, Layers, Loader2, X } from "lucide-react";
 import type { Cite, Comparison, Demo, SessionInfo } from "./api";
 import { ApiError, api, token, withToken } from "./api";
 import { Login, StatusBar, TitleBar } from "./components/Chrome";
 import { BatchView } from "./components/BatchView";
 import { ComparePicker, CompareView, type ComparePick } from "./components/CompareView";
-import { ReportsView, RulebookView, SettingsView, Welcome } from "./components/DocViews";
+import { FeedbackView, ReportsView, RulebookView, SettingsView, Welcome } from "./components/DocViews";
 import { FindingsList } from "./components/FindingsList";
 import { PathFinder } from "./components/PathFinder";
 import { Ribbon, type Filters, type RibbonTab } from "./components/Ribbon";
@@ -15,7 +15,7 @@ import { SendToDesignerDialog } from "./components/SendToDesigner";
 import { SignOffDialog, counts, stampText, today, type Stamp } from "./components/SignOff";
 import { isAI, money, scaleFactor, secs } from "./format";
 
-type DocKind = "start" | "drawing" | "rules" | "reports" | "settings" | "batch" | "compare";
+type DocKind = "start" | "drawing" | "rules" | "reports" | "feedback" | "settings" | "batch" | "compare";
 interface Doc {
   key: string;
   kind: DocKind;
@@ -29,6 +29,7 @@ const STATIC_DOCS: Record<Exclude<DocKind, "drawing" | "batch" | "compare">, { l
   start: { label: "Start", icon: <Home size={13} /> },
   rules: { label: "Rulebook", icon: <BookOpen size={13} /> },
   reports: { label: "Reports", icon: <History size={13} /> },
+  feedback: { label: "Feedback analytics", icon: <Gauge size={13} /> },
   settings: { label: "Options", icon: <Cpu size={13} /> },
 };
 
@@ -426,7 +427,8 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
   let center: JSX.Element;
   if (doc.kind === "start") center = <Welcome demos={demos} onOpenDemo={openDemo} onUpload={() => fileRef.current?.click()} />;
   else if (doc.kind === "rules") center = <RulebookView onDownload={() => download("/api/rules.xlsx")} />;
-  else if (doc.kind === "reports") center = <ReportsView sessions={Object.values(sessions)} />;
+  else if (doc.kind === "reports") center = <ReportsView />;
+  else if (doc.kind === "feedback") center = <FeedbackView />;
   else if (doc.kind === "settings") center = <SettingsView />;
   else if (doc.kind === "batch" && doc.bid)
     center = <BatchView key={doc.bid} id={doc.bid} onOpen={openSession} onDownload={() => download(`/api/batches/${doc.bid}/reports.zip`)} onGone={batchGone} />;

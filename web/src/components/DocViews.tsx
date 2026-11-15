@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { Download, FileText, FileUp, FlaskConical, Info, Loader2, Search } from "lucide-react";
-import type { Demo, ModelChoice, ModelInfo, Role, Rule, SessionInfo } from "../api";
+import type { Demo, ModelChoice, ModelInfo, Role, Rule } from "../api";
 import { api, modelChoice } from "../api";
 import { SEVERITY_COLOR, SOURCE_SHORT, money, secs } from "../format";
 
@@ -143,66 +143,235 @@ export function RulebookView({ onDownload }: { onDownload: () => void }) {
   );
 }
 
-export function ReportsView({ sessions }: { sessions: SessionInfo[] }) {
-  const done = sessions.filter((s) => s.status === "done");
-  const cost = done.reduce((a, s) => a + (s.cost_usd ?? 0) + (s.qa_cost_usd ?? 0), 0);
-  const avg = done.length ? done.reduce((a, s) => a + (s.seconds ?? 0), 0) / done.length : 0;
-  const findings = done.reduce((a, s) => a + (s.findings?.length ?? 0), 0);
-  const decided = done.reduce((a, s) => a + (s.findings?.filter((f) => f.feedback).length ?? 0), 0);
+/** Fetch on open and every 5 s while the page is open (other visitors keep adding rows). */
+function usePoll<T>(load: () => Promise<T>): T | null {
+  const [data, setData] = useState<T | null>(null);
+  useEffect(() => {
+    let live = true;
+    const tick = () => {
+      load()
+        .then((d) => {
+          if (live) setData(d);
+        })
+        .catch(() => undefined);
+    };
+    tick();
+    const t = setInterval(tick, 5000);
+    return () => {
+      live = false;
+      clearInterval(t);
+    };
+  }, [load]);
+  return data;
+}
+
+const hhmm = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+const pct = (r: number | null) => (r == null ? "–" : `${Math.round(r * 100)}%`);
+
+export function ReportsView() {
+  const h = usePoll(api.history);
+  if (!h) return <div className="docview"><div className="empty">Loading…</div></div>;
+  const live = h.runs.filter((r) => !r.cached && r.status === "done");
+  const cost = h.runs.reduce((a, r) => a + r.cost_usd + r.qa_cost_usd, 0);
+  const avg = live.length ? live.reduce((a, r) => a + (r.seconds ?? 0), 0) / live.length : 0;
   return (
     <div className="docview">
       <div className="kpis">
         <div className="kpi">
-          <div className="v">{done.length}</div>
-          <div className="l">Reviews this session</div>
+          <div className="v">{h.runs.length}</div>
+          <div className="l">Reviews since {hhmm(h.since)}</div>
         </div>
         <div className="kpi">
-          <div className="v">{secs(avg) || "–"}</div>
-          <div className="l">Average review time</div>
+          <div className="v">{h.visitors}</div>
+          <div className="l">Visitors</div>
         </div>
         <div className="kpi">
           <div className="v">{money(cost)}</div>
           <div className="l">Model cost (review + Q&amp;A)</div>
         </div>
         <div className="kpi">
-          <div className="v">
-            {decided} / {findings}
-          </div>
-          <div className="l">Findings with a decision</div>
+          <div className="v">{live.length ? secs(avg) : "–"}</div>
+          <div className="l">Average live review</div>
         </div>
       </div>
-      <table className="grid">
-        <thead>
-          <tr>
-            <th>Drawing</th>
-            <th>Mode</th>
-            <th>Findings</th>
-            <th>Fails</th>
-            <th>Review time</th>
-            <th>Review cost</th>
-            <th>Q&amp;A cost</th>
-            <th>Model</th>
-          </tr>
-        </thead>
-        <tbody>
-          {done.map((s) => (
-            <tr key={s.id} style={{ cursor: "default" }}>
-              <td>{s.name}</td>
-              <td>{s.cached ? "Cached" : "Live"}</td>
-              <td>{s.findings?.length}</td>
-              <td>{s.findings?.filter((f) => f.result === "fail").length}</td>
-              <td>{secs(s.seconds)}</td>
-              <td>{money(s.cost_usd)}</td>
-              <td>{money(s.qa_cost_usd)}</td>
-              <td className="mono">{s.model}</td>
+      <h3 className="cmph">Run history</h3>
+      {h.runs.length === 0 ? (
+        <div className="empty">No reviews yet. Open a demo drawing to start.</div>
+      ) : (
+        <table className="grid">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Visitor</th>
+              <th>Drawing</th>
+              <th>Mode</th>
+              <th>Status</th>
+              <th>Findings</th>
+              <th>Fails</th>
+              <th>Review time</th>
+              <th>Review cost</th>
+              <th>Q&amp;A cost</th>
+              <th>Model</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      {done.length === 0 && <div className="empty">Reviews you open in this session appear here.</div>}
+          </thead>
+          <tbody>
+            {h.runs.map((r) => (
+              <tr key={r.session_id} style={{ cursor: "default", fontWeight: r.you ? 600 : undefined }}>
+                <td>{hhmm(r.at)}</td>
+                <td>{r.you ? `${r.visitor} (you)` : r.visitor}</td>
+                <td>{r.drawing}</td>
+                <td>{r.mode}</td>
+                <td>{r.status}</td>
+                <td>{r.findings}</td>
+                <td>{r.fails}</td>
+                <td>{secs(r.seconds)}</td>
+                <td>{money(r.cost_usd)}</td>
+                <td>{money(r.qa_cost_usd)}</td>
+                <td className="mono">{r.model ?? "default"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <h3 className="cmph">Cost and latency per model</h3>
+      {h.models.length === 0 ? (
+        <div className="empty">No reviews yet. Open a demo drawing to start.</div>
+      ) : (
+        <table className="grid">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Runs</th>
+              <th>Live</th>
+              <th>Average live review</th>
+              <th>Average live cost</th>
+              <th>Review cost</th>
+              <th>Q&amp;A cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            {h.models.map((m) => (
+              <tr key={m.model ?? "default"} style={{ cursor: "default" }}>
+                <td className="mono">{m.model ?? "default"}</td>
+                <td>{m.runs}</td>
+                <td>{m.live_runs}</td>
+                <td>{m.avg_live_seconds == null ? "–" : secs(m.avg_live_seconds)}</td>
+                <td>{m.avg_live_cost_usd == null ? "–" : money(m.avg_live_cost_usd)}</td>
+                <td>{money(m.total_cost_usd)}</td>
+                <td>{money(m.qa_cost_usd)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
       <div className="pilotnote">
-        <Info size={15} /> In the pilot this page keeps the history of every review across users, with cost and latency per model and the
-        accept/reject rate per rule.
+        <Info size={15} /> Demo: kept in the server's memory since it started ({hhmm(h.since)}); a restart clears it. Uploaded drawings are
+        listed as "Uploaded PDF": nothing about an upload outlives its session. In the pilot this history is stored and covers every user by
+        name.
+      </div>
+    </div>
+  );
+}
+
+function RateBar({ rate }: { rate: number | null }) {
+  return (
+    <span className="ratebar" title={pct(rate)}>
+      <i style={{ width: `${Math.round((rate ?? 0) * 100)}%` }} />
+      <b>{pct(rate)}</b>
+    </span>
+  );
+}
+
+export function FeedbackView() {
+  const s = usePoll(api.feedbackSummary);
+  if (!s) return <div className="docview"><div className="empty">Loading…</div></div>;
+  const code = s.by_source.filter((x) => x.source !== "llm");
+  const ai = s.by_source.filter((x) => x.source === "llm");
+  const rate = (xs: { decisions: number; accepted: number }[]) => {
+    const d = xs.reduce((a, x) => a + x.decisions, 0);
+    return d ? xs.reduce((a, x) => a + x.accepted, 0) / d : null;
+  };
+  return (
+    <div className="docview">
+      <div className="kpis">
+        <div className="kpi">
+          <div className="v">{s.decisions}</div>
+          <div className="l">Decisions since {hhmm(s.since)}</div>
+        </div>
+        <div className="kpi">
+          <div className="v">{pct(s.decisions ? s.accepted / s.decisions : null)}</div>
+          <div className="l">Accepted</div>
+        </div>
+        <div className="kpi">
+          <div className="v">{pct(rate(code))}</div>
+          <div className="l">Code checks accepted</div>
+        </div>
+        <div className="kpi">
+          <div className="v">{pct(rate(ai))}</div>
+          <div className="l">AI reviewers accepted</div>
+        </div>
+      </div>
+      {s.decisions === 0 ? (
+        <div className="empty">No decisions yet. Accept or reject findings on a drawing.</div>
+      ) : (
+        <>
+          <h3 className="cmph">By reviewer</h3>
+          <table className="grid">
+            <thead>
+              <tr>
+                <th>Reviewer</th>
+                <th>Decisions</th>
+                <th>Accepted</th>
+                <th>Accept rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              {s.by_reviewer.map((r) => (
+                <tr key={r.reviewer} style={{ cursor: "default" }}>
+                  <td className="mono">{r.reviewer}</td>
+                  <td>{r.decisions}</td>
+                  <td>{r.accepted}</td>
+                  <td>
+                    <RateBar rate={r.rate} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <h3 className="cmph">By rule (most rejected first)</h3>
+          <table className="grid">
+            <thead>
+              <tr>
+                <th>Rule</th>
+                <th>Requirement</th>
+                <th>Checked by</th>
+                <th>Decisions</th>
+                <th>Accepted</th>
+                <th>Rejected</th>
+                <th>Accept rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              {s.by_rule.map((r) => (
+                <tr key={r.rule_id} style={{ cursor: "default" }}>
+                  <td className="mono">{r.rule_id}</td>
+                  <td>{r.requirement}</td>
+                  <td>{SOURCE_SHORT[r.source as keyof typeof SOURCE_SHORT] ?? r.source}</td>
+                  <td>{r.decisions}</td>
+                  <td>{r.accepted}</td>
+                  <td>{r.rejected}</td>
+                  <td>
+                    <RateBar rate={r.rate} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
+      <div className="pilotnote">
+        <Info size={15} /> Demo: decisions from the Accept/Reject buttons of every visitor since the server started; a restart clears them. In
+        the pilot the rulebook owner reviews the most-rejected rules here.
       </div>
     </div>
   );

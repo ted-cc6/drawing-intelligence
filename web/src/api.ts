@@ -98,6 +98,52 @@ export interface Comparison {
   notes: string[];
 }
 
+/** GET /api/history: every review since the server started (api/ledger.py). */
+export interface HistoryRun {
+  session_id: string;
+  at: string;
+  visitor: string;
+  you: boolean;
+  drawing: string;
+  mode: string;
+  status: string;
+  findings: number;
+  fails: number;
+  seconds: number | null;
+  cost_usd: number;
+  qa_cost_usd: number;
+  model: string | null;
+  cached: boolean;
+}
+
+export interface History {
+  since: string;
+  visitors: number;
+  runs: HistoryRun[];
+  models: {
+    model: string | null;
+    runs: number;
+    live_runs: number;
+    avg_live_seconds: number | null;
+    avg_live_cost_usd: number | null;
+    total_cost_usd: number;
+    qa_cost_usd: number;
+  }[];
+}
+
+type Rate = { decisions: number; accepted: number; rate: number | null };
+
+/** GET /api/feedback/summary: accept/reject decisions since the server started. */
+export interface FeedbackSummary {
+  since: string;
+  decisions: number;
+  accepted: number;
+  rejected: number;
+  by_source: (Rate & { source: string })[];
+  by_reviewer: (Rate & { reviewer: string })[];
+  by_rule: (Rate & { rule_id: string; requirement: string | null; source: string; rejected: number })[];
+}
+
 export interface Cite {
   cite: string;
   finding_no?: number;
@@ -192,9 +238,17 @@ export class ApiError extends Error {
   }
 }
 
+/** An anonymous id for this browser, kept across visits: the run history labels it "Visitor N". */
+const visitor = () => {
+  let v = localStorage.getItem("di-visitor");
+  if (!v) localStorage.setItem("di-visitor", (v = crypto.randomUUID()));
+  return v;
+};
+
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   if (token.get()) headers.set("X-Demo-Token", token.get());
+  headers.set("X-Demo-Visitor", visitor());
   if (init.body && !(init.body instanceof FormData)) headers.set("Content-Type", "application/json");
   const r = await fetch(path, { ...init, headers });
   if (!r.ok) {
@@ -241,6 +295,8 @@ export const api = {
   closeBatch: (id: string) => call<{ deleted: boolean }>(`/api/batches/${id}`, { method: "DELETE" }),
   session: (id: string) => call<SessionInfo>(`/api/sessions/${id}`),
   close: (id: string) => call<{ deleted: boolean }>(`/api/sessions/${id}`, { method: "DELETE" }),
+  history: () => call<History>("/api/history"),
+  feedbackSummary: () => call<FeedbackSummary>("/api/feedback/summary"),
   compare: (oldId: string, newId: string) => call<Comparison>(`/api/compare?old=${oldId}&new=${newId}`),
   ask: (id: string, question: string) =>
     call<AnswerView>(`/api/sessions/${id}/ask`, {
