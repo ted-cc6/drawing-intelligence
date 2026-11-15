@@ -201,6 +201,8 @@ function Workbench({ onSignedOut }: { onSignedOut: () => void }) {
     setSelected((m) => ({ ...m, [sid]: no }));
     setDockTab("props");
     const f = s.findings?.find((x) => x.no === no);
+    const ev = f?.evidence.find((e) => e.bbox);
+    if (ev) setPage((m) => ({ ...m, [sid]: ev.page })); // the finding's sheet, as select() does
     if (f) setPrompt(`#${f.no} ${f.result === "fail" ? "Fail" : "Warning"} · ${f.rule_id} · ${f.location}`);
   };
 
