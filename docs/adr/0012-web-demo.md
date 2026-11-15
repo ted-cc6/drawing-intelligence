@@ -69,4 +69,17 @@ themselves afterwards.
   message (the designer is the title block's drawn-by number; attachments are the real downloads). Each says
   "Demo: nothing is stored / sent"; the status chip lives in the browser for the open session only. No
   endpoint pretends to sign off or send: the pilot builds those on storage and accounts.
-- Still PILOT: confirm and edit rules, feedback analytics, run history across users.
+- Still PILOT: confirm and edit rules, feedback analytics, run history across users (built later the same day).
+
+## Update 2026-11-14, later (run history across visitors and feedback analytics, demo)
+- An in-memory `Ledger` (`api/ledger.py`) on the session store records one row per finished review and one per
+  accept/reject, for the life of the server process: a restart clears them. `GET /api/history` (runs newest
+  first, cost and latency per model; live-only averages, failed runs listed but not averaged) and
+  `GET /api/feedback/summary` (overall, by source, by reviewer, by rule most rejected first).
+- "Across users" means across browsers: everyone shares one password, so the browser sends an anonymous
+  `X-Demo-Visitor` id and the server labels "Visitor N" in first-seen order.
+- ADR 0003 holds for the new data: uploads are listed as "Uploaded PDF", feedback rows keep the rule and the
+  decision only (a finding with no rule loses its model-written requirement), nothing is written to disk.
+  The existing `data/feedback/feedback.jsonl` (comments, and the Q&A tool's file names and quotes, kept after
+  sessions end) is unchanged and remains an open question.
+- Still PILOT: confirm rules, edit rule.

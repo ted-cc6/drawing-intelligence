@@ -37,7 +37,7 @@ src/drawing_intelligence/
   storage/             session workspaces (ephemeral), telemetry DB, response cache
   eval/                baseline diff, understanding scorecard, seeded cases + answer keys, review eval
   viz/                 annotated images for humans (never needed by the pipeline)
-  api/                 the web demo's FastAPI app (ADR 0012): sessions, views, compare revisions; no review logic
+  api/                 the web demo's FastAPI app (ADR 0012): sessions, views, compare revisions, in-memory run history and feedback ledger; no review logic
   cli.py               the `di` command
 web/                   the demo front end (React + Vite + TypeScript); Dockerfile builds both
 config/demo/           the web demo's drawings and plain-English explanations
