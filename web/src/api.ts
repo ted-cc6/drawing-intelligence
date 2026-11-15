@@ -239,16 +239,25 @@ export class ApiError extends Error {
 }
 
 /** An anonymous id for this browser, kept across visits: the run history labels it "Visitor N". */
-const visitor = () => {
-  let v = localStorage.getItem("di-visitor");
-  if (!v) localStorage.setItem("di-visitor", (v = crypto.randomUUID()));
-  return v;
+const visitor = (): string | null => {
+  try {
+    let v = localStorage.getItem("di-visitor");
+    if (!v) {
+      // randomUUID exists only on HTTPS and localhost: a page served over plain HTTP gets a random string instead
+      v = crypto.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+      localStorage.setItem("di-visitor", v);
+    }
+    return v;
+  } catch {
+    return null; // storage blocked: no visitor id, the history shows "Visitor ?"
+  }
 };
 
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   if (token.get()) headers.set("X-Demo-Token", token.get());
-  headers.set("X-Demo-Visitor", visitor());
+  const v = visitor();
+  if (v) headers.set("X-Demo-Visitor", v);
   if (init.body && !(init.body instanceof FormData)) headers.set("Content-Type", "application/json");
   const r = await fetch(path, { ...init, headers });
   if (!r.ok) {
