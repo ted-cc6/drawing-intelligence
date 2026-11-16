@@ -2,13 +2,13 @@
 
 *For: Mushahid Raza, Zhetao Zhang · From: Binjie Wang · 2026-10-25*
 
-This replaces the [Oct 06 update](Oct_06_UpdateAndNextStep.md), which stays as the original plan. It covers what
+This replaces the [Oct 06 update](2026-10-06_update_and_next_steps.md), which stays as the original plan. It covers what
 happened to every task in that plan, what the system is now, how well it works, **how we got to today's numbers
 and why the design looks the way it does**, what is left, and who builds what next.
 
-The full design is in [docs/PROJECT.md](docs/PROJECT.md); the decisions are in [docs/adr/](docs/adr/) (new since
-Oct 06: [0008](docs/adr/0008-review-contracts-enforce-trust.md), [0009](docs/adr/0009-understanding-model-default.md),
-[0010](docs/adr/0010-review-stage-design.md), [0011](docs/adr/0011-qa-agent.md)).
+The full design is in [docs/PROJECT.md](../PROJECT.md); the decisions are in [docs/adr/](../adr/) (new since
+Oct 06: [0008](../adr/0008-review-contracts-enforce-trust.md), [0009](../adr/0009-understanding-model-default.md),
+[0010](../adr/0010-review-stage-design.md), [0011](../adr/0011-qa-agent.md)).
 
 **Contents**
 1. [Summary](#1-summary)
@@ -40,10 +40,10 @@ PARI's columns plus an annotated sheet. About 2 minutes and $0.04 per drawing; r
 |---|---|---|
 | Code checks built | 49 of 135 code/lookup rules (44 functions) | `di rules` |
 | Planted errors caught where a check exists | 18/18, **0 false alarms** | `di eval review --no-understand` |
-| Planted errors caught, code + AI | 20/22 (19–20: one AI catch is not stable) | [PROJECT.md §8](docs/PROJECT.md) |
-| Code findings on 24 unseen client drawings | **63 correct, 0 incorrect**, 9 unsure | [heldout README](data/eval/heldout/2026-10-25/README.md) |
+| Planted errors caught, code + AI | 20/22 (19–20: one AI catch is not stable) | [PROJECT.md §8](../PROJECT.md) |
+| Code findings on 24 unseen client drawings | **63 correct, 0 incorrect**, 9 unsure | [heldout README](../../data/eval/heldout/2026-10-25/README.md) |
 | AI findings on the same drawings | 36% → **88%** precision after three rounds of fixes (optimistic, see 5.3) | same |
-| Q&A agent | 40/41 answers right, 41/41 verified | [qa results](data/eval/qa/results/README.md) |
+| Q&A agent | 40/41 answers right, 41/41 verified | [qa results](../../data/eval/qa/results/README.md) |
 | Tests | 404 (were 77) | `uv run pytest` |
 
 The biggest lessons, each explained in §5: **the LLM finds problems but cannot be trusted to judge them**, so
@@ -57,15 +57,15 @@ time**.
 
 | Task | Assigned to | Built by | Status | What changed from the plan |
 |---|---|---|---|---|
-| A2 Review contracts | Binjie | Binjie | ✅ | Became [ADR 0008](docs/adr/0008-review-contracts-enforce-trust.md): findings are issues only (a pass is a rule status, not a finding); severity comes from the rule; a *fail* needs exact evidence |
+| A2 Review contracts | Binjie | Binjie | ✅ | Became [ADR 0008](../adr/0008-review-contracts-enforce-trust.md): findings are issues only (a pass is a rule status, not a finding); severity comes from the rule; a *fail* needs exact evidence |
 | A1 Understanding model | Zhetao | Zhetao | ✅ | Recorded as **ADR 0009** (0008 went to A2): `qwen3-vl-plus`, thinking off. Labels verified, `--runs` stability added |
 | A5a Planted errors | Mushahid | Mushahid | ✅ | 28 cases (plan: ≥15): 22 planted, 2 near-miss, 4 clean; replacements in the page's own font |
 | R Draft rulebook | Mushahid | Mushahid | ✅ | 174 rules (110 code, 25 lookup, 39 LLM) from the LatentView rulebook v0.2, PARI's guidelines and six engineering books; every LatentView rule mapped or given a reason |
-| A4 Consistency reviewer | Mushahid | Mushahid | ✅ | Redesigned as a **check registry** ([ADR 0010](docs/adr/0010-review-stage-design.md)) instead of one `consistency.py`; 44 check functions across all categories, not just consistency |
+| A4 Consistency reviewer | Mushahid | Mushahid | ✅ | Redesigned as a **check registry** ([ADR 0010](../adr/0010-review-stage-design.md)) instead of one `consistency.py`; 44 check functions across all categories, not just consistency |
 | A3 Verifier | Mushahid | Binjie | ✅ | As planned, plus quote checks against the PDF text and one status per rule |
 | A5b `di eval review` | Zhetao | Binjie | ✅ | Plus a CI regression gate, and **held-out validation** on unseen client drawings (`di eval heldout`), which the plan did not have |
 | A6 Graph fan-out and report | Binjie | Binjie | ✅ | Report zones from the sheet's border markers ("Sheet 1, zone C4") |
-| A7 Q&A agent (backlog) | – | Binjie | ✅ | [ADR 0011](docs/adr/0011-qa-agent.md); `di ask`, `di eval qa` |
+| A7 Q&A agent (backlog) | – | Binjie | ✅ | [ADR 0011](../adr/0011-qa-agent.md); `di ask`, `di eval qa` |
 | Standards / manufacturability / design-intent reviewers (backlog) | – | Binjie | ✅ | Three LLM reviewers (warnings only) plus five reference tables for the exact standards checks |
 | A8 Hardening (backlog) | – | partly | ◐ | Done: a smoke test of all 1,175 client drawings (Spike C, 0 crashes); prompt-injection guard for the Q&A agent. Open: see §6 |
 | API + dashboard (backlog) | – | – | ✗ | Not started (M5) |
@@ -135,7 +135,7 @@ Each part follows the same order: the problem, what we thought, what we did, the
 ### 5.1 Why code checks come first
 
 **Problem.** The Oct 06 plan assumed an LLM reviewer would do most of the reviewing once the rules arrived. Before
-building it, Spike E ([docs/spikes/spike_e_llm_judgement.md](docs/spikes/spike_e_llm_judgement.md)) tested
+building it, Spike E ([docs/spikes/spike_e_llm_judgement.md](../spikes/spike_e_llm_judgement.md)) tested
 whether `qwen3.8-max` can judge manufacturability and design intent on planted errors and on clean controls.
 
 **What we found.**
@@ -148,8 +148,8 @@ whether `qwen3.8-max` can judge manufacturability and design intent on planted e
 - **It cannot set severity:** it rated a correct, fully specified heat treatment *Critical*.
 - **Thinking on** cost ~6.5× and took ~11× longer (310 s per drawing) without a measured gain.
 
-**What we decided** ([ADR 0008](docs/adr/0008-review-contracts-enforce-trust.md), then
-[ADR 0010](docs/adr/0010-review-stage-design.md)):
+**What we decided** ([ADR 0008](../adr/0008-review-contracts-enforce-trust.md), then
+[ADR 0010](../adr/0010-review-stage-design.md)):
 - Every rule that can be decided exactly is **code** (`check_type: code`) or a **table lookup** (`lookup`). Only
   rules that need judgement are `llm`.
 - **Only code may fail a drawing.** A *fail* must cite exact evidence (`pdf_text` or `vector`). An AI finding is
@@ -161,7 +161,7 @@ That is why 135 of the 174 rules are code or lookup, and why the code checks wer
 
 ### 5.2 Building the code checks
 
-**The design** ([ADR 0010](docs/adr/0010-review-stage-design.md)). A check is a small pure function registered
+**The design** ([ADR 0010](../adr/0010-review-stage-design.md)). A check is a small pure function registered
 by name with its parameters:
 
 ```python
@@ -186,7 +186,7 @@ drawings, because real drawings break assumptions:
 
 | Challenge found in the sweep | What we did |
 |---|---|
-| **The title block was not where the data was.** Spike C ([docs/spikes/spike_c_template_coverage.md](docs/spikes/spike_c_template_coverage.md)): on 86% of 1,175 drawings the material cell prints `#`, and 17% use an older title-block layout | Read fields by position from the template config; read PARI's `# MATERIAL: …` notes block when a cell says `#` (the material and plating lookups went from skipping most drawings to checking them) |
+| **The title block was not where the data was.** Spike C ([docs/spikes/spike_c_template_coverage.md](../spikes/spike_c_template_coverage.md)): on 86% of 1,175 drawings the material cell prints `#`, and 17% use an older title-block layout | Read fields by position from the template config; read PARI's `# MATERIAL: …` notes block when a cell says `#` (the material and plating lookups went from skipping most drawings to checking them) |
 | **Stacked limits in the wrong order.** RQ-002 (inverted limits) failed 13 of 13 sheets: the PDF stores `+0.018` and `0` in any order | Stage 1 orders a stacked pair by where it is printed; real failures dropped to 4, all genuine |
 | **CAD trailing zeros.** LY-005 (decimals vs tolerance) failed 91 of 195 sheets, mostly `18.00` under ±0.2 | Trailing zeros under the general tolerance are not counted until PARI decides (rule parameter); two-decimal sizes like `15.21` still fail and are a question for PARI |
 | **Placeholders.** `---`, `--`, `.....` in cells | One placeholder rule: any run of dashes or dots is empty |
@@ -198,7 +198,7 @@ drawings, because real drawings break assumptions:
 every finding correct. On the 24 unseen drawings: **63 correct, 0 incorrect**. Code checks cost $0 and take
 seconds.
 
-**What is left.** 86 code/lookup rules, grouped in [docs/backlog/rules_to_build.md](docs/backlog/rules_to_build.md)
+**What is left.** 86 code/lookup rules, grouped in [docs/backlog/rules_to_build.md](../backlog/rules_to_build.md)
 by what they need (§6). Several "unsure" held-out findings are policy questions for PARI, not bugs (§6).
 
 ### 5.3 Raising the AI reviewers' accuracy
@@ -252,7 +252,7 @@ free.
 **Problem.** GD&T, datum and surface-finish rules need the symbols. The plan was to let the vision model read
 them.
 
-**What Spike D found** ([docs/spikes/spike_d_symbols.md](docs/spikes/spike_d_symbols.md)): with the image, the
+**What Spike D found** ([docs/spikes/spike_d_symbols.md](../spikes/spike_d_symbols.md)): with the image, the
 model found **0 of 32** finish marks, **0 of 9** datum flags and 16 of 39 GD&T frames, naming the right
 characteristic for only 5. What it did find came from the text, not the pixels.
 
@@ -300,7 +300,7 @@ IS 919; PARI's machining table is exactly IS 2102 medium, the fabrication table 
 **Problem.** Engineers want to ask "why is #4 flagged?" or "what are the limits of D12?". A free-form chatbot
 would answer confidently and sometimes wrongly.
 
-**What we decided** (a grilling session, then [ADR 0011](docs/adr/0011-qa-agent.md)):
+**What we decided** (a grilling session, then [ADR 0011](../adr/0011-qa-agent.md)):
 - One agent with **read-only tools** over the saved review (it never sees the image again), plus one write tool
   for feedback.
 - **Every answer is checked by code:** each citation (`[D12]`, `[F4]`, `[T:is919_fits H7 20]`) must exist, and
@@ -331,7 +331,7 @@ Owners are **proposed**; change them before we start.
 | 8 | **Rule packages P3 (vector geometry, 12) and P4 (features, views, symbols, 28)** | later | P4 needs new inputs; several may stay AI-reviewed |
 | 9 | **M5: API and dashboard** | Binjie | After the above |
 
-The 86 rules, with an owner column per rule, are in [docs/backlog/rules_to_build.md](docs/backlog/rules_to_build.md).
+The 86 rules, with an owner column per rule, are in [docs/backlog/rules_to_build.md](../backlog/rules_to_build.md).
 **Definition of done for a check:** unit tests; a sweep over the 200-drawing sample with every finding read;
 `di eval review --no-understand` still at 0 code false alarms; `di rules` shows it built; docs updated.
 

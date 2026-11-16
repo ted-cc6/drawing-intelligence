@@ -1,6 +1,6 @@
 # Oct 06 update and next steps
 
-> **Superseded by the [Oct 25 update](Oct_25_UpdateAndNextStep.md).** Kept as the original plan; §2 there says
+> **Superseded by the [Oct 25 update](2026-10-25_update_and_next_steps.md).** Kept as the original plan; §2 there says
 > what happened to every task below.
 
 *For: Mushahid Raza, Zhetao Zhang · From: Binjie Wang · 2026-10-06*

@@ -13,7 +13,7 @@ client LatentView Analytics). Pipeline:
 Built so far: intake, understand, and the review stage up to verify: the code reviewer (`checks`, 101 check
 functions) and three LLM reviewers (`review/llm_reviewer.py`, warnings only), and the report (`report/`:
 Excel checklist in the client's columns plus the annotated sheet), and the Q&A agent (`qa/`, `di ask`, ADR 0011).
-The latest team update is `Oct_25_UpdateAndNextStep.md`; the rules still to build are in
+The latest team update is `docs/updates/2026-10-25_update_and_next_steps.md`; the rules still to build are in
 `docs/backlog/rules_to_build.md`.
 The original notebooks live in `D:\Capstone\demo` (read-only reference;
 do not edit them).
