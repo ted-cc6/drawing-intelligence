@@ -1,5 +1,8 @@
 # Client data in data/ IS committed (ADR 0007). Only secrets, local tooling and session workspaces are ignored.
 
+# --- local telemetry: every test, eval and server run writes to it (binary, never shared) ---
+data/telemetry.db
+
 # --- secrets: never commit ---
 .env
 .env.*
