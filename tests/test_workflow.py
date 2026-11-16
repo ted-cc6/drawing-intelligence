@@ -5,7 +5,7 @@ import pytest
 
 from drawing_intelligence.extraction import ImagingConfig, extract_pdf
 from drawing_intelligence.graph import run_workflow
-from drawing_intelligence.llm import LLMClient, RawCompletion, load_registry
+from drawing_intelligence.llm import ImagePart, LLMClient, RawCompletion, load_registry
 from drawing_intelligence.storage import ResponseCache, Telemetry
 from drawing_intelligence.understanding import build_parts, understand_page
 
@@ -75,6 +75,17 @@ def test_message_has_prompt_images_and_exact_text(make_pdf, tmp_path):
     assert kinds[0] == "TextPart" and kinds.count("ImagePart") == 4  # full + 2 tiles + title block
     assert parts[-1].text.startswith("EXTRACTED TEXT (JSON):")  # type: ignore[union-attr]
     assert "matched_lines" not in parts[-1].text  # type: ignore[union-attr]
+
+
+def test_every_image_is_keyed_by_the_page_text_not_its_bytes(make_pdf, tmp_path):
+    # rendered PNG bytes differ between Linux, Windows and macOS; the page's exact text does not
+    out = tmp_path / "ex"
+    page = extract_pdf(make_pdf(), out, imaging=SMALL).pages[0]
+    keys = [p.key for p in build_parts(page, out) if isinstance(p, ImagePart)]
+    assert all(keys) and len(set(keys)) == 4
+    for f in out.rglob("*.png"):
+        f.write_bytes(b"another platform's render")
+    assert [p.key for p in build_parts(page, out) if isinstance(p, ImagePart)] == keys
 
 
 def test_message_leaves_out_what_stage_1_derives_by_code(make_pdf, tmp_path):

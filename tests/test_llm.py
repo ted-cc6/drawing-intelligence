@@ -152,3 +152,17 @@ def test_keyed_images_share_a_cache_entry_across_renders(registry, settings, tmp
     assert ask(b"windows", "page1:a.png").cached and len(fake.calls) == 1
     assert not ask(b"macos", None).cached and len(fake.calls) == 2
     assert "data:image/png" in fake.calls[1]["kwargs"]["messages"][0]["content"][1]["image_url"]["url"]
+
+
+def test_a_keyed_image_falls_back_to_its_bytes_entry_and_saves_it_under_its_key(registry, settings, tmp_path):
+    # replies cached before an image had a key are still found by its bytes, then saved under the key, so
+    # replaying a drawing on one platform makes its reply the one every platform finds
+    fake = FakeCompletion()
+    client, _ = _client(registry, settings, tmp_path, fake)
+
+    def ask(png: bytes, key: str | None):
+        return client.complete([TextPart("q"), ImagePart("a.png", png, key=key)], role="understand", node="n")
+
+    assert not ask(b"linux", None).cached  # cached by its bytes, as before keys
+    assert ask(b"linux", "page1:a.png").cached and len(fake.calls) == 1
+    assert ask(b"windows", "page1:a.png").cached and len(fake.calls) == 1

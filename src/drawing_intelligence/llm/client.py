@@ -35,7 +35,8 @@ class ImagePart:
     png: bytes
     # Stands in for the bytes in the cache key when set: rendered PNGs differ by platform (pymupdf on Linux,
     # Windows and macOS), so a caller whose images derive from content it can name gets one cache entry
-    # everywhere. Unset (the understanding call), the bytes are the key, as before.
+    # everywhere (understanding and the tagger key by the page's text). Unset, the bytes are the key; a keyed
+    # call that misses falls back to its bytes entry, made before keys, and saves it under the key.
     key: str | None = None
 
 
@@ -226,9 +227,15 @@ class LLMClient:
         level: str,
         key: str | None = None,
     ) -> LLMResponse:
-        key = key or self.cache_key(req)
+        by_bytes = self.cache_key(req)
+        key = key or by_bytes
 
         hit = self.cache.get(key) if self.cache else None
+        if hit is None and key != by_bytes and self.cache:
+            # a reply cached before its images had keys (by their bytes): saved under the key from now on
+            hit = self.cache.get(by_bytes)
+            if hit is not None:
+                self.cache.put(key, hit)
         if hit is not None:
             resp = LLMResponse(**{**hit, "cached": True})
             self._record(spec, node, resp, billed=0.0, status="ok")

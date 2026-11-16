@@ -6,6 +6,7 @@ re-read numbers from pixels. A reply that fails schema validation is retried onc
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from importlib import resources
@@ -42,6 +43,20 @@ _EXCLUDE_FROM_TEXT: dict[str, Any] = {
 }
 
 
+def image_keys(page: PageExtraction) -> dict[str, str]:
+    """A cache key for each of the page's images, by file: a hash of the page's exact text, the file name and
+    the DPI. The images are renders of that text, and pymupdf's PNG bytes differ between Linux, Windows and
+    macOS, so a reply cached on one platform is found on every other."""
+    imgs = page.images
+    assert imgs is not None
+    text = json.dumps(
+        page.model_dump(mode="json", exclude=_EXCLUDE_FROM_TEXT), sort_keys=True, ensure_ascii=False
+    )
+    page_key = hashlib.sha256(text.encode()).hexdigest()
+    files = [imgs.full, *(t.file for t in imgs.tiles), *([imgs.title_block] if imgs.title_block else [])]
+    return {f: f"{page_key}:{Path(f).name}:{imgs.dpi}" for f in files}
+
+
 def image_caption(page: PageExtraction, file: str) -> str:
     imgs = page.images
     assert imgs is not None
@@ -62,9 +77,13 @@ def build_parts(page: PageExtraction, root: Path, extra: str = "") -> list[Part]
         raise ValueError(f"page {page.page_number} has no images; run extraction with an output folder")
     imgs = page.images
     files = [imgs.full, *(t.file for t in imgs.tiles), *([imgs.title_block] if imgs.title_block else [])]
+    keys = image_keys(page)
     parts: list[Part] = [TextPart(PROMPT + extra)]
     for f in files:
-        parts += [TextPart(image_caption(page, f)), ImagePart(Path(f).name, (root / f).read_bytes())]
+        parts += [
+            TextPart(image_caption(page, f)),
+            ImagePart(Path(f).name, (root / f).read_bytes(), key=keys[f]),
+        ]
     text = page.model_dump(mode="json", exclude=_EXCLUDE_FROM_TEXT)
     parts.append(TextPart("EXTRACTED TEXT (JSON):\n" + json.dumps(text, ensure_ascii=False)))
     return parts
